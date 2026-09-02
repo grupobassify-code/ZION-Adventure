@@ -37,6 +37,8 @@ import {
   VARIABLE_JUMP_FALL_MULTIPLIER,
 } from './constants';
 import { buildLevel, LEVEL_CONFIGS } from './levelData';
+import { generateOnlyUpChunk } from './onlyUpGenerator';
+import { getOnlyUpRecord, saveOnlyUpRecord } from './saveManager';
 import {
   Boss,
   Checkpoint,
@@ -129,6 +131,21 @@ export class GameEngine {
   public bossIntroBanner: { active: boolean; timer: number; title: string; subtitle: string } | null = null;
   public levelIntroBanner: { active: boolean; timer: number; title: string; subtitle: string; act: number; zoneName: string; themeColor: string } | null = null;
 
+  // Kronos Only Up Mode
+  public isOnlyUpMode: boolean = false;
+  public cameraY: number = 0;
+  public onlyUpLavaY: number = 195;
+  public onlyUpLavaSpeed: number = 0.32;
+  public onlyUpAltitude: number = 0;
+  public onlyUpMaxAltitude: number = 0;
+  public onlyUpRecord: number = 0;
+  public onlyUpIsGameOver: boolean = false;
+  public onlyUpTimeSurvived: number = 0;
+  public onlyUpActiveSlotId: number = 0;
+  public onlyUpGeneratedTopY: number = 140;
+  public onlyUpNewRecordAchieved: boolean = false;
+  public onlyUpNextEnemyId: number = 2000;
+
   public stats: GameStats = {
     crystalsCollected: 0,
     totalCrystals: 0,
@@ -216,6 +233,9 @@ export class GameEngine {
   }
 
   public loadLevel(index: number, showLore = true, fromCheckpoint = false) {
+    this.isOnlyUpMode = false;
+    this.cameraY = 0;
+    this.onlyUpIsGameOver = false;
     this.levelIndex = Math.max(0, Math.min(LEVEL_CONFIGS.length - 1, index));
     const lvl = buildLevel(this.levelIndex);
 
@@ -345,9 +365,94 @@ export class GameEngine {
     this.notifyState();
   }
 
+  public startOnlyUpMode(slotId = 0) {
+    this.isOnlyUpMode = true;
+    this.onlyUpActiveSlotId = slotId;
+    this.onlyUpRecord = getOnlyUpRecord(slotId);
+    this.onlyUpAltitude = 0;
+    this.onlyUpMaxAltitude = 0;
+    this.onlyUpIsGameOver = false;
+    this.onlyUpNewRecordAchieved = false;
+    this.onlyUpTimeSurvived = 0;
+    this.onlyUpLavaY = 195;
+    this.onlyUpLavaSpeed = 0.32;
+    this.onlyUpGeneratedTopY = 140;
+    this.onlyUpNextEnemyId = 2000;
+
+    this.levelIndex = 0;
+    this.arenaActive = false;
+    this.boss = null;
+    this.bossDefeated = false;
+    this.isLevelWon = false;
+    this.isGameOver = false;
+    this.isPaused = false;
+    this.inCutscene = false;
+
+    this.player.x = 145;
+    this.player.y = 136;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.facing = 1;
+    this.player.inv = 60;
+    this.player.shieldEnergy = 100;
+    this.player.maxShieldEnergy = 100;
+    this.player.isShieldBroken = false;
+    this.player.energy = 60;
+    this.lives = this.maxLives;
+    this.daggers = DAGGER_MAX_AMMO;
+
+    this.projectiles = [];
+    this.particles = [];
+    this.floatingTexts = [];
+    this.meleeEffects = [];
+    this.specialEffects = [];
+    this.cameraX = 0;
+    this.cameraY = 0;
+
+    // Solid base foundation
+    this.platforms = [
+      { x: 26, y: 155, w: 268, h: 25, kind: 'ground' },
+    ];
+    this.hazards = [];
+    this.crystals = [];
+    this.heals = [];
+    this.enemies = [];
+    this.checkpoints = [];
+    this.landmarks = [];
+    this.nodes = [];
+    this.goal = null;
+
+    // Initial climbing platforms
+    const initialChunk = generateOnlyUpChunk(140, -460, this.onlyUpNextEnemyId);
+    this.platforms.push(...initialChunk.platforms);
+    this.hazards.push(...initialChunk.hazards);
+    this.crystals.push(...initialChunk.crystals);
+    this.heals.push(...initialChunk.heals);
+    this.enemies.push(...initialChunk.enemies);
+    this.onlyUpGeneratedTopY = -460;
+    this.onlyUpNextEnemyId += 100;
+
+    this.levelIntroBanner = {
+      active: true,
+      timer: 180,
+      title: 'KRONOS ONLY UP',
+      subtitle: '¡Sube sin parar y escapa de la lava cuántica!',
+      act: 1,
+      zoneName: 'MODO ASCENSO INFINITO',
+      themeColor: '#f97316',
+    };
+
+    sound.setMusicTrack('lavacliffAct1');
+    this.notifyState();
+  }
+
   public syncMusic() {
     if (this.inCutscene || this.isPaused) {
       sound.stopMusic();
+      return;
+    }
+    if (this.isOnlyUpMode) {
+      sound.setMusicTrack('lavacliffAct1');
       return;
     }
     const currentConfig = LEVEL_CONFIGS[this.levelIndex];
@@ -467,6 +572,11 @@ export class GameEngine {
       return;
     }
 
+    if (this.isOnlyUpMode && this.onlyUpIsGameOver) {
+      this.updateEffects();
+      return;
+    }
+
     this.time++;
     if (this.time % 60 === 0) {
       this.stats.elapsedTime++;
@@ -478,6 +588,14 @@ export class GameEngine {
 
     if (this.settings.infiniteEnergy) {
       this.player.energy = this.player.maxEnergy;
+    }
+
+    if (this.isOnlyUpMode) {
+      this.updateOnlyUp();
+      if (this.onlyUpIsGameOver) {
+        this.updateEffects();
+        return;
+      }
     }
 
     this.updatePlayerMovement(inputs);
@@ -607,9 +725,13 @@ export class GameEngine {
 
     // Resolve Horizontal Movement
     p.x += p.vx;
-    const config = LEVEL_CONFIGS[this.levelIndex];
-    const worldW = config.worldWidth;
-    p.x = Math.max(0, Math.min(worldW - p.w, p.x));
+    if (this.isOnlyUpMode) {
+      p.x = Math.max(26, Math.min(294 - p.w, p.x));
+    } else {
+      const config = LEVEL_CONFIGS[this.levelIndex];
+      const worldW = config.worldWidth;
+      p.x = Math.max(0, Math.min(worldW - p.w, p.x));
+    }
 
     // Resolve Wall Collisions
     const walls = [...this.platforms];
@@ -656,8 +778,8 @@ export class GameEngine {
       }
     }
 
-    // Pit fall check
-    if (p.y > GAME_HEIGHT + 40) {
+    // Pit fall check (Only in campaign levels; Only Up mode handles falls via the rising lava)
+    if (!this.isOnlyUpMode && p.y > GAME_HEIGHT + 40) {
       this.handlePlayerDamage('¡Caíste al abismo!');
     }
 
@@ -1732,8 +1854,19 @@ export class GameEngine {
       if (cp) {
         cp.active = true;
         this.spawnPoint = { ...cp.spawn };
+        this.cpSavedCrystals = new Set(this.collectedCrystalIndices);
+        this.cpSavedHeals = new Set(this.collectedHealIndices);
+        this.cpSavedSecrets = new Set(this.collectedSecretIndices);
+        this.cpSavedNodes = new Set(this.collectedNodeIndices);
+        this.cpSavedEnemies = new Set(this.defeatedEnemyIndices);
+        if (this.onCheckpoint) {
+          this.onCheckpoint(cp);
+        }
       }
-      this.lives = Math.min(this.maxLives, this.lives + 1);
+      this.lives = this.maxLives;
+      this.player.shieldEnergy = this.player.maxShieldEnergy;
+      this.player.isShieldBroken = false;
+      this.daggers = DAGGER_MAX_AMMO;
       sound.playSfx('shieldBreak');
       sound.playSfx('bossWarning');
       this.syncMusic();
@@ -1744,7 +1877,7 @@ export class GameEngine {
         title: b.title || b.name,
         subtitle: b.subtitle || 'Duelo Decisivo',
       };
-      this.addFloatingText(this.player.x, this.player.y - 20, '⚔️ ¡ARENA SELLADA!', '#ef4444');
+      this.addFloatingText(this.player.x, this.player.y - 20, '⚔️ ¡ARENA SELLADA! CHECKPOINT ACTIVO', '#ef4444');
     }
 
     if (!this.arenaActive || this.bossDefeated) return;
@@ -1791,21 +1924,43 @@ export class GameEngine {
       const speed = b.shield ? 0.7 : b.phase === 1 ? 1.0 : b.phase === 2 ? 1.35 : 1.7;
       
       if (b.state === 'idle') {
-        b.vx += Math.sign(this.player.x - b.x) * 0.035;
+        b.vx += Math.sign(this.player.x - b.x) * 0.04;
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
 
+        // Boss 1 Continuous Rapid Harassment in Idle (Relentless Attacks)
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          const count = b.shield ? 1 : b.phase === 3 ? 3 : 2;
+          for (let k = 0; k < count; k++) {
+            this.projectiles.push({
+              x: b.x + (b.facing > 0 ? b.w : -8),
+              y: b.y + 6,
+              w: 7,
+              h: 7,
+              vx: b.facing * (2.2 + k * 0.35),
+              vy: (k - (count - 1) / 2) * 0.5,
+              life: 140,
+              isHero: false,
+              kind: b.phase === 3 ? 'homing' : 'plasma',
+              homingTimer: b.phase === 3 ? 35 : 0,
+            });
+          }
+          sound.playSfx('bossShot');
+          b.shotTimer = b.phase === 3 ? 35 : 55;
+        }
+
         b.stateTimer--;
         if (b.stateTimer <= 0) {
-          // Choose next move: Slam, Cyber Laser, or Barrage
+          // Rapidly choose next special move: Cyber Laser, Ground Slam, or Plasma Barrage
           const roll = Math.random();
-          if (roll < 0.4) {
+          if (roll < 0.35) {
             b.state = 'charging';
-            b.stateTimer = 40;
-            b.telegraphTimer = 40;
+            b.stateTimer = 35;
+            b.telegraphTimer = 35;
             sound.playSfx('laserCharge');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚠️ ¡CARGANDO RAYO!', '#f43f5e');
-          } else if (roll < 0.75) {
+          } else if (roll < 0.70) {
             b.state = 'slamming';
             b.vy = -6.8;
             b.thrusterFlame = 35;
@@ -1813,7 +1968,9 @@ export class GameEngine {
             this.createBurst(b.x + b.w / 2, b.y + b.h, 12, '#06b6d4');
           } else {
             b.state = 'barrage' as unknown as typeof b.state;
-            b.stateTimer = 50;
+            b.stateTimer = 45;
+            sound.playSfx('bossWarning');
+            this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚠️ ¡RÁFAGA DE PLASMA!', '#06b6d4');
           }
         }
       } else if (b.state === 'charging') {
@@ -1828,7 +1985,7 @@ export class GameEngine {
             active: true,
             charging: false,
             chargeTimer: 0,
-            maxCharge: 40,
+            maxCharge: 35,
             dir: b.facing,
             x: b.facing > 0 ? b.x + b.w : b.x - 280,
             y: b.y + 6,
@@ -1873,12 +2030,38 @@ export class GameEngine {
         if (b.stateTimer <= 0) {
           b.laser = undefined;
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 35 : 60;
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       } else if (b.state === 'slamming') {
         // Rising and falling slam
         if (b.vy > 0) {
           b.vy += 0.45; // Fast descent
+        }
+      } else if ((b.state as string) === 'barrage') {
+        b.stateTimer--;
+        b.vx *= 0.6;
+        if (b.stateTimer % 9 === 0 && b.stateTimer > 8) {
+          sound.playSfx('bossShot');
+          this.screenShake = 3;
+          const count = b.phase === 3 ? 3 : 2;
+          for (let k = 0; k < count; k++) {
+            this.projectiles.push({
+              x: b.x + (b.facing > 0 ? b.w : -8),
+              y: b.y + 4 + k * 8,
+              w: 8,
+              h: 7,
+              vx: b.facing * (2.9 + k * 0.35),
+              vy: (k - (count - 1) / 2) * 0.6,
+              life: 140,
+              isHero: false,
+              kind: b.phase === 3 ? 'homing' : 'plasma',
+              homingTimer: b.phase === 3 ? 35 : 0,
+            });
+          }
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       }
 
@@ -1909,39 +2092,14 @@ export class GameEngine {
           }
           this.addFloatingText(b.x + b.w / 2, b.y - 12, '💥 ¡IMPACTO SÍSMICO!', '#06b6d4');
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 30 : 50;
+          b.stateTimer = b.phase === 3 ? 18 : 26;
         }
         b.y = 148 - b.h;
         b.vy = 0;
       }
 
-      // Normal Projectiles
-      if (!b.shield && b.state === 'idle') {
-        b.shotTimer--;
-        if (b.shotTimer === 20) {
-          b.telegraphTimer = 20;
-          sound.playSfx('bossWarning');
-        }
-        if (b.shotTimer <= 0) {
-          const count = b.phase === 3 ? 4 : b.phase === 2 ? 3 : 2;
-          for (let k = 0; k < count; k++) {
-            this.projectiles.push({
-              x: b.x + (b.facing > 0 ? b.w : -8),
-              y: b.y + 6,
-              w: 7,
-              h: 7,
-              vx: b.facing * (2.0 + k * 0.35),
-              vy: (k - (count - 1) / 2) * 0.6,
-              life: 150,
-              isHero: false,
-              kind: b.phase === 3 ? 'homing' : 'plasma',
-              homingTimer: b.phase === 3 ? 45 : 0,
-            });
-          }
-          sound.playSfx('bossShot');
-          b.shotTimer = b.phase === 3 ? 45 : 75;
-        }
-      }
+      // Boss 1 relentless ground slam finish
+      // (continuous projectiles handled above in idle)
     } else if (b.name.includes('Kunoichi')) {
       // --- BOSS 2: MAESTRA KUNOICHI ROSA ---
       const speed = b.phase === 1 ? 1.4 : b.phase === 2 ? 1.9 : 2.4;
@@ -1951,27 +2109,47 @@ export class GameEngine {
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
 
+        // Continuous Sakura Shuriken Harassment in Idle (Relentless Attacks)
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          sound.playSfx('bossShot');
+          const angle = Math.atan2(this.player.y - b.y, this.player.x - b.x);
+          this.projectiles.push({
+            x: b.x + (b.facing > 0 ? b.w : -6),
+            y: b.y + 8,
+            w: 8,
+            h: 8,
+            vx: Math.cos(angle) * 3.4,
+            vy: Math.sin(angle) * 3.4,
+            life: 120,
+            isHero: false,
+            kind: 'sakuraShuriken',
+            angle: 0,
+          });
+          b.shotTimer = b.phase === 3 ? 28 : 42;
+        }
+
         b.stateTimer--;
         if (b.stateTimer <= 0) {
           const roll = Math.random();
-          if (roll < 0.35) {
+          if (roll < 0.4) {
             // Katana Shadow Dash
             b.state = 'dash';
             b.stateTimer = 22;
             b.telegraphTimer = 22;
             sound.playSfx('bossWarning');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚠️ ¡ESTOCADA LUNAR!', '#f43f5e');
-          } else if (roll < 0.7) {
+          } else if (roll < 0.72) {
             // Sakura Teleport
             b.state = 'teleport';
-            b.stateTimer = 20;
+            b.stateTimer = 18;
             this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 22, '#f472b6');
             sound.playSfx('teleport');
           } else {
             // Sakura Fan Shurikens
             b.state = 'charging';
-            b.stateTimer = 25;
-            b.telegraphTimer = 25;
+            b.stateTimer = 22;
+            b.telegraphTimer = 22;
           }
         }
       } else if (b.state === 'dash') {
@@ -2013,7 +2191,7 @@ export class GameEngine {
 
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 30 : 50;
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       } else if (b.state === 'teleport') {
         b.stateTimer--;
@@ -2028,7 +2206,7 @@ export class GameEngine {
         }
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = 25;
+          b.stateTimer = 14;
         }
       } else if (b.state === 'charging') {
         b.stateTimer--;
@@ -2053,7 +2231,7 @@ export class GameEngine {
           }
           sound.playSfx('bossShot');
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 40 : 65;
+          b.stateTimer = b.phase === 3 ? 18 : 30;
         }
       }
 
@@ -2071,8 +2249,8 @@ export class GameEngine {
       // Phase 3 Clones Illusion
       if (b.phase === 3 && (!b.clones || b.clones.length === 0)) {
         b.clones = [
-          { x: b.x - 40, y: b.y, w: b.w, h: b.h, vx: 0, vy: 0, alpha: 0.65, attackTimer: 60, action: 'shuriken' },
-          { x: b.x + 40, y: b.y, w: b.w, h: b.h, vx: 0, vy: 0, alpha: 0.65, attackTimer: 90, action: 'slash' },
+          { x: b.x - 40, y: b.y, w: b.w, h: b.h, vx: 0, vy: 0, alpha: 0.65, attackTimer: 50, action: 'shuriken' },
+          { x: b.x + 40, y: b.y, w: b.w, h: b.h, vx: 0, vy: 0, alpha: 0.65, attackTimer: 75, action: 'slash' },
         ];
         this.addFloatingText(b.x + b.w / 2, b.y - 25, '🌸 ¡ILUSIÓN DE SOMBRAS!', '#e879f9');
       }
@@ -2086,14 +2264,14 @@ export class GameEngine {
               y: clone.y + 6,
               w: 7,
               h: 7,
-              vx: b.facing * 2.5,
+              vx: b.facing * 2.6,
               vy: (Math.random() - 0.5) * 0.8,
               life: 120,
               isHero: false,
               kind: 'sakuraShuriken',
               angle: 0,
             });
-            clone.attackTimer = 85;
+            clone.attackTimer = 65;
           }
         }
       }
@@ -2102,9 +2280,27 @@ export class GameEngine {
       const speed = b.phase === 1 ? 0.9 : b.phase === 2 ? 1.3 : 1.7;
 
       if (b.state === 'idle') {
-        b.vx += Math.sign(this.player.x - b.x) * 0.03;
+        b.vx += Math.sign(this.player.x - b.x) * 0.035;
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
+
+        // Continuous Magma Fireballs in Idle (Relentless Attacks)
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          sound.playSfx('lava');
+          this.projectiles.push({
+            x: b.x + (b.facing > 0 ? b.w : -8),
+            y: b.y + 12,
+            w: 9,
+            h: 9,
+            vx: b.facing * 3.0,
+            vy: -0.8 + (Math.random() - 0.5) * 0.8,
+            life: 120,
+            isHero: false,
+            kind: 'magmaMeteor',
+          });
+          b.shotTimer = b.phase === 3 ? 26 : 42;
+        }
 
         b.stateTimer--;
         if (b.stateTimer <= 0) {
@@ -2116,18 +2312,18 @@ export class GameEngine {
             b.thrusterFlame = 40;
             sound.playSfx('jump');
             this.createBurst(b.x + b.w / 2, b.y + b.h, 15, '#ea580c');
-          } else if (roll < 0.75) {
+          } else if (roll < 0.72) {
             // Magma Charge (Parriable for Stagger!)
             b.state = 'dash';
-            b.stateTimer = 35;
-            b.telegraphTimer = 30;
+            b.stateTimer = 30;
+            b.telegraphTimer = 25;
             sound.playSfx('bossWarning');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚠️ ¡EMBESTIDA DE MAGMA!', '#ea580c');
           } else {
             // Volcanic Meteor Shower & Fireballs
             b.state = 'charging';
-            b.stateTimer = 45;
-            b.telegraphTimer = 40;
+            b.stateTimer = 38;
+            b.telegraphTimer = 35;
             sound.playSfx('laserCharge');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '🌋 ¡LLUVIA DE METEOROS!', '#f97316');
           }
@@ -2170,7 +2366,7 @@ export class GameEngine {
 
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 30 : 55;
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       } else if (b.state === 'charging') {
         b.stateTimer--;
@@ -2194,7 +2390,7 @@ export class GameEngine {
             });
           }
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 40 : 65;
+          b.stateTimer = b.phase === 3 ? 20 : 32;
         }
       }
 
@@ -2220,7 +2416,7 @@ export class GameEngine {
           }
           this.addFloatingText(b.x + b.w / 2, b.y - 12, '💥 ¡TERREMOTO VOLCÁNICO!', '#ea580c');
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 25 : 45;
+          b.stateTimer = b.phase === 3 ? 16 : 26;
         }
         b.y = 148 - b.h;
         b.vy = 0;
@@ -2233,6 +2429,24 @@ export class GameEngine {
         b.vx += Math.sign(this.player.x - b.x) * 0.035;
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
+
+        // Continuous Cursed Orbs in Idle (Relentless Attacks)
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          sound.playSfx('bossShot');
+          this.projectiles.push({
+            x: b.x + (b.facing > 0 ? b.w : -8),
+            y: b.y + 8,
+            w: 8,
+            h: 8,
+            vx: b.facing * 3.0,
+            vy: (Math.random() - 0.5) * 0.8,
+            life: 130,
+            isHero: false,
+            kind: 'curseOrb',
+          });
+          b.shotTimer = b.phase === 3 ? 26 : 40;
+        }
 
         // Golden aura dust
         if (this.time % 3 === 0) {
@@ -2254,18 +2468,18 @@ export class GameEngine {
           if (roll < 0.3) {
             // Mummy Rush Dash (Parriable!)
             b.state = 'dash';
-            b.stateTimer = 28;
-            b.telegraphTimer = 25;
+            b.stateTimer = 25;
+            b.telegraphTimer = 22;
             sound.playSfx('bossWarning');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚠️ ¡EMBESTIDA DEL FARAÓN!', '#f59e0b');
-          } else if (roll < 0.55) {
+          } else if (roll < 0.58) {
             // Sand Vortex & Sandstorm
             b.state = 'charging';
-            b.stateTimer = 40;
-            b.telegraphTimer = 35;
+            b.stateTimer = 35;
+            b.telegraphTimer = 30;
             sound.playSfx('laserCharge');
             this.addFloatingText(b.x + b.w / 2, b.y - 14, '🌪️ ¡VÓRTICE DE ARENAS!', '#d97706');
-          } else if (roll < 0.8) {
+          } else if (roll < 0.82) {
             // Sarcophagus Jump Slam & Curse Shockwave
             b.state = 'slamming';
             b.vy = -6.8;
@@ -2275,7 +2489,7 @@ export class GameEngine {
           } else {
             // Pharaonic Teleport
             b.state = 'teleport';
-            b.stateTimer = 20;
+            b.stateTimer = 18;
             this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#d97706');
             sound.playSfx('teleport');
           }
@@ -2319,7 +2533,7 @@ export class GameEngine {
 
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 25 : 50;
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       } else if (b.state === 'charging') {
         b.stateTimer--;
@@ -2361,7 +2575,7 @@ export class GameEngine {
           }
 
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 35 : 60;
+          b.stateTimer = b.phase === 3 ? 20 : 32;
         }
       } else if (b.state === 'teleport') {
         b.stateTimer--;
@@ -2375,7 +2589,7 @@ export class GameEngine {
         }
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = 25;
+          b.stateTimer = 14;
         }
       }
 
@@ -2401,7 +2615,7 @@ export class GameEngine {
           }
           this.addFloatingText(b.x + b.w / 2, b.y - 12, '💥 ¡TERREMOTO DE LAS ARENAS!', '#f59e0b');
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 25 : 45;
+          b.stateTimer = b.phase === 3 ? 16 : 26;
         }
         b.y = 148 - b.h;
         b.vy = 0;
@@ -2429,7 +2643,7 @@ export class GameEngine {
         }
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = 40;
+          b.stateTimer = 25;
           b.inv = 20;
           this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡KRONOS REINICIA SISTEMAS!', '#06b6d4');
         }
@@ -2438,17 +2652,35 @@ export class GameEngine {
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
 
+        // Continuous Chrono-Pulse fire in Idle (Relentless Attacks)
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          sound.playSfx('bossShot');
+          this.projectiles.push({
+            x: b.x + (b.facing > 0 ? b.w : -8),
+            y: b.y + 14,
+            w: 8,
+            h: 8,
+            vx: b.facing * 3.2,
+            vy: (Math.random() - 0.5) * 0.9,
+            life: 120,
+            isHero: false,
+            kind: 'plasma',
+          });
+          b.shotTimer = b.phase === 3 ? 24 : 38;
+        }
+
         b.stateTimer--;
         if (b.stateTimer <= 0) {
           const roll = Math.random();
-          if (roll < 0.3) {
+          if (roll < 0.32) {
             // Mega Chrono-Laser Cannon Sweep
             b.state = 'charging';
-            b.stateTimer = 35;
-            b.telegraphTimer = 35;
+            b.stateTimer = 30;
+            b.telegraphTimer = 30;
             sound.playSfx('laserCharge');
             this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚠️ ¡CARGA DE CAÑÓN CHRONO-LÁSER!', '#f43f5e');
-          } else if (roll < 0.6) {
+          } else if (roll < 0.62) {
             // High-Altitude Titan Drop Slam
             b.state = 'slamming';
             b.vy = -7.5;
@@ -2456,18 +2688,18 @@ export class GameEngine {
             sound.playSfx('jump');
             this.createBurst(b.x + b.w / 2, b.y + b.h, 20, '#06b6d4');
             this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚡ ¡SALTO PROPULSADO TITÁNICO!', '#06b6d4');
-          } else if (roll < 0.82) {
+          } else if (roll < 0.84) {
             // Homing Plasma Missile Barrage
             b.state = 'missileBarrage';
-            b.stateTimer = 45;
-            b.telegraphTimer = 25;
+            b.stateTimer = 40;
+            b.telegraphTimer = 22;
             sound.playSfx('bossWarning');
             this.addFloatingText(b.x + b.w / 2, b.y - 18, '🚀 ¡DESPLIEGUE DE MISILES RASTREADORES!', '#ea580c');
           } else {
             // Overheat High-Output EMP Blast -> Triggers Overheated Vulnerability!
             b.state = 'emp';
-            b.stateTimer = 30;
-            b.telegraphTimer = 30;
+            b.stateTimer = 28;
+            b.telegraphTimer = 28;
             sound.playSfx('special');
             this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚡ ¡DESCARGA EMP TOTAL!', '#a855f7');
           }
@@ -2477,20 +2709,20 @@ export class GameEngine {
         b.stateTimer--;
         if (b.stateTimer <= 0) {
           b.state = 'laser';
-          b.stateTimer = b.phase === 3 ? 45 : 35;
+          b.stateTimer = b.phase === 3 ? 40 : 32;
           sound.playSfx('laserFire');
           this.screenShake = 8;
           b.laser = {
             active: true,
             charging: false,
             chargeTimer: 0,
-            maxCharge: 35,
+            maxCharge: 30,
             dir: b.facing,
             x: b.facing > 0 ? b.x + b.w : b.x - 340,
             y: b.y + 12,
             length: 340,
             thickness: 18,
-            duration: b.phase === 3 ? 45 : 35,
+            duration: b.phase === 3 ? 40 : 32,
           };
         }
       } else if (b.state === 'laser') {
@@ -2525,11 +2757,11 @@ export class GameEngine {
         if (b.stateTimer <= 0) {
           b.laser = undefined;
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 25 : 50;
+          b.stateTimer = b.phase === 3 ? 18 : 28;
         }
       } else if (b.state === 'missileBarrage') {
         b.stateTimer--;
-        if (b.stateTimer % 10 === 0 && b.stateTimer > 10) {
+        if (b.stateTimer % 10 === 0 && b.stateTimer > 8) {
           const missileCount = b.phase === 3 ? 3 : 2;
           for (let m = 0; m < missileCount; m++) {
             const angleOffset = (m - (missileCount - 1) / 2) * 0.4;
@@ -2550,7 +2782,7 @@ export class GameEngine {
         }
         if (b.stateTimer <= 0) {
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 30 : 55;
+          b.stateTimer = b.phase === 3 ? 20 : 30;
         }
       } else if (b.state === 'emp') {
         b.stateTimer--;
@@ -2575,7 +2807,7 @@ export class GameEngine {
           }
           // Enter Overheated vulnerable state!
           b.state = 'overheat';
-          b.stateTimer = 130;
+          b.stateTimer = 110;
           this.addFloatingText(b.x + b.w / 2, b.y - 28, '🔥 ¡NÚCLEO SOBRECALENTADO! ¡VULNERABLE (DAÑO x2)!', '#f97316');
         }
       } else if (b.state === 'slamming') {
@@ -2606,10 +2838,18 @@ export class GameEngine {
           }
           this.addFloatingText(b.x + b.w / 2, b.y - 12, '💥 ¡COLAPSO TEMPORAL TITÁNICO!', '#06b6d4');
           b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 20 : 40;
+          b.stateTimer = b.phase === 3 ? 16 : 26;
         }
         b.y = 148 - b.h;
         b.vy = 0;
+      }
+    }
+
+    // Universal Relentless Boss Watchdog: Ensures the boss NEVER goes passive or stops attacking
+    if (!b.isStaggered && b.state !== 'overheat') {
+      if (b.stateTimer <= 0 && b.state !== 'slamming') {
+        b.state = 'idle';
+        b.stateTimer = 1;
       }
     }
 
@@ -3044,14 +3284,11 @@ export class GameEngine {
     this.addFloatingText(this.player.x, this.player.y - 15, msg, '#f43f5e');
 
     if (this.lives <= 0) {
-      if (this.levelIndex === 10) {
-        sound.playSfx('bossExplosion');
-        this.addFloatingText(this.player.x, this.player.y - 25, '⚠️ ¡LÍNEA TEMPORAL FALLIDA! REINICIANDO KRONOS-Ω...', '#ef4444');
-        this.lives = this.maxLives;
-        this.loadLevel(10, false);
-        return;
+      if (this.isOnlyUpMode) {
+        this.onlyUpIsGameOver = true;
+      } else {
+        this.handlePlayerRespawn();
       }
-      this.handlePlayerRespawn();
     }
     this.notifyState();
   }
@@ -3062,9 +3299,41 @@ export class GameEngine {
     this.player.y = this.spawnPoint.y;
     this.player.vx = 0;
     this.player.vy = 0;
-    this.player.inv = 60;
+    this.player.inv = 90;
+    this.player.shieldEnergy = this.player.maxShieldEnergy;
+    this.player.isShieldBroken = false;
     this.daggers = DAGGER_MAX_AMMO;
-    this.player.energy = Math.max(50, this.player.energy);
+    this.player.energy = Math.max(60, this.player.energy);
+
+    // If player died during a boss arena battle, reset the boss state for an immediate, fair retry inside the arena
+    if (this.arenaActive && this.boss && this.boss.alive) {
+      this.boss.hp = this.boss.maxHp;
+      this.boss.phase = 1;
+      this.boss.state = 'idle';
+      this.boss.stateTimer = 35;
+      this.boss.shotTimer = 35;
+      this.boss.vx = 0;
+      this.boss.vy = 0;
+      this.boss.isStaggered = false;
+      this.boss.stagger = 0;
+      this.boss.laser = undefined;
+      this.boss.shockwaves = [];
+      this.boss.inv = 0;
+      if (this.boss.clones) this.boss.clones = [];
+      // Restore shield nodes for Guardián Neón (Boss 1)
+      if (this.levelIndex <= 1) {
+        this.boss.shield = true;
+        this.nodes.forEach((n) => (n.taken = false));
+      }
+      // Restore shield nodes for Kronos-Ω (Boss 5)
+      if (this.levelIndex === 10) {
+        this.boss.shield = true;
+        this.nodes.forEach((n) => (n.taken = false));
+      }
+      this.addFloatingText(this.spawnPoint.x, this.spawnPoint.y - 20, '⚡ ¡Zion Reaparece en la Arena del Jefe!', '#38bdf8');
+    } else {
+      this.addFloatingText(this.spawnPoint.x, this.spawnPoint.y - 20, '⚡ ¡Zion Reaparece en Checkpoint!', '#38bdf8');
+    }
 
     // Revert/sync to checkpoint saved state so everything collected up to the checkpoint remains collected
     this.collectedCrystalIndices = new Set(this.cpSavedCrystals);
@@ -3092,8 +3361,6 @@ export class GameEngine {
 
     // Clear hazardous hostile projectiles near respawn point
     this.projectiles = this.projectiles.filter((proj) => proj.isHero);
-
-    this.addFloatingText(this.spawnPoint.x, this.spawnPoint.y - 20, '⚡ ¡Zion Reaparece en Checkpoint!', '#38bdf8');
   }
 
   private handleLevelWin() {
@@ -3212,10 +3479,100 @@ export class GameEngine {
   }
 
   private updateCamera() {
+    if (this.isOnlyUpMode) {
+      const targetCameraY = this.player.y - GAME_HEIGHT * 0.58;
+      this.cameraY += (targetCameraY - this.cameraY) * 0.14;
+      this.cameraX = 0;
+      return;
+    }
     const config = LEVEL_CONFIGS[this.levelIndex];
     const targetCameraX = this.player.x - GAME_WIDTH * 0.38;
     this.cameraX += (targetCameraX - this.cameraX) * 0.12;
     this.cameraX = Math.max(0, Math.min(config.worldWidth - GAME_WIDTH, this.cameraX));
+  }
+
+  private updateOnlyUp() {
+    if (this.onlyUpIsGameOver) return;
+
+    this.onlyUpTimeSurvived += 1 / 60;
+
+    // Track Altitude (meters climbed, starting at y = 140)
+    const currentMeters = Math.max(0, Math.floor((140 - this.player.y) / 2));
+    if (currentMeters > this.onlyUpAltitude) {
+      this.onlyUpAltitude = currentMeters;
+    }
+    if (this.onlyUpAltitude > this.onlyUpMaxAltitude) {
+      this.onlyUpMaxAltitude = this.onlyUpAltitude;
+    }
+
+    // High score check
+    if (this.onlyUpAltitude > this.onlyUpRecord) {
+      if (!this.onlyUpNewRecordAchieved && this.onlyUpRecord > 0) {
+        this.onlyUpNewRecordAchieved = true;
+        sound.playSfx('secret');
+        this.addFloatingText(this.player.x, this.player.y - 20, '👑 ¡NUEVO RÉCORD DE ALTURA!', '#fbbf24');
+      }
+      this.onlyUpRecord = this.onlyUpAltitude;
+      saveOnlyUpRecord(this.onlyUpActiveSlotId, this.onlyUpRecord);
+    }
+
+    // Rising Lava Dynamics: speed increases progressively as you climb higher
+    let speed = 0.32;
+    if (this.onlyUpAltitude > 100) speed = 0.40;
+    if (this.onlyUpAltitude > 250) speed = 0.50;
+    if (this.onlyUpAltitude > 500) speed = 0.62;
+    if (this.onlyUpAltitude > 800) speed = 0.75;
+    if (this.onlyUpAltitude > 1200) speed = 0.88;
+
+    // If player is far ahead (> 220px), lava picks up speed slightly to maintain pressure
+    const distFromLava = this.onlyUpLavaY - this.player.y;
+    if (distFromLava > 220) {
+      speed += 0.14;
+    }
+    this.onlyUpLavaSpeed = speed;
+    this.onlyUpLavaY -= this.onlyUpLavaSpeed;
+
+    // Lava Lethal Collision Check
+    if (
+      (this.player.y + this.player.h >= this.onlyUpLavaY || this.player.y > this.onlyUpLavaY) &&
+      !this.settings.godMode
+    ) {
+      this.lives = 0;
+      this.onlyUpIsGameOver = true;
+      sound.playSfx('lava');
+      this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 35, '#ea580c');
+      this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 20, '#fbbf24');
+      this.screenShake = 16;
+      this.addFloatingText(this.player.x, this.player.y - 15, '🔥 ¡ALCANZADO POR LA LAVA CUÁNTICA!', '#ef4444');
+      this.notifyState();
+      return;
+    }
+
+    // Procedural generation: spawn next chunk when player gets near top of generated world
+    if (this.player.y < this.onlyUpGeneratedTopY + 450) {
+      const nextChunk = generateOnlyUpChunk(
+        this.onlyUpGeneratedTopY,
+        this.onlyUpGeneratedTopY - 450,
+        this.onlyUpNextEnemyId
+      );
+      this.platforms.push(...nextChunk.platforms);
+      this.hazards.push(...nextChunk.hazards);
+      this.crystals.push(...nextChunk.crystals);
+      this.heals.push(...nextChunk.heals);
+      this.enemies.push(...nextChunk.enemies);
+      this.onlyUpGeneratedTopY -= 450;
+      this.onlyUpNextEnemyId += 100;
+    }
+
+    // Prune submerged items below lava (every 60 frames) to maintain 60 FPS
+    if (this.time % 60 === 0) {
+      const cleanupY = this.onlyUpLavaY + 90;
+      this.platforms = this.platforms.filter((p) => p.y < cleanupY);
+      this.hazards = this.hazards.filter((h) => h.y < cleanupY);
+      this.crystals = this.crystals.filter((c) => !c.taken && c.y < cleanupY);
+      this.heals = this.heals.filter((h) => !h.taken && h.y < cleanupY);
+      this.enemies = this.enemies.filter((e) => e.alive && e.y < cleanupY);
+    }
   }
 
   public checkAABB(

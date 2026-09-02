@@ -152,15 +152,26 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
         {/* Right: Level Badge, Device Save Indicator & Pause */}
         <div className="flex items-center gap-1.5 pointer-events-auto">
-          {/* Current Level Pill */}
-          <div 
-            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-md backdrop-blur-md"
-            title={`${currentLevelConfig.title} - ${currentLevelConfig.subtitle}`}
-          >
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: currentLevelConfig.themeColor || '#06b6d4' }} />
-            <span className="font-mono text-cyan-300 hidden md:inline">ACTO {currentLevelConfig.act}:</span>
-            <span className="truncate max-w-[120px] sm:max-w-[160px]">{currentLevelConfig.title}</span>
-          </div>
+          {/* Current Level Pill / Only Up Pill */}
+          {engine.isOnlyUpMode ? (
+            <div 
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-orange-950/80 border border-orange-500/60 text-xs font-bold text-orange-200 shadow-md backdrop-blur-md animate-pulse"
+              title="Kronos Only Up: ¡Sube sin parar!"
+            >
+              <span className="w-2 h-2 rounded-full bg-orange-400" />
+              <span className="font-mono text-orange-300">ONLY UP:</span>
+              <span className="text-white font-mono">{engine.onlyUpAltitude}m</span>
+            </div>
+          ) : (
+            <div 
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-md backdrop-blur-md"
+              title={`${currentLevelConfig.title} - ${currentLevelConfig.subtitle}`}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: currentLevelConfig.themeColor || '#06b6d4' }} />
+              <span className="font-mono text-cyan-300 hidden md:inline">ACTO {currentLevelConfig.act}:</span>
+              <span className="truncate max-w-[120px] sm:max-w-[160px]">{currentLevelConfig.title}</span>
+            </div>
+          )}
 
           {/* Device Auto-Save Pill */}
           <div 

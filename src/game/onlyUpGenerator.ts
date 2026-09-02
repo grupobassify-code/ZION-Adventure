@@ -1,0 +1,335 @@
+import { Platform, Hazard, Collectible, Enemy, ZoneId } from '../types';
+
+export interface OnlyUpChunk {
+  platforms: Platform[];
+  hazards: Hazard[];
+  crystals: Collectible[];
+  heals: Collectible[];
+  enemies: Enemy[];
+}
+
+export function getOnlyUpBiome(altitudeMeters: number): {
+  zone: ZoneId;
+  name: string;
+  themeColor: string;
+  accentColor: string;
+  bgGradient: [string, string, string];
+} {
+  if (altitudeMeters < 150) {
+    return {
+      zone: 'neon',
+      name: 'ERA 1: BOSQUE NEÓN',
+      themeColor: '#22d3ee',
+      accentColor: '#4ade80',
+      bgGradient: ['#030712', '#082f49', '#022c22'],
+    };
+  } else if (altitudeMeters < 350) {
+    return {
+      zone: 'sakura',
+      name: 'ERA 2: CEREZO ESPIRITUAL',
+      themeColor: '#f472b6',
+      accentColor: '#fb7185',
+      bgGradient: ['#0f051d', '#3b0764', '#500724'],
+    };
+  } else if (altitudeMeters < 600) {
+    return {
+      zone: 'lavacliff',
+      name: 'ERA 3: ACANTILADOS DE LAVA',
+      themeColor: '#f97316',
+      accentColor: '#ef4444',
+      bgGradient: ['#180303', '#450a0a', '#7c2d12'],
+    };
+  } else if (altitudeMeters < 900) {
+    return {
+      zone: 'desert',
+      name: 'ERA 4: SANTUARIO DEL DESIERTO',
+      themeColor: '#f59e0b',
+      accentColor: '#d97706',
+      bgGradient: ['#1c1003', '#451a03', '#78350f'],
+    };
+  } else if (altitudeMeters < 1300) {
+    return {
+      zone: 'krono',
+      name: 'ERA 5: KRONO CITY',
+      themeColor: '#06b6d4',
+      accentColor: '#8b5cf6',
+      bgGradient: ['#030712', '#0f172a', '#1e1b4b'],
+    };
+  } else {
+    return {
+      zone: 'travel',
+      name: 'ERA FINAL: FUSIÓN CUÁNTICA',
+      themeColor: '#e879f9',
+      accentColor: '#38bdf8',
+      bgGradient: ['#0b021a', '#2e1065', '#0c4a6e'],
+    };
+  }
+}
+
+/**
+ * Procedurally generates climbing platforms, obstacles, and items across a vertical height range.
+ * Coordinates: y decreases as Zion climbs UP.
+ */
+export function generateOnlyUpChunk(
+  fromY: number,
+  toY: number,
+  startEnemyId = 1000
+): OnlyUpChunk {
+  const platforms: Platform[] = [];
+  const hazards: Hazard[] = [];
+  const crystals: Collectible[] = [];
+  const heals: Collectible[] = [];
+  const enemies: Enemy[] = [];
+
+  let currentY = fromY;
+  let enemyId = startEnemyId;
+
+  // Track previous horizontal position to ensure jumping paths zig-zag nicely
+  let prevX = 140;
+
+  while (currentY > toY) {
+    const altitude = Math.max(0, Math.floor((140 - currentY) / 2));
+    const biome = getOnlyUpBiome(altitude);
+
+    // Vertical spacing between 30 and 42 px (jump force is -6.0 which reaches ~60px)
+    const dy = 32 + Math.floor(Math.sin(currentY * 0.05) * 6) + Math.min(6, Math.floor(altitude / 300));
+    currentY -= dy;
+
+    // Platform width narrows with altitude (starts 75px, reduces down to ~45px)
+    const baseW = Math.max(42, 75 - Math.floor(altitude / 60));
+    const widthVar = Math.floor(Math.abs(Math.sin(currentY * 0.1)) * 18);
+    const platW = Math.min(90, Math.max(40, baseW + widthVar));
+
+    // Stagger X across left (32-90), middle (110-170), right (180-250)
+    // Alternate sides to create an engaging climbing rhythm
+    let targetX: number;
+    if (prevX < 110) {
+      targetX = 150 + Math.floor(Math.random() * 85); // move right
+    } else if (prevX > 180) {
+      targetX = 35 + Math.floor(Math.random() * 80); // move left
+    } else {
+      targetX = Math.random() > 0.5 ? 35 + Math.floor(Math.random() * 65) : 190 + Math.floor(Math.random() * 65);
+    }
+    prevX = targetX;
+    const platX = Math.max(28, Math.min(292 - platW, targetX));
+
+    // Determine platform kind according to era
+    let kind: Platform['kind'] = 'ground';
+    let dir: 1 | -1 | undefined = undefined;
+    let speed: number | undefined = undefined;
+    let phase: number | undefined = undefined;
+
+    if (biome.zone === 'neon') {
+      kind = Math.random() > 0.4 ? 'ledge' : 'ground';
+    } else if (biome.zone === 'sakura') {
+      if (Math.random() > 0.5) {
+        kind = 'moon';
+        phase = (Math.floor(Math.abs(currentY / 30)) % 4);
+      } else {
+        kind = 'bridge';
+      }
+    } else if (biome.zone === 'lavacliff') {
+      if (Math.random() > 0.45) {
+        kind = 'basalt'; // Sinking platform
+      } else if (Math.random() > 0.5) {
+        kind = 'conveyor';
+        dir = Math.random() > 0.5 ? 1 : -1;
+        speed = 1.2 + Math.min(1.0, altitude / 1000);
+      } else {
+        kind = 'ledge';
+      }
+    } else if (biome.zone === 'desert') {
+      if (Math.random() > 0.5) {
+        kind = 'sandstone';
+      } else {
+        kind = 'ruins';
+      }
+    } else if (biome.zone === 'krono') {
+      if (Math.random() > 0.4) {
+        kind = 'conveyor';
+        dir = Math.random() > 0.5 ? 1 : -1;
+        speed = 1.4 + Math.min(1.2, altitude / 800);
+      } else if (Math.random() > 0.5) {
+        kind = 'hologram';
+        phase = (Math.floor(Math.abs(currentY / 25)) % 4);
+      } else {
+        kind = 'cyber';
+      }
+    } else {
+      // Quantum Fusion: Hybrid of all eras
+      const roll = Math.random();
+      if (roll < 0.25) {
+        kind = 'conveyor';
+        dir = Math.random() > 0.5 ? 1 : -1;
+        speed = 1.6;
+      } else if (roll < 0.5) {
+        kind = 'moon';
+        phase = (Math.floor(Math.abs(currentY / 20)) % 4);
+      } else if (roll < 0.75) {
+        kind = 'basalt';
+      } else {
+        kind = 'hologram';
+      }
+    }
+
+    platforms.push({
+      x: platX,
+      y: currentY,
+      w: platW,
+      h: 9,
+      kind,
+      dir,
+      speed,
+      phase,
+      sinkTimer: 0,
+      isSinking: false,
+      originalY: currentY,
+    });
+
+    // Collectibles: Crystals along the way
+    if (Math.random() > 0.3) {
+      crystals.push({
+        x: platX + platW / 2 - 4,
+        y: currentY - 14,
+        w: 8,
+        h: 10,
+        taken: false,
+      });
+    }
+
+    // Heals: Every ~90 meters (every ~180px of ascent with some rarity)
+    if (Math.abs(currentY) % 170 < 35 && Math.random() > 0.5) {
+      heals.push({
+        x: platX + platW / 2 - 5,
+        y: currentY - 14,
+        w: 10,
+        h: 10,
+        taken: false,
+      });
+    }
+
+    // Hazards generation based on biome
+    const hazardChance = 0.25 + Math.min(0.35, altitude / 800);
+    if (Math.random() < hazardChance) {
+      if (biome.zone === 'neon') {
+        hazards.push({
+          x: platX + 8,
+          y: currentY - 6,
+          w: Math.min(22, platW - 16),
+          h: 7,
+          type: 'spike',
+        });
+      } else if (biome.zone === 'sakura') {
+        if (Math.random() > 0.5) {
+          hazards.push({
+            x: platX + platW / 2 - 8,
+            y: currentY - 45,
+            w: 16,
+            h: 40,
+            type: 'swingingBlade',
+            bladeAngle: 0,
+            bladeSpeed: 0.04,
+          });
+        }
+      } else if (biome.zone === 'lavacliff') {
+        // Geyser
+        if (Math.random() > 0.5) {
+          hazards.push({
+            x: platX + platW / 2 - 7,
+            y: currentY - 32,
+            w: 14,
+            h: 32,
+            type: 'geyser',
+            erupting: false,
+            cycleTimer: 0,
+            maxCycle: 110,
+            warnTimer: 25,
+          });
+        }
+      } else if (biome.zone === 'desert') {
+        if (Math.random() > 0.5) {
+          hazards.push({
+            x: platX + platW / 2 - 9,
+            y: currentY - 45,
+            w: 18,
+            h: 14,
+            type: 'fallingBlock',
+            isFalling: false,
+            vy: 0,
+            originalY: currentY - 45,
+          });
+        } else {
+          hazards.push({
+            x: platX + platW / 2 - 10,
+            y: currentY - 10,
+            w: 20,
+            h: 10,
+            type: 'curseRune',
+          });
+        }
+      } else if (biome.zone === 'krono' || biome.zone === 'travel') {
+        // Laser gates or EMP floors
+        if (Math.random() > 0.5) {
+          hazards.push({
+            x: platX + platW / 2 - 5,
+            y: currentY - 38,
+            w: 10,
+            h: 38,
+            type: 'laserGate',
+            active: true,
+            cycleTimer: 0,
+            maxCycle: 90,
+          });
+        } else {
+          hazards.push({
+            x: platX + 4,
+            y: currentY - 4,
+            w: platW - 8,
+            h: 6,
+            type: 'empFloor',
+            active: true,
+            cycleTimer: 0,
+            maxCycle: 100,
+          });
+        }
+      }
+    }
+
+    // Occasional Patrol / Sentinel Enemy on wider platforms
+    if (platW >= 60 && Math.random() < 0.22) {
+      const enemyTypes: Enemy['type'][] =
+        biome.zone === 'neon'
+          ? ['hopper', 'sentinel']
+          : biome.zone === 'sakura'
+          ? ['kitsune', 'yurei']
+          : biome.zone === 'lavacliff'
+          ? ['salamander', 'flame_wisp']
+          : biome.zone === 'desert'
+          ? ['scarab', 'mummy_warrior']
+          : ['cyber_drone', 'cyberturret'];
+
+      const selectedType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+      enemies.push({
+        id: enemyId++,
+        type: selectedType,
+        x: platX + 12,
+        y: currentY - 16,
+        w: 14,
+        h: 16,
+        vx: 0.6,
+        vy: 0,
+        min: platX + 4,
+        max: platX + platW - 18,
+        alive: true,
+        hp: 2,
+        maxHp: 2,
+        scoreValue: 150,
+        xpValue: 30,
+        home: platX + 12,
+        cool: 60,
+      });
+    }
+  }
+
+  return { platforms, hazards, crystals, heals, enemies };
+}

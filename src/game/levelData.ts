@@ -280,8 +280,8 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'krono-travel',
     zone: 'travel',
     act: 1,
-    title: 'Nivel Extra · Kronos Travel: La Fusión Dimensional',
-    subtitle: 'La Odisea Suprema: Todas las Eras, Peligros y Enemigos Unidos',
+    title: 'Kronos Travel',
+    subtitle: 'La Fusión Dimensional de las Eras',
     lore: [
       {
         title: '🌌 KRONOS TRAVEL — LA FUSIÓN DE LAS ERAS',
@@ -533,7 +533,7 @@ export function buildLevel(levelIndex: number) {
       { x: 1500, y: 108, w: 10, h: 40, active: false, spawn: { x: 1520, y: 110 } },
       { x: 3300, y: 108, w: 10, h: 40, active: false, spawn: { x: 3320, y: 110 } },
       { x: 4800, y: 108, w: 10, h: 40, active: false, spawn: { x: 4820, y: 110 } },
-      { x: 5700, y: 108, w: 10, h: 40, active: false, spawn: { x: 5720, y: 110 }, arena: true }
+      { x: 5900, y: 108, w: 10, h: 40, active: false, spawn: { x: 5920, y: 110 }, arena: true }
     );
 
     heals.push(
@@ -873,7 +873,7 @@ export function buildLevel(levelIndex: number) {
       { x: 1550, y: 108, w: 10, h: 40, active: false, spawn: { x: 1570, y: 110 } },
       { x: 3400, y: 108, w: 10, h: 40, active: false, spawn: { x: 3420, y: 110 } },
       { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6050, y: 108, w: 10, h: 40, active: false, spawn: { x: 6070, y: 110 }, arena: true }
+      { x: 6220, y: 108, w: 10, h: 40, active: false, spawn: { x: 6240, y: 110 }, arena: true }
     );
 
     platforms.push({ x: 6000, y: 148, w: 1150, h: 40, kind: 'arena' });
@@ -1198,7 +1198,7 @@ export function buildLevel(levelIndex: number) {
       { x: 1500, y: 108, w: 10, h: 40, active: false, spawn: { x: 1520, y: 110 } },
       { x: 3300, y: 108, w: 10, h: 40, active: false, spawn: { x: 3320, y: 110 } },
       { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6200, y: 108, w: 10, h: 40, active: false, spawn: { x: 6220, y: 110 }, arena: true }
+      { x: 6390, y: 108, w: 10, h: 40, active: false, spawn: { x: 6410, y: 110 }, arena: true }
     );
 
     platforms.push({ x: 6150, y: 148, w: 1250, h: 40, kind: 'arena' });
@@ -1540,7 +1540,7 @@ export function buildLevel(levelIndex: number) {
       { x: 1600, y: 108, w: 10, h: 40, active: false, spawn: { x: 1620, y: 110 } },
       { x: 3400, y: 108, w: 10, h: 40, active: false, spawn: { x: 3420, y: 110 } },
       { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6200, y: 108, w: 10, h: 40, active: false, spawn: { x: 6220, y: 110 }, arena: true }
+      { x: 6440, y: 108, w: 10, h: 40, active: false, spawn: { x: 6460, y: 110 }, arena: true }
     );
 
     // Pharaoh Boss Arena
@@ -2045,7 +2045,7 @@ export function buildLevel(levelIndex: number) {
     );
 
     checkpoints.push(
-      { x: 150, y: 108, w: 10, h: 40, active: true, spawn: { x: 180, y: 110 }, arena: true }
+      { x: 770, y: 108, w: 10, h: 40, active: true, spawn: { x: 790, y: 110 }, arena: true }
     );
 
     landmarks.push(

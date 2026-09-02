@@ -23,7 +23,10 @@ import {
   Info,
   CheckCircle2,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  Flame,
+  Trophy,
+  ArrowUpRight,
 } from 'lucide-react';
 import { PixelCharacter } from './PixelCharacter';
 import { LevelPixelThumbnail } from './LevelPixelThumbnail';
@@ -38,6 +41,8 @@ import {
   getZoneCompletion,
   resetAllSaveData,
   MAX_SAVE_SLOTS,
+  isOnlyUpUnlocked,
+  getOnlyUpRecord,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
@@ -46,6 +51,7 @@ import { Music } from 'lucide-react';
 
 interface MainMenuProps {
   onStartGame: (levelIndex: number, slotId: number) => void;
+  onStartOnlyUp?: (slotId: number) => void;
   onOpenCredits: () => void;
   audioActive: boolean;
   onToggleAudio: () => void;
@@ -106,7 +112,7 @@ const ZONES_DATA: ZoneMeta[] = [
   },
   {
     id: 'travel',
-    name: 'Kronos Travel (Extra)',
+    name: 'Kronos Travel',
     subtitle: 'La Fusión Dimensional de Todas las Eras',
     themeColor: '#38bdf8',
     accentColor: '#f43f5e',
@@ -116,6 +122,7 @@ const ZONES_DATA: ZoneMeta[] = [
 
 export const MainMenu: React.FC<MainMenuProps> = ({
   onStartGame,
+  onStartOnlyUp,
   onOpenCredits,
   audioActive,
   onToggleAudio,
@@ -570,12 +577,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-sm border border-slate-700 text-[10px] font-mono font-bold text-cyan-300">
                       {z.actsCount} {z.actsCount === 1 ? 'ACTO' : 'ACTOS'}
                     </div>
-
-                    {isExtraZone && (
-                      <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-pink-500/80 text-white text-[10px] font-bold tracking-wider">
-                        EXTRA
-                      </div>
-                    )}
                   </div>
 
                   {/* Zone Details */}
@@ -611,6 +612,136 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 </div>
               );
             })}
+          </div>
+
+          {/* Kronos Only Up Banner & Mode Selection */}
+          {(() => {
+            const onlyUpUnlocked = isOnlyUpUnlocked(activeSlot);
+            const onlyUpRecord = getOnlyUpRecord(activeSlot?.id || 0);
+
+            return (
+              <div
+                id="kronos-only-up-card"
+                onClick={() => {
+                  if (onlyUpUnlocked) {
+                    sound.playSfx('menuSelect');
+                    if (onStartOnlyUp) {
+                      onStartOnlyUp(activeSlot?.id || 0);
+                    }
+                  } else {
+                    sound.playSfx('block');
+                  }
+                }}
+                className={`relative w-full mt-6 rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer ${
+                  onlyUpUnlocked
+                    ? 'bg-gradient-to-r from-orange-950/60 via-slate-900/90 to-red-950/60 border-orange-500/80 hover:border-orange-400 hover:shadow-[0_0_35px_rgba(249,115,22,0.35)] active:scale-98'
+                    : 'bg-slate-950/80 border-slate-800 opacity-65 cursor-not-allowed'
+                }`}
+              >
+                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className={`p-3.5 rounded-2xl border ${
+                      onlyUpUnlocked
+                        ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
+                        : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                    }`}>
+                      <Flame className="w-8 h-8 animate-pulse" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider ${
+                          onlyUpUnlocked
+                            ? 'bg-orange-500 text-slate-950'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          NUEVO MODO
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black text-white font-heading">
+                          KRONOS ONLY UP
+                        </h3>
+                        {onlyUpUnlocked && onlyUpRecord > 0 && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                            <Trophy className="w-3.5 h-3.5" />
+                            Récord: {onlyUpRecord}m
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+                        {onlyUpUnlocked
+                          ? 'Ascenso vertical infinito con plataformas y trampas de todas las eras. ¡La lava cuántica sube sin cesar: sube rápido para romper tu récord!'
+                          : 'Derrota al Guardián de Bosque Neón (Nivel 2) para desbloquear el desafío de ascenso infinito.'}
+                      </p>
+
+                      <div className="flex items-center gap-3 mt-2 text-[11px] font-mono text-slate-400">
+                        <span className="flex items-center gap-1 text-orange-400">
+                          <Flame className="w-3 h-3" /> Lava creciente
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1 text-cyan-400">
+                          <Layers className="w-3 h-3" /> Plataformas híbridas
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1 text-amber-400">
+                          <Trophy className="w-3 h-3" /> Dificultad progresiva
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-auto flex sm:flex-col items-center justify-end gap-2">
+                    {onlyUpUnlocked ? (
+                      <button
+                        id="play-only-up-btn"
+                        type="button"
+                        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-slate-950" />
+                        <span>¡ASCENDER AHORA!</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+                        <Lock className="w-4 h-4" />
+                        <span>Supera Bosque Neón</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Más Niveles Próximamente Placeholder */}
+          <div
+            id="more-levels-coming-soon"
+            className="w-full mt-4 rounded-2xl border-2 border-dashed border-slate-800/80 bg-slate-950/40 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left transition-all hover:border-slate-700/80"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-500">
+                <Sparkles className="w-6 h-6 text-cyan-400/60 animate-pulse" />
+              </div>
+              <div>
+                <h4 className="text-base font-black text-slate-300 font-heading tracking-wide">
+                  MÁS NIVELES PRÓXIMAMENTE
+                </h4>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Nuevas dimensiones, biomas ancestrales, desafíos temporales y más guardianes en desarrollo.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-800 text-[10px] font-mono text-cyan-400">
+                ✦ Nuevas Eras
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-800 text-[10px] font-mono text-purple-400">
+                ✦ Nuevos Jefes
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-800 text-[10px] font-mono text-amber-400">
+                ✦ Secretos Ocultos
+              </span>
+            </div>
           </div>
         </main>
       )}

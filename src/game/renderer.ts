@@ -1,5 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 import { LEVEL_CONFIGS } from './levelData';
+import { getOnlyUpBiome } from './onlyUpGenerator';
 import type { GameEngine } from './gameEngine';
 import {
   Boss,
@@ -34,6 +35,11 @@ export class GameRenderer {
   }
 
   public render(engine: GameEngine) {
+    if (engine.isOnlyUpMode) {
+      this.renderOnlyUp(engine);
+      return;
+    }
+
     const config = LEVEL_CONFIGS[engine.levelIndex] || LEVEL_CONFIGS[0];
 
     // 1. Clear background
@@ -89,6 +95,205 @@ export class GameRenderer {
     // 13. Boss intro cinematic banner & combo HUD
     this.renderBossIntroBanner(engine.bossIntroBanner);
     this.renderComboHUD(engine.comboCount, engine.comboRank, engine.comboTimer);
+  }
+
+  public renderOnlyUp(engine: GameEngine) {
+    const ctx = this.ctx;
+    const biome = getOnlyUpBiome(engine.onlyUpAltitude);
+
+    // 1. Vertical Gradient Background
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+    bgGrad.addColorStop(0, biome.bgGradient[0]);
+    bgGrad.addColorStop(1, biome.bgGradient[1]);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // 2. Parallax vertical speed lines / floating embers
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    for (let i = 0; i < 18; i++) {
+      const px = ((i * 47 + engine.time * 0.4) % (GAME_WIDTH - 54)) + 27;
+      const py = (GAME_HEIGHT + 20 - ((engine.time * (1 + (i % 3) * 0.5) + i * 29) % (GAME_HEIGHT + 40)));
+      ctx.fillStyle = biome.themeColor;
+      ctx.fillRect(px, py, 2, (i % 3) + 2);
+    }
+    ctx.restore();
+
+    // 3. Shift canvas according to cameraY (Vertical Climbing)
+    ctx.save();
+    ctx.translate(0, -Math.round(engine.cameraY));
+
+    // A. Tower Boundaries (Left: x=0..26, Right: x=294..320)
+    const viewTop = engine.cameraY - 40;
+    const viewBottom = engine.cameraY + GAME_HEIGHT + 40;
+
+    // Left tower wall
+    ctx.fillStyle = '#0a0f1d';
+    ctx.fillRect(0, viewTop, 26, viewBottom - viewTop);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(24, viewTop, 2, viewBottom - viewTop);
+    ctx.fillStyle = biome.themeColor;
+    ctx.fillRect(25, viewTop, 1, viewBottom - viewTop);
+
+    // Right tower wall
+    ctx.fillStyle = '#0a0f1d';
+    ctx.fillRect(294, viewTop, 26, viewBottom - viewTop);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(294, viewTop, 2, viewBottom - viewTop);
+    ctx.fillStyle = biome.themeColor;
+    ctx.fillRect(294, viewTop, 1, viewBottom - viewTop);
+
+    // Wall altitude markers every 100px (50 meters)
+    const startMarker = Math.floor(viewTop / 100) * 100;
+    for (let my = startMarker; my <= viewBottom; my += 100) {
+      const meters = Math.max(0, Math.floor((140 - my) / 2));
+      ctx.fillStyle = `${biome.themeColor}44`;
+      ctx.fillRect(18, my, 8, 1);
+      ctx.fillRect(294, my, 8, 1);
+
+      ctx.font = '5px "Press Start 2P", monospace';
+      ctx.fillStyle = `${biome.themeColor}aa`;
+      ctx.textAlign = 'left';
+      ctx.fillText(`${meters}m`, 2, my + 3);
+      ctx.textAlign = 'right';
+      ctx.fillText(`${meters}m`, 318, my + 3);
+    }
+    ctx.textAlign = 'left';
+
+    // B. Platforms & Solids
+    this.renderPlatforms(engine.platforms, biome.zone, 1, 0, engine.time);
+
+    // C. Hazards
+    this.renderHazards(engine.hazards, 0, engine.time);
+
+    // D. Collectibles (Crystals and Heals)
+    this.renderCollectibles(
+      engine.crystals,
+      [],
+      engine.heals,
+      [],
+      [],
+      null,
+      biome.zone,
+      1,
+      false,
+      0,
+      engine.time
+    );
+
+    // E. Enemies
+    this.renderEnemies(engine.enemies, 0, engine.time);
+
+    // F. Projectiles
+    this.renderProjectiles(engine.projectiles, 0);
+
+    // G. Hero Zion
+    this.renderZion(engine.player, 0);
+
+    // H. Melee and Special Effects
+    this.renderMeleeEffects(engine.meleeEffects, 0);
+    this.renderSpecialEffects(engine.specialEffects, 0);
+
+    // I. Particles & Floating texts
+    this.renderParticles(engine.particles, 0);
+    this.renderFloatingTexts(engine.floatingTexts, 0);
+
+    // J. LETHAL RISING LAVA
+    const lavaY = engine.onlyUpLavaY;
+    // Lava body
+    const lavaGrad = ctx.createLinearGradient(0, lavaY, 0, lavaY + 300);
+    lavaGrad.addColorStop(0, '#f97316');
+    lavaGrad.addColorStop(0.2, '#ea580c');
+    lavaGrad.addColorStop(0.6, '#991b1b');
+    lavaGrad.addColorStop(1, '#450a0a');
+
+    ctx.beginPath();
+    ctx.moveTo(0, lavaY + 400);
+    ctx.lineTo(0, lavaY);
+    for (let lx = 0; lx <= 320; lx += 8) {
+      const wave = Math.sin(engine.time * 0.12 + lx * 0.08) * 3 + Math.cos(engine.time * 0.2 + lx * 0.15) * 2;
+      ctx.lineTo(lx, lavaY + wave);
+    }
+    ctx.lineTo(320, lavaY);
+    ctx.lineTo(320, lavaY + 400);
+    ctx.closePath();
+    ctx.fillStyle = lavaGrad;
+    ctx.fill();
+
+    // Hot boiling crest line
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let lx = 0; lx <= 320; lx += 8) {
+      const wave = Math.sin(engine.time * 0.12 + lx * 0.08) * 3 + Math.cos(engine.time * 0.2 + lx * 0.15) * 2;
+      if (lx === 0) ctx.moveTo(lx, lavaY + wave);
+      else ctx.lineTo(lx, lavaY + wave);
+    }
+    ctx.stroke();
+
+    // Rising sparks from lava
+    ctx.fillStyle = '#fef08a';
+    for (let s = 0; s < 12; s++) {
+      const sx = ((s * 27 + engine.time * 1.5) % 300) + 10;
+      const sy = lavaY - ((engine.time * 1.2 + s * 14) % 35);
+      ctx.fillRect(sx, sy, 1.5, 1.5);
+    }
+
+    ctx.restore();
+
+    // 4. Screen-Space Lava Proximity Warning Vignette
+    const distToLava = engine.onlyUpLavaY - engine.player.y;
+    if (distToLava < 90) {
+      const urgency = Math.max(0, Math.min(1, (90 - distToLava) / 90));
+      const pulse = 0.65 + Math.sin(engine.time * 0.28) * 0.35;
+      const warnGrad = ctx.createLinearGradient(0, GAME_HEIGHT - 55, 0, GAME_HEIGHT);
+      warnGrad.addColorStop(0, 'rgba(239, 68, 68, 0)');
+      warnGrad.addColorStop(1, `rgba(239, 68, 68, ${(urgency * pulse * 0.75).toFixed(2)})`);
+      ctx.fillStyle = warnGrad;
+      ctx.fillRect(0, GAME_HEIGHT - 55, GAME_WIDTH, 55);
+    }
+
+    // 5. Screen-Space HUD for Only Up Altitude
+    this.renderOnlyUpHUD(engine);
+
+    // 6. Combo HUD
+    this.renderComboHUD(engine.comboCount, engine.comboRank, engine.comboTimer);
+  }
+
+  public renderOnlyUpHUD(engine: GameEngine) {
+    const ctx = this.ctx;
+    ctx.save();
+
+    // Top Center Altitude Capsule
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillRect(GAME_WIDTH / 2 - 46, 6, 92, 20);
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(GAME_WIDTH / 2 - 46, 6, 92, 20);
+
+    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${engine.onlyUpAltitude}m`, GAME_WIDTH / 2, 16);
+
+    ctx.font = '5px "Press Start 2P", monospace';
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillText(`RÉCORD: ${Math.max(engine.onlyUpRecord, engine.onlyUpAltitude)}m`, GAME_WIDTH / 2, 23);
+
+    // Lava Proximity Indicator on bottom left
+    const dist = Math.max(0, Math.round(engine.onlyUpLavaY - engine.player.y));
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(8, GAME_HEIGHT - 22, 60, 14);
+    ctx.strokeStyle = dist < 70 ? '#ef4444' : '#f97316';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, GAME_HEIGHT - 22, 60, 14);
+
+    ctx.font = '5px "Press Start 2P", monospace';
+    ctx.fillStyle = dist < 70 ? '#f87171' : '#fdba74';
+    ctx.textAlign = 'center';
+    ctx.fillText(`LAVA: ${dist}px`, 38, GAME_HEIGHT - 13);
+
+    ctx.restore();
   }
 
   public beginFrame(screenShake = 0) {

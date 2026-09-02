@@ -18,6 +18,7 @@ import { MainMenu } from './components/MainMenu';
 import { ScreenTransition } from './components/ScreenTransition';
 import { LevelIntroBanner } from './components/LevelIntroBanner';
 import { TutorialPopup } from './components/TutorialPopup';
+import { OnlyUpResultsModal } from './components/OnlyUpResultsModal';
 import { LEVEL_CONFIGS } from './game/levelData';
 import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActiveSlotId } from './game/saveManager';
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
@@ -171,6 +172,22 @@ export default function App() {
     setInMainMenu(false);
     setIsCreditsOpen(false);
     triggerLevelTransition(levelIndex, true);
+  };
+
+  const handleStartOnlyUpFromMenu = (slotId: number) => {
+    unlockAudioAndLockLandscape();
+    setActiveSlotId(slotId);
+    setActiveSlotIdState(slotId);
+    setInMainMenu(false);
+    setIsCreditsOpen(false);
+    setTransitionActive(true);
+    setTimeout(() => {
+      engine.startOnlyUpMode(slotId);
+      setShowLevelIntro(false);
+    }, 280);
+    setTimeout(() => {
+      setTransitionActive(false);
+    }, 950);
   };
 
   // Comprehensive Keyboard Event Handlers (Movement, Jump, Attack, Block, Dash, Special, Pause)
@@ -387,6 +404,7 @@ export default function App() {
       {inMainMenu && (
         <MainMenu
           onStartGame={handleStartGameFromMenu}
+          onStartOnlyUp={handleStartOnlyUpFromMenu}
           onOpenCredits={() => {
             unlockAudioAndLockLandscape();
             setIsCreditsOpen(true);
@@ -527,6 +545,25 @@ export default function App() {
         />
       )}
 
+      {/* Only Up Mode Game Over Results Modal */}
+      {!inMainMenu && engine.isOnlyUpMode && engine.onlyUpIsGameOver && (
+        <OnlyUpResultsModal
+          altitude={engine.onlyUpAltitude}
+          maxAltitude={engine.onlyUpMaxAltitude}
+          record={engine.onlyUpRecord}
+          timeSurvived={engine.onlyUpTimeSurvived}
+          isNewRecord={engine.onlyUpNewRecordAchieved}
+          onRetry={() => {
+            engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
+            setRenderTick((t) => t + 1);
+          }}
+          onReturnToMenu={() => {
+            sound.stopMusic();
+            setInMainMenu(true);
+          }}
+        />
+      )}
+
       {/* Pause Menu Modal (P / ESC) */}
       {!inMainMenu && engine.isPaused && (
         <PauseModal
@@ -535,7 +572,12 @@ export default function App() {
           onResume={() => engine.togglePause()}
           onRestart={() => {
             engine.togglePause();
-            triggerLevelTransition(engine.levelIndex, false);
+            if (engine.isOnlyUpMode) {
+              engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
+              setRenderTick((t) => t + 1);
+            } else {
+              triggerLevelTransition(engine.levelIndex, false);
+            }
           }}
           onQuitToTitle={() => {
             engine.togglePause();

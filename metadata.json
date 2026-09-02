@@ -1,6 +1,6 @@
 {
   "name": "Zion — Aventura en los Bosques",
-  "description": "Videojuego de plataformas y acción 2D retro con Zion a través del Bosque Neón, Bosque de Cerezo, Acantilado de Lava, Santuario del Desierto y la metrópolis futurista Krono City con el jefe robot Titán Kronos-Ω, portal a créditos finales y compilación musical.",
+  "description": "Videojuego de plataformas y acción 2D retro con Zion a través del Bosque Neón, Bosque de Cerezo, Acantilado de Lava, Santuario del Desierto, Krono City y el modo de ascenso infinito Krono Only Up con lava ascendente.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

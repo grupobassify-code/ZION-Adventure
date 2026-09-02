@@ -206,6 +206,36 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
   return slot.unlockedLevels.includes(levelIndex);
 }
 
+/**
+ * Kronos Only Up is unlocked as soon as the final boss of Bosque Neón is defeated (Level 1: neon-2)
+ */
+export function isOnlyUpUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  return slot.completedLevels.includes(1) || slot.unlockedLevels.some((lvl) => lvl >= 2);
+}
+
+export function getOnlyUpRecord(slotId: number): number {
+  try {
+    const raw = localStorage.getItem(`zion_only_up_record_slot_${slotId}`);
+    if (raw !== null) {
+      const val = parseInt(raw, 10);
+      return isNaN(val) ? 0 : val;
+    }
+  } catch {}
+  return 0;
+}
+
+export function saveOnlyUpRecord(slotId: number, altitude: number): boolean {
+  try {
+    const current = getOnlyUpRecord(slotId);
+    if (altitude > current) {
+      localStorage.setItem(`zion_only_up_record_slot_${slotId}`, altitude.toString());
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
 export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { completed: number; total: number; unlocked: boolean } {
   const zoneLevels = LEVEL_CONFIGS.map((cfg, idx) => ({ cfg, idx })).filter((item) => item.cfg.zone === zone);
   const total = zoneLevels.length;
