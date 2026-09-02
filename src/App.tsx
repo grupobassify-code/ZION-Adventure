@@ -277,7 +277,7 @@ export default function App() {
     };
   }, [engine, unlockAudioAndLockLandscape, triggerLevelTransition]);
 
-  // Main Canvas & Game Loop
+  // Main Canvas & Game Loop with Fixed-Timestep Physics Accumulator (Cross-Device Consistent 60Hz)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -290,13 +290,59 @@ export default function App() {
 
     let animId: number;
 
-    const loop = () => {
-      // 1. Update Game Simulation Logic
-      engine.update(inputsRef.current);
+    // Fixed 60Hz physics timestep (16.6667 ms)
+    const FIXED_TIMESTEP = 1000 / 60;
+    const MAX_ACCUMULATOR_MS = 100; // Drops spiral of death on background tabs
+    const MAX_UPDATES_PER_FRAME = 4; // Max 4 catch-up updates per frame
+
+    let lastTime = performance.now();
+    let accumulator = 0;
+
+    // Realtime FPS Measurement
+    let frameCount = 0;
+    let lastFpsCalc = performance.now();
+    let currentFps = 60;
+
+    const loop = (currentTime: number) => {
+      let delta = currentTime - lastTime;
+      lastTime = currentTime;
+
+      // Clamp delta to safe ranges (handles negative clocks or huge background tab pause spikes)
+      if (delta < 0) delta = 0;
+      if (delta > MAX_ACCUMULATOR_MS) delta = MAX_ACCUMULATOR_MS;
+
+      accumulator += delta;
+
+      // 1. Run Fixed Simulation Updates at strictly 60Hz
+      let updates = 0;
+      while (accumulator >= FIXED_TIMESTEP && updates < MAX_UPDATES_PER_FRAME) {
+        engine.update(inputsRef.current);
+        accumulator -= FIXED_TIMESTEP;
+        updates++;
+      }
+
+      // If device is struggling or lag spike occurred, flush remainder to avoid slow-motion buffer
+      if (accumulator >= FIXED_TIMESTEP) {
+        accumulator = 0;
+      }
+
+      // FPS Calculation
+      frameCount++;
+      if (currentTime - lastFpsCalc >= 1000) {
+        currentFps = Math.round((frameCount * 1000) / (currentTime - lastFpsCalc));
+        frameCount = 0;
+        lastFpsCalc = currentTime;
+      }
 
       // 2. Render High-Performance Retro Visual Frame
       renderer.beginFrame(engine.screenShake);
       renderer.render(engine);
+
+      // Render FPS Counter if enabled in settings
+      if (engine.settings.showFps) {
+        renderer.renderFps(currentFps);
+      }
+
       renderer.endFrame();
 
       animId = requestAnimationFrame(loop);

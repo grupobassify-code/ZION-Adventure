@@ -2645,4 +2645,19 @@ export class GameRenderer {
 
     ctx.restore();
   }
+
+  public renderFps(fps: number) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.font = '6px "Press Start 2P", monospace';
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+    ctx.fillRect(GAME_WIDTH - 68, 4, 64, 12);
+    ctx.strokeStyle = fps >= 55 ? '#22c55e' : fps >= 30 ? '#facc15' : '#ef4444';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(GAME_WIDTH - 68, 4, 64, 12);
+    ctx.fillStyle = fps >= 55 ? '#4ade80' : fps >= 30 ? '#fde047' : '#f87171';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${fps} FPS (60Hz)`, GAME_WIDTH - 36, 13);
+    ctx.restore();
+  }
 }

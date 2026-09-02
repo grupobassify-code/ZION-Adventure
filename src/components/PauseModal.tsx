@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, RotateCcw, Volume2, VolumeX, Sparkles, X, LogOut, Smartphone, Swords, ShieldCheck, Music } from 'lucide-react';
+import { Play, RotateCcw, Volume2, VolumeX, Sparkles, X, LogOut, Smartphone, Swords, ShieldCheck, Music, Zap, Gauge } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameSettings } from '../types';
 import { PrivacyModal } from './PrivacyModal';
@@ -165,6 +165,48 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             <Sparkles className="w-4 h-4 text-pink-400" />
             <span>Música Chiptune</span>
           </button>
+        </div>
+
+        {/* Device Optimization & 60 FPS Sync */}
+        <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-400" />
+              <div>
+                <div className="text-xs font-bold text-slate-200">Sincronización & Rendimiento 60 FPS</div>
+                <div className="text-[10px] text-slate-400">Velocidad constante y fluida en todos los dispositivos</div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+              Física Fija 60Hz
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-1">
+            <button
+              onClick={() => onUpdateSettings({ performanceMode: !settings.performanceMode })}
+              className={`flex items-center justify-center gap-1.5 p-2 rounded-xl border text-xs font-semibold transition-all ${
+                settings.performanceMode
+                  ? 'bg-amber-950/50 border-amber-500/50 text-amber-300'
+                  : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Zap className={`w-3.5 h-3.5 ${settings.performanceMode ? 'text-amber-400' : 'text-slate-500'}`} />
+              <span>Modo Ultra Rápido</span>
+            </button>
+
+            <button
+              onClick={() => onUpdateSettings({ showFps: !settings.showFps })}
+              className={`flex items-center justify-center gap-1.5 p-2 rounded-xl border text-xs font-semibold transition-all ${
+                settings.showFps
+                  ? 'bg-emerald-950/50 border-emerald-500/50 text-emerald-300'
+                  : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Gauge className={`w-3.5 h-3.5 ${settings.showFps ? 'text-emerald-400' : 'text-slate-500'}`} />
+              <span>Ver Contador FPS</span>
+            </button>
+          </div>
         </div>
 
         {/* Action Buttons: Continuar, Reiniciar Nivel, Salir & Privacidad */}

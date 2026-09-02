@@ -344,6 +344,8 @@ export interface GameSettings {
   infiniteEnergy: boolean;
   showHitboxes: boolean;
   controlMode: 'joystick' | 'dpad';
+  performanceMode?: boolean;
+  showFps?: boolean;
 }
 
 export interface SaveSlot {

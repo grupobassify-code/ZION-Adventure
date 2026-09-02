@@ -149,6 +149,8 @@ export class GameEngine {
     infiniteEnergy: false,
     showHitboxes: false,
     controlMode: 'joystick',
+    performanceMode: false,
+    showFps: false,
   };
 
   public onStateChange?: () => void;
@@ -664,11 +666,16 @@ export class GameEngine {
       p.inv--;
     }
 
-    // Update Dash Trail Fading
-    for (const trail of p.dashTrail) {
+    // Update Dash Trail Fading (in-place zero allocation)
+    let trailWrite = 0;
+    for (let i = 0; i < p.dashTrail.length; i++) {
+      const trail = p.dashTrail[i];
       trail.alpha -= 0.08;
+      if (trail.alpha > 0) {
+        p.dashTrail[trailWrite++] = trail;
+      }
     }
-    p.dashTrail = p.dashTrail.filter((t) => t.alpha > 0);
+    p.dashTrail.length = trailWrite;
   }
 
   public triggerShowdownParry(sourceX: number, sourceY: number, label = '⚡ ¡SHOWDOWN PARRY! ⚡') {
@@ -2636,11 +2643,21 @@ export class GameEngine {
         }
       }
     }
-    b.shockwaves = b.shockwaves.filter((sw) => sw.life > 0);
+    // In-place zero allocation shockwave compaction
+    let swWrite = 0;
+    for (let i = 0; i < b.shockwaves.length; i++) {
+      if (b.shockwaves[i].life > 0) {
+        b.shockwaves[swWrite++] = b.shockwaves[i];
+      }
+    }
+    b.shockwaves.length = swWrite;
   }
 
   private updateProjectiles() {
-    for (const p of this.projectiles) {
+    let projWrite = 0;
+    const maxParticles = this.settings.performanceMode ? 40 : 80;
+    for (let i = 0; i < this.projectiles.length; i++) {
+      const p = this.projectiles[i];
       if (p.kind === 'homing' && p.homingTimer && p.homingTimer > 0) {
         p.homingTimer--;
         const angle = Math.atan2(this.player.y - p.y, this.player.x - p.x);
@@ -2651,7 +2668,7 @@ export class GameEngine {
         p.angle = ((p.angle || 0) + 0.25) % (Math.PI * 2);
       }
       if (p.kind === 'magmaMeteor') {
-        if (Math.random() < 0.3) {
+        if (Math.random() < 0.3 && this.particles.length < maxParticles) {
           this.particles.push({
             x: p.x + p.w / 2,
             y: p.y,
@@ -2667,8 +2684,11 @@ export class GameEngine {
       p.x += p.vx;
       p.y += p.vy;
       p.life--;
+      if (p.life > 0) {
+        this.projectiles[projWrite++] = p;
+      }
     }
-    this.projectiles = this.projectiles.filter((p) => p.life > 0);
+    this.projectiles.length = projWrite;
   }
 
   private updatePhasingMoonPlatforms() {
@@ -2715,8 +2735,9 @@ export class GameEngine {
       }
 
       // Boss Node Hit
-      this.nodes.forEach((node, nodeIdx) => {
-        if (!node.taken && this.checkAABB(proj, node)) {
+      for (let nodeIdx = 0; nodeIdx < this.nodes.length; nodeIdx++) {
+        const node = this.nodes[nodeIdx];
+        if (!node.taken && Math.abs(proj.x - node.x) < 40 && this.checkAABB(proj, node)) {
           node.taken = true;
           this.collectedNodeIndices.add(nodeIdx);
           proj.life = 0;
@@ -2731,7 +2752,7 @@ export class GameEngine {
             this.addFloatingText(this.boss.x, this.boss.y - 20, '⚡ ¡ESCUDO DEL JEFE DESTRUIDO!', '#4ade80');
           }
         }
-      });
+      }
 
       // Boss Direct Hit
       if (this.boss && this.boss.alive && !this.boss.shield && this.boss.inv <= 0 && this.checkAABB(proj, this.boss)) {
@@ -2741,8 +2762,10 @@ export class GameEngine {
     }
 
     // 2. Crystal Pickups - Grants High Score + Energy + Milestone Life Recovery!
-    this.crystals.forEach((c, idx) => {
-      if (!c.taken && this.checkAABB(p, c)) {
+    for (let idx = 0; idx < this.crystals.length; idx++) {
+      const c = this.crystals[idx];
+      if (c.taken || Math.abs(c.x - p.x) > 50 || Math.abs(c.y - p.y) > 50) continue;
+      if (this.checkAABB(p, c)) {
         c.taken = true;
         this.collectedCrystalIndices.add(idx);
         this.stats.crystalsCollected++;
@@ -2770,11 +2793,13 @@ export class GameEngine {
           }
         }
       }
-    });
+    }
 
     // 3. Heart Heals - Reliable Health Recovery with Points
-    this.heals.forEach((h, idx) => {
-      if (!h.taken && this.checkAABB(p, h)) {
+    for (let idx = 0; idx < this.heals.length; idx++) {
+      const h = this.heals[idx];
+      if (h.taken || Math.abs(h.x - p.x) > 50 || Math.abs(h.y - p.y) > 50) continue;
+      if (this.checkAABB(p, h)) {
         h.taken = true;
         this.collectedHealIndices.add(idx);
         this.lives = Math.min(this.maxLives, this.lives + 1);
@@ -2784,11 +2809,13 @@ export class GameEngine {
         sound.playSfx('heal');
         this.addFloatingText(h.x, h.y - 10, `❤ +1 VIDA [${this.lives}/${this.maxLives}] +250 PTS`, '#4ade80');
       }
-    });
+    }
 
     // 4. Secrets
-    this.secrets.forEach((s, idx) => {
-      if (!s.taken && this.checkAABB(p, s)) {
+    for (let idx = 0; idx < this.secrets.length; idx++) {
+      const s = this.secrets[idx];
+      if (s.taken || Math.abs(s.x - p.x) > 50 || Math.abs(s.y - p.y) > 50) continue;
+      if (this.checkAABB(p, s)) {
         s.taken = true;
         this.collectedSecretIndices.add(idx);
         this.stats.secretsFound++;
@@ -2798,11 +2825,12 @@ export class GameEngine {
         sound.playSfx('secret');
         this.addFloatingText(s.x, s.y - 12, `${s.name} (+1000 PTS)`, '#fbbf24');
       }
-    });
+    }
 
     // 5. Checkpoints - Restores Full Lives & Full Shield & Daggers!
     for (const cp of this.checkpoints) {
-      if (!cp.active && this.checkAABB(p, cp)) {
+      if (cp.active || Math.abs(cp.x - p.x) > 80) continue;
+      if (this.checkAABB(p, cp)) {
         cp.active = true;
         this.spawnPoint = { ...cp.spawn };
         // Save complete snapshot of collected items and defeated enemies
@@ -2837,6 +2865,7 @@ export class GameEngine {
       for (const h of this.hazards) {
         if (h.type === 'laserGate' && !h.active) continue;
         if (h.type === 'geyser' && !h.erupting) continue;
+        if (Math.abs(h.x - p.x) > 80 || Math.abs(h.y - p.y) > 80) continue;
 
         if (this.checkAABB(p, h)) {
           if (h.type === 'water') {
@@ -2890,43 +2919,48 @@ export class GameEngine {
 
       // Hostile Projectiles
       for (const proj of this.projectiles) {
-        if (!proj.isHero && this.checkAABB(p, proj)) {
-          proj.life = 0;
+        if (!proj.isHero) {
+          if (Math.abs(proj.x - p.x) > 30 || Math.abs(proj.y - p.y) > 30) continue;
+          if (this.checkAABB(p, proj)) {
+            proj.life = 0;
 
-          // Check for Perfect Parry or Active Block
-          if (p.isBlocking && !p.isShieldBroken) {
-            if (p.perfectParryTimer > 0) {
-              sound.playSfx('parry');
-              this.addEnergy(25);
-              p.shieldEnergy = Math.min(p.maxShieldEnergy, p.shieldEnergy + 30);
-              this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#facc15');
-              this.addFloatingText(p.x, p.y - 18, '✦ PERFECT PARRY! +25 SP & +30 ESCUDO', '#facc15');
-              this.screenShake = 4;
-            } else {
-              p.shieldEnergy = Math.max(0, p.shieldEnergy - 18);
-              sound.playSfx('block');
-              this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 8, '#38bdf8');
-              if (p.shieldEnergy <= 0) {
-                p.isBlocking = false;
-                p.isShieldBroken = true;
-                p.shieldBreakTimer = 120;
-                sound.playSfx('shieldBreak');
-                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ef4444');
-                this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO AGOTADO Y ROTO!', '#ef4444');
+            // Check for Perfect Parry or Active Block
+            if (p.isBlocking && !p.isShieldBroken) {
+              if (p.perfectParryTimer > 0) {
+                sound.playSfx('parry');
+                this.addEnergy(25);
+                p.shieldEnergy = Math.min(p.maxShieldEnergy, p.shieldEnergy + 30);
+                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#facc15');
+                this.addFloatingText(p.x, p.y - 18, '✦ PERFECT PARRY! +25 SP & +30 ESCUDO', '#facc15');
+                this.screenShake = 4;
               } else {
-                this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+                p.shieldEnergy = Math.max(0, p.shieldEnergy - 18);
+                sound.playSfx('block');
+                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 8, '#38bdf8');
+                if (p.shieldEnergy <= 0) {
+                  p.isBlocking = false;
+                  p.isShieldBroken = true;
+                  p.shieldBreakTimer = 120;
+                  sound.playSfx('shieldBreak');
+                  this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ef4444');
+                  this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO AGOTADO Y ROTO!', '#ef4444');
+                } else {
+                  this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+                }
               }
+            } else {
+              this.handlePlayerDamage('¡Ataque recibido!');
             }
-          } else {
-            this.handlePlayerDamage('¡Ataque recibido!');
+            break;
           }
-          break;
         }
       }
 
       // Enemy Collisions
       for (const e of this.enemies) {
-        if (e.alive && this.checkAABB(p, e)) {
+        if (!e.alive) continue;
+        if (Math.abs(e.x - p.x) > 50 || Math.abs(e.y - p.y) > 50) continue;
+        if (this.checkAABB(p, e)) {
           // Stomp enemy if jumping onto head
           if (p.vy > 0 && p.y + p.h - p.vy <= e.y + 6 && e.type !== 'sphere') {
             this.applyDamageToEnemy(e, p.attackPower * 2, p.facing);
@@ -3097,37 +3131,60 @@ export class GameEngine {
       }
     }
 
-    // 4. Particles
-    for (const p of this.particles) {
+    // 4. Particles (In-place zero allocation)
+    let pWrite = 0;
+    for (let i = 0; i < this.particles.length; i++) {
+      const p = this.particles[i];
       p.x += p.vx;
       p.y += p.vy;
       p.life--;
+      if (p.life > 0) {
+        this.particles[pWrite++] = p;
+      }
     }
-    this.particles = this.particles.filter((p) => p.life > 0);
+    this.particles.length = pWrite;
 
-    // 5. Floating Texts
-    for (const t of this.floatingTexts) {
+    // 5. Floating Texts (In-place zero allocation)
+    let tWrite = 0;
+    for (let i = 0; i < this.floatingTexts.length; i++) {
+      const t = this.floatingTexts[i];
       t.y += t.vy;
       t.life--;
+      if (t.life > 0) {
+        this.floatingTexts[tWrite++] = t;
+      }
     }
-    this.floatingTexts = this.floatingTexts.filter((t) => t.life > 0);
+    this.floatingTexts.length = tWrite;
 
-    // 6. Melee Slashes
-    for (const m of this.meleeEffects) {
+    // 6. Melee Slashes (In-place zero allocation)
+    let mWrite = 0;
+    for (let i = 0; i < this.meleeEffects.length; i++) {
+      const m = this.meleeEffects[i];
       m.life--;
+      if (m.life > 0) {
+        this.meleeEffects[mWrite++] = m;
+      }
     }
-    this.meleeEffects = this.meleeEffects.filter((m) => m.life > 0);
+    this.meleeEffects.length = mWrite;
 
-    // 7. Special Bursts
-    for (const s of this.specialEffects) {
+    // 7. Special Bursts (In-place zero allocation)
+    let sWrite = 0;
+    for (let i = 0; i < this.specialEffects.length; i++) {
+      const s = this.specialEffects[i];
       s.radius += (s.maxRadius - s.radius) * 0.22;
       s.life--;
+      if (s.life > 0) {
+        this.specialEffects[sWrite++] = s;
+      }
     }
-    this.specialEffects = this.specialEffects.filter((s) => s.life > 0);
+    this.specialEffects.length = sWrite;
   }
 
   public createBurst(x: number, y: number, count = 8, color = '#38bdf8') {
-    for (let i = 0; i < count; i++) {
+    const maxParticles = this.settings.performanceMode ? 40 : 85;
+    if (this.particles.length >= maxParticles) return;
+    const spawnCount = Math.min(count, maxParticles - this.particles.length);
+    for (let i = 0; i < spawnCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 0.5 + Math.random() * 2.8;
       this.particles.push({
