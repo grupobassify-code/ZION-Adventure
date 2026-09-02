@@ -1,0 +1,17 @@
+{
+  "name": "Zion Adventure",
+  "short_name": "Zion Adventure",
+  "start_url": "/",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "background_color": "#050711",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
