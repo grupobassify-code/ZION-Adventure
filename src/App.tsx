@@ -21,6 +21,7 @@ import { TutorialPopup } from './components/TutorialPopup';
 import { LEVEL_CONFIGS } from './game/levelData';
 import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActiveSlotId } from './game/saveManager';
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
+import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
 
 export default function App() {
@@ -132,10 +133,11 @@ export default function App() {
     }
   }, [engine, inMainMenu]);
 
-  // Monitor viewport orientation and attempt landscape lock
+  // Monitor viewport orientation, zoom prevention and landscape lock
   useEffect(() => {
-    // Initial attempt to lock landscape
+    // Initial attempt to lock landscape and initialize zoom prevention
     lockLandscapeOrientation();
+    const cleanupPreventZoom = initPreventZoom();
 
     const checkOrientation = () => {
       const portrait = window.innerHeight > window.innerWidth;
@@ -149,6 +151,7 @@ export default function App() {
     window.addEventListener('orientationchange', checkOrientation);
 
     return () => {
+      cleanupPreventZoom();
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
     };
@@ -313,7 +316,7 @@ export default function App() {
       id="game-viewport"
       onClick={unlockAudioAndLockLandscape}
       onTouchStart={unlockAudioAndLockLandscape}
-      className="relative w-full h-full bg-[#050711] overflow-hidden flex items-center justify-center select-none"
+      className="relative w-full h-full bg-[#050711] overflow-hidden flex items-center justify-center select-none touch-none"
     >
       {/* 0. Orientation Landscape Guard Prompt */}
       {isPortrait && !promptDismissed && (
@@ -380,13 +383,13 @@ export default function App() {
       )}
 
       {/* Responsive Scaled Pixel Canvas Container */}
-      <div className="relative w-full h-full max-w-[1280px] max-h-[720px] aspect-[16/9] flex items-center justify-center">
+      <div className="relative w-full h-full max-w-[1280px] max-h-[720px] aspect-[16/9] flex items-center justify-center game-canvas-container touch-none select-none">
         <canvas
           ref={canvasRef}
           id="game-canvas"
           width={GAME_WIDTH}
           height={GAME_HEIGHT}
-          className="w-full h-full object-contain image-rendering-pixelated shadow-2xl rounded-lg"
+          className="w-full h-full object-contain image-rendering-pixelated shadow-2xl rounded-lg touch-none select-none"
           style={{ imageRendering: 'pixelated' }}
         />
       </div>

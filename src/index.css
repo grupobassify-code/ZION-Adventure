@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
-html, body, #root {
+* {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body, #root, canvas, .game-canvas-container {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  touch-action: none;
+  touch-action: none !important;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+button {
+  touch-action: manipulation;
 }
 
 /* Ensure pixel art maintains absolute crispness across all displays */
