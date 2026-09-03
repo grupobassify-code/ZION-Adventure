@@ -1,4 +1,4 @@
-import { Platform, Hazard, Collectible, Enemy, ZoneId } from '../types';
+import { Platform, Hazard, Collectible, Enemy, ZoneId, Trampoline } from '../types';
 
 export interface OnlyUpChunk {
   platforms: Platform[];
@@ -6,6 +6,7 @@ export interface OnlyUpChunk {
   crystals: Collectible[];
   heals: Collectible[];
   enemies: Enemy[];
+  trampolines: Trampoline[];
 }
 
 export function getOnlyUpBiome(altitudeMeters: number): {
@@ -80,6 +81,7 @@ export function generateOnlyUpChunk(
   const crystals: Collectible[] = [];
   const heals: Collectible[] = [];
   const enemies: Enemy[] = [];
+  const trampolines: Trampoline[] = [];
 
   let currentY = fromY;
   let enemyId = startEnemyId;
@@ -192,20 +194,41 @@ export function generateOnlyUpChunk(
       originalY: currentY,
     });
 
+    // Trampolines: Dynamic Bounce Pads that launch the player high into the air!
+    // Start appearing after 15m, making the climb fast, fluid and exciting.
+    let hasTrampoline = false;
+    const canHaveTrampoline = altitude >= 15 && platW >= 42;
+    const rollTrampoline = (Math.abs(currentY) % 60 < 22 && Math.random() < 0.65) || (Math.random() < 0.16);
+    if (canHaveTrampoline && rollTrampoline) {
+      hasTrampoline = true;
+      const isSuper = altitude >= 120 && Math.random() < 0.30;
+      const trampW = isSuper ? 22 : 18;
+      const trampH = 7;
+      trampolines.push({
+        x: platX + platW / 2 - trampW / 2,
+        y: currentY - trampH,
+        w: trampW,
+        h: trampH,
+        bounceForce: isSuper ? -13.0 : -10.8,
+        springAnim: 0,
+        type: isSuper ? 'super' : 'standard',
+      });
+    }
+
     // Collectibles: Crystals along the way
     if (Math.random() > 0.3) {
       crystals.push({
         x: platX + platW / 2 - 4,
-        y: currentY - 14,
+        y: hasTrampoline ? currentY - 32 : currentY - 14,
         w: 8,
         h: 10,
         taken: false,
       });
     }
 
-    // Heals: More frequent early on (~40m) and every ~90m later
+    // Heals: More frequent early on (~40m) and every ~90m later (never on trampolines)
     const healInterval = altitude < 100 ? 80 : 170;
-    if (Math.abs(currentY) % healInterval < 30 && Math.random() > 0.4) {
+    if (!hasTrampoline && Math.abs(currentY) % healInterval < 30 && Math.random() > 0.4) {
       heals.push({
         x: platX + platW / 2 - 5,
         y: currentY - 14,
@@ -215,8 +238,8 @@ export function generateOnlyUpChunk(
       });
     }
 
-    // Hazards generation based on biome (ZERO hazards in early zone < 80m)
-    const hazardChance = altitude < 80
+    // Hazards generation based on biome (ZERO hazards on trampoline platforms or in early zone < 80m)
+    const hazardChance = (altitude < 80 || hasTrampoline)
       ? 0
       : 0.14 + Math.min(0.32, (altitude - 80) / 700);
     if (hazardChance > 0 && Math.random() < hazardChance) {
@@ -304,20 +327,10 @@ export function generateOnlyUpChunk(
       }
     }
 
-    // Enemies only start appearing after 90m on wide platforms
-    if (altitude >= 90 && platW >= 65 && Math.random() < 0.18) {
-      const enemyTypes: Enemy['type'][] =
-        biome.zone === 'neon'
-          ? ['hopper', 'sentinel']
-          : biome.zone === 'sakura'
-          ? ['kitsune', 'yurei']
-          : biome.zone === 'lavacliff'
-          ? ['salamander', 'flame_wisp']
-          : biome.zone === 'desert'
-          ? ['scarab', 'mummy_warrior']
-          : ['cyber_drone', 'cyberturret'];
-
-      const selectedType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+    // Enemies ONLY start appearing after 1000m in high-altitude layers on wide platforms
+    if (altitude >= 1000 && platW >= 65 && !hasTrampoline && Math.random() < 0.22) {
+      const highAltitudeEnemies: Enemy['type'][] = ['cyber_drone', 'cyberturret', 'plasma_trooper', 'sentinel'];
+      const selectedType = highAltitudeEnemies[Math.floor(Math.random() * highAltitudeEnemies.length)];
       enemies.push({
         id: enemyId++,
         type: selectedType,
@@ -340,5 +353,5 @@ export function generateOnlyUpChunk(
     }
   }
 
-  return { platforms, hazards, crystals, heals, enemies };
+  return { platforms, hazards, crystals, heals, enemies, trampolines };
 }

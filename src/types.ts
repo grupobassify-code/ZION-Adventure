@@ -124,6 +124,16 @@ export interface Collectible {
   t?: number;
 }
 
+export interface Trampoline {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  bounceForce: number;
+  springAnim: number;
+  type?: 'standard' | 'super';
+}
+
 export interface SecretItem extends Collectible {
   name: string;
 }

@@ -130,6 +130,14 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
           </div>
         </div>
 
+        {/* Dynamic Climb Pro-Tip */}
+        <div className="mt-3.5 px-3 py-2 rounded-xl bg-cyan-950/40 border border-cyan-500/20 flex items-center gap-2.5 text-[11px] text-cyan-200">
+          <span className="text-sm">⏫</span>
+          <span>
+            <strong>Pro Tip:</strong> ¡Usa los trampolines para impulsarte alto! Las plataformas son traspasables desde abajo y los enemigos acechan a partir de los 1000m.
+          </span>
+        </div>
+
         {/* Actions Buttons */}
         <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
           <button

@@ -56,6 +56,7 @@ import {
   Projectile,
   SecretItem,
   SpecialBurstEffect,
+  Trampoline,
 } from '../types';
 
 export interface GameInputState {
@@ -146,6 +147,7 @@ export class GameEngine {
   public onlyUpGeneratedTopY: number = 140;
   public onlyUpNewRecordAchieved: boolean = false;
   public onlyUpNextEnemyId: number = 2000;
+  public trampolines: Trampoline[] = [];
 
   public stats: GameStats = {
     crystalsCollected: 0,
@@ -423,6 +425,7 @@ export class GameEngine {
     this.landmarks = [];
     this.nodes = [];
     this.goal = null;
+    this.trampolines = [];
 
     // Initial climbing platforms
     const initialChunk = generateOnlyUpChunk(140, -460, this.onlyUpNextEnemyId);
@@ -431,6 +434,9 @@ export class GameEngine {
     this.crystals.push(...initialChunk.crystals);
     this.heals.push(...initialChunk.heals);
     this.enemies.push(...initialChunk.enemies);
+    if (initialChunk.trampolines) {
+      this.trampolines.push(...initialChunk.trampolines);
+    }
     this.onlyUpGeneratedTopY = -460;
     this.onlyUpNextEnemyId += 100;
 
@@ -735,8 +741,8 @@ export class GameEngine {
       p.x = Math.max(0, Math.min(worldW - p.w, p.x));
     }
 
-    // Resolve Wall Collisions
-    const walls = [...this.platforms];
+    // Resolve Wall Collisions (In Only Up mode, platforms are jump-through and do not block horizontally)
+    const walls = this.isOnlyUpMode ? [] : [...this.platforms];
     if (this.boss && this.arenaActive && !this.bossDefeated) {
       const arenaLeft = this.boss.x - 380;
       const arenaRight = this.boss.x + 380;
@@ -760,22 +766,88 @@ export class GameEngine {
     p.y += p.vy;
     p.ground = false;
 
-    for (const plat of this.platforms) {
-      if (plat.hidden) continue;
-      if (this.checkAABB(p, plat)) {
-        if (plat.kind === 'quicksand') {
-          p.ground = true;
-          if (!p.isDashing) {
-            p.vy = 0.35;
-            p.vx *= 0.6;
+    if (this.isOnlyUpMode) {
+      // In Only Up mode: platforms are jump-through (traspasables)
+      // Moving UP (vy < 0): player passes freely right through platforms
+      // Falling DOWN (vy >= 0): player lands securely on top
+      const prevBottom = (p.y - p.vy) + p.h;
+      const currentBottom = p.y + p.h;
+
+      for (const plat of this.platforms) {
+        if (plat.hidden) continue;
+
+        // Ground base platform at y=155 is solid
+        if (plat.kind === 'ground' && plat.y >= 155) {
+          if (this.checkAABB(p, plat) && p.vy > 0) {
+            p.y = plat.y - p.h;
+            p.vy = 0;
+            p.ground = true;
           }
-        } else if (p.vy > 0) {
-          p.y = plat.y - p.h;
-          p.vy = 0;
-          p.ground = true;
-        } else if (p.vy < 0) {
-          p.y = plat.y + plat.h;
-          p.vy = 0;
+          continue;
+        }
+
+        // Pass-through platforms: land only when falling down
+        if (p.vy >= 0) {
+          const horizontalOverlap = p.x + p.w > plat.x + 2 && p.x < plat.x + plat.w - 2;
+          const verticalLanding = prevBottom <= plat.y + 7 && currentBottom >= plat.y;
+          if (horizontalOverlap && verticalLanding) {
+            p.y = plat.y - p.h;
+            p.vy = 0;
+            p.ground = true;
+
+            // Handle conveyor platform movement
+            if (plat.kind === 'conveyor' && plat.speed && plat.dir) {
+              p.x += plat.speed * plat.dir;
+              p.x = Math.max(26, Math.min(294 - p.w, p.x));
+            }
+          }
+        }
+      }
+
+      // Dynamic Trampolines (Bounce Pads)
+      for (const t of this.trampolines) {
+        if (t.springAnim > 0) {
+          t.springAnim--;
+        }
+        if (this.checkAABB(p, t)) {
+          if (p.vy >= -1.0) {
+            p.y = t.y - p.h;
+            p.vy = t.bounceForce; // Launches Zion high up into the air!
+            t.springAnim = 16;
+            p.ground = false;
+            p.coyoteTimer = 0;
+            sound.playSfx('jump');
+            this.screenShake = t.type === 'super' ? 8 : 4;
+            const isSuper = t.type === 'super';
+            this.createBurst(t.x + t.w / 2, t.y, isSuper ? 18 : 12, isSuper ? '#e879f9' : '#38bdf8');
+            this.addFloatingText(
+              p.x,
+              p.y - 14,
+              isSuper ? '🚀 ¡MEGA IMPULSO!' : '⏫ ¡TRAMPOLÍN!',
+              isSuper ? '#f472b6' : '#38bdf8'
+            );
+          }
+        }
+      }
+    } else {
+      // Campaign level collision
+      for (const plat of this.platforms) {
+        if (plat.hidden) continue;
+        if (this.checkAABB(p, plat)) {
+          if (plat.kind === 'quicksand') {
+            p.ground = true;
+            if (!p.isDashing) {
+              p.vy = 0.35;
+              p.vx *= 0.6;
+            }
+          } else if (p.vy > 0) {
+            p.y = plat.y - p.h;
+            p.vy = 0;
+            p.ground = true;
+          } else if (p.vy < 0) {
+            p.y = plat.y + plat.h;
+            p.vy = 0;
+          }
         }
       }
     }
@@ -3591,20 +3663,25 @@ export class GameEngine {
       this.onlyUpGraceTimer--;
       this.onlyUpLavaSpeed = 0;
     } else {
-      // Rising Lava Dynamics: gentler at the start (0.20), speed increases progressively
-      let speed = 0.20;
-      if (this.onlyUpAltitude > 100) speed = 0.30;
-      if (this.onlyUpAltitude > 250) speed = 0.42;
-      if (this.onlyUpAltitude > 500) speed = 0.55;
-      if (this.onlyUpAltitude > 800) speed = 0.70;
-      if (this.onlyUpAltitude > 1200) speed = 0.85;
+      // Rising Lava Dynamics: Base altitude scaling + Continuous Time-Based Acceleration
+      // "Entre más pasa el tiempo, más rápido sube la lava"
+      let baseSpeed = 0.20;
+      if (this.onlyUpAltitude > 100) baseSpeed = 0.28;
+      if (this.onlyUpAltitude > 250) baseSpeed = 0.38;
+      if (this.onlyUpAltitude > 500) baseSpeed = 0.50;
+      if (this.onlyUpAltitude > 800) baseSpeed = 0.64;
+      if (this.onlyUpAltitude > 1200) baseSpeed = 0.80;
 
-      // If player is far ahead (> 240px), lava picks up speed slightly to maintain pressure
+      // Time acceleration: each 10 seconds of survival adds +0.035 lava speed continuously
+      const timeBonus = (this.onlyUpTimeSurvived / 10) * 0.035;
+      let speed = baseSpeed + timeBonus;
+
+      // If player is far ahead (> 240px), lava picks up extra speed to maintain pressure
       const distFromLava = this.onlyUpLavaY - this.player.y;
       if (distFromLava > 240) {
-        speed += 0.10;
+        speed += 0.12;
       }
-      this.onlyUpLavaSpeed = speed;
+      this.onlyUpLavaSpeed = Math.min(2.6, speed);
       this.onlyUpLavaY -= this.onlyUpLavaSpeed;
     }
 
@@ -3647,6 +3724,9 @@ export class GameEngine {
       this.crystals.push(...nextChunk.crystals);
       this.heals.push(...nextChunk.heals);
       this.enemies.push(...nextChunk.enemies);
+      if (nextChunk.trampolines) {
+        this.trampolines.push(...nextChunk.trampolines);
+      }
       this.onlyUpGeneratedTopY -= 450;
       this.onlyUpNextEnemyId += 100;
     }
@@ -3659,6 +3739,7 @@ export class GameEngine {
       this.crystals = this.crystals.filter((c) => !c.taken && c.y < cleanupY);
       this.heals = this.heals.filter((h) => !h.taken && h.y < cleanupY);
       this.enemies = this.enemies.filter((e) => e.alive && e.y < cleanupY);
+      this.trampolines = this.trampolines.filter((t) => t.y < cleanupY);
     }
   }
 

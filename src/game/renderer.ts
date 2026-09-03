@@ -18,6 +18,7 @@ import {
   Projectile,
   SecretItem,
   SpecialBurstEffect,
+  Trampoline,
   ZoneId,
 } from '../types';
 
@@ -163,6 +164,9 @@ export class GameRenderer {
     // B. Platforms & Solids
     this.renderPlatforms(engine.platforms, biome.zone, 1, 0, engine.time);
 
+    // B2. Dynamic Trampolines (Bounce Pads)
+    this.renderTrampolines(engine.trampolines, engine.time);
+
     // C. Hazards
     this.renderHazards(engine.hazards, 0, engine.time);
 
@@ -280,6 +284,20 @@ export class GameRenderer {
     ctx.fillStyle = '#fbbf24';
     ctx.fillText(`RÉCORD: ${Math.max(engine.onlyUpRecord, engine.onlyUpAltitude)}m`, GAME_WIDTH / 2, 23);
 
+    // Top Right Survival Timer Capsule
+    const mins = Math.floor(engine.onlyUpTimeSurvived / 60);
+    const secs = Math.floor(engine.onlyUpTimeSurvived % 60);
+    const timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillRect(GAME_WIDTH - 64, 6, 58, 16);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(GAME_WIDTH - 64, 6, 58, 16);
+    ctx.font = '5px "Press Start 2P", monospace';
+    ctx.fillStyle = '#38bdf8';
+    ctx.textAlign = 'center';
+    ctx.fillText(`⏱ ${timeStr}`, GAME_WIDTH - 35, 17);
+
     // 3 Seconds Head Start Advantage Banner
     if (engine.onlyUpGraceTimer > 0) {
       const secs = (engine.onlyUpGraceTimer / 60).toFixed(1);
@@ -299,7 +317,7 @@ export class GameRenderer {
       ctx.fillText('¡SUBE AHORA! LAVA DETENIDA', GAME_WIDTH / 2, 54);
     }
 
-    // Lava Proximity Indicator on bottom left
+    // Lava Proximity Indicator on bottom left (shows distance & rising acceleration speed)
     if (engine.onlyUpGraceTimer > 0) {
       const secs = (engine.onlyUpGraceTimer / 60).toFixed(1);
       ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
@@ -314,19 +332,72 @@ export class GameRenderer {
       ctx.fillText(`LAVA ESPERA: ${secs}s`, 53, GAME_HEIGHT - 13);
     } else {
       const dist = Math.max(0, Math.round(engine.onlyUpLavaY - engine.player.y));
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-      ctx.fillRect(8, GAME_HEIGHT - 22, 60, 14);
+      const speedRate = (engine.onlyUpLavaSpeed * 60).toFixed(0);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillRect(8, GAME_HEIGHT - 22, 94, 14);
       ctx.strokeStyle = dist < 70 ? '#ef4444' : '#f97316';
       ctx.lineWidth = 1;
-      ctx.strokeRect(8, GAME_HEIGHT - 22, 60, 14);
+      ctx.strokeRect(8, GAME_HEIGHT - 22, 94, 14);
 
       ctx.font = '5px "Press Start 2P", monospace';
       ctx.fillStyle = dist < 70 ? '#f87171' : '#fdba74';
       ctx.textAlign = 'center';
-      ctx.fillText(`LAVA: ${dist}px`, 38, GAME_HEIGHT - 13);
+      ctx.fillText(`LAVA: ${dist}px ▲${speedRate}p/s`, 55, GAME_HEIGHT - 13);
     }
 
     ctx.restore();
+  }
+
+  public renderTrampolines(trampolines: Trampoline[], time: number) {
+    const ctx = this.ctx;
+    for (const t of trampolines) {
+      const isSuper = t.type === 'super';
+      const compression = t.springAnim > 0 ? (t.springAnim / 16) * 3 : 0;
+      const padY = t.y + compression;
+      const padH = Math.max(3, t.h - compression);
+
+      // Base mount anchored securely to platform
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(t.x, t.y + t.h - 2, t.w, 3);
+      ctx.fillStyle = isSuper ? '#fbbf24' : '#475569';
+      ctx.fillRect(t.x + 2, t.y + t.h - 1, 2, 2);
+      ctx.fillRect(t.x + t.w - 4, t.y + t.h - 1, 2, 2);
+
+      // Central Hydraulic Spring Piston
+      ctx.fillStyle = isSuper ? '#e879f9' : '#38bdf8';
+      ctx.fillRect(t.x + t.w / 2 - 2, padY + 3, 4, Math.max(1, padH - 2));
+
+      // Bouncy Launch Pad Body
+      ctx.fillStyle = isSuper ? '#db2777' : '#0284c7';
+      ctx.fillRect(t.x, padY, t.w, 4);
+
+      // High-Energy Elastic Surface
+      ctx.fillStyle = isSuper ? '#f472b6' : '#38bdf8';
+      ctx.fillRect(t.x, padY, t.w, 2);
+
+      // Bright Impulse Glow Line
+      ctx.fillStyle = isSuper ? '#fde047' : '#67e8f9';
+      ctx.fillRect(t.x + 3, padY, t.w - 6, 1);
+
+      // Upward Arrow Icon indicating instant impulse! (▲)
+      const arrowBob = t.springAnim > 0 ? 0 : Math.sin(time * 0.16) * 1.5;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      const cx = t.x + t.w / 2;
+      ctx.moveTo(cx, padY - 2 + arrowBob);
+      ctx.lineTo(cx - 3, padY + 1 + arrowBob);
+      ctx.lineTo(cx + 3, padY + 1 + arrowBob);
+      ctx.closePath();
+      ctx.fill();
+
+      // Super Trampoline Quantum Energy Ring Effect
+      if (isSuper) {
+        const pulse = 0.35 + Math.sin(time * 0.12) * 0.25;
+        ctx.strokeStyle = `rgba(232, 121, 249, ${pulse.toFixed(2)})`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(t.x - 1, padY - 1, t.w + 2, 6);
+      }
+    }
   }
 
   public beginFrame(screenShake = 0) {
