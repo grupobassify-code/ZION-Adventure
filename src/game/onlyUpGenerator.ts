@@ -91,14 +91,20 @@ export function generateOnlyUpChunk(
     const altitude = Math.max(0, Math.floor((140 - currentY) / 2));
     const biome = getOnlyUpBiome(altitude);
 
-    // Vertical spacing between 30 and 42 px (jump force is -6.0 which reaches ~60px)
-    const dy = 32 + Math.floor(Math.sin(currentY * 0.05) * 6) + Math.min(6, Math.floor(altitude / 300));
+    // Vertical spacing: gentler (26-32px) at the start (<80m), then normal (30-42px)
+    const dy = altitude < 80
+      ? 26 + Math.floor(Math.sin(currentY * 0.05) * 4)
+      : 32 + Math.floor(Math.sin(currentY * 0.05) * 6) + Math.min(6, Math.floor((altitude - 80) / 300));
     currentY -= dy;
 
-    // Platform width narrows with altitude (starts 75px, reduces down to ~45px)
-    const baseW = Math.max(42, 75 - Math.floor(altitude / 60));
-    const widthVar = Math.floor(Math.abs(Math.sin(currentY * 0.1)) * 18);
-    const platW = Math.min(90, Math.max(40, baseW + widthVar));
+    // Platform width: very generous (85-115px) at start (<100m), then gradually narrows to ~45px
+    const baseW = altitude < 100
+      ? 95 - Math.floor(altitude / 10)
+      : Math.max(42, 75 - Math.floor((altitude - 100) / 60));
+    const widthVar = Math.floor(Math.abs(Math.sin(currentY * 0.1)) * (altitude < 100 ? 20 : 16));
+    const platW = altitude < 100
+      ? Math.min(120, Math.max(75, baseW + widthVar))
+      : Math.min(90, Math.max(40, baseW + widthVar));
 
     // Stagger X across left (32-90), middle (110-170), right (180-250)
     // Alternate sides to create an engaging climbing rhythm
@@ -197,8 +203,9 @@ export function generateOnlyUpChunk(
       });
     }
 
-    // Heals: Every ~90 meters (every ~180px of ascent with some rarity)
-    if (Math.abs(currentY) % 170 < 35 && Math.random() > 0.5) {
+    // Heals: More frequent early on (~40m) and every ~90m later
+    const healInterval = altitude < 100 ? 80 : 170;
+    if (Math.abs(currentY) % healInterval < 30 && Math.random() > 0.4) {
       heals.push({
         x: platX + platW / 2 - 5,
         y: currentY - 14,
@@ -208,9 +215,11 @@ export function generateOnlyUpChunk(
       });
     }
 
-    // Hazards generation based on biome
-    const hazardChance = 0.25 + Math.min(0.35, altitude / 800);
-    if (Math.random() < hazardChance) {
+    // Hazards generation based on biome (ZERO hazards in early zone < 80m)
+    const hazardChance = altitude < 80
+      ? 0
+      : 0.14 + Math.min(0.32, (altitude - 80) / 700);
+    if (hazardChance > 0 && Math.random() < hazardChance) {
       if (biome.zone === 'neon') {
         hazards.push({
           x: platX + 8,
@@ -295,8 +304,8 @@ export function generateOnlyUpChunk(
       }
     }
 
-    // Occasional Patrol / Sentinel Enemy on wider platforms
-    if (platW >= 60 && Math.random() < 0.22) {
+    // Enemies only start appearing after 90m on wide platforms
+    if (altitude >= 90 && platW >= 65 && Math.random() < 0.18) {
       const enemyTypes: Enemy['type'][] =
         biome.zone === 'neon'
           ? ['hopper', 'sentinel']

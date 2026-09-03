@@ -134,8 +134,9 @@ export class GameEngine {
   // Kronos Only Up Mode
   public isOnlyUpMode: boolean = false;
   public cameraY: number = 0;
-  public onlyUpLavaY: number = 195;
-  public onlyUpLavaSpeed: number = 0.32;
+  public onlyUpLavaY: number = 215;
+  public onlyUpLavaSpeed: number = 0;
+  public onlyUpGraceTimer: number = 180; // 3 seconds head start / ventaja
   public onlyUpAltitude: number = 0;
   public onlyUpMaxAltitude: number = 0;
   public onlyUpRecord: number = 0;
@@ -374,8 +375,9 @@ export class GameEngine {
     this.onlyUpIsGameOver = false;
     this.onlyUpNewRecordAchieved = false;
     this.onlyUpTimeSurvived = 0;
-    this.onlyUpLavaY = 195;
-    this.onlyUpLavaSpeed = 0.32;
+    this.onlyUpGraceTimer = 180; // 3 seconds head start (ventaja de 3s)
+    this.onlyUpLavaY = 215; // submerged comfortably below ground
+    this.onlyUpLavaSpeed = 0;
     this.onlyUpGeneratedTopY = 140;
     this.onlyUpNextEnemyId = 2000;
 
@@ -2877,8 +2879,10 @@ export class GameEngine {
             sound.playSfx('block');
             this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 8, '#38bdf8');
             this.addFloatingText(this.player.x, this.player.y - 12, '🛡️ ¡Bloqueado!', '#38bdf8');
+            sw.life = 0;
           }
         } else {
+          sw.life = 0;
           this.handlePlayerDamage('¡Onda de Choque Sísmica!');
         }
       }
@@ -3101,13 +3105,62 @@ export class GameEngine {
 
     // 6. Hazards & Enemies Contact (Damage, Stomp, Block & Parry)
     if (p.inv <= 0 && !this.settings.godMode) {
-      // Hazards
+      // Hazards (Fix phantom damage: only deal damage when hazards are actively dangerous)
       for (const h of this.hazards) {
+        if (h.type === 'bamboo' || h.type === 'branch' || h.type === 'rock') continue; // Decorative
         if (h.type === 'laserGate' && !h.active) continue;
         if (h.type === 'geyser' && !h.erupting) continue;
+        if (h.type === 'fallingBlock' && (!h.isFalling || (h.fallVy || 0) < 1.0)) continue; // Only damage while actually falling
+        if (h.type === 'stalactite' && (!h.falling || (h.vy || 0) < 1.0)) continue; // Only damage while actually falling
         if (Math.abs(h.x - p.x) > 80 || Math.abs(h.y - p.y) > 80) continue;
 
-        if (this.checkAABB(p, h)) {
+        let isColliding = false;
+        if (h.type === 'swingingBlade') {
+          // Calculate exact circular pendulum blade tip position instead of top bounding box
+          const pivotX = h.x + h.w / 2;
+          const pivotY = h.y;
+          const length = 55;
+          const angle = h.bladeAngle || 0;
+          const bladeX = pivotX + Math.sin(angle) * length;
+          const bladeY = pivotY + Math.cos(angle) * length;
+          const playerCenterX = p.x + p.w / 2;
+          const playerCenterY = p.y + p.h / 2;
+          const dist = Math.hypot(playerCenterX - bladeX, playerCenterY - bladeY);
+          if (dist < 14) {
+            isColliding = true;
+          }
+        } else if (h.type === 'laserGate') {
+          // Precise 4px central beam collision box
+          const beamBox = {
+            x: h.x + h.w / 2 - 2,
+            y: h.y + 2,
+            w: 4,
+            h: h.h - 4,
+          };
+          isColliding = this.checkAABB(p, beamBox);
+        } else if (h.type === 'geyser') {
+          // Flame column above geyser base
+          const flameBox = {
+            x: h.x + 2,
+            y: 148 - 60,
+            w: h.w - 4,
+            h: 60,
+          };
+          isColliding = this.checkAABB(p, flameBox);
+        } else if (h.type === 'spike' || h.type === 'sandSpike') {
+          // Inset 2px horizontally so brushing air doesn't trigger damage
+          const spikeBox = {
+            x: h.x + 2,
+            y: h.y + 2,
+            w: Math.max(2, h.w - 4),
+            h: h.h - 2,
+          };
+          isColliding = this.checkAABB(p, spikeBox);
+        } else {
+          isColliding = this.checkAABB(p, h);
+        }
+
+        if (isColliding) {
           if (h.type === 'water') {
             sound.playSfx('splash');
             this.createBurst(p.x + p.w / 2, 160, 16, '#38bdf8');
@@ -3239,24 +3292,41 @@ export class GameEngine {
         }
       }
 
-      // Boss Body Collision
-      if (this.boss && this.boss.alive && this.checkAABB(p, this.boss)) {
-        if (p.isBlocking && !p.isShieldBroken) {
-          p.shieldEnergy = Math.max(0, p.shieldEnergy - 30);
-          p.vx = -p.facing * 2.8;
-          sound.playSfx('block');
-          if (p.shieldEnergy <= 0) {
-            p.isBlocking = false;
-            p.isShieldBroken = true;
-            p.shieldBreakTimer = 120;
-            sound.playSfx('shieldBreak');
-            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 25, '#ef4444');
-            this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR EL JEFE!', '#ef4444');
+      // Boss Body Collision (Only when boss is actively performing offensive move, NOT while staggered/idle/recovering)
+      const bossCanDamage =
+        this.boss &&
+        this.boss.alive &&
+        !this.boss.isStaggered &&
+        this.boss.state !== 'staggered' &&
+        this.boss.state !== 'idle' &&
+        this.boss.inv < 15 &&
+        (this.boss.introTimer || 0) <= 0;
+
+      if (bossCanDamage && this.boss) {
+        const bossHurtbox = {
+          x: this.boss.x + 4,
+          y: this.boss.y + 4,
+          w: Math.max(8, this.boss.w - 8),
+          h: Math.max(8, this.boss.h - 8),
+        };
+        if (this.checkAABB(p, bossHurtbox)) {
+          if (p.isBlocking && !p.isShieldBroken) {
+            p.shieldEnergy = Math.max(0, p.shieldEnergy - 30);
+            p.vx = -p.facing * 2.8;
+            sound.playSfx('block');
+            if (p.shieldEnergy <= 0) {
+              p.isBlocking = false;
+              p.isShieldBroken = true;
+              p.shieldBreakTimer = 120;
+              sound.playSfx('shieldBreak');
+              this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 25, '#ef4444');
+              this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR EL JEFE!', '#ef4444');
+            } else {
+              this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Impacto Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+            }
           } else {
-            this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Impacto Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+            this.handlePlayerDamage('¡Impacto contra el jefe!');
           }
-        } else {
-          this.handlePlayerDamage('¡Impacto contra el jefe!');
         }
       }
     }
@@ -3516,36 +3586,53 @@ export class GameEngine {
       saveOnlyUpRecord(this.onlyUpActiveSlotId, this.onlyUpRecord);
     }
 
-    // Rising Lava Dynamics: speed increases progressively as you climb higher
-    let speed = 0.32;
-    if (this.onlyUpAltitude > 100) speed = 0.40;
-    if (this.onlyUpAltitude > 250) speed = 0.50;
-    if (this.onlyUpAltitude > 500) speed = 0.62;
-    if (this.onlyUpAltitude > 800) speed = 0.75;
-    if (this.onlyUpAltitude > 1200) speed = 0.88;
+    // 3 Seconds Head Start Grace Period
+    if (this.onlyUpGraceTimer > 0) {
+      this.onlyUpGraceTimer--;
+      this.onlyUpLavaSpeed = 0;
+    } else {
+      // Rising Lava Dynamics: gentler at the start (0.20), speed increases progressively
+      let speed = 0.20;
+      if (this.onlyUpAltitude > 100) speed = 0.30;
+      if (this.onlyUpAltitude > 250) speed = 0.42;
+      if (this.onlyUpAltitude > 500) speed = 0.55;
+      if (this.onlyUpAltitude > 800) speed = 0.70;
+      if (this.onlyUpAltitude > 1200) speed = 0.85;
 
-    // If player is far ahead (> 220px), lava picks up speed slightly to maintain pressure
-    const distFromLava = this.onlyUpLavaY - this.player.y;
-    if (distFromLava > 220) {
-      speed += 0.14;
+      // If player is far ahead (> 240px), lava picks up speed slightly to maintain pressure
+      const distFromLava = this.onlyUpLavaY - this.player.y;
+      if (distFromLava > 240) {
+        speed += 0.10;
+      }
+      this.onlyUpLavaSpeed = speed;
+      this.onlyUpLavaY -= this.onlyUpLavaSpeed;
     }
-    this.onlyUpLavaSpeed = speed;
-    this.onlyUpLavaY -= this.onlyUpLavaSpeed;
 
-    // Lava Lethal Collision Check
+    // Lava Collision Check (Takes exactly 1 heart, bounces player up with invulnerability)
     if (
       (this.player.y + this.player.h >= this.onlyUpLavaY || this.player.y > this.onlyUpLavaY) &&
       !this.settings.godMode
     ) {
-      this.lives = 0;
-      this.onlyUpIsGameOver = true;
-      sound.playSfx('lava');
-      this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 35, '#ea580c');
-      this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 20, '#fbbf24');
-      this.screenShake = 16;
-      this.addFloatingText(this.player.x, this.player.y - 15, '🔥 ¡ALCANZADO POR LA LAVA CUÁNTICA!', '#ef4444');
-      this.notifyState();
-      return;
+      if (this.player.inv <= 0) {
+        this.lives--;
+        this.player.inv = INVULNERABILITY_FRAMES;
+        this.player.vy = -7.2; // Propel player upward to give chance to catch next platform
+        sound.playSfx('lava');
+        this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 20, '#ea580c');
+        this.screenShake = 12;
+        this.addFloatingText(this.player.x, this.player.y - 15, '🔥 ¡QUEMADURA DE LAVA! -1 ❤', '#ef4444');
+      }
+
+      if (this.lives <= 0) {
+        this.lives = 0;
+        this.onlyUpIsGameOver = true;
+        this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 35, '#ea580c');
+        this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 20, '#fbbf24');
+        this.screenShake = 16;
+        this.addFloatingText(this.player.x, this.player.y - 25, '💀 ¡FIN DE LA PARTIDA!', '#ef4444');
+        this.notifyState();
+        return;
+      }
     }
 
     // Procedural generation: spawn next chunk when player gets near top of generated world

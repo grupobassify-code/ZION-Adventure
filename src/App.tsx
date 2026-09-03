@@ -481,8 +481,8 @@ export default function App() {
         />
       )}
 
-      {/* Non-Intrusive Level 1 Controls Tutorial Popup */}
-      {!inMainMenu && !engine.isPaused && !engine.isLevelWon && (
+      {/* Non-Intrusive Level 1 Controls Tutorial Popup (Never in Only Up mode) */}
+      {!inMainMenu && !engine.isPaused && !engine.isLevelWon && !engine.isOnlyUpMode && (
         <TutorialPopup
           levelIndex={engine.levelIndex}
           inCutscene={engine.inCutscene}
@@ -549,9 +549,10 @@ export default function App() {
       {!inMainMenu && engine.isOnlyUpMode && engine.onlyUpIsGameOver && (
         <OnlyUpResultsModal
           altitude={engine.onlyUpAltitude}
-          maxAltitude={engine.onlyUpMaxAltitude}
           record={engine.onlyUpRecord}
           timeSurvived={engine.onlyUpTimeSurvived}
+          crystals={engine.stats.crystalsCollected}
+          score={engine.stats.score}
           isNewRecord={engine.onlyUpNewRecordAchieved}
           onRetry={() => {
             engine.startOnlyUpMode(engine.onlyUpActiveSlotId);

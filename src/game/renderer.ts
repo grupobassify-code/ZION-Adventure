@@ -280,18 +280,51 @@ export class GameRenderer {
     ctx.fillStyle = '#fbbf24';
     ctx.fillText(`RÉCORD: ${Math.max(engine.onlyUpRecord, engine.onlyUpAltitude)}m`, GAME_WIDTH / 2, 23);
 
-    // Lava Proximity Indicator on bottom left
-    const dist = Math.max(0, Math.round(engine.onlyUpLavaY - engine.player.y));
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.fillRect(8, GAME_HEIGHT - 22, 60, 14);
-    ctx.strokeStyle = dist < 70 ? '#ef4444' : '#f97316';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(8, GAME_HEIGHT - 22, 60, 14);
+    // 3 Seconds Head Start Advantage Banner
+    if (engine.onlyUpGraceTimer > 0) {
+      const secs = (engine.onlyUpGraceTimer / 60).toFixed(1);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.fillRect(GAME_WIDTH / 2 - 95, 34, 190, 26);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(GAME_WIDTH / 2 - 95, 34, 190, 26);
 
-    ctx.font = '5px "Press Start 2P", monospace';
-    ctx.fillStyle = dist < 70 ? '#f87171' : '#fdba74';
-    ctx.textAlign = 'center';
-    ctx.fillText(`LAVA: ${dist}px`, 38, GAME_HEIGHT - 13);
+      ctx.font = '7px "Press Start 2P", monospace';
+      ctx.fillStyle = '#38bdf8';
+      ctx.textAlign = 'center';
+      ctx.fillText(`⏳ VENTAJA: ${secs}s`, GAME_WIDTH / 2, 46);
+
+      ctx.font = '5px "Press Start 2P", monospace';
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('¡SUBE AHORA! LAVA DETENIDA', GAME_WIDTH / 2, 54);
+    }
+
+    // Lava Proximity Indicator on bottom left
+    if (engine.onlyUpGraceTimer > 0) {
+      const secs = (engine.onlyUpGraceTimer / 60).toFixed(1);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillRect(8, GAME_HEIGHT - 22, 90, 14);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(8, GAME_HEIGHT - 22, 90, 14);
+
+      ctx.font = '5px "Press Start 2P", monospace';
+      ctx.fillStyle = '#4ade80';
+      ctx.textAlign = 'center';
+      ctx.fillText(`LAVA ESPERA: ${secs}s`, 53, GAME_HEIGHT - 13);
+    } else {
+      const dist = Math.max(0, Math.round(engine.onlyUpLavaY - engine.player.y));
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      ctx.fillRect(8, GAME_HEIGHT - 22, 60, 14);
+      ctx.strokeStyle = dist < 70 ? '#ef4444' : '#f97316';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(8, GAME_HEIGHT - 22, 60, 14);
+
+      ctx.font = '5px "Press Start 2P", monospace';
+      ctx.fillStyle = dist < 70 ? '#f87171' : '#fdba74';
+      ctx.textAlign = 'center';
+      ctx.fillText(`LAVA: ${dist}px`, 38, GAME_HEIGHT - 13);
+    }
 
     ctx.restore();
   }

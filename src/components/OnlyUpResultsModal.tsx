@@ -1,5 +1,5 @@
-import React from 'react';
-import { Flame, Trophy, ArrowUp, RotateCcw, Home, Diamond, Clock } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Skull, Trophy, ArrowUp, RotateCcw, Home, Diamond, Clock } from 'lucide-react';
 import { sound } from '../audio/soundEngine';
 
 interface OnlyUpResultsModalProps {
@@ -7,8 +7,8 @@ interface OnlyUpResultsModalProps {
   record: number;
   isNewRecord: boolean;
   timeSurvived: number;
-  crystals: number;
-  score: number;
+  crystals?: number;
+  score?: number;
   onRetry: () => void;
   onReturnToMenu: () => void;
 }
@@ -18,8 +18,8 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
   record,
   isNewRecord,
   timeSurvived,
-  crystals,
-  score,
+  crystals = 0,
+  score = 0,
   onRetry,
   onReturnToMenu,
 }) => {
@@ -29,31 +29,47 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  useEffect(() => {
+    sound.playSfx('gameOver');
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        sound.playSfx('menuSelect');
+        onRetry();
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        sound.playSfx('menuSelect');
+        onReturnToMenu();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onRetry, onReturnToMenu]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg rounded-3xl border-2 border-orange-500/50 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-5 sm:p-7 shadow-[0_0_50px_rgba(249,115,22,0.35)] overflow-hidden">
+      <div className="relative w-full max-w-lg rounded-3xl border-2 border-red-500/60 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-5 sm:p-7 shadow-[0_0_50px_rgba(239,68,68,0.4)] overflow-hidden">
         {/* Animated Lava Embers background glow */}
-        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-orange-600/20 blur-3xl pointer-events-none" />
-        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-red-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-red-600/20 blur-3xl pointer-events-none" />
+        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-orange-600/20 blur-3xl pointer-events-none" />
 
         {/* Header Icon & Title */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-600 to-red-500 p-0.5 shadow-[0_0_25px_rgba(234,88,12,0.6)] mb-3 flex items-center justify-center animate-bounce">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-red-600 to-orange-500 p-0.5 shadow-[0_0_25px_rgba(239,68,68,0.6)] mb-3 flex items-center justify-center animate-bounce">
             <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center">
-              <Flame className="w-8 h-8 text-orange-400" />
+              <Skull className="w-8 h-8 text-red-400" />
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/20 border border-orange-400/40 text-[11px] font-mono font-bold text-orange-300 mb-1">
-            <ArrowUp className="w-3.5 h-3.5" />
-            <span>KRONOS ONLY UP — RESULTADOS</span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-400/40 text-[11px] font-mono font-bold text-red-300 mb-1">
+            <span>KRONOS ONLY UP — FIN DE LA PARTIDA</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-white font-heading tracking-wide">
-            ¡LA LAVA TE HA ALCANZADO!
+          <h2 className="text-3xl sm:text-4xl font-black text-white font-heading tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 drop-shadow-[0_2px_8px_rgba(239,68,68,0.5)]">
+            GAME OVER
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-sm">
-            La lava cuántica ha consumido tu ascenso. ¡Aprende los patrones de las plataformas y escala más rápido la próxima vez!
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-sm">
+            ¡Tu ascenso ha terminado! Puedes volver a jugar inmediatamente o regresar al menú de inicio.
           </p>
         </div>
 
@@ -117,25 +133,29 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
         {/* Actions Buttons */}
         <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
           <button
+            id="only-up-play-again-btn"
             onClick={() => {
               sound.playSfx('menuSelect');
               onRetry();
             }}
-            className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white font-black text-sm shadow-[0_0_25px_rgba(249,115,22,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>REINTENTAR AHORA</span>
+            <span>JUGAR DE NUEVO</span>
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-black/20 font-mono opacity-80">ESPACIO</span>
           </button>
 
           <button
+            id="only-up-return-start-btn"
             onClick={() => {
               sound.playSfx('menuSelect');
               onReturnToMenu();
             }}
-            className="w-full sm:w-auto py-3 px-5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+            className="w-full sm:w-auto py-3 px-5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Home className="w-4 h-4" />
-            <span>MENÚ</span>
+            <span>REGRESAR AL INICIO</span>
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-black/20 font-mono opacity-80">ESC</span>
           </button>
         </div>
       </div>
