@@ -24,6 +24,7 @@ import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActi
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
+import { ZoneId } from './types';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,6 +49,8 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
   const [inMainMenu, setInMainMenu] = useState(true);
+  const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls'>('title');
+  const [mainMenuZone, setMainMenuZone] = useState<ZoneId | null>(null);
   const [activeSlotId, setActiveSlotIdState] = useState<number>(0);
   const [isPortrait, setIsPortrait] = useState<boolean>(() => {
     return typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
@@ -403,6 +406,8 @@ export default function App() {
       {/* 1. Main Title & Save Slots & Level Selection Menu */}
       {inMainMenu && (
         <MainMenu
+          initialView={mainMenuView}
+          initialZone={mainMenuZone}
           onStartGame={handleStartGameFromMenu}
           onStartOnlyUp={handleStartOnlyUpFromMenu}
           onOpenCredits={() => {
@@ -519,6 +524,9 @@ export default function App() {
           }}
           onReturnToMenu={() => {
             sound.stopMusic();
+            const currZone = LEVEL_CONFIGS[engine.levelIndex]?.zone || null;
+            setMainMenuView(currZone ? 'acts' : 'zones');
+            setMainMenuZone(currZone);
             setInMainMenu(true);
           }}
         />
@@ -531,6 +539,8 @@ export default function App() {
           onClose={() => {
             setIsCreditsOpen(false);
             sound.stopMusic();
+            setMainMenuView('zones');
+            setInMainMenu(true);
           }}
           onRestartGame={() => {
             setIsCreditsOpen(false);
@@ -560,6 +570,7 @@ export default function App() {
           }}
           onReturnToMenu={() => {
             sound.stopMusic();
+            setMainMenuView('zones');
             setInMainMenu(true);
           }}
         />
@@ -583,6 +594,9 @@ export default function App() {
           onQuitToTitle={() => {
             engine.togglePause();
             sound.stopMusic();
+            const currZone = LEVEL_CONFIGS[engine.levelIndex]?.zone || null;
+            setMainMenuView(currZone ? 'acts' : 'zones');
+            setMainMenuZone(currZone);
             setInMainMenu(true);
           }}
           onUpdateSettings={(newSet) => {

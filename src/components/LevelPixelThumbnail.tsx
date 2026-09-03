@@ -38,32 +38,62 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      // 1. SKY GRADIENT PER ZONE
+      // 1. SKY GRADIENT PER ZONE & ACT
       const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
       if (zone === 'neon') {
-        skyGrad.addColorStop(0, '#030712');
-        skyGrad.addColorStop(0.5, '#082f49');
-        skyGrad.addColorStop(1, '#0e7490');
+        if (act === 1) {
+          skyGrad.addColorStop(0, '#030712');
+          skyGrad.addColorStop(0.5, '#082f49');
+          skyGrad.addColorStop(1, '#0e7490');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#022c22');
+          skyGrad.addColorStop(0.5, '#064e3b');
+          skyGrad.addColorStop(1, '#059669');
+        } else {
+          skyGrad.addColorStop(0, '#0f172a');
+          skyGrad.addColorStop(0.5, '#1e1b4b');
+          skyGrad.addColorStop(1, '#06b6d4');
+        }
       } else if (zone === 'sakura') {
         if (act === 1) {
           skyGrad.addColorStop(0, '#4a044e');
           skyGrad.addColorStop(0.5, '#831843');
           skyGrad.addColorStop(1, '#f43f5e');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#1e1b4b');
+          skyGrad.addColorStop(0.5, '#3b0764');
+          skyGrad.addColorStop(1, '#701a75');
         } else {
           skyGrad.addColorStop(0, '#0f172a');
-          skyGrad.addColorStop(0.6, '#311042');
-          skyGrad.addColorStop(1, '#6b21a8');
+          skyGrad.addColorStop(0.5, '#4c0519');
+          skyGrad.addColorStop(1, '#be123c');
         }
       } else if (zone === 'lavacliff') {
-        skyGrad.addColorStop(0, '#1c0505');
-        skyGrad.addColorStop(0.4, '#450a0a');
-        skyGrad.addColorStop(0.8, '#991b1b');
-        skyGrad.addColorStop(1, '#ea580c');
+        if (act === 1) {
+          skyGrad.addColorStop(0, '#1c0505');
+          skyGrad.addColorStop(0.4, '#450a0a');
+          skyGrad.addColorStop(0.8, '#991b1b');
+          skyGrad.addColorStop(1, '#ea580c');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#260404');
+          skyGrad.addColorStop(0.5, '#5c0d0d');
+          skyGrad.addColorStop(0.9, '#c2410c');
+          skyGrad.addColorStop(1, '#f97316');
+        } else {
+          skyGrad.addColorStop(0, '#450a0a');
+          skyGrad.addColorStop(0.5, '#7f1d1d');
+          skyGrad.addColorStop(0.9, '#dc2626');
+          skyGrad.addColorStop(1, '#ffedd5');
+        }
       } else if (zone === 'desert') {
         if (act === 1) {
           skyGrad.addColorStop(0, '#78350f');
           skyGrad.addColorStop(0.5, '#b45309');
           skyGrad.addColorStop(1, '#fbbf24');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#291e0a');
+          skyGrad.addColorStop(0.5, '#78350f');
+          skyGrad.addColorStop(1, '#d97706');
         } else {
           skyGrad.addColorStop(0, '#1e1b4b');
           skyGrad.addColorStop(0.5, '#451a03');

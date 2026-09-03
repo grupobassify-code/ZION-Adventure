@@ -38,7 +38,28 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'neon-2',
     zone: 'neon',
     act: 2,
-    title: 'Zona 1 · Acto 2 — El Guardián',
+    title: 'Zona 1 · Acto 2 — Santuario Neón',
+    subtitle: 'El Laberinto de Plasma y Compuertas Láser',
+    lore: [
+      {
+        title: 'LAS RAÍCES MECÁNICAS DEL SANTUARIO',
+        lines: [
+          'Zion se adentra en el corazón de la arboleda, donde las raíces de madera han sido fusionadas con circuitos de alta tensión.',
+          'Compuertas láser intermitentes y centinelas acorazados vigilan cada plataforma flotante.',
+          'Usa el dash invulnerable para atravesar las trampas de energía y alcanzar el portal que conduce al Santuario Central.'
+        ],
+        author: 'Bitácora de la Arboleda'
+      }
+    ],
+    worldWidth: 5600,
+    themeColor: '#06b6d4',
+    accentColor: '#a855f7'
+  },
+  {
+    id: 'neon-3',
+    zone: 'neon',
+    act: 3,
+    title: 'Zona 1 · Acto 3 — El Santuario Central: Guardián Neón MK-IV',
     subtitle: 'El Núcleo del Santuario Tecnológico',
     lore: [
       {
@@ -51,9 +72,9 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Advertencia del Centinela'
       }
     ],
-    worldWidth: 6800,
-    themeColor: '#06b6d4',
-    accentColor: '#a855f7'
+    worldWidth: 2200,
+    themeColor: '#0ea5e9',
+    accentColor: '#ef4444'
   },
   {
     id: 'sakura-1',
@@ -80,22 +101,43 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'sakura-2',
     zone: 'sakura',
     act: 2,
-    title: 'Zona 2 · Acto 2 — Cuando Cae la Noche',
+    title: 'Zona 2 · Acto 2 — Templo de los Mil Torii',
+    subtitle: 'Bajo el Resplandor de la Luna Menguante',
+    lore: [
+      {
+        title: '🌙 PASAJE MÍSTICO NOCTURNO',
+        lines: [
+          'La noche cubre el bosque oriental. Plataformas lunares aparecen y desaparecen al compás de la bruma espiritual.',
+          'Guerreros sombra y espectros yūrei custodian los puentes lacustres y las estacas de bambú.',
+          'Avanza con precisión entre los torii para hallar la entrada secreta al patio de la Maestra Ninja.'
+        ],
+        author: 'Pergamino del Alba Oculta'
+      }
+    ],
+    worldWidth: 5800,
+    themeColor: '#e879f9',
+    accentColor: '#38bdf8'
+  },
+  {
+    id: 'sakura-3',
+    zone: 'sakura',
+    act: 3,
+    title: 'Zona 2 · Acto 3 — El Patio Lunar: Maestra Kunoichi Rosa',
     subtitle: 'Duelo Lunar contra la Maestra Ninja',
     lore: [
       {
         title: '🌙 EL TEMPLO DE LA LUNA ROJA',
         lines: [
-          'La noche cubre el bosque de cerezos. Plataformas lunares aparecen y desaparecen al compás de la luna.',
-          'En el patio principal del templo aguarda la Maestra Ninja Rosa, custodia del misterio oriental.',
-          'Usa tu Escudo de Luz para bloquear sus shurikens y contraataca con tu habilidad especial.'
+          'Bajo el eclipse carmesí, la Maestra Ninja Rosa desciende en el patio sagrado con su katana ilusoria.',
+          'Despliega clones, ráfagas de shurikens giratorios y arremetidas a la velocidad de la sombra.',
+          'Usa tu Escudo de Luz para desviar sus proyectiles y contraataca con tu habilidad especial.'
         ],
         author: 'Pergamino del Eclipse'
       }
     ],
-    worldWidth: 7200,
-    themeColor: '#e879f9',
-    accentColor: '#38bdf8'
+    worldWidth: 2200,
+    themeColor: '#f43f5e',
+    accentColor: '#fb7185'
   },
   {
     id: 'lavacliff-1',
@@ -132,22 +174,43 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'lavacliff-2',
     zone: 'lavacliff',
     act: 2,
-    title: 'Zona 3 · Acto 2 — Lavacliff: Núcleo de Magma Subterráneo',
+    title: 'Zona 3 · Acto 2 — Cavernas de Fuego',
+    subtitle: 'El Río de Basalto Ardiente Subterráneo',
+    lore: [
+      {
+        title: '🔥 LAS PROFUNDIDADES DE LA CALDERA ÍGNEA',
+        lines: [
+          'Desciendes hacia las grietas subterráneas donde el magma brota en cascadas incandescentes.',
+          'Grandes losas de basalto flotan sobre lagos de fuego; deberás cruzar sin vacilar antes de que se hundan.',
+          'Golems de magma y fuegos fatuos patrullan el paso hacia la cámara del núcleo volcánico.'
+        ],
+        author: 'Manuscrito del Herrero Volcánico'
+      }
+    ],
+    worldWidth: 5900,
+    themeColor: '#ea580c',
+    accentColor: '#facc15'
+  },
+  {
+    id: 'lavacliff-3',
+    zone: 'lavacliff',
+    act: 3,
+    title: 'Zona 3 · Acto 3 — El Corazón del Volcán: Coloso Ignis',
     subtitle: 'El Coloso de Magma Primordial',
     lore: [
       {
         title: '🔥 EL NÚCLEO DE MAGMA SUBTERRÁNEO',
         lines: [
-          'Has descendido a las profundidades de la caldera volcánica, donde el calor distorsiona la realidad.',
-          'En el corazón del magma arde Ignis, el Coloso de Magma Primordial, custodiando la forja del planeta.',
-          'Aprovecha tus habilidades, esquiva sus golpes sísmicos de magma y quiebra su armadura volcánica.'
+          'En el corazón ardiente del magma despierta Ignis, el Coloso de Magma Primordial, forjador de cataclismos.',
+          'Desata ondas sísmicas de fuego que recorren el suelo y proyectiles ígneos que caen del techo.',
+          'Aprovecha tus saltos en plataformas elevadas, esquiva sus embestidas y quiebra su corteza volcánica.'
         ],
         author: 'Profecía de la Llama Eterna'
       }
     ],
-    worldWidth: 7600,
+    worldWidth: 2200,
     themeColor: '#dc2626',
-    accentColor: '#f59e0b'
+    accentColor: '#f97316'
   },
   {
     id: 'desert-1',
@@ -184,22 +247,43 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'desert-2',
     zone: 'desert',
     act: 2,
-    title: 'Zona 4 · Acto 2 — Cripta del Faraón: El Sepulcro Sagrado',
+    title: 'Zona 4 · Acto 2 — Cripta de los Faraones',
+    subtitle: 'El Laberinto de Guadañas y Arenas Movedizas',
+    lore: [
+      {
+        title: '⚱️ LAS CATACUMBAS DEL SANTUARIO',
+        lines: [
+          'Te adentras en los corredores subterráneos de la gran pirámide, protegidos por trampas ancestrales milenarias.',
+          'Enormes cuchillas pendulares barren los corredores mientras fosas de arena movediza amenazan con atraparte.',
+          'Supera a los guerreros momificados para alcanzar la cámara dorada donde reposa el sarcófago real.'
+        ],
+        author: 'Códice del Faraón Olvidado'
+      }
+    ],
+    worldWidth: 5900,
+    themeColor: '#d97706',
+    accentColor: '#8b5cf6'
+  },
+  {
+    id: 'desert-3',
+    zone: 'desert',
+    act: 3,
+    title: 'Zona 4 · Acto 3 — Sepulcro Sagrado: Faraón Akhen\'Ra',
     subtitle: 'El Despertar de la Momia Eterna',
     lore: [
       {
         title: '⚱️ EL SEPULCRO DEL FARAÓN AKHEN\'RA',
         lines: [
-          'Te adentras en la cámara subterránea del santuario, iluminada por antorchas de fuego místico y jeroglíficos mágicos.',
-          'Estatuas de Anubis disparan rayos malditos y guerreros momificados custodian el sarcófago dorado.',
-          'En el trono del sepulcro te aguarda el Faraón Akhen\'Ra, la Momia Eterna, listo para desatar la maldición milenaria.'
+          'En el gran trono sepulcral, el Faraón Akhen\'Ra rompe su letargo eterno imbuido en energía oscura.',
+          'Invoca orbes malditos de Anubis, rayos solares destructores y ondas de arena que barren la arena.',
+          'Esquiva con tu dash, mantén la distancia con tus dagas y asesta el golpe de gracia para liberar el santuario.'
         ],
         author: 'Inscripción del Sarcófago'
       }
     ],
-    worldWidth: 8000,
-    themeColor: '#d97706',
-    accentColor: '#8b5cf6'
+    worldWidth: 2200,
+    themeColor: '#b45309',
+    accentColor: '#ef4444'
   },
   {
     id: 'krono-1',
@@ -532,8 +616,7 @@ export function buildLevel(levelIndex: number) {
     checkpoints.push(
       { x: 1500, y: 108, w: 10, h: 40, active: false, spawn: { x: 1520, y: 110 } },
       { x: 3300, y: 108, w: 10, h: 40, active: false, spawn: { x: 3320, y: 110 } },
-      { x: 4800, y: 108, w: 10, h: 40, active: false, spawn: { x: 4820, y: 110 } },
-      { x: 5900, y: 108, w: 10, h: 40, active: false, spawn: { x: 5920, y: 110 }, arena: true }
+      { x: 4800, y: 108, w: 10, h: 40, active: false, spawn: { x: 4820, y: 110 } }
     );
 
     heals.push(
@@ -548,20 +631,40 @@ export function buildLevel(levelIndex: number) {
       { x: 4200, y: 44, w: 10, h: 10, taken: false, name: '✦ Chip de Memoria Perdida' }
     );
 
-    platforms.push({ x: 5700, y: 148, w: 1100, h: 40, kind: 'arena' });
-    platforms.push({ x: 5840, y: 108, w: 90, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6010, y: 80, w: 90, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6180, y: 104, w: 90, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6360, y: 76, w: 90, h: 9, kind: 'ledge' });
+    goal = { x: 5350, y: 90, w: 30, h: 58 };
+  } else if (config.id === 'neon-3') {
+    // -------------------------------------------------------------
+    // ZONA 1 · ACTO 3 — EL SANTUARIO CENTRAL: GUARDIÁN NEÓN MK-IV (JEFE)
+    // -------------------------------------------------------------
+    platforms.push({ x: 0, y: 148, w: LW, h: 40, kind: 'arena' });
+    platforms.push({ x: 380, y: 112, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 550, y: 82, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 740, y: 106, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 920, y: 78, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 1100, y: 108, w: 90, h: 9, kind: 'ledge' });
 
+    // Boss shield power nodes
     nodes = [
-      { id: 1, x: 5880, y: 118, w: 12, h: 30, taken: false },
-      { id: 2, x: 6050, y: 90, w: 12, h: 30, taken: false },
-      { id: 3, x: 6220, y: 114, w: 12, h: 30, taken: false }
+      { id: 1, x: 420, y: 122, w: 12, h: 30, taken: false },
+      { id: 2, x: 590, y: 92, w: 12, h: 30, taken: false },
+      { id: 3, x: 780, y: 116, w: 12, h: 30, taken: false }
     ];
 
+    // Energy recovery & secret
+    heals.push(
+      { x: 240, y: 126, w: 10, h: 10, taken: false },
+      { x: 650, y: 126, w: 10, h: 10, taken: false },
+      { x: 1200, y: 126, w: 10, h: 10, taken: false }
+    );
+    secrets.push({ x: 950, y: 44, w: 10, h: 12, taken: false, name: '✦ Núcleo de Sobrecarga Neón Ancestral' });
+
+    // Arena checkpoint
+    checkpoints.push(
+      { x: 180, y: 108, w: 10, h: 40, active: true, spawn: { x: 180, y: 110 }, arena: true }
+    );
+
     boss = {
-      x: 6160,
+      x: 740,
       y: 112,
       w: 24,
       h: 30,
@@ -590,7 +693,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 6600, y: 90, w: 30, h: 58 };
+    goal = { x: 1950, y: 90, w: 30, h: 58 };
   } else if (config.id === 'sakura-1') {
     // -------------------------------------------------------------
     // ZONA 2 · ACTO 1 — BAJO LOS CEREZOS
@@ -872,18 +975,40 @@ export function buildLevel(levelIndex: number) {
     checkpoints.push(
       { x: 1550, y: 108, w: 10, h: 40, active: false, spawn: { x: 1570, y: 110 } },
       { x: 3400, y: 108, w: 10, h: 40, active: false, spawn: { x: 3420, y: 110 } },
-      { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6220, y: 108, w: 10, h: 40, active: false, spawn: { x: 6240, y: 110 }, arena: true }
+      { x: 5000, y: 108, w: 10, h: 40, active: false, spawn: { x: 5020, y: 110 } }
     );
 
-    platforms.push({ x: 6000, y: 148, w: 1150, h: 40, kind: 'arena' });
-    platforms.push({ x: 6140, y: 108, w: 100, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6310, y: 82, w: 100, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6490, y: 104, w: 100, h: 9, kind: 'ledge' });
-    platforms.push({ x: 6680, y: 76, w: 100, h: 9, kind: 'ledge' });
+    goal = { x: 5550, y: 90, w: 30, h: 58 };
+  } else if (config.id === 'sakura-3') {
+    // -------------------------------------------------------------
+    // ZONA 2 · ACTO 3 — EL PATIO LUNAR: MAESTRA KUNOICHI ROSA (JEFE)
+    // -------------------------------------------------------------
+    platforms.push({ x: 0, y: 148, w: LW, h: 40, kind: 'arena' });
+    platforms.push({ x: 380, y: 110, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 560, y: 80, w: 90, h: 9, kind: 'moon', phase: 0 });
+    platforms.push({ x: 740, y: 106, w: 90, h: 9, kind: 'ledge' });
+    platforms.push({ x: 920, y: 78, w: 90, h: 9, kind: 'moon', phase: 60 });
+    platforms.push({ x: 1100, y: 108, w: 90, h: 9, kind: 'ledge' });
+
+    landmarks.push(
+      { type: 'torii', x: 160, y: 80, scale: 1.2, label: 'TORII DE ENTRADA A LA ARENA LUNAR' },
+      { type: 'shrine', x: 740, y: 86, label: 'ALTAR DEL ECLIPSE CARMESÍ' },
+      { type: 'lanterns', x: 300, y: 68, w: 700, label: 'PATIO SAGRADO ILUMINADO' }
+    );
+
+    heals.push(
+      { x: 240, y: 126, w: 10, h: 10, taken: false },
+      { x: 650, y: 126, w: 10, h: 10, taken: false },
+      { x: 1200, y: 126, w: 10, h: 10, taken: false }
+    );
+    secrets.push({ x: 920, y: 42, w: 10, h: 12, taken: false, name: '🌸 Pergamino Secreto del Cerezo Milenario' });
+
+    checkpoints.push(
+      { x: 180, y: 108, w: 10, h: 40, active: true, spawn: { x: 180, y: 110 }, arena: true }
+    );
 
     boss = {
-      x: 6480,
+      x: 740,
       y: 112,
       w: 24,
       h: 30,
@@ -912,7 +1037,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 6950, y: 90, w: 30, h: 58 };
+    goal = { x: 1950, y: 90, w: 30, h: 58 };
   } else if (config.id === 'lavacliff-1') {
     // -------------------------------------------------------------
     // ZONA 3 · ACTO 1 — LAVACLIFF: ACANTILADOS VOLCÁNICOS (Exterior)
@@ -1197,18 +1322,40 @@ export function buildLevel(levelIndex: number) {
     checkpoints.push(
       { x: 1500, y: 108, w: 10, h: 40, active: false, spawn: { x: 1520, y: 110 } },
       { x: 3300, y: 108, w: 10, h: 40, active: false, spawn: { x: 3320, y: 110 } },
-      { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6390, y: 108, w: 10, h: 40, active: false, spawn: { x: 6410, y: 110 }, arena: true }
+      { x: 5000, y: 108, w: 10, h: 40, active: false, spawn: { x: 5020, y: 110 } }
     );
 
-    platforms.push({ x: 6150, y: 148, w: 1250, h: 40, kind: 'arena' });
-    platforms.push({ x: 6300, y: 108, w: 100, h: 10, kind: 'basalt' });
-    platforms.push({ x: 6480, y: 80, w: 100, h: 10, kind: 'basalt' });
-    platforms.push({ x: 6660, y: 104, w: 100, h: 10, kind: 'basalt' });
-    platforms.push({ x: 6850, y: 76, w: 100, h: 10, kind: 'basalt' });
+    goal = { x: 5650, y: 90, w: 30, h: 58 };
+  } else if (config.id === 'lavacliff-3') {
+    // -------------------------------------------------------------
+    // ZONA 3 · ACTO 3 — EL CORAZÓN DEL VOLCÁN: COLOSO IGNIS (JEFE)
+    // -------------------------------------------------------------
+    platforms.push({ x: 0, y: 148, w: LW, h: 40, kind: 'arena' });
+    platforms.push({ x: 380, y: 110, w: 100, h: 10, kind: 'basalt' });
+    platforms.push({ x: 560, y: 80, w: 100, h: 10, kind: 'basalt' });
+    platforms.push({ x: 740, y: 104, w: 100, h: 10, kind: 'basalt' });
+    platforms.push({ x: 920, y: 76, w: 100, h: 10, kind: 'basalt' });
+    platforms.push({ x: 1100, y: 108, w: 100, h: 10, kind: 'basalt' });
+
+    landmarks.push(
+      { type: 'volcano_vent', x: 200, y: 90, scale: 1.5, label: 'VENTILA MAGMÁTICA PRINCIPAL' },
+      { type: 'lava_fall', x: 740, y: 30, h: 110, label: 'CASCADA DE MAGMA ARDIENTE' },
+      { type: 'obsidian_pillar', x: 1300, y: 80, scale: 1.4, label: 'MONOLITO DE OBSIDIANA' }
+    );
+
+    heals.push(
+      { x: 240, y: 126, w: 10, h: 10, taken: false },
+      { x: 650, y: 126, w: 10, h: 10, taken: false },
+      { x: 1200, y: 126, w: 10, h: 10, taken: false }
+    );
+    secrets.push({ x: 920, y: 40, w: 10, h: 12, taken: false, name: '🌋 Corazón de Obsidiana Ígnea Primordial' });
+
+    checkpoints.push(
+      { x: 180, y: 108, w: 10, h: 40, active: true, spawn: { x: 180, y: 110 }, arena: true }
+    );
 
     boss = {
-      x: 6650,
+      x: 740,
       y: 104,
       w: 28,
       h: 36,
@@ -1237,7 +1384,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 7350, y: 90, w: 30, h: 58 };
+    goal = { x: 1950, y: 90, w: 30, h: 58 };
   } else if (config.id === 'desert-1') {
     // -------------------------------------------------------------
     // ZONA 4 · ACTO 1 — SANTUARIO DEL DESIERTO: DUNAS OLVIDADAS
@@ -1539,19 +1686,40 @@ export function buildLevel(levelIndex: number) {
     checkpoints.push(
       { x: 1600, y: 108, w: 10, h: 40, active: false, spawn: { x: 1620, y: 110 } },
       { x: 3400, y: 108, w: 10, h: 40, active: false, spawn: { x: 3420, y: 110 } },
-      { x: 5100, y: 108, w: 10, h: 40, active: false, spawn: { x: 5120, y: 110 } },
-      { x: 6440, y: 108, w: 10, h: 40, active: false, spawn: { x: 6460, y: 110 }, arena: true }
+      { x: 5000, y: 108, w: 10, h: 40, active: false, spawn: { x: 5020, y: 110 } }
     );
 
-    // Pharaoh Boss Arena
-    platforms.push({ x: 6150, y: 148, w: 1450, h: 40, kind: 'arena' });
-    platforms.push({ x: 6300, y: 108, w: 90, h: 10, kind: 'ruins' });
-    platforms.push({ x: 6480, y: 78, w: 90, h: 10, kind: 'ruins' });
-    platforms.push({ x: 6660, y: 104, w: 90, h: 10, kind: 'ruins' });
-    platforms.push({ x: 6850, y: 76, w: 90, h: 10, kind: 'ruins' });
+    goal = { x: 5650, y: 90, w: 30, h: 58 };
+  } else if (config.id === 'desert-3') {
+    // -------------------------------------------------------------
+    // ZONA 4 · ACTO 3 — SEPULCRO SAGRADO: FARAÓN AKHEN'RA (JEFE)
+    // -------------------------------------------------------------
+    platforms.push({ x: 0, y: 148, w: LW, h: 40, kind: 'arena' });
+    platforms.push({ x: 380, y: 110, w: 90, h: 10, kind: 'ruins' });
+    platforms.push({ x: 560, y: 80, w: 90, h: 10, kind: 'ruins' });
+    platforms.push({ x: 740, y: 104, w: 90, h: 10, kind: 'ruins' });
+    platforms.push({ x: 920, y: 76, w: 90, h: 10, kind: 'ruins' });
+    platforms.push({ x: 1100, y: 108, w: 90, h: 10, kind: 'ruins' });
+
+    landmarks.push(
+      { type: 'pharaoh_statue', x: 180, y: 20, scale: 1.4, label: 'COLOSO SAGRADO DE ANUBIS' },
+      { type: 'sarcophagus', x: 740, y: 70, scale: 1.3, label: 'EL TRONO DE AKHEN\'RA' },
+      { type: 'ancient_columns', x: 1100, y: 35, w: 350, label: 'COLUMNAS SAGRADAS DEL TEMPLO' }
+    );
+
+    heals.push(
+      { x: 240, y: 126, w: 10, h: 10, taken: false },
+      { x: 650, y: 126, w: 10, h: 10, taken: false },
+      { x: 1200, y: 126, w: 10, h: 10, taken: false }
+    );
+    secrets.push({ x: 920, y: 40, w: 12, h: 14, taken: false, name: '☀️ Escarabajo de Oro del Faraón Sagrado' });
+
+    checkpoints.push(
+      { x: 180, y: 108, w: 10, h: 40, active: true, spawn: { x: 180, y: 110 }, arena: true }
+    );
 
     boss = {
-      x: 6700,
+      x: 740,
       y: 102,
       w: 26,
       h: 36,
@@ -1580,7 +1748,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 7550, y: 90, w: 30, h: 58 };
+    goal = { x: 1950, y: 90, w: 30, h: 58 };
   } else if (config.id === 'krono-1') {
     // -------------------------------------------------------------
     // ZONA 5 · ACTO 1 — KRONO CITY: DISTRITO TECNOLÓGICO

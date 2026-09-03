@@ -191,9 +191,11 @@ export function recordLevelCompletion(
     slot.unlockedLevels.push(nextLevel);
   }
 
-  // If final boss is beaten (level 10), also unlock extra level 11 (Kronos Travel)
-  if (levelIndex === 10 && !slot.unlockedLevels.includes(11)) {
-    slot.unlockedLevels.push(11);
+  // If final boss of Krono City is beaten, unlock Kronos Travel
+  const kronoFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-3');
+  const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'travel-1');
+  if (levelIndex === kronoFinalBossIdx && travelIdx !== -1 && !slot.unlockedLevels.includes(travelIdx)) {
+    slot.unlockedLevels.push(travelIdx);
   }
 
   slots[slotId] = slot;
@@ -207,11 +209,13 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 }
 
 /**
- * Kronos Only Up is unlocked as soon as the final boss of Bosque Neón is defeated (Level 1: neon-2)
+ * Kronos Only Up is unlocked as soon as Bosque Neón is conquered (neon-3 boss defeated)
  */
 export function isOnlyUpUnlocked(slot: SaveSlot | null): boolean {
   if (!slot) return false;
-  return slot.completedLevels.includes(1) || slot.unlockedLevels.some((lvl) => lvl >= 2);
+  const neonBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'neon-3');
+  const targetIdx = neonBossIdx !== -1 ? neonBossIdx : 2;
+  return slot.completedLevels.includes(targetIdx) || slot.unlockedLevels.some((lvl) => lvl > targetIdx);
 }
 
 export function getOnlyUpRecord(slotId: number): number {

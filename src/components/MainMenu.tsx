@@ -56,6 +56,8 @@ interface MainMenuProps {
   audioActive: boolean;
   onToggleAudio: () => void;
   onToggleFullscreen: () => void;
+  initialView?: MenuView;
+  initialZone?: ZoneId | null;
 }
 
 type MenuView = 'title' | 'slots' | 'zones' | 'acts' | 'controls';
@@ -76,7 +78,7 @@ const ZONES_DATA: ZoneMeta[] = [
     subtitle: 'Arboleda Bioluminiscente Ancestral',
     themeColor: '#22d3ee',
     accentColor: '#4ade80',
-    actsCount: 2,
+    actsCount: 3,
   },
   {
     id: 'sakura',
@@ -84,7 +86,7 @@ const ZONES_DATA: ZoneMeta[] = [
     subtitle: 'El Sendero Místico de los Pétalos',
     themeColor: '#f472b6',
     accentColor: '#fb7185',
-    actsCount: 2,
+    actsCount: 3,
   },
   {
     id: 'lavacliff',
@@ -92,7 +94,7 @@ const ZONES_DATA: ZoneMeta[] = [
     subtitle: 'Caldera Volcánica y Núcleo Ígneo',
     themeColor: '#f97316',
     accentColor: '#ef4444',
-    actsCount: 2,
+    actsCount: 3,
   },
   {
     id: 'desert',
@@ -100,7 +102,7 @@ const ZONES_DATA: ZoneMeta[] = [
     subtitle: 'Pirámides Doradas y Tumbas de Faraones',
     themeColor: '#f59e0b',
     accentColor: '#10b981',
-    actsCount: 2,
+    actsCount: 3,
   },
   {
     id: 'krono',
@@ -127,11 +129,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   audioActive,
   onToggleAudio,
   onToggleFullscreen,
+  initialView = 'title',
+  initialZone = null,
 }) => {
-  const [view, setView] = useState<MenuView>('title');
+  const [view, setView] = useState<MenuView>(initialView);
   const [slots, setSlots] = useState<(SaveSlot | null)[]>(loadAllSaveSlots());
   const [activeSlotId, setActiveSlotState] = useState<number>(0);
-  const [selectedZone, setSelectedZone] = useState<ZoneId | null>(null);
+  const [selectedZone, setSelectedZone] = useState<ZoneId | null>(initialZone);
   const [newSlotModal, setNewSlotModal] = useState<{ open: boolean; slotId: number; name: string }>({
     open: false,
     slotId: 0,
@@ -449,12 +453,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                         <div className="mt-3">
                           <div className="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
                             <span>PROGRESO TOTAL</span>
-                            <span>{Math.round((slot.completedLevels.length / 12) * 100)}%</span>
+                            <span>{Math.min(100, Math.round((slot.completedLevels.length / LEVEL_CONFIGS.length) * 100))}%</span>
                           </div>
                           <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
                             <div
                               className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full"
-                              style={{ width: `${(slot.completedLevels.length / 12) * 100}%` }}
+                              style={{ width: `${Math.min(100, (slot.completedLevels.length / LEVEL_CONFIGS.length) * 100)}%` }}
                             />
                           </div>
                         </div>
@@ -465,7 +469,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                         onClick={() => handleSelectSlotAndProceed(slotIdx)}
                         className="mt-5 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all"
                       >
-                        <span>SELECCIONAR NIVELES</span>
+                        <span>PORTAL DE NIVELES</span>
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </>
@@ -778,7 +782,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               if (lvl.zone !== selectedZone) return null;
               const isUnlocked = activeSlot?.unlockedLevels.includes(index) ?? (index === 0);
               const isCompleted = activeSlot?.completedLevels.includes(index) ?? false;
-              const isBoss = lvl.act === 3 || lvl.id.includes('-2') || lvl.id === 'krono-3';
+              const isBoss = lvl.act === 3;
 
               return (
                 <div

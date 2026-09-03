@@ -126,9 +126,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             {onReturnToMenu && (
               <button
                 onClick={onReturnToMenu}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all active:scale-95 border border-cyan-500/30"
               >
-                <span>MENÚ & NIVELES</span>
+                <span>PORTAL DE NIVELES</span>
               </button>
             )}
             <button
