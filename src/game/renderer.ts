@@ -1398,6 +1398,10 @@ export class GameRenderer {
         }
       } else {
         // Floating Ledges & Elevated Platforms
+        // Drop shadow for depth
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillRect(x + 1, y + p.h, p.w, 3);
+
         ctx.fillStyle = isNeon
           ? '#103947'
           : isSakura
@@ -1408,6 +1412,20 @@ export class GameRenderer {
           ? '#0f172a'
           : (act === 1 ? '#78350f' : '#3b0764');
         ctx.fillRect(x, y, p.w, p.h);
+
+        // Subtle textured accent / bracket
+        ctx.fillStyle = isNeon
+          ? '#06b6d433'
+          : isSakura
+          ? '#f472b633'
+          : isLava
+          ? '#ef444433'
+          : isKrono
+          ? '#38bdf833'
+          : '#f59e0b33';
+        ctx.fillRect(x + 4, y + 3, p.w - 8, p.h - 5);
+
+        // Glowing Surface Trim
         ctx.fillStyle = isNeon
           ? '#22d3ee'
           : isSakura
@@ -1418,8 +1436,15 @@ export class GameRenderer {
           ? '#06b6d4'
           : '#f59e0b';
         ctx.fillRect(x, y, p.w, 2);
-        ctx.fillStyle = '#ffffffaa';
+
+        // Highlight line
+        ctx.fillStyle = '#ffffffcc';
         ctx.fillRect(x + 2, y, p.w - 4, 1);
+
+        // Metallic corner brackets
+        ctx.fillStyle = '#ffffff66';
+        ctx.fillRect(x, y, 2, 2);
+        ctx.fillRect(x + p.w - 2, y, 2, 2);
       }
     }
   }
@@ -1619,6 +1644,245 @@ export class GameRenderer {
         ctx.fillRect(x + h.w / 2 - 2, h.y, 4, h.h);
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(x + h.w / 2 - 0.5, h.y, 1, h.h);
+      } else if (h.type === 'crusher') {
+        // Heavy Hydraulic Crusher Piston
+        const isWarning = h.crushState === 'warning';
+        const isSlamming = h.crushState === 'slamming';
+
+        // Piston Rod from ceiling
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + h.w / 2 - 3, 0, 6, Math.max(0, h.y));
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(x + h.w / 2 - 1, 0, 2, Math.max(0, h.y));
+
+        // Crusher Block Body
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 1, h.y + 1, h.w - 2, h.h - 2);
+
+        // Hazard Chevron Stripes
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 2, h.y + 3, h.w - 4, 7);
+        ctx.clip();
+        for (let sx = x - 12; sx < x + h.w + 12; sx += 8) {
+          ctx.fillStyle = isWarning ? '#ef4444' : '#eab308';
+          ctx.beginPath();
+          ctx.moveTo(sx, h.y + 10);
+          ctx.lineTo(sx + 4, h.y + 3);
+          ctx.lineTo(sx + 7, h.y + 3);
+          ctx.lineTo(sx + 3, h.y + 10);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Warning LED Sensor
+        const ledColor = (isWarning || isSlamming)
+          ? (Math.floor(time / 4) % 2 === 0 ? '#ef4444' : '#fee2e2')
+          : '#22c55e';
+        ctx.fillStyle = ledColor;
+        ctx.fillRect(x + h.w / 2 - 2, h.y + h.h - 5, 4, 3);
+
+        // Heavy Iron Crushing Base Plate
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x, h.y + h.h - 2, h.w, 2);
+      } else if (h.type === 'sawBlade') {
+        // High Speed Buzzsaw Traversing Rail
+        const minRx = Math.round((h.railMin ?? (h.x - 70)) - cameraX);
+        const maxRx = Math.round((h.railMax ?? (h.x + 70)) - cameraX);
+
+        // Guide Rail
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(minRx, h.y + h.h / 2 - 1.5, maxRx - minRx, 3);
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(minRx, h.y + h.h / 2 - 0.5, maxRx - minRx, 1);
+        ctx.fillRect(minRx - 2, h.y + h.h / 2 - 3, 3, 6);
+        ctx.fillRect(maxRx - 1, h.y + h.h / 2 - 3, 3, 6);
+
+        // Spinning Saw Blade
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const radius = Math.max(7, h.w / 2);
+        const angle = h.bladeAngle || 0;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        // Serrated Teeth
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        const teeth = 8;
+        for (let i = 0; i < teeth; i++) {
+          const a1 = (i / teeth) * Math.PI * 2;
+          const a2 = ((i + 0.5) / teeth) * Math.PI * 2;
+          const a3 = ((i + 1) / teeth) * Math.PI * 2;
+          ctx.lineTo(Math.cos(a1) * (radius - 2), Math.sin(a1) * (radius - 2));
+          ctx.lineTo(Math.cos(a2) * (radius + 2.5), Math.sin(a2) * (radius + 2.5));
+          ctx.lineTo(Math.cos(a3) * (radius - 2), Math.sin(a3) * (radius - 2));
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // Inner Metallic Disc & Axle Rivet
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(-1, -1, 2, 2);
+        ctx.restore();
+      } else if (h.type === 'flameJet') {
+        // Flame Jet Pipe Nozzle
+        const isErupting = h.erupting;
+        const isWarning = h.warnTimer && h.warnTimer > 0;
+        const isRight = h.flameAngle === 1;
+
+        if (isRight) {
+          // Wall-mounted horizontal nozzle
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, h.y, 6, h.h);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x + 6, h.y + 2, 4, h.h - 4);
+
+          if (isErupting) {
+            const fGrad = ctx.createLinearGradient(x + 10, h.y, x + 46, h.y);
+            fGrad.addColorStop(0, '#ffffff');
+            fGrad.addColorStop(0.25, '#fef08a');
+            fGrad.addColorStop(0.65, '#f97316');
+            fGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+            ctx.fillStyle = fGrad;
+            ctx.beginPath();
+            ctx.moveTo(x + 10, h.y + 2);
+            ctx.lineTo(x + 46, h.y - 4);
+            ctx.lineTo(x + 46, h.y + h.h + 4);
+            ctx.lineTo(x + 10, h.y + h.h - 2);
+            ctx.closePath();
+            ctx.fill();
+          } else if (isWarning) {
+            ctx.fillStyle = Math.floor(time / 4) % 2 === 0 ? '#ef4444' : '#f97316';
+            ctx.fillRect(x + 8, h.y + h.h / 2 - 1.5, 3, 3);
+          }
+        } else {
+          // Ground-mounted vertical nozzle
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, h.y + h.h - 6, h.w, 6);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x + 2, h.y + h.h - 9, h.w - 4, 3);
+
+          if (isErupting) {
+            const fGrad = ctx.createLinearGradient(x, h.y + h.h - 9, x, h.y - 36);
+            fGrad.addColorStop(0, '#ffffff');
+            fGrad.addColorStop(0.3, '#fef08a');
+            fGrad.addColorStop(0.7, '#f97316');
+            fGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+            ctx.fillStyle = fGrad;
+            ctx.beginPath();
+            ctx.moveTo(x + 2, h.y + h.h - 9);
+            ctx.lineTo(x - 4, h.y - 36);
+            ctx.lineTo(x + h.w + 4, h.y - 36);
+            ctx.lineTo(x + h.w - 2, h.y + h.h - 9);
+            ctx.closePath();
+            ctx.fill();
+          } else if (isWarning) {
+            ctx.fillStyle = Math.floor(time / 4) % 2 === 0 ? '#ef4444' : '#f97316';
+            ctx.fillRect(x + h.w / 2 - 1.5, h.y + h.h - 11, 3, 3);
+          }
+        }
+      } else if (h.type === 'teslaPillar') {
+        // High-Voltage Tesla Lightning Coil
+        const isActive = h.active;
+        const cy = h.y + 10;
+        const cx = x + h.w / 2;
+
+        // Base & Ceramic Rings
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x + 2, h.y + h.h - 5, h.w - 4, 5);
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(x + 4, h.y + 8, h.w - 8, h.h - 13);
+
+        // Insulator Ribs
+        ctx.fillStyle = '#78350f';
+        for (let ry = h.y + 10; ry < h.y + h.h - 6; ry += 4) {
+          ctx.fillRect(x + 3, ry, h.w - 6, 1.5);
+        }
+
+        // Glowing Spherical Electrode Core
+        const coreColor = isActive ? '#67e8f9' : '#0369a1';
+        ctx.fillStyle = coreColor;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 1, cy - 1, 2, 2);
+
+        if (isActive) {
+          // Pulsing Electric Field Dome
+          const pulse = 0.5 + Math.sin(time * 0.3) * 0.4;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${pulse})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Crackling Lightning Arcs
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          const arcAngle = (time * 0.4) % (Math.PI * 2);
+          const midX = cx + Math.cos(arcAngle) * 9 + (Math.random() - 0.5) * 4;
+          const midY = cy + Math.sin(arcAngle) * 9 + (Math.random() - 0.5) * 4;
+          const endX = cx + Math.cos(arcAngle) * 18;
+          const endY = cy + Math.sin(arcAngle) * 18;
+          ctx.lineTo(midX, midY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        }
+      } else if (h.type === 'acidPool') {
+        // Corrosive Acid Vat Container
+        ctx.fillStyle = '#064e3b';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#052e16';
+        ctx.fillRect(x + 1, h.y + 2, h.w - 2, h.h - 2);
+
+        // Bubbling Caustic Fluid
+        ctx.fillStyle = '#15803d';
+        ctx.fillRect(x + 1, h.y + 2, h.w - 2, h.h - 2);
+        ctx.fillStyle = '#22c55e';
+        for (let ax = x + 2; ax < x + h.w - 2; ax += 8) {
+          const wave = Math.sin(time * 0.18 + ax * 0.25) * 2;
+          ctx.fillRect(ax, h.y + 1 + wave, 6, 2);
+        }
+        // Glowing Acid Highlights
+        ctx.fillStyle = '#86efac';
+        for (let ax = x + 4; ax < x + h.w - 4; ax += 14) {
+          const bubbleY = h.y + 3 + ((time * 0.4 + ax) % 6);
+          ctx.fillRect(ax, bubbleY, 2, 2);
+        }
+      } else if (h.type === 'dartTrap') {
+        // Wall Mounted Dart Launcher Sentry
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(x + 2, h.y + 2, h.w - 4, h.h - 4);
+
+        // Aperture Slit
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(x + 3, h.y + h.h / 2 - 1.5, h.w - 6, 3);
+
+        // Targeting Sensor Indicator
+        const cooldown = h.shootCooldown || 0;
+        ctx.fillStyle = cooldown > 65 ? '#ef4444' : '#d97706';
+        ctx.fillRect(x + h.w / 2 - 1, h.y + 3, 2, 2);
       }
     }
   }

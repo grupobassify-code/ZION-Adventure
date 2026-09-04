@@ -464,51 +464,90 @@ export function buildLevel(levelIndex: number) {
     // ZONA 1 · ACTO 1 — BOSQUE NEÓN
     // -------------------------------------------------------------
     const gaps = [
-      { x: 420, w: 55 }, { x: 920, w: 50 }, { x: 1480, w: 60 },
-      { x: 2050, w: 55 }, { x: 2650, w: 65 }, { x: 3250, w: 55 },
-      { x: 3850, w: 60 }, { x: 4480, w: 55 }, { x: 5100, w: 65 },
-      { x: 5750, w: 55 }, { x: 6400, w: 65 }
+      { x: 500, w: 60 }, { x: 1200, w: 65 }, { x: 1950, w: 70 },
+      { x: 2750, w: 65 }, { x: 3550, w: 70 }, { x: 4400, w: 65 },
+      { x: 5250, w: 75 }, { x: 6100, w: 70 }
     ];
     let start = 0;
     for (const g of gaps) {
       if (start < g.x) platforms.push({ x: start, y: 148, w: g.x - start, h: 40, kind: 'ground' });
+      // Acid or water below gaps
+      hazards.push({ x: g.x, y: 156, w: g.w, h: 28, type: 'water' });
       start = g.x + g.w;
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
-    for (let s = 0; s < 16; s++) {
-      const b = 90 + s * 430;
-      const p1: Platform = { x: b + 35, y: 112, w: 76, h: 9, kind: 'ledge' };
-      const p2: Platform = { x: b + 160, y: 82, w: 76, h: 9, kind: 'ledge' };
-      const p3: Platform = { x: b + 285, y: 106, w: 82, h: 9, kind: 'ledge' };
-      platforms.push(p1, p2, p3);
+    // Strategic Elevated Platforms (Reduced Density, High Purpose)
+    const strategicLedges: Platform[] = [
+      { x: 320, y: 108, w: 85, h: 10, kind: 'ledge' },
+      { x: 780, y: 98, w: 90, h: 10, kind: 'ledge' },
+      { x: 1450, y: 104, w: 85, h: 10, kind: 'ledge' },
+      { x: 2200, y: 96, w: 90, h: 10, kind: 'ledge' },
+      { x: 3050, y: 102, w: 85, h: 10, kind: 'ledge' },
+      { x: 3880, y: 94, w: 95, h: 10, kind: 'ledge' },
+      { x: 4720, y: 104, w: 85, h: 10, kind: 'ledge' },
+      { x: 5580, y: 98, w: 90, h: 10, kind: 'ledge' },
+      { x: 6350, y: 106, w: 80, h: 10, kind: 'ledge' }
+    ];
+    platforms.push(...strategicLedges);
 
-      crystals.push({ x: b + 55, y: 94, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
-      crystals.push({ x: b + 180, y: 64, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
-      crystals.push({ x: b + 305, y: 88, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
-      if (s % 2 === 0) {
-        crystals.push({ x: b + 335, y: 130, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
-      }
-
-      if (s % 3 === 1) hazards.push({ x: p1.x + 40, y: p1.y - 7, w: 18, h: 7, type: 'spike' });
-      if (s % 4 === 2) hazards.push({ x: p3.x + 12, y: p3.y - 7, w: 20, h: 7, type: 'spike' });
+    // Crystals along the terrain & ledges
+    for (const pl of strategicLedges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+      crystals.push({ x: pl.x + 14, y: pl.y - 16, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+    for (let cx = 200; cx < 6800; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
-    for (let x = 600, i = 0; x < 6600; x += 420, i++) {
-      const type = i % 3 === 0 ? 'laserGate' : i % 2 === 0 ? 'spike' : 'vine';
+    // Varied Obstacles across Neon Forest
+    // 1. Hydraulic Crushers
+    hazards.push(
+      { x: 680, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 0, floorY: 148, crushSpeed: 4 },
+      { x: 2450, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 35, floorY: 148, crushSpeed: 4.5 },
+      { x: 4150, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 70, floorY: 148, crushSpeed: 4 }
+    );
+
+    // 2. Rail-Mounted Buzzsaws
+    hazards.push(
+      { x: 1020, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 950, railMax: 1140, bladeSpeed: 1.8, bladeAngle: 0 },
+      { x: 2880, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2800, railMax: 3000, bladeSpeed: 2.2, bladeAngle: 0 },
+      { x: 4950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4860, railMax: 5080, bladeSpeed: 2.0, bladeAngle: 0 }
+    );
+
+    // 3. Tesla Lightning Pillars
+    hazards.push(
+      { x: 1650, y: 116, w: 18, h: 32, type: 'teslaPillar', active: true, cycleTimer: 0 },
+      { x: 3350, y: 116, w: 18, h: 32, type: 'teslaPillar', active: false, cycleTimer: 45 },
+      { x: 5850, y: 116, w: 18, h: 32, type: 'teslaPillar', active: true, cycleTimer: 20 }
+    );
+
+    // 4. Acid Coolant Pools
+    hazards.push(
+      { x: 2100, y: 144, w: 46, h: 10, type: 'acidPool' },
+      { x: 3750, y: 144, w: 50, h: 10, type: 'acidPool' },
+      { x: 5400, y: 144, w: 48, h: 10, type: 'acidPool' }
+    );
+
+    // 5. Cycling Laser Barriers & Flame Jets
+    for (let lx = 850; lx < 6600; lx += 920) {
       hazards.push({
-        x,
-        y: type === 'laserGate' ? 95 : 141,
-        w: type === 'laserGate' ? 14 : type === 'spike' ? 20 : 18,
-        h: type === 'laserGate' ? 53 : 7,
-        type,
+        x: lx,
+        y: 95,
+        w: 14,
+        h: 53,
+        type: 'laserGate',
         active: true,
-        cycleTimer: i * 20
+        cycleTimer: (lx % 100)
       });
     }
+    hazards.push(
+      { x: 1350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 0, flameAngle: 0 },
+      { x: 4600, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 50, flameAngle: 0 }
+    );
 
     const enemyTypes: Enemy['type'][] = ['patrol', 'sentinel', 'hopper', 'charger', 'sphere'];
-    for (let x = 700, i = 0; x < 6600; x += 380, i++) {
+    for (let x = 700, i = 0; x < 6600; x += 420, i++) {
       const type = enemyTypes[i % enemyTypes.length];
       const stats = getEnemyStats(type);
       enemies.push({
@@ -558,32 +597,70 @@ export function buildLevel(levelIndex: number) {
     // ZONA 1 · ACTO 2 — EL GUARDIÁN
     // -------------------------------------------------------------
     const gaps = [
-      { x: 400, w: 58 }, { x: 950, w: 55 }, { x: 1520, w: 60 },
-      { x: 2100, w: 55 }, { x: 2680, w: 65 }, { x: 3280, w: 55 },
-      { x: 3880, w: 65 }, { x: 4480, w: 55 }, { x: 5080, w: 65 }
+      { x: 420, w: 60 }, { x: 1050, w: 65 }, { x: 1750, w: 70 },
+      { x: 2450, w: 65 }, { x: 3150, w: 70 }, { x: 3900, w: 65 },
+      { x: 4650, w: 70 }
     ];
     let start = 0;
     for (const g of gaps) {
       if (start < g.x) platforms.push({ x: start, y: 148, w: g.x - start, h: 40, kind: 'ground' });
+      hazards.push({ x: g.x, y: 156, w: g.w, h: 28, type: 'water' });
       start = g.x + g.w;
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
-    for (let s = 0; s < 13; s++) {
-      const b = 100 + s * 410;
-      platforms.push(
-        { x: b + 40, y: 110, w: 80, h: 9, kind: 'ledge' },
-        { x: b + 175, y: 78, w: 80, h: 9, kind: 'ledge' },
-        { x: b + 300, y: 102, w: 80, h: 9, kind: 'ledge' }
-      );
-      crystals.push(
-        { x: b + 60, y: 92, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 195, y: 60, w: 8, h: 10, taken: false, t: Math.random() * 6.28 }
-      );
-      if (s % 3 === 0) {
-        hazards.push({ x: b + 210, y: 69, w: 20, h: 7, type: 'spike' });
-      }
+    // Sparse, purposeful tactical platforms
+    const neon2Ledges: Platform[] = [
+      { x: 300, y: 108, w: 80, h: 10, kind: 'ledge' },
+      { x: 750, y: 96, w: 85, h: 10, kind: 'ledge' },
+      { x: 1400, y: 102, w: 80, h: 10, kind: 'ledge' },
+      { x: 2100, y: 92, w: 85, h: 10, kind: 'ledge' },
+      { x: 2800, y: 104, w: 80, h: 10, kind: 'ledge' },
+      { x: 3500, y: 94, w: 85, h: 10, kind: 'ledge' },
+      { x: 4250, y: 102, w: 80, h: 10, kind: 'ledge' },
+      { x: 4950, y: 96, w: 85, h: 10, kind: 'ledge' }
+    ];
+    platforms.push(...neon2Ledges);
+
+    for (const pl of neon2Ledges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
+    for (let cx = 180; cx < 5200; cx += 200) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+
+    // Heavy Industrial Obstacles in Act 2
+    // Crushers
+    hazards.push(
+      { x: 600, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 10, floorY: 148, crushSpeed: 4.5 },
+      { x: 1950, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 55, floorY: 148, crushSpeed: 4.5 },
+      { x: 3350, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 25, floorY: 148, crushSpeed: 5 }
+    );
+
+    // SawBlades
+    hazards.push(
+      { x: 880, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 820, railMax: 980, bladeSpeed: 2.2, bladeAngle: 0 },
+      { x: 2600, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2520, railMax: 2700, bladeSpeed: 2.5, bladeAngle: 0 },
+      { x: 4420, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4350, railMax: 4540, bladeSpeed: 2.4, bladeAngle: 0 }
+    );
+
+    // Tesla Shock Pillars
+    hazards.push(
+      { x: 1250, y: 116, w: 18, h: 32, type: 'teslaPillar', active: true, cycleTimer: 15 },
+      { x: 3700, y: 116, w: 18, h: 32, type: 'teslaPillar', active: true, cycleTimer: 45 }
+    );
+
+    // Acid Spill Vats
+    hazards.push(
+      { x: 1600, y: 144, w: 50, h: 10, type: 'acidPool' },
+      { x: 4050, y: 144, w: 55, h: 10, type: 'acidPool' }
+    );
+
+    // Flame Nozzles
+    hazards.push(
+      { x: 2300, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 10, flameAngle: 0 },
+      { x: 4800, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+    );
 
     const enemyTypes: Enemy['type'][] = ['sentinel', 'charger', 'hopper', 'patrol'];
     for (let x = 600, i = 0; x < 5400; x += 380, i++) {
@@ -711,18 +788,60 @@ export function buildLevel(levelIndex: number) {
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
+    // Strategic Torii & Bridge Platforms (Reduced platform density)
+    const sakura1Ledges: Platform[] = [
+      { x: 380, y: 110, w: 85, h: 9, kind: 'bridge' },
+      { x: 1050, y: 102, w: 90, h: 9, kind: 'bridge' },
+      { x: 1850, y: 96, w: 95, h: 9, kind: 'ledge' },
+      { x: 2650, y: 104, w: 90, h: 9, kind: 'bridge' },
+      { x: 3480, y: 98, w: 85, h: 9, kind: 'bridge' },
+      { x: 4320, y: 106, w: 90, h: 9, kind: 'ledge' },
+      { x: 5180, y: 96, w: 95, h: 9, kind: 'bridge' },
+      { x: 6050, y: 102, w: 90, h: 9, kind: 'bridge' }
+    ];
+    platforms.push(...sakura1Ledges);
+
+    // Crystals along bridges & forest trail
+    for (const pl of sakura1Ledges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+    for (let cx = 180; cx < 6800; cx += 230) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+
+    // Diverse Obstacles: Swinging Blades, Dart Traps, Crushers, Saws
+    // 1. Swinging Ceremonial Pendulum Blades
+    hazards.push(
+      { x: 880, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0, bladeSpeed: 0.045 },
+      { x: 2450, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 1.2, bladeSpeed: 0.045 },
+      { x: 4100, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 2.4, bladeSpeed: 0.045 },
+      { x: 5800, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0.8, bladeSpeed: 0.045 }
+    );
+
+    // 2. Concealed Wall Blowdart Traps
+    hazards.push(
+      { x: 1250, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 40, shootDir: 1 },
+      { x: 2900, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 20, shootDir: -1 },
+      { x: 4600, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 55, shootDir: 1 },
+      { x: 6300, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 30, shootDir: -1 }
+    );
+
+    // 3. Heavy Stone Shrine Crushers
+    hazards.push(
+      { x: 1600, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 20, floorY: 148, crushSpeed: 4 },
+      { x: 3750, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 60, floorY: 148, crushSpeed: 4.2 },
+      { x: 5450, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 10, floorY: 148, crushSpeed: 4 }
+    );
+
+    // 4. Waterwheel Spiked Saws patrolling stream banks
+    hazards.push(
+      { x: 2050, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1980, railMax: 2150, bladeSpeed: 1.8, bladeAngle: 0 },
+      { x: 4900, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4830, railMax: 5010, bladeSpeed: 2.0, bladeAngle: 0 }
+    );
+
+    // Enemies in Sakura Forest
     for (let i = 0; i < 16; i++) {
       const b = 80 + i * 420;
-      platforms.push(
-        { x: b + 35, y: 114, w: 88, h: 9, kind: 'bridge' },
-        { x: b + 175, y: 80, w: 80, h: 9, kind: 'ledge' },
-        { x: b + 310, y: 106, w: 84, h: 9, kind: 'bridge' }
-      );
-
-      crystals.push(
-        { x: b + 60, y: 96, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 200, y: 62, w: 8, h: 10, taken: false, t: Math.random() * 6.28 }
-      );
 
       if (i % 2 === 0) {
         const stats = getEnemyStats('kitsune');
@@ -848,18 +967,58 @@ export function buildLevel(levelIndex: number) {
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
+    // Strategic Night Platforms (Reduced Density, High Purpose)
+    const sakura2Ledges: Platform[] = [
+      { x: 350, y: 110, w: 85, h: 9, kind: 'bridge' },
+      { x: 1020, y: 100, w: 90, h: 9, kind: 'bridge' },
+      { x: 1800, y: 94, w: 95, h: 9, kind: 'ledge' },
+      { x: 2600, y: 104, w: 90, h: 9, kind: 'bridge' },
+      { x: 3450, y: 98, w: 85, h: 9, kind: 'bridge' },
+      { x: 4280, y: 104, w: 90, h: 9, kind: 'ledge' },
+      { x: 5120, y: 98, w: 90, h: 9, kind: 'bridge' }
+    ];
+    platforms.push(...sakura2Ledges);
+
+    for (const pl of sakura2Ledges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+    for (let cx = 180; cx < 6200; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+
+    // Varied Midnight Obstacles
+    // 1. Double Ceremonial Pendulums
+    hazards.push(
+      { x: 800, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0.4, bladeSpeed: 0.05 },
+      { x: 2350, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 1.8, bladeSpeed: 0.05 },
+      { x: 3950, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0, bladeSpeed: 0.05 },
+      { x: 5600, y: 72, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 2.1, bladeSpeed: 0.05 }
+    );
+
+    // 2. Wall Shuriken Traps
+    hazards.push(
+      { x: 1180, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 30, shootDir: 1 },
+      { x: 2780, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 50, shootDir: -1 },
+      { x: 4400, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 25, shootDir: 1 },
+      { x: 5900, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 45, shootDir: -1 }
+    );
+
+    // 3. Ancient Night Crushers
+    hazards.push(
+      { x: 1500, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 30, floorY: 148, crushSpeed: 4.5 },
+      { x: 3600, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 15, floorY: 148, crushSpeed: 4.5 },
+      { x: 5250, y: 60, w: 32, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 55, floorY: 148, crushSpeed: 4.5 }
+    );
+
+    // 4. Spiked Waterwheels
+    hazards.push(
+      { x: 1950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1880, railMax: 2060, bladeSpeed: 2.0, bladeAngle: 0 },
+      { x: 4800, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4720, railMax: 4920, bladeSpeed: 2.2, bladeAngle: 0 }
+    );
+
+    // Enemies in Night Forest
     for (let i = 0; i < 15; i++) {
       const b = 80 + i * 410;
-      platforms.push(
-        { x: b + 35, y: 114, w: 86, h: 9, kind: 'bridge' },
-        { x: b + 175, y: 80, w: 80, h: 9, kind: 'ledge' },
-        { x: b + 310, y: 104, w: 84, h: 9, kind: 'bridge' }
-      );
-
-      crystals.push(
-        { x: b + 62, y: 96, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 198, y: 62, w: 8, h: 10, taken: false, t: Math.random() * 6.28 }
-      );
 
       if (i % 2 === 0) {
         const stats = getEnemyStats('yurei');
@@ -1084,34 +1243,53 @@ export function buildLevel(levelIndex: number) {
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
-    for (let s = 0; s < 18; s++) {
-      const b = 90 + s * 410;
-      const p1: Platform = { x: b + 35, y: 112, w: 82, h: 10, kind: 'basalt' };
-      const p2: Platform = { x: b + 170, y: 80, w: 80, h: 10, kind: 'basalt' };
-      const p3: Platform = { x: b + 300, y: 105, w: 84, h: 10, kind: 'basalt' };
-      platforms.push(p1, p2, p3);
+    // Strategic Basalt Promontories (Reduced platform density)
+    const basaltLedges1: Platform[] = [
+      { x: 380, y: 110, w: 85, h: 10, kind: 'basalt' },
+      { x: 1050, y: 100, w: 90, h: 10, kind: 'basalt' },
+      { x: 1850, y: 96, w: 90, h: 10, kind: 'basalt' },
+      { x: 2650, y: 104, w: 85, h: 10, kind: 'basalt' },
+      { x: 3480, y: 98, w: 90, h: 10, kind: 'basalt' },
+      { x: 4350, y: 106, w: 85, h: 10, kind: 'basalt' },
+      { x: 5200, y: 98, w: 90, h: 10, kind: 'basalt' },
+      { x: 6050, y: 104, w: 85, h: 10, kind: 'basalt' },
+      { x: 6850, y: 100, w: 90, h: 10, kind: 'basalt' }
+    ];
+    platforms.push(...basaltLedges1);
 
-      crystals.push(
-        { x: b + 55, y: 92, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 190, y: 60, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 320, y: 85, w: 8, h: 10, taken: false, t: Math.random() * 6.28 }
-      );
-
-      if (s % 3 === 1) {
-        hazards.push({
-          x: p2.x + 25,
-          y: p2.y + p2.h,
-          w: 12,
-          h: 18,
-          type: 'stalactite',
-          originalY: p2.y + p2.h,
-          fallVy: 0,
-          isFalling: false
-        });
-      }
+    for (const pl of basaltLedges1) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+    for (let cx = 180; cx < 7200; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
-    for (let x = 850, i = 0; x < 7200; x += 480, i++) {
+    // Varied Volcanic Obstacles
+    // 1. High-Pressure Flame Jets
+    hazards.push(
+      { x: 880, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 0, flameAngle: 0 },
+      { x: 2350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 45, flameAngle: 0 },
+      { x: 3950, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 20, flameAngle: 0 },
+      { x: 5700, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+    );
+
+    // 2. Basalt Crusher Pistons
+    hazards.push(
+      { x: 1550, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 15, floorY: 148, crushSpeed: 4.5 },
+      { x: 3150, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 50, floorY: 148, crushSpeed: 4.5 },
+      { x: 4850, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 25, floorY: 148, crushSpeed: 5 }
+    );
+
+    // 3. Mining Saws Traversing over Lava
+    hazards.push(
+      { x: 1100, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1020, railMax: 1220, bladeSpeed: 2.2, bladeAngle: 0 },
+      { x: 2750, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2680, railMax: 2880, bladeSpeed: 2.4, bladeAngle: 0 },
+      { x: 4450, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4380, railMax: 4580, bladeSpeed: 2.0, bladeAngle: 0 },
+      { x: 6150, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 6080, railMax: 6280, bladeSpeed: 2.2, bladeAngle: 0 }
+    );
+
+    // 4. Volcanic Geysers & Falling Stalactites
+    for (let x = 950; x < 7000; x += 1100) {
       hazards.push({
         x,
         y: 142,
@@ -1120,8 +1298,18 @@ export function buildLevel(levelIndex: number) {
         type: 'geyser',
         warnTimer: 0,
         erupting: false,
-        cycleTimer: (i * 35) % 180,
-        maxCycle: 180
+        cycleTimer: (x % 140),
+        maxCycle: 160
+      });
+      hazards.push({
+        x: x + 120,
+        y: 60,
+        w: 12,
+        h: 18,
+        type: 'stalactite',
+        originalY: 60,
+        fallVy: 0,
+        isFalling: false
       });
     }
 
@@ -1230,33 +1418,50 @@ export function buildLevel(levelIndex: number) {
     }
     platforms.push({ x: start, y: 148, w: LW - start, h: 40, kind: 'ground' });
 
-    for (let s = 0; s < 15; s++) {
-      const b = 90 + s * 400;
-      const p1: Platform = { x: b + 40, y: 112, w: 82, h: 10, kind: 'basalt' };
-      const p2: Platform = { x: b + 175, y: 80, w: 80, h: 10, kind: 'basalt' };
-      const p3: Platform = { x: b + 305, y: 105, w: 84, h: 10, kind: 'basalt' };
-      platforms.push(p1, p2, p3);
+    // Strategic Basalt Promontories (Reduced platform density)
+    const basaltLedges2: Platform[] = [
+      { x: 350, y: 110, w: 85, h: 10, kind: 'basalt' },
+      { x: 1020, y: 98, w: 90, h: 10, kind: 'basalt' },
+      { x: 1780, y: 94, w: 85, h: 10, kind: 'basalt' },
+      { x: 2550, y: 104, w: 90, h: 10, kind: 'basalt' },
+      { x: 3380, y: 98, w: 85, h: 10, kind: 'basalt' },
+      { x: 4220, y: 104, w: 90, h: 10, kind: 'basalt' },
+      { x: 5080, y: 96, w: 85, h: 10, kind: 'basalt' }
+    ];
+    platforms.push(...basaltLedges2);
 
-      crystals.push(
-        { x: b + 60, y: 92, w: 8, h: 10, taken: false, t: Math.random() * 6.28 },
-        { x: b + 195, y: 60, w: 8, h: 10, taken: false, t: Math.random() * 6.28 }
-      );
-
-      if (s % 2 === 0) {
-        hazards.push({
-          x: p2.x + 30,
-          y: p2.y + p2.h,
-          w: 14,
-          h: 18,
-          type: 'stalactite',
-          originalY: p2.y + p2.h,
-          fallVy: 0,
-          isFalling: false
-        });
-      }
+    for (const pl of basaltLedges2) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
+    }
+    for (let cx = 180; cx < 5900; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
-    for (let x = 800, i = 0; x < 6000; x += 450, i++) {
+    // Varied Magma Core Obstacles
+    // 1. Dual Flame Jets
+    hazards.push(
+      { x: 820, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 10, flameAngle: 0 },
+      { x: 2380, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 55, flameAngle: 0 },
+      { x: 4050, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 25, flameAngle: 0 },
+      { x: 5350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 65, flameAngle: 0 }
+    );
+
+    // 2. Obsidian Crushers
+    hazards.push(
+      { x: 1450, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 20, floorY: 148, crushSpeed: 5 },
+      { x: 3050, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 45, floorY: 148, crushSpeed: 5 },
+      { x: 4700, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 10, floorY: 148, crushSpeed: 5.5 }
+    );
+
+    // 3. Thermal Saws
+    hazards.push(
+      { x: 1200, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1120, railMax: 1320, bladeSpeed: 2.4, bladeAngle: 0 },
+      { x: 2800, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2720, railMax: 2920, bladeSpeed: 2.2, bladeAngle: 0 },
+      { x: 4480, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4400, railMax: 4600, bladeSpeed: 2.5, bladeAngle: 0 }
+    );
+
+    // 4. Geysers & Falling Stalactites
+    for (let x = 900; x < 5800; x += 1150) {
       hazards.push({
         x,
         y: 142,
@@ -1265,8 +1470,18 @@ export function buildLevel(levelIndex: number) {
         type: 'geyser',
         warnTimer: 0,
         erupting: false,
-        cycleTimer: (i * 40) % 180,
-        maxCycle: 180
+        cycleTimer: (x % 140),
+        maxCycle: 160
+      });
+      hazards.push({
+        x: x + 100,
+        y: 60,
+        w: 14,
+        h: 18,
+        type: 'stalactite',
+        originalY: 60,
+        fallVy: 0,
+        isFalling: false
       });
     }
 
@@ -1437,54 +1652,75 @@ export function buildLevel(levelIndex: number) {
       });
     }
 
-    // Elevated Sandstone Ruins & Stepping Ledges
-    for (let s = 450; s < 7500; s += 360) {
-      const p1 = { x: s, y: 110 - (s % 3) * 18, w: 75, h: 10, kind: 'sandstone' as const };
-      const p2 = { x: s + 140, y: 78 + (s % 2) * 20, w: 80, h: 10, kind: 'sandstone' as const };
-      platforms.push(p1, p2);
+    // Strategic Sandstone Ruins Platforms (Reduced platform density)
+    const desert1Ledges: Platform[] = [
+      { x: 380, y: 110, w: 85, h: 10, kind: 'sandstone' },
+      { x: 1080, y: 100, w: 90, h: 10, kind: 'sandstone' },
+      { x: 1880, y: 96, w: 90, h: 10, kind: 'sandstone' },
+      { x: 2680, y: 104, w: 85, h: 10, kind: 'sandstone' },
+      { x: 3520, y: 98, w: 90, h: 10, kind: 'sandstone' },
+      { x: 4380, y: 106, w: 85, h: 10, kind: 'sandstone' },
+      { x: 5240, y: 98, w: 90, h: 10, kind: 'sandstone' },
+      { x: 6100, y: 104, w: 85, h: 10, kind: 'sandstone' },
+      { x: 6920, y: 100, w: 90, h: 10, kind: 'sandstone' }
+    ];
+    platforms.push(...desert1Ledges);
 
-      crystals.push(
-        { x: p1.x + 25, y: p1.y - 14, w: 8, h: 8, taken: false },
-        { x: p2.x + 35, y: p2.y - 14, w: 8, h: 8, taken: false }
-      );
+    for (const pl of desert1Ledges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 8, taken: false });
+    }
+    for (let cx = 180; cx < 7400; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 8, taken: false });
+    }
 
-      // Bone spikes on lower ground near ruins
-      if (s % 2 === 0) {
-        hazards.push({
-          x: s + 75,
-          y: 142,
-          w: 22,
-          h: 8,
-          type: 'sandSpike'
-        });
-      }
+    // Varied Ancient Desert Obstacles
+    // 1. Pharaoh's Crushing Stone Slabs
+    hazards.push(
+      { x: 1450, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 10, floorY: 148, crushSpeed: 4.5 },
+      { x: 3850, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 45, floorY: 148, crushSpeed: 4.5 },
+      { x: 5800, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 20, floorY: 148, crushSpeed: 5 }
+    );
 
-      // Swinging blades between temple arches
-      if (s % 4 === 0) {
-        hazards.push({
-          x: s + 100,
-          y: 65,
-          w: 16,
-          h: 55,
-          type: 'swingingBlade',
-          bladeAngle: 0,
-          bladeSpeed: 0.045
-        });
-      }
+    // 2. Wall Arrow/Dart Traps from Obelisks
+    hazards.push(
+      { x: 820, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 35, shootDir: 1 },
+      { x: 2350, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 50, shootDir: -1 },
+      { x: 4650, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 25, shootDir: 1 },
+      { x: 6550, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 40, shootDir: -1 }
+    );
 
-      // Falling Sandstone Blocks
-      if (s % 5 === 0) {
-        hazards.push({
-          x: p1.x + 30,
-          y: p1.y - 20,
-          w: 18,
-          h: 16,
-          type: 'fallingBlock',
-          originalY: p1.y - 20,
-          fallVy: 0,
-          isFalling: false
-        });
-      }
+    // 3. Bronze Spiked Discs in Sand Grooves
+    hazards.push(
+      { x: 1650, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1580, railMax: 1760, bladeSpeed: 2.0, bladeAngle: 0 },
+      { x: 3100, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 3020, railMax: 3220, bladeSpeed: 2.3, bladeAngle: 0 },
+      { x: 4950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4880, railMax: 5080, bladeSpeed: 2.1, bladeAngle: 0 }
+    );
+
+    // 4. Swinging Bronze Scythes & Desert Sand Spikes
+    hazards.push(
+      { x: 2100, y: 65, w: 16, h: 55, type: 'swingingBlade', bladeAngle: 0.5, bladeSpeed: 0.045 },
+      { x: 4300, y: 65, w: 16, h: 55, type: 'swingingBlade', bladeAngle: 1.8, bladeSpeed: 0.045 },
+      { x: 6300, y: 65, w: 16, h: 55, type: 'swingingBlade', bladeAngle: 0.2, bladeSpeed: 0.045 }
+    );
+
+    for (let s = 650; s < 7400; s += 850) {
+      hazards.push({
+        x: s,
+        y: 142,
+        w: 22,
+        h: 8,
+        type: 'sandSpike'
+      });
+      hazards.push({
+        x: s + 80,
+        y: 60,
+        w: 18,
+        h: 16,
+        type: 'fallingBlock',
+        originalY: 60,
+        fallVy: 0,
+        isFalling: false
+      });
     }
 
     // Desert Enemies Spawning
@@ -1586,52 +1822,73 @@ export function buildLevel(levelIndex: number) {
       { id: '3', x: 5200, y: 90, w: 18, h: 58, taken: false }
     ];
 
-    // High Sandstone Sarcophagus platforms & Ledges
-    for (let s = 400; s < 6000; s += 340) {
-      const p1 = { x: s, y: 104 - (s % 3) * 16, w: 80, h: 12, kind: 'ruins' as const };
-      const p2 = { x: s + 150, y: 72 + (s % 2) * 22, w: 85, h: 12, kind: 'ruins' as const };
-      platforms.push(p1, p2);
+    // Strategic Sarcophagus Ledges (Reduced platform density)
+    const desert2Ledges: Platform[] = [
+      { x: 350, y: 110, w: 85, h: 12, kind: 'ruins' },
+      { x: 1050, y: 98, w: 90, h: 12, kind: 'ruins' },
+      { x: 1850, y: 92, w: 85, h: 12, kind: 'ruins' },
+      { x: 2650, y: 104, w: 90, h: 12, kind: 'ruins' },
+      { x: 3480, y: 98, w: 85, h: 12, kind: 'ruins' },
+      { x: 4320, y: 104, w: 90, h: 12, kind: 'ruins' },
+      { x: 5150, y: 96, w: 85, h: 12, kind: 'ruins' }
+    ];
+    platforms.push(...desert2Ledges);
 
-      crystals.push(
-        { x: p1.x + 30, y: p1.y - 14, w: 8, h: 8, taken: false },
-        { x: p2.x + 35, y: p2.y - 14, w: 8, h: 8, taken: false }
-      );
+    for (const pl of desert2Ledges) {
+      crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 8, taken: false });
+    }
+    for (let cx = 180; cx < 6000; cx += 220) {
+      crystals.push({ x: cx, y: 132, w: 8, h: 8, taken: false });
+    }
 
-      // Curse Runes & Swinging Blades in the Crypt
-      if (s % 2 === 0) {
-        hazards.push({
-          x: s + 60,
-          y: 144,
-          w: 24,
-          h: 6,
-          type: 'curseRune'
-        });
-      }
+    // Varied Sacred Crypt Obstacles
+    // 1. Heavy Stone Tomb Crushers
+    hazards.push(
+      { x: 1350, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 25, floorY: 148, crushSpeed: 4.8 },
+      { x: 3100, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 50, floorY: 148, crushSpeed: 4.8 },
+      { x: 4800, y: 60, w: 34, h: 28, type: 'crusher', crushState: 'idle', crushTimer: 15, floorY: 148, crushSpeed: 5 }
+    );
 
-      if (s % 3 === 0) {
-        hazards.push({
-          x: s + 110,
-          y: 60,
-          w: 16,
-          h: 60,
-          type: 'swingingBlade',
-          bladeAngle: 0,
-          bladeSpeed: 0.05
-        });
-      }
+    // 2. Wall Arrow/Dart Traps from hieroglyph panels
+    hazards.push(
+      { x: 800, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 30, shootDir: 1 },
+      { x: 2300, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 45, shootDir: -1 },
+      { x: 3950, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 25, shootDir: 1 },
+      { x: 5500, y: 132, w: 12, h: 14, type: 'dartTrap', shootCooldown: 40, shootDir: -1 }
+    );
 
-      if (s % 4 === 0) {
-        hazards.push({
-          x: p1.x + 35,
-          y: p1.y - 20,
-          w: 18,
-          h: 16,
-          type: 'fallingBlock',
-          originalY: p1.y - 20,
-          fallVy: 0,
-          isFalling: false
-        });
-      }
+    // 3. Bronze Saws in crypt floor grooves
+    hazards.push(
+      { x: 1550, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1480, railMax: 1680, bladeSpeed: 2.2, bladeAngle: 0 },
+      { x: 3750, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 3680, railMax: 3880, bladeSpeed: 2.4, bladeAngle: 0 },
+      { x: 5350, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 5280, railMax: 5480, bladeSpeed: 2.2, bladeAngle: 0 }
+    );
+
+    // 4. Swinging blades & Curse runes
+    hazards.push(
+      { x: 920, y: 60, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0.3, bladeSpeed: 0.05 },
+      { x: 2750, y: 60, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 1.5, bladeSpeed: 0.05 },
+      { x: 4450, y: 60, w: 16, h: 60, type: 'swingingBlade', bladeAngle: 0, bladeSpeed: 0.05 }
+    );
+
+    for (let s = 600; s < 6000; s += 700) {
+      hazards.push({
+        x: s,
+        y: 144,
+        w: 24,
+        h: 6,
+        type: 'curseRune'
+      });
+      hazards.push({
+        x: s + 100,
+        y: 60,
+        w: 18,
+        h: 16,
+        type: 'fallingBlock',
+        originalY: 60,
+        fallVy: 0,
+        isFalling: false
+      });
     }
 
     // Crypt Enemies
@@ -1753,6 +2010,7 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // ZONA 5 · ACTO 1 — KRONO CITY: DISTRITO TECNOLÓGICO
     // -------------------------------------------------------------
+    // Clean Base Floor with Conveyor & Cyber Sections
     for (let x = 0; x < LW; x += 320) {
       const isConveyor = (x / 320) % 3 === 1;
       const isEmp = (x / 320) % 5 === 4;
@@ -1783,26 +2041,57 @@ export function buildLevel(levelIndex: number) {
           active: false
         });
       }
-
-      if (x > 300 && x < LW - 400) {
-        platforms.push({ x: x + 60, y: 104, w: 85, h: 10, kind: 'cyber' });
-        platforms.push({ x: x + 180, y: 72, w: 75, h: 10, kind: 'cyber' });
-
-        if (x % 600 === 0) {
-          platforms.push({ 
-            x: x + 120, 
-            y: 42, 
-            w: 80, 
-            h: 10, 
-            kind: 'conveyor',
-            speed: 1.4,
-            dir: 1
-          });
-        }
-      }
     }
 
-    for (let x = 800; x < LW - 800; x += 650) {
+    // Strategic Elevated Catwalks (Reduced density, high aesthetic purpose)
+    const krono1Catwalks: Platform[] = [
+      { x: 550, y: 106, w: 90, h: 10, kind: 'cyber' },
+      { x: 1350, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
+      { x: 2200, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 3050, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
+      { x: 3900, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 4750, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
+      { x: 5600, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 6450, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
+      { x: 7300, y: 102, w: 90, h: 10, kind: 'cyber' }
+    ];
+    platforms.push(...krono1Catwalks);
+
+    // Varied Sci-Fi Obstacles
+    // 1. High-Speed Laser Saws
+    hazards.push(
+      { x: 950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 860, railMax: 1060, bladeSpeed: 2.5, bladeAngle: 0 },
+      { x: 2550, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2460, railMax: 2680, bladeSpeed: 2.6, bladeAngle: 0 },
+      { x: 4250, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4160, railMax: 4380, bladeSpeed: 2.4, bladeAngle: 0 },
+      { x: 5950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 5860, railMax: 6080, bladeSpeed: 2.7, bladeAngle: 0 }
+    );
+
+    // 2. Hydraulic Pneumatic Press Crushers
+    hazards.push(
+      { x: 1750, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 20, floorY: 148, crushSpeed: 5 },
+      { x: 3450, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 55, floorY: 148, crushSpeed: 5.2 },
+      { x: 5150, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 15, floorY: 148, crushSpeed: 5 },
+      { x: 6850, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 45, floorY: 148, crushSpeed: 5.5 }
+    );
+
+    // 3. Tesla Arcing Pillars
+    hazards.push(
+      { x: 1150, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 0, teslaState: 'charging' },
+      { x: 2800, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 40, teslaState: 'charging' },
+      { x: 4500, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 20, teslaState: 'charging' },
+      { x: 6200, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 50, teslaState: 'charging' }
+    );
+
+    // 4. Coolant Chemical Leak Pools & Thermal Exhaust Flame Jets
+    hazards.push(
+      { x: 1980, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 0 },
+      { x: 3680, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 1.5 },
+      { x: 5380, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 3.0 },
+      { x: 1500, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 20, flameAngle: 0 },
+      { x: 4900, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+    );
+
+    for (let x = 800; x < LW - 800; x += 1100) {
       hazards.push({
         x: x + 40,
         y: 40,
@@ -1972,30 +2261,63 @@ export function buildLevel(levelIndex: number) {
     // ZONA 5 · ACTO 2 — KRONO CITY: REACTOR DE FUSIÓN & RED CENTRAL
     // (Extrema dificultad, sin jefe tradicional, guantelete de alta tensión con 3 Nodos Cuánticos)
     // -------------------------------------------------------------
+    // Reactor Base Platforms with High-Energy Chasm Gaps
     for (let x = 0; x < LW; x += 300) {
       const isGap = (x > 1200 && x < 1500) || (x > 3200 && x < 3500) || (x > 5400 && x < 5700) || (x > 7200 && x < 7500);
       if (!isGap) {
         platforms.push({ x, y: 148, w: 240, h: 40, kind: 'cyber' });
       }
-
-      platforms.push({ 
-        x: x + 40, 
-        y: 102, 
-        w: 90, 
-        h: 10, 
-        kind: (x % 600 === 0) ? 'conveyor' : 'cyber',
-        speed: 1.8,
-        dir: (x % 1200 === 0) ? 1 : -1
-      });
-
-      platforms.push({ x: x + 160, y: 68, w: 85, h: 10, kind: 'cyber' });
-
-      if (x % 450 === 0) {
-        platforms.push({ x: x + 100, y: 36, w: 70, h: 10, kind: 'cyber' });
-      }
     }
 
-    for (let x = 600; x < LW - 600; x += 480) {
+    // Strategic Reactor Upper Catwalks (Reduced density, clear elevation)
+    const krono2Catwalks: Platform[] = [
+      { x: 500, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 2100, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+      { x: 3800, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 5500, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+      { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' }
+    ];
+    platforms.push(...krono2Catwalks);
+
+    // Varied Reactor Core Obstacles
+    // 1. Quantum Tesla Arcing Towers
+    hazards.push(
+      { x: 900, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 10, teslaState: 'charging' },
+      { x: 2400, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 50, teslaState: 'charging' },
+      { x: 4100, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 20, teslaState: 'charging' },
+      { x: 5800, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 60, teslaState: 'charging' }
+    );
+
+    // 2. High-Capacity Reactor Hydraulic Crushers
+    hazards.push(
+      { x: 1650, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 25, floorY: 148, crushSpeed: 5.2 },
+      { x: 3350, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 55, floorY: 148, crushSpeed: 5.5 },
+      { x: 5050, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 15, floorY: 148, crushSpeed: 5.2 },
+      { x: 6750, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 45, floorY: 148, crushSpeed: 5.5 }
+    );
+
+    // 3. Fast Laser Sawblades patrolling tracks
+    hazards.push(
+      { x: 1100, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 1000, railMax: 1220, bladeSpeed: 2.8, bladeAngle: 0 },
+      { x: 2750, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 2650, railMax: 2880, bladeSpeed: 2.6, bladeAngle: 0 },
+      { x: 4450, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4350, railMax: 4580, bladeSpeed: 2.8, bladeAngle: 0 },
+      { x: 6150, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 6050, railMax: 6280, bladeSpeed: 2.7, bladeAngle: 0 }
+    );
+
+    // 4. Coolant Chemical Pools & Plasma Eruption Exhausts
+    hazards.push(
+      { x: 1950, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 0 },
+      { x: 3650, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 1.8 },
+      { x: 5350, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 3.2 },
+      { x: 1450, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 25, flameAngle: 0 },
+      { x: 4850, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 65, flameAngle: 0 }
+    );
+
+    for (let x = 600; x < LW - 600; x += 900) {
       hazards.push({
         x: x + 60,
         y: 146,

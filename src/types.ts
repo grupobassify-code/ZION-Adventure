@@ -95,7 +95,33 @@ export interface Hazard {
   y: number;
   w: number;
   h: number;
-  type: 'spike' | 'laserGate' | 'vine' | 'bamboo' | 'water' | 'rock' | 'branch' | 'lava' | 'geyser' | 'stalactite' | 'quicksand' | 'sandSpike' | 'swingingBlade' | 'curseRune' | 'fallingBlock' | 'empFloor' | 'conveyorLeft' | 'conveyorRight' | 'plasmaBeam' | 'turretLaser';
+  type: 
+    | 'spike' 
+    | 'laserGate' 
+    | 'vine' 
+    | 'bamboo' 
+    | 'water' 
+    | 'rock' 
+    | 'branch' 
+    | 'lava' 
+    | 'geyser' 
+    | 'stalactite' 
+    | 'quicksand' 
+    | 'sandSpike' 
+    | 'swingingBlade' 
+    | 'curseRune' 
+    | 'fallingBlock' 
+    | 'empFloor' 
+    | 'conveyorLeft' 
+    | 'conveyorRight' 
+    | 'plasmaBeam' 
+    | 'turretLaser'
+    | 'crusher'
+    | 'sawBlade'
+    | 'flameJet'
+    | 'teslaPillar'
+    | 'acidPool'
+    | 'dartTrap';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -113,6 +139,26 @@ export interface Hazard {
   bladeAngle?: number;
   bladeSpeed?: number;
   beamLength?: number;
+
+  // Crusher, Saw, FlameJet, Tesla & Dart mechanics
+  crushState?: 'idle' | 'warning' | 'slamming' | 'rising';
+  crushTimer?: number;
+  crushSpeed?: number;
+  ceilingY?: number;
+  floorY?: number;
+  railMin?: number;
+  railMax?: number;
+  moveSpeed?: number;
+  dir?: 1 | -1;
+  flameAngle?: number; // 0 = up, 1 = right, -1 = left, 2 = down
+  flameRange?: number;
+  flameTimer?: number;
+  arcTimer?: number;
+  teslaTimer?: number;
+  teslaState?: 'charging' | 'active' | 'cooldown';
+  acidTimer?: number;
+  shootCooldown?: number;
+  shootDir?: 1 | -1;
 }
 
 export interface Collectible {

@@ -1464,6 +1464,167 @@ export class GameEngine {
             size: 1.8,
           });
         }
+      } else if (h.type === 'crusher') {
+        // Heavy Hydraulic / Stone Crusher Piston
+        h.ceilingY = h.ceilingY ?? h.y;
+        h.floorY = h.floorY ?? (148 - h.h);
+        h.crushState = h.crushState || 'idle';
+        h.crushTimer = (h.crushTimer || 0) + 1;
+
+        if (h.crushState === 'idle') {
+          h.y = h.ceilingY;
+          if (h.crushTimer > 80) {
+            h.crushState = 'warning';
+            h.crushTimer = 0;
+            sound.playSfx('bossWarning');
+          }
+        } else if (h.crushState === 'warning') {
+          // Warning vibration / spark discharge
+          h.y = h.ceilingY + ((h.crushTimer % 4 < 2) ? 1 : -1);
+          if (Math.random() < 0.3) {
+            this.particles.push({
+              x: h.x + Math.random() * h.w,
+              y: h.y + h.h,
+              vx: (Math.random() - 0.5) * 1.5,
+              vy: Math.random() * 1.5,
+              life: 8,
+              maxLife: 8,
+              color: '#ef4444',
+              size: 1.5,
+            });
+          }
+          if (h.crushTimer >= 22) {
+            h.crushState = 'slamming';
+            h.crushTimer = 0;
+          }
+        } else if (h.crushState === 'slamming') {
+          // Rapid downward slam
+          h.y += 8.5;
+          if (h.y >= h.floorY) {
+            h.y = h.floorY;
+            h.crushState = 'rising';
+            h.crushTimer = 0;
+            this.screenShake = 5;
+            sound.playSfx('crushSlam');
+            this.createBurst(h.x + h.w / 2, h.floorY + h.h, 10, '#71717a');
+          }
+        } else if (h.crushState === 'rising') {
+          // Slow retraction back to ceiling
+          if (h.crushTimer > 18) {
+            h.y -= 1.25;
+            if (h.y <= h.ceilingY) {
+              h.y = h.ceilingY;
+              h.crushState = 'idle';
+              h.crushTimer = 0;
+            }
+          }
+        }
+      } else if (h.type === 'sawBlade') {
+        // High-speed spinning buzzsaw traversing along a rail track
+        const spd = h.moveSpeed || 1.6;
+        const dir = h.dir || 1;
+        h.x += spd * dir;
+        const minX = h.railMin ?? (h.x - 70);
+        const maxX = h.railMax ?? (h.x + 70);
+
+        if (h.x >= maxX) {
+          h.x = maxX;
+          h.dir = -1;
+        } else if (h.x <= minX) {
+          h.x = minX;
+          h.dir = 1;
+        }
+        h.bladeAngle = ((h.bladeAngle || 0) + 0.32 * (h.dir || 1)) % (Math.PI * 2);
+
+        // Friction sparks on track
+        if (Math.random() < 0.28) {
+          this.particles.push({
+            x: h.x + h.w / 2,
+            y: h.y + h.h,
+            vx: (Math.random() - 0.5) * 1.8 - (h.dir || 1) * 1.2,
+            vy: -Math.random() * 2,
+            life: 8,
+            maxLife: 8,
+            color: '#f59e0b',
+            size: 1.4,
+          });
+        }
+      } else if (h.type === 'flameJet') {
+        // Industrial / Volcanic Flame Jet Nozzle
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % 130;
+        h.warnTimer = (h.cycleTimer >= 55 && h.cycleTimer < 75) ? 75 - h.cycleTimer : 0;
+        h.erupting = (h.cycleTimer >= 75 && h.cycleTimer < 115);
+
+        if (h.cycleTimer === 75) {
+          sound.playSfx('flameWhoosh');
+        }
+        if (h.erupting && Math.random() < 0.45) {
+          this.particles.push({
+            x: h.x + (h.flameAngle === 1 ? h.w + Math.random() * 30 : Math.random() * h.w),
+            y: h.y + (h.flameAngle === 0 ? -Math.random() * 30 : Math.random() * h.h),
+            vx: h.flameAngle === 1 ? 2.5 + Math.random() * 2 : (Math.random() - 0.5) * 1.4,
+            vy: h.flameAngle === 0 ? -2.5 - Math.random() * 2 : (Math.random() - 0.5) * 1.4,
+            life: 12,
+            maxLife: 12,
+            color: Math.random() < 0.5 ? '#f97316' : '#facc15',
+            size: 2,
+          });
+        }
+      } else if (h.type === 'teslaPillar') {
+        // Pulsing High-Voltage Tesla Lightning Coil
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % 110;
+        h.active = (h.cycleTimer >= 45 && h.cycleTimer < 90);
+
+        if (h.cycleTimer === 45) {
+          sound.playSfx('teslaShock');
+        }
+        if (h.active && Math.random() < 0.35) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + Math.random() * h.h,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            life: 8,
+            maxLife: 8,
+            color: '#38bdf8',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'acidPool') {
+        // Corrosive toxic acid pool with rising vapors
+        if (Math.random() < 0.22) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + 2,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -Math.random() * 0.9 - 0.3,
+            life: 16,
+            maxLife: 16,
+            color: '#22c55e',
+            size: 1.8,
+          });
+        }
+      } else if (h.type === 'dartTrap') {
+        // Sentry dart trap that fires when player approaches
+        h.shootCooldown = (h.shootCooldown || 0) + 1;
+        const dist = Math.abs(p.x - h.x);
+        if (h.shootCooldown >= 85 && dist < 240 && Math.abs(p.y - h.y) < 45) {
+          h.shootCooldown = 0;
+          sound.playSfx('dartFire');
+          const isFacingRight = h.shootDir === 1 || h.dir === 1;
+          this.projectiles.push({
+            x: isFacingRight ? h.x + h.w + 2 : h.x - 6,
+            y: h.y + h.h / 2 - 2,
+            w: 6,
+            h: 4,
+            vx: isFacingRight ? 4.2 : -4.2,
+            vy: 0,
+            life: 65,
+            isHero: false,
+            damage: 1,
+            kind: 'sakuraShuriken',
+          });
+        }
       }
     }
   }
@@ -3184,7 +3345,11 @@ export class GameEngine {
         if (h.type === 'geyser' && !h.erupting) continue;
         if (h.type === 'fallingBlock' && (!h.isFalling || (h.fallVy || 0) < 1.0)) continue; // Only damage while actually falling
         if (h.type === 'stalactite' && (!h.falling || (h.vy || 0) < 1.0)) continue; // Only damage while actually falling
-        if (Math.abs(h.x - p.x) > 80 || Math.abs(h.y - p.y) > 80) continue;
+        if (h.type === 'flameJet' && !h.erupting) continue;
+        if (h.type === 'teslaPillar' && !h.active) continue;
+        if (h.type === 'crusher' && h.crushState !== 'slamming' && h.y < (h.floorY ?? 140) - 6) continue;
+        if (h.type === 'dartTrap') continue;
+        if (Math.abs(h.x - p.x) > 90 || Math.abs(h.y - p.y) > 90) continue;
 
         let isColliding = false;
         if (h.type === 'swingingBlade') {
@@ -3201,6 +3366,45 @@ export class GameEngine {
           if (dist < 14) {
             isColliding = true;
           }
+        } else if (h.type === 'sawBlade') {
+          // Circular saw blade contact
+          const sawCenterX = h.x + h.w / 2;
+          const sawCenterY = h.y + h.h / 2;
+          const playerCenterX = p.x + p.w / 2;
+          const playerCenterY = p.y + p.h / 2;
+          const dist = Math.hypot(playerCenterX - sawCenterX, playerCenterY - sawCenterY);
+          if (dist < h.w / 2 + 3) {
+            isColliding = true;
+          }
+        } else if (h.type === 'teslaPillar') {
+          // Electric field dome around coil
+          const teslaX = h.x + h.w / 2;
+          const teslaY = h.y + 12;
+          const playerCenterX = p.x + p.w / 2;
+          const playerCenterY = p.y + p.h / 2;
+          const dist = Math.hypot(playerCenterX - teslaX, playerCenterY - teslaY);
+          if (dist < 24) {
+            isColliding = true;
+          }
+        } else if (h.type === 'flameJet') {
+          // Directional flame blast box
+          if (h.flameAngle === 1) {
+            // Facing Right
+            const flameBox = { x: h.x, y: h.y - 2, w: h.w + 36, h: h.h + 4 };
+            isColliding = this.checkAABB(p, flameBox);
+          } else if (h.flameAngle === -1) {
+            // Facing Left
+            const flameBox = { x: h.x - 36, y: h.y - 2, w: h.w + 36, h: h.h + 4 };
+            isColliding = this.checkAABB(p, flameBox);
+          } else {
+            // Upward Nozzle
+            const flameBox = { x: h.x - 2, y: h.y - 45, w: h.w + 4, h: 48 };
+            isColliding = this.checkAABB(p, flameBox);
+          }
+        } else if (h.type === 'crusher') {
+          // Piston head crushing block
+          const crushBox = { x: h.x + 2, y: h.y, w: h.w - 4, h: h.h };
+          isColliding = this.checkAABB(p, crushBox);
         } else if (h.type === 'laserGate') {
           // Precise 4px central beam collision box
           const beamBox = {
@@ -3233,7 +3437,27 @@ export class GameEngine {
         }
 
         if (isColliding) {
-          if (h.type === 'water') {
+          if (h.type === 'crusher') {
+            sound.playSfx('crushSlam');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 20, '#71717a');
+            this.handlePlayerDamage('¡Aplastado por Prensa Hidráulica!');
+          } else if (h.type === 'sawBlade') {
+            sound.playSfx('buzzSaw');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 20, '#f59e0b');
+            this.handlePlayerDamage('¡Serrado por Sierra Giratoria!');
+          } else if (h.type === 'flameJet') {
+            sound.playSfx('flameWhoosh');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f97316');
+            this.handlePlayerDamage('¡Alcanzado por Llamas!');
+          } else if (h.type === 'teslaPillar') {
+            sound.playSfx('teslaShock');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#38bdf8');
+            this.handlePlayerDamage('¡Electrocutado por Bobina Tesla!');
+          } else if (h.type === 'acidPool') {
+            sound.playSfx('acidSizzle');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 18, '#22c55e');
+            this.handlePlayerDamage('¡Caíste al Tanque de Ácido!');
+          } else if (h.type === 'water') {
             sound.playSfx('splash');
             this.createBurst(p.x + p.w / 2, 160, 16, '#38bdf8');
             this.handlePlayerDamage('¡Caíste al Manantial!');

@@ -324,6 +324,43 @@ class SoundEngine {
         this.tone(880, 0.2, 'square', 0.05, 0, 300);
         this.tone(440, 0.3, 'sawtooth', 0.05, 0.08, 150);
         break;
+      case 'crushSlam':
+      case 'bossSlam':
+        this.tone(90, 0.28, 'sawtooth', 0.09, 0, 35);
+        this.tone(180, 0.15, 'square', 0.05, 0.02, 60);
+        break;
+      case 'buzzSaw':
+        this.tone(960, 0.06, 'sawtooth', 0.035, 0, 480);
+        this.tone(1440, 0.04, 'square', 0.02, 0.01, 720);
+        break;
+      case 'teslaShock':
+        this.tone(1200, 0.08, 'square', 0.045, 0, 240);
+        this.tone(600, 0.1, 'sawtooth', 0.035, 0.02, 120);
+        break;
+      case 'flameWhoosh':
+      case 'lava':
+        this.tone(220, 0.22, 'triangle', 0.05, 0, 80);
+        this.tone(140, 0.18, 'sawtooth', 0.04, 0.03, 50);
+        break;
+      case 'acidSizzle':
+        this.tone(700, 0.12, 'square', 0.035, 0, 350);
+        this.tone(1050, 0.08, 'triangle', 0.02, 0.04, 525);
+        break;
+      case 'dartFire':
+        this.tone(1250, 0.05, 'triangle', 0.04, 0, 1800);
+        break;
+      case 'bossWarning':
+        this.tone(880, 0.1, 'square', 0.05, 0);
+        this.tone(1174, 0.1, 'square', 0.05, 0.06);
+        break;
+      case 'laserFire':
+      case 'bossShot':
+        this.tone(1400, 0.08, 'sawtooth', 0.05, 0, 350);
+        break;
+      case 'curse':
+        this.tone(300, 0.2, 'sawtooth', 0.04, 0, 120);
+        this.tone(450, 0.15, 'triangle', 0.03, 0.05, 200);
+        break;
       case 'menuSelect':
         this.tone(659, 0.06, 'triangle', 0.03, 0);
         this.tone(988, 0.08, 'sine', 0.035, 0.03);
