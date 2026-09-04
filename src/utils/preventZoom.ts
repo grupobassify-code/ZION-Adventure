@@ -1,8 +1,10 @@
 /**
- * Bulletproof Double-Tap & Pinch-to-Zoom Prevention Utility
+ * Double-Tap & Pinch-to-Zoom Prevention Utility
  * 
  * Prevents unwanted browser zooming (double tap zoom, pinch zoom, gesture zoom)
- * across iOS Safari, Android Chrome, Samsung Internet, and PWAs during gameplay.
+ * across iOS Safari, Android Chrome, Samsung Internet, and PWAs during gameplay,
+ * while allowing fluid multi-touch gaming (joystick + jump simultaneously)
+ * and smooth touch scrolling in menus and modals.
  */
 
 export function initPreventZoom(): () => void {
@@ -12,61 +14,56 @@ export function initPreventZoom(): () => void {
 
   let lastTouchEnd = 0;
 
-  // 1. Intercept double-tap on touchend
+  // 1. Intercept double-tap to zoom on non-interactive elements
   const handleTouchEnd = (event: TouchEvent) => {
     const now = Date.now();
     const target = event.target as HTMLElement | null;
 
-    // Allow normal interactions for text inputs if any
-    const isTextInput = target && (
+    // Do NOT interfere if user is tapping inside a scrollable menu, button, or input
+    const isInteractive = target && (
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'A' ||
+      target.tagName === 'INPUT' ||
       target.tagName === 'TEXTAREA' ||
-      (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'text')
+      target.closest('button') ||
+      target.closest('[data-scrollable="true"]') ||
+      target.closest('.overflow-y-auto')
     );
 
-    if (!isTextInput && now - lastTouchEnd <= 350) {
+    if (!isInteractive && now - lastTouchEnd <= 300) {
       event.preventDefault();
-      // If target is a button or clickable element, trigger click so gameplay isn't dropped
-      if (target && typeof target.click === 'function' && target.tagName === 'BUTTON') {
-        target.click();
-      }
     }
     lastTouchEnd = now;
   };
 
-  // 2. Prevent multi-touch pinch to zoom
-  const handleTouchStart = (event: TouchEvent) => {
-    if (event.touches.length > 1) {
-      event.preventDefault();
-    }
-  };
-
-  // 3. Prevent iOS Safari gesture zoom (Pinch & Rotation gestures)
+  // 2. Prevent iOS Safari pinch/rotation gesture zoom
   const handleGesture = (event: Event) => {
     event.preventDefault();
   };
 
-  // 4. Prevent Ctrl + Wheel zoom on desktop and trackpads
+  // 3. Prevent Ctrl + Wheel zoom on desktop and trackpads
   const handleWheel = (event: WheelEvent) => {
     if (event.ctrlKey || event.metaKey) {
       event.preventDefault();
     }
   };
 
-  // 5. Prevent double click zoom
+  // 4. Prevent double click zoom on body
   const handleDblClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement | null;
-    const isTextInput = target && (
+    const isInteractive = target && (
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'INPUT' ||
       target.tagName === 'TEXTAREA' ||
-      (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'text')
+      target.closest('button')
     );
-    if (!isTextInput) {
+    if (!isInteractive) {
       event.preventDefault();
     }
   };
 
-  // Attach non-passive listeners to cancel default zoom behavior
+  // Attach listeners
   document.addEventListener('touchend', handleTouchEnd, { passive: false });
-  document.addEventListener('touchstart', handleTouchStart, { passive: false });
   document.addEventListener('gesturestart', handleGesture, { passive: false });
   document.addEventListener('gesturechange', handleGesture, { passive: false });
   document.addEventListener('gestureend', handleGesture, { passive: false });
@@ -76,7 +73,6 @@ export function initPreventZoom(): () => void {
   // Return cleanup function
   return () => {
     document.removeEventListener('touchend', handleTouchEnd);
-    document.removeEventListener('touchstart', handleTouchStart);
     document.removeEventListener('gesturestart', handleGesture);
     document.removeEventListener('gesturechange', handleGesture);
     document.removeEventListener('gestureend', handleGesture);

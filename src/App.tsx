@@ -127,7 +127,16 @@ export default function App() {
     };
   }, [engine]);
 
-  // Audio activation & Orientation lock helper on user interaction
+  // Audio activation helper on user interaction
+  const unlockAudio = useCallback(() => {
+    sound.unlockAudio();
+    setAudioUnlocked(true);
+    if (engine && !engine.inCutscene && !engine.isPaused && !inMainMenu) {
+      engine.syncMusic();
+    }
+  }, [engine, inMainMenu]);
+
+  // Unlock audio and optionally lock landscape
   const unlockAudioAndLockLandscape = useCallback(() => {
     sound.unlockAudio();
     setAudioUnlocked(true);
@@ -380,13 +389,20 @@ export default function App() {
     <div
       ref={containerRef}
       id="game-viewport"
-      onClick={unlockAudioAndLockLandscape}
-      onTouchStart={unlockAudioAndLockLandscape}
-      className="relative w-full h-full bg-[#050711] overflow-hidden flex items-center justify-center select-none touch-none"
+      onClick={unlockAudio}
+      onTouchStart={unlockAudio}
+      className={`relative w-full h-full bg-[#050711] overflow-hidden select-none ${
+        isPortrait && !inMainMenu
+          ? 'flex flex-col justify-between items-center'
+          : 'flex items-center justify-center'
+      }`}
     >
       {/* 0. Orientation Landscape Guard Prompt */}
       {isPortrait && !promptDismissed && (
-        <RotatePrompt onDismiss={() => setPromptDismissed(true)} />
+        <RotatePrompt 
+          onDismiss={() => setPromptDismissed(true)}
+          onPlayVertical={() => setPromptDismissed(true)}
+        />
       )}
 
       {/* Screen Wipe Transition Curtain */}
@@ -411,12 +427,12 @@ export default function App() {
           onStartGame={handleStartGameFromMenu}
           onStartOnlyUp={handleStartOnlyUpFromMenu}
           onOpenCredits={() => {
-            unlockAudioAndLockLandscape();
+            unlockAudio();
             setIsCreditsOpen(true);
           }}
           audioActive={audioUnlocked && engine.settings.soundEnabled}
           onToggleAudio={() => {
-            unlockAudioAndLockLandscape();
+            unlockAudio();
             const next = !engine.settings.soundEnabled;
             engine.settings.soundEnabled = next;
             engine.settings.musicEnabled = next;
@@ -435,10 +451,12 @@ export default function App() {
         <GameHUD
           engine={engine}
           audioActive={audioUnlocked && engine.settings.soundEnabled}
+          isPortrait={isPortrait}
+          onToggleOrientation={handleToggleFullscreen}
           onTogglePause={() => engine.togglePause()}
           onToggleFullscreen={handleToggleFullscreen}
           onToggleAudio={() => {
-            unlockAudioAndLockLandscape();
+            unlockAudio();
             const next = !engine.settings.soundEnabled;
             engine.settings.soundEnabled = next;
             engine.settings.musicEnabled = next;
@@ -452,20 +470,36 @@ export default function App() {
       )}
 
       {/* Responsive Scaled Pixel Canvas Container */}
-      <div className="relative w-full h-full max-w-[1280px] max-h-[720px] aspect-[16/9] flex items-center justify-center game-canvas-container touch-none select-none">
-        <canvas
-          ref={canvasRef}
-          id="game-canvas"
-          width={GAME_WIDTH}
-          height={GAME_HEIGHT}
-          className="w-full h-full object-contain image-rendering-pixelated shadow-2xl rounded-lg touch-none select-none"
-          style={{ imageRendering: 'pixelated' }}
-        />
-      </div>
+      {isPortrait && !inMainMenu ? (
+        /* Portrait: Adapt 100% to horizontal pixels of the phone with 16:9 ratio */
+        <div className="relative w-full aspect-[16/9] max-h-[48vh] flex items-center justify-center bg-black/60 shadow-2xl shrink-0 overflow-hidden select-none">
+          <canvas
+            ref={canvasRef}
+            id="game-canvas"
+            width={GAME_WIDTH}
+            height={GAME_HEIGHT}
+            className="w-full h-full object-contain image-rendering-pixelated touch-none select-none"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        </div>
+      ) : (
+        /* Landscape or Desktop: Centered 16:9 viewport scale */
+        <div className="relative w-full h-full max-w-[1280px] max-h-[720px] aspect-[16/9] flex items-center justify-center game-canvas-container select-none">
+          <canvas
+            ref={canvasRef}
+            id="game-canvas"
+            width={GAME_WIDTH}
+            height={GAME_HEIGHT}
+            className="w-full h-full object-contain image-rendering-pixelated shadow-2xl rounded-lg touch-none select-none"
+            style={{ imageRendering: 'pixelated' }}
+          />
+        </div>
+      )}
 
       {/* On-Screen Mobile Virtual Joystick & Combat Action Buttons */}
       {!inMainMenu && (
         <TouchControls
+          isPortrait={isPortrait}
           inputs={inputsRef.current}
           daggersAvailable={engine.daggers}
           energy={engine.player.energy}
@@ -477,7 +511,7 @@ export default function App() {
             setRenderTick((t) => t + 1);
           }}
           onUpdateInput={(key, val) => {
-            unlockAudioAndLockLandscape();
+            unlockAudio();
             inputsRef.current[key] = val;
           }}
           onUpdateAnalogX={(val) => {

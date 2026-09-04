@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Volume2, VolumeX, Pause, Maximize2, ShieldAlert, Zap, Award, Shield, Diamond, Save } from 'lucide-react';
+import { Heart, Volume2, VolumeX, Pause, Maximize2, ShieldAlert, Zap, Award, Shield, Diamond, Save, Smartphone } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameEngine } from '../game/gameEngine';
 import { DAGGER_MAX_AMMO, DAGGER_RECHARGE_TIME } from '../game/constants';
@@ -10,6 +10,8 @@ interface GameHUDProps {
   onToggleFullscreen: () => void;
   onToggleAudio: () => void;
   audioActive: boolean;
+  isPortrait?: boolean;
+  onToggleOrientation?: () => void;
 }
 
 export const GameHUD: React.FC<GameHUDProps> = ({
@@ -18,6 +20,8 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   onToggleFullscreen,
   onToggleAudio,
   audioActive,
+  isPortrait = false,
+  onToggleOrientation,
 }) => {
   const boss = engine.boss;
   const isBossActive = boss && engine.arenaActive && !engine.bossDefeated;
@@ -191,13 +195,17 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             {audioActive ? <Volume2 className="w-3.5 h-3.5 text-cyan-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
           </button>
 
-          {/* Fullscreen */}
+          {/* Orientation / Fullscreen */}
           <button
-            onClick={onToggleFullscreen}
-            title="Pantalla Completa"
-            className="hidden sm:flex p-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:border-pink-400 transition-colors shadow-md active:scale-95"
+            onClick={onToggleOrientation || onToggleFullscreen}
+            title={isPortrait ? 'Cambiar a modo horizontal' : 'Pantalla Completa'}
+            className="flex p-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:border-cyan-400 transition-colors shadow-md active:scale-95 cursor-pointer"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
+            {isPortrait ? (
+              <Smartphone className="w-3.5 h-3.5 text-cyan-400 rotate-90" />
+            ) : (
+              <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+            )}
           </button>
 
           {/* Pause Button */}
