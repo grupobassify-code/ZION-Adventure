@@ -268,6 +268,25 @@ export class GameRenderer {
     const ctx = this.ctx;
     ctx.save();
 
+    // Top Left Agility & Jump Power Gauge
+    const agility = engine.getOnlyUpAgility();
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+    ctx.fillRect(8, 6, 88, 20);
+    ctx.strokeStyle = agility.tierColor;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, 6, 88, 20);
+
+    ctx.font = '5px "Press Start 2P", monospace';
+    ctx.fillStyle = agility.tierColor;
+    ctx.textAlign = 'center';
+    ctx.fillText(`⚡ ${agility.tierName} · T${agility.tier}`, 52, 14);
+
+    const speedPct = Math.round((agility.speedMultiplier - 1) * 100);
+    const jumpPct = Math.round((Math.abs(agility.jumpForce) / 6.0 - 1) * 100);
+    ctx.font = '4px "Press Start 2P", monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`VEL +${speedPct}% · SALTO +${jumpPct}%`, 52, 22);
+
     // Top Center Altitude Capsule
     ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
     ctx.fillRect(GAME_WIDTH / 2 - 46, 6, 92, 20);

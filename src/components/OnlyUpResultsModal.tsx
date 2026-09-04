@@ -132,9 +132,9 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
 
         {/* Dynamic Climb Pro-Tip */}
         <div className="mt-3.5 px-3 py-2 rounded-xl bg-cyan-950/40 border border-cyan-500/20 flex items-center gap-2.5 text-[11px] text-cyan-200">
-          <span className="text-sm">⏫</span>
+          <span className="text-sm">⚡</span>
           <span>
-            <strong>Pro Tip:</strong> ¡Usa los trampolines para impulsarte alto! Las plataformas son traspasables desde abajo y los enemigos acechan a partir de los 1000m.
+            <strong>Pro Tip:</strong> ¡Entre más subes, mayor es tu velocidad y potencia de salto! Pero ten cuidado: los trampolines escasean y los obstáculos y enemigos aumentan drásticamente con la altitud.
           </span>
         </div>
 

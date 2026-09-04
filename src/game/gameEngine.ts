@@ -148,6 +148,7 @@ export class GameEngine {
   public onlyUpNewRecordAchieved: boolean = false;
   public onlyUpNextEnemyId: number = 2000;
   public trampolines: Trampoline[] = [];
+  public onlyUpAgilityTier: number = 1;
 
   public stats: GameStats = {
     crystalsCollected: 0,
@@ -382,6 +383,7 @@ export class GameEngine {
     this.onlyUpLavaSpeed = 0;
     this.onlyUpGeneratedTopY = 140;
     this.onlyUpNextEnemyId = 2000;
+    this.onlyUpAgilityTier = 1;
 
     this.levelIndex = 0;
     this.arenaActive = false;
@@ -677,20 +679,39 @@ export class GameEngine {
         p.facing = 1;
       }
 
+      // Calculate dynamic Only Up agility parameters (scaled by altitude)
+      const agility = this.getOnlyUpAgility();
+      const currentAccel = this.isOnlyUpMode ? PLAYER_ACCEL * agility.speedMultiplier : PLAYER_ACCEL;
+      const currentDecel = this.isOnlyUpMode ? PLAYER_DECEL * agility.speedMultiplier : PLAYER_DECEL;
+      const maxSpd = this.isOnlyUpMode ? agility.maxSpeed : PLAYER_MAX_SPEED;
+
       if (targetDirection !== 0) {
-        p.vx += targetDirection * PLAYER_ACCEL;
+        p.vx += targetDirection * currentAccel;
       } else {
         // Smooth Deceleration
         if (Math.abs(p.vx) > 0.05) {
-          p.vx = p.vx > 0 ? Math.max(0, p.vx - PLAYER_DECEL) : Math.min(0, p.vx + PLAYER_DECEL);
+          p.vx = p.vx > 0 ? Math.max(0, p.vx - currentDecel) : Math.min(0, p.vx + currentDecel);
         } else {
           p.vx = 0;
         }
       }
 
       // Max Speed Clamping
-      const maxSpd = PLAYER_MAX_SPEED;
       p.vx = Math.max(-maxSpd, Math.min(maxSpd, p.vx));
+
+      // Speed streak particles when running at high speed in Only Up mode
+      if (this.isOnlyUpMode && Math.abs(p.vx) > 2.4 && Math.random() < 0.4) {
+        this.particles.push({
+          x: p.x + (p.vx > 0 ? 0 : p.w),
+          y: p.y + p.h / 2 + (Math.random() - 0.5) * 6,
+          vx: -p.vx * 0.32,
+          vy: (Math.random() - 0.5) * 0.6,
+          life: 8,
+          maxLife: 8,
+          color: agility.tierColor,
+          size: 1.5,
+        });
+      }
 
       // Sakura Zone wind assist
       const config = LEVEL_CONFIGS[this.levelIndex];
@@ -712,14 +733,14 @@ export class GameEngine {
       }
       p.jumpHeld = inputs.jump;
 
-      // Execute Jump
+      // Execute Jump with Dynamic Altitude Boost in Only Up mode
       if (p.jumpBufferTimer > 0 && p.coyoteTimer > 0) {
-        p.vy = JUMP_FORCE;
+        p.vy = this.isOnlyUpMode ? agility.jumpForce : JUMP_FORCE;
         p.ground = false;
         p.coyoteTimer = 0;
         p.jumpBufferTimer = 0;
         sound.playSfx('jump');
-        this.createBurst(p.x + p.w / 2, p.y + p.h, 6, '#e2e8f0');
+        this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : '#e2e8f0');
       }
 
       // Variable jump height release cut
@@ -1377,17 +1398,18 @@ export class GameEngine {
         h.warnTimer = h.cycleTimer >= 60 && h.cycleTimer < 80 ? 80 - h.cycleTimer : 0;
         h.erupting = h.cycleTimer >= 80 && h.cycleTimer < 125;
 
+        const geyserBaseY = this.isOnlyUpMode ? h.y : 140;
         if (h.warnTimer === 15) {
           sound.playSfx('bossWarning');
         }
         if (h.cycleTimer === 80) {
           sound.playSfx('lava');
-          this.createBurst(h.x + h.w / 2, 140, 12, '#f97316');
+          this.createBurst(h.x + h.w / 2, geyserBaseY, 12, '#f97316');
         }
         if (h.erupting && Math.random() < 0.4) {
           this.particles.push({
             x: h.x + Math.random() * h.w,
-            y: 140 - Math.random() * 55,
+            y: geyserBaseY - Math.random() * 55,
             vx: (Math.random() - 0.5) * 1.2,
             vy: -Math.random() * 2.5,
             life: 14,
@@ -1406,11 +1428,12 @@ export class GameEngine {
         if (h.falling) {
           h.vy = Math.min((h.vy || 0) + 0.4, 7);
           h.y += h.vy;
-          if (h.y >= 142) {
+          const stFloorY = h.floorY ?? (this.isOnlyUpMode ? (h.originalY || h.y) + 40 : 142);
+          if (h.y >= stFloorY) {
             h.falling = false;
-            h.y = 142;
+            h.y = stFloorY;
             sound.playSfx('hit');
-            this.createBurst(h.x + h.w / 2, 145, 10, '#ea580c');
+            this.createBurst(h.x + h.w / 2, stFloorY + 3, 10, '#ea580c');
           }
         }
       } else if (h.type === 'swingingBlade') {
@@ -1431,11 +1454,12 @@ export class GameEngine {
         if (h.isFalling) {
           h.fallVy = Math.min((h.fallVy || 0) + 0.45, 7.5);
           h.y += h.fallVy;
-          if (h.y >= 144) {
-            h.y = 144;
+          const blockFloorY = h.floorY ?? (this.isOnlyUpMode ? (h.originalY || h.y) + 38 : 144);
+          if (h.y >= blockFloorY) {
+            h.y = blockFloorY;
             h.isFalling = false;
             sound.playSfx('bossSlam');
-            this.createBurst(h.x + h.w / 2, 146, 12, '#d97706');
+            this.createBurst(h.x + h.w / 2, blockFloorY + 2, 12, '#d97706');
           }
         }
       } else if (h.type === 'quicksand') {
@@ -1467,7 +1491,7 @@ export class GameEngine {
       } else if (h.type === 'crusher') {
         // Heavy Hydraulic / Stone Crusher Piston
         h.ceilingY = h.ceilingY ?? h.y;
-        h.floorY = h.floorY ?? (148 - h.h);
+        h.floorY = h.floorY ?? (this.isOnlyUpMode ? h.y + 32 : (148 - h.h));
         h.crushState = h.crushState || 'idle';
         h.crushTimer = (h.crushTimer || 0) + 1;
 
@@ -3416,9 +3440,10 @@ export class GameEngine {
           isColliding = this.checkAABB(p, beamBox);
         } else if (h.type === 'geyser') {
           // Flame column above geyser base
+          const flameBaseY = this.isOnlyUpMode ? h.y : 148;
           const flameBox = {
             x: h.x + 2,
-            y: 148 - 60,
+            y: flameBaseY - 60,
             w: h.w - 4,
             h: 60,
           };
@@ -3857,6 +3882,83 @@ export class GameEngine {
     this.cameraX = Math.max(0, Math.min(config.worldWidth - GAME_WIDTH, this.cameraX));
   }
 
+  public getOnlyUpAgility(): {
+    speedMultiplier: number;
+    jumpForce: number;
+    maxSpeed: number;
+    tier: number;
+    tierName: string;
+    tierColor: string;
+  } {
+    if (!this.isOnlyUpMode) {
+      return {
+        speedMultiplier: 1.0,
+        jumpForce: JUMP_FORCE,
+        maxSpeed: PLAYER_MAX_SPEED,
+        tier: 1,
+        tierName: 'BASE',
+        tierColor: '#22d3ee',
+      };
+    }
+
+    const alt = this.onlyUpAltitude;
+    if (alt < 100) {
+      return {
+        speedMultiplier: 1.0,
+        jumpForce: JUMP_FORCE, // -6.0
+        maxSpeed: PLAYER_MAX_SPEED, // 2.25
+        tier: 1,
+        tierName: 'BASE',
+        tierColor: '#22d3ee',
+      };
+    } else if (alt < 250) {
+      return {
+        speedMultiplier: 1.12,
+        jumpForce: -6.45,
+        maxSpeed: PLAYER_MAX_SPEED * 1.12, // 2.52
+        tier: 2,
+        tierName: 'VELOZ',
+        tierColor: '#4ade80',
+      };
+    } else if (alt < 500) {
+      return {
+        speedMultiplier: 1.26,
+        jumpForce: -7.05,
+        maxSpeed: PLAYER_MAX_SPEED * 1.26, // 2.83
+        tier: 3,
+        tierName: 'IMPULSO',
+        tierColor: '#facc15',
+      };
+    } else if (alt < 800) {
+      return {
+        speedMultiplier: 1.42,
+        jumpForce: -7.75,
+        maxSpeed: PLAYER_MAX_SPEED * 1.42, // 3.20
+        tier: 4,
+        tierName: 'HÍPER',
+        tierColor: '#fb923c',
+      };
+    } else if (alt < 1200) {
+      return {
+        speedMultiplier: 1.60,
+        jumpForce: -8.45,
+        maxSpeed: PLAYER_MAX_SPEED * 1.60, // 3.60
+        tier: 5,
+        tierName: 'CUÁNTICO',
+        tierColor: '#c084fc',
+      };
+    } else {
+      return {
+        speedMultiplier: 1.76,
+        jumpForce: -9.10,
+        maxSpeed: PLAYER_MAX_SPEED * 1.76, // 3.96 (Apex speed & soaring leap!)
+        tier: 6,
+        tierName: 'ÁPEX',
+        tierColor: '#f43f5e',
+      };
+    }
+  }
+
   private updateOnlyUp() {
     if (this.onlyUpIsGameOver) return;
 
@@ -3869,6 +3971,27 @@ export class GameEngine {
     }
     if (this.onlyUpAltitude > this.onlyUpMaxAltitude) {
       this.onlyUpMaxAltitude = this.onlyUpAltitude;
+    }
+
+    // Check Dynamic Agility Tier Progression (Speed + Jump Upgrade Notifications)
+    const agility = this.getOnlyUpAgility();
+    if (agility.tier > this.onlyUpAgilityTier) {
+      this.onlyUpAgilityTier = agility.tier;
+      sound.playSfx('powerup');
+      this.screenShake = 6;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 18, agility.tierColor);
+      this.addFloatingText(
+        this.player.x - 10,
+        this.player.y - 25,
+        `⚡ ¡TIER ${agility.tier}: ${agility.tierName}!`,
+        agility.tierColor
+      );
+      this.addFloatingText(
+        this.player.x - 14,
+        this.player.y - 12,
+        `+${Math.round((agility.speedMultiplier - 1) * 100)}% VELOCIDAD · HÍPER SALTO`,
+        '#ffffff'
+      );
     }
 
     // High score check
