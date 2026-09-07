@@ -258,3 +258,31 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
 
   return { completed, total, unlocked: hasAnyUnlocked };
 }
+
+/**
+ * Checks if Special Stages are unlocked as an extra level mode.
+ * The requirement: "añade que puedes jugar las special stages, como un nivel extra, pero solo hasta que completes, minimo una"
+ */
+export function isSpecialStageUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  return Boolean(slot.specialStageUnlocked || (slot.specialStagesCompleted && slot.specialStagesCompleted >= 1));
+}
+
+/**
+ * Records completion of at least one Special Stage on the given slot
+ */
+export function recordSpecialStageCompleted(slotId: number): void {
+  try {
+    const slots = loadAllSaveSlots();
+    const slot = slots[slotId];
+    if (slot) {
+      slot.specialStageUnlocked = true;
+      slot.specialStagesCompleted = (slot.specialStagesCompleted || 0) + 1;
+      slot.lastPlayed = Date.now();
+      saveAllSlots(slots);
+    }
+  } catch (e) {
+    console.error('Error recording special stage completion:', e);
+  }
+}
+

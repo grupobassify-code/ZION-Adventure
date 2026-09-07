@@ -480,13 +480,16 @@ export function buildLevel(levelIndex: number) {
     // Strategic Elevated Platforms (Reduced Density, High Purpose)
     const strategicLedges: Platform[] = [
       { x: 320, y: 108, w: 85, h: 10, kind: 'ledge' },
+      { x: 520, y: 92, w: 70, h: 10, kind: 'ledge' },
       { x: 780, y: 98, w: 90, h: 10, kind: 'ledge' },
       { x: 1450, y: 104, w: 85, h: 10, kind: 'ledge' },
       { x: 2200, y: 96, w: 90, h: 10, kind: 'ledge' },
       { x: 3050, y: 102, w: 85, h: 10, kind: 'ledge' },
       { x: 3880, y: 94, w: 95, h: 10, kind: 'ledge' },
+      { x: 4130, y: 88, w: 70, h: 10, kind: 'ledge' },
       { x: 4720, y: 104, w: 85, h: 10, kind: 'ledge' },
       { x: 5580, y: 98, w: 90, h: 10, kind: 'ledge' },
+      { x: 6060, y: 92, w: 75, h: 10, kind: 'ledge' },
       { x: 6350, y: 106, w: 80, h: 10, kind: 'ledge' }
     ];
     platforms.push(...strategicLedges);
@@ -664,9 +667,10 @@ export function buildLevel(levelIndex: number) {
       { x: 750, y: 96, w: 85, h: 10, kind: 'ledge' },
       { x: 1400, y: 102, w: 80, h: 10, kind: 'ledge' },
       { x: 2100, y: 92, w: 85, h: 10, kind: 'ledge' },
+      { x: 2470, y: 86, w: 75, h: 10, kind: 'ledge' },
       { x: 2800, y: 104, w: 80, h: 10, kind: 'ledge' },
       { x: 3500, y: 94, w: 85, h: 10, kind: 'ledge' },
-      { x: 4250, y: 102, w: 80, h: 10, kind: 'ledge' },
+      { x: 4200, y: 88, w: 80, h: 10, kind: 'ledge' },
       { x: 4950, y: 96, w: 85, h: 10, kind: 'ledge' }
     ];
     platforms.push(...neon2Ledges);
@@ -874,10 +878,13 @@ export function buildLevel(levelIndex: number) {
       { x: 380, y: 110, w: 85, h: 9, kind: 'bridge' },
       { x: 1050, y: 102, w: 90, h: 9, kind: 'bridge' },
       { x: 1850, y: 96, w: 95, h: 9, kind: 'ledge' },
+      { x: 2340, y: 78, w: 75, h: 9, kind: 'bridge' },
       { x: 2650, y: 104, w: 90, h: 9, kind: 'bridge' },
       { x: 3480, y: 98, w: 85, h: 9, kind: 'bridge' },
+      { x: 4170, y: 80, w: 75, h: 9, kind: 'bridge' },
       { x: 4320, y: 106, w: 90, h: 9, kind: 'ledge' },
       { x: 5180, y: 96, w: 95, h: 9, kind: 'bridge' },
+      { x: 6020, y: 76, w: 75, h: 9, kind: 'bridge' },
       { x: 6050, y: 102, w: 90, h: 9, kind: 'bridge' }
     ];
     platforms.push(...sakura1Ledges);
@@ -1054,6 +1061,7 @@ export function buildLevel(levelIndex: number) {
       { x: 1020, y: 100, w: 90, h: 9, kind: 'bridge' },
       { x: 1800, y: 94, w: 95, h: 9, kind: 'ledge' },
       { x: 2600, y: 104, w: 90, h: 9, kind: 'bridge' },
+      { x: 3230, y: 76, w: 75, h: 9, kind: 'bridge' },
       { x: 3450, y: 98, w: 85, h: 9, kind: 'bridge' },
       { x: 4280, y: 104, w: 90, h: 9, kind: 'ledge' },
       { x: 5120, y: 98, w: 90, h: 9, kind: 'bridge' }
@@ -1063,7 +1071,7 @@ export function buildLevel(levelIndex: number) {
     for (const pl of sakura2Ledges) {
       crystals.push({ x: pl.x + pl.w / 2 - 4, y: pl.y - 18, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
-    for (let cx = 180; cx < 6200; cx += 220) {
+    for (let cx = 180; cx < 5450; cx += 220) {
       crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
@@ -1328,12 +1336,16 @@ export function buildLevel(levelIndex: number) {
     const basaltLedges1: Platform[] = [
       { x: 380, y: 110, w: 85, h: 10, kind: 'basalt' },
       { x: 1050, y: 100, w: 90, h: 10, kind: 'basalt' },
+      { x: 1740, y: 74, w: 75, h: 10, kind: 'basalt' },
       { x: 1850, y: 96, w: 90, h: 10, kind: 'basalt' },
       { x: 2650, y: 104, w: 85, h: 10, kind: 'basalt' },
+      { x: 3350, y: 74, w: 75, h: 10, kind: 'basalt' },
       { x: 3480, y: 98, w: 90, h: 10, kind: 'basalt' },
       { x: 4350, y: 106, w: 85, h: 10, kind: 'basalt' },
+      { x: 5020, y: 74, w: 75, h: 10, kind: 'basalt' },
       { x: 5200, y: 98, w: 90, h: 10, kind: 'basalt' },
       { x: 6050, y: 104, w: 85, h: 10, kind: 'basalt' },
+      { x: 6720, y: 74, w: 75, h: 10, kind: 'basalt' },
       { x: 6850, y: 100, w: 90, h: 10, kind: 'basalt' }
     ];
     platforms.push(...basaltLedges1);
@@ -1503,10 +1515,13 @@ export function buildLevel(levelIndex: number) {
     const basaltLedges2: Platform[] = [
       { x: 350, y: 110, w: 85, h: 10, kind: 'basalt' },
       { x: 1020, y: 98, w: 90, h: 10, kind: 'basalt' },
+      { x: 1210, y: 72, w: 75, h: 10, kind: 'basalt' },
       { x: 1780, y: 94, w: 85, h: 10, kind: 'basalt' },
       { x: 2550, y: 104, w: 90, h: 10, kind: 'basalt' },
+      { x: 2860, y: 72, w: 75, h: 10, kind: 'basalt' },
       { x: 3380, y: 98, w: 85, h: 10, kind: 'basalt' },
       { x: 4220, y: 104, w: 90, h: 10, kind: 'basalt' },
+      { x: 4560, y: 72, w: 75, h: 10, kind: 'basalt' },
       { x: 5080, y: 96, w: 85, h: 10, kind: 'basalt' }
     ];
     platforms.push(...basaltLedges2);
@@ -1737,10 +1752,13 @@ export function buildLevel(levelIndex: number) {
     const desert1Ledges: Platform[] = [
       { x: 380, y: 110, w: 85, h: 10, kind: 'sandstone' },
       { x: 1080, y: 100, w: 90, h: 10, kind: 'sandstone' },
+      { x: 1310, y: 76, w: 75, h: 10, kind: 'sandstone' },
       { x: 1880, y: 96, w: 90, h: 10, kind: 'sandstone' },
       { x: 2680, y: 104, w: 85, h: 10, kind: 'sandstone' },
+      { x: 3060, y: 76, w: 75, h: 10, kind: 'sandstone' },
       { x: 3520, y: 98, w: 90, h: 10, kind: 'sandstone' },
       { x: 4380, y: 106, w: 85, h: 10, kind: 'sandstone' },
+      { x: 5210, y: 76, w: 75, h: 10, kind: 'sandstone' },
       { x: 5240, y: 98, w: 90, h: 10, kind: 'sandstone' },
       { x: 6100, y: 104, w: 85, h: 10, kind: 'sandstone' },
       { x: 6920, y: 100, w: 90, h: 10, kind: 'sandstone' }
@@ -1907,10 +1925,13 @@ export function buildLevel(levelIndex: number) {
     const desert2Ledges: Platform[] = [
       { x: 350, y: 110, w: 85, h: 12, kind: 'ruins' },
       { x: 1050, y: 98, w: 90, h: 12, kind: 'ruins' },
+      { x: 1360, y: 72, w: 75, h: 12, kind: 'ruins' },
       { x: 1850, y: 92, w: 85, h: 12, kind: 'ruins' },
       { x: 2650, y: 104, w: 90, h: 12, kind: 'ruins' },
+      { x: 3160, y: 72, w: 75, h: 12, kind: 'ruins' },
       { x: 3480, y: 98, w: 85, h: 12, kind: 'ruins' },
       { x: 4320, y: 104, w: 90, h: 12, kind: 'ruins' },
+      { x: 5060, y: 72, w: 75, h: 12, kind: 'ruins' },
       { x: 5150, y: 96, w: 85, h: 12, kind: 'ruins' }
     ];
     platforms.push(...desert2Ledges);
@@ -2128,12 +2149,15 @@ export function buildLevel(levelIndex: number) {
     const krono1Catwalks: Platform[] = [
       { x: 550, y: 106, w: 90, h: 10, kind: 'cyber' },
       { x: 1350, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
+      { x: 1760, y: 68, w: 75, h: 10, kind: 'cyber' },
       { x: 2200, y: 104, w: 90, h: 10, kind: 'cyber' },
       { x: 3050, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
       { x: 3900, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 4360, y: 64, w: 75, h: 10, kind: 'cyber' },
       { x: 4750, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
       { x: 5600, y: 104, w: 90, h: 10, kind: 'cyber' },
       { x: 6450, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
+      { x: 6760, y: 68, w: 75, h: 10, kind: 'cyber' },
       { x: 7300, y: 102, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono1Catwalks);
@@ -2306,7 +2330,7 @@ export function buildLevel(levelIndex: number) {
     }
 
     for (let x = 180; x < LW - 200; x += 130) {
-      crystals.push({ x, y: 120 - (x % 50), w: 8, h: 8, taken: false });
+      crystals.push({ x, y: 122 - Math.round((x % 36) / 2), w: 8, h: 8, taken: false });
     }
 
     landmarks.push(
@@ -2355,12 +2379,15 @@ export function buildLevel(levelIndex: number) {
       { x: 500, y: 104, w: 90, h: 10, kind: 'cyber' },
       { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
       { x: 2100, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 2170, y: 64, w: 75, h: 10, kind: 'cyber' },
       { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
       { x: 3800, y: 104, w: 90, h: 10, kind: 'cyber' },
       { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 4970, y: 60, w: 75, h: 10, kind: 'cyber' },
       { x: 5500, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
-      { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' }
+      { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' },
+      { x: 7370, y: 62, w: 75, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono2Catwalks);
 
@@ -2550,7 +2577,7 @@ export function buildLevel(levelIndex: number) {
     }
 
     for (let x = 160; x < LW - 200; x += 110) {
-      crystals.push({ x, y: 110 - (x % 60), w: 8, h: 8, taken: false });
+      crystals.push({ x, y: 122 - Math.round((x % 36) / 2), w: 8, h: 8, taken: false });
     }
 
     landmarks.push(
@@ -2760,6 +2787,7 @@ export function buildLevel(levelIndex: number) {
         { x: bx + 290, y: 90, w: 8, h: 10, taken: false }
       );
     }
+    platforms.push({ x: 2560, y: 56, w: 75, h: 8, kind: 'bridge' });
 
     hazards.push(
       { x: 2100, y: 141, w: 22, h: 7, type: 'spike' },
@@ -2833,6 +2861,7 @@ export function buildLevel(levelIndex: number) {
       });
       crystals.push({ x: bx + 22, y: 105 - (i % 3) * 18, w: 8, h: 10, taken: false });
     }
+    platforms.push({ x: 4460, y: 54, w: 75, h: 10, kind: 'basalt' });
 
     // Lava geysers and dropping stalactites
     for (let x = 4050, i = 0; x < 5000; x += 180, i++) {
@@ -2921,6 +2950,7 @@ export function buildLevel(levelIndex: number) {
         { x: bx + 290, y: 88, w: 8, h: 10, taken: false }
       );
     }
+    platforms.push({ x: 6360, y: 54, w: 75, h: 9, kind: 'ruins' });
 
     // Pendulum scythes and falling blocks
     hazards.push(

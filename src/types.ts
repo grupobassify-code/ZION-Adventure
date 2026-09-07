@@ -442,5 +442,7 @@ export interface SaveSlot {
   deaths: number;
   playTimeSeconds: number;
   characterLevel: number;
+  specialStagesCompleted?: number;
+  specialStageUnlocked?: boolean;
 }
 
