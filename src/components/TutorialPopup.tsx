@@ -89,7 +89,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCuts
     <aside
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="absolute bottom-16 sm:bottom-6 inset-x-3 sm:inset-x-auto sm:left-6 sm:max-w-md z-40 pointer-events-auto transition-all duration-300 animate-slide-up"
+      className="absolute top-12 sm:top-auto sm:bottom-6 inset-x-2 sm:inset-x-auto sm:left-6 sm:max-w-md z-40 pointer-events-auto transition-all duration-300 animate-slide-up max-h-[82vh] overflow-y-auto"
       aria-label="Guía de Controles Básicos"
     >
       <div className="bg-slate-950/95 border-2 border-cyan-500/60 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-[0_10px_40px_rgba(6,182,212,0.35)] backdrop-blur-xl relative overflow-hidden flex flex-col gap-3">

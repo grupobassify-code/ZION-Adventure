@@ -79,11 +79,11 @@ export default function App() {
       engine.loadLevel(nextLevelIndex, showLore);
       setShowLevelIntro(true);
       setRenderTick((t) => (t + 1) % 100000);
-    }, 450);
+    }, 650);
 
     setTimeout(() => {
       setTransitionActive(false);
-    }, 950);
+    }, 1350);
   }, [engine]);
 
   // Set up save persistence when a level is completed or checkpoint reached
@@ -408,6 +408,7 @@ export default function App() {
       {/* Screen Wipe Transition Curtain */}
       <ScreenTransition
         isActive={transitionActive}
+        levelIndex={targetLevelIndex}
         zoneColor={currentZoneColor}
       />
 

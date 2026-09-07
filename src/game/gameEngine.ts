@@ -1524,12 +1524,46 @@ export class GameEngine {
     this.screenShake = Math.max(this.screenShake, isCrit ? 7 : 3.5);
   }
 
+  private getEnemyParticleColor(type: Enemy['type']): string {
+    switch (type) {
+      case 'kitsune':
+      case 'kage':
+      case 'kagered':
+      case 'butterfly':
+        return '#f472b6'; // Sakura blossom pink
+      case 'kodama':
+        return '#4ade80'; // Emerald forest green
+      case 'yurei':
+        return '#c084fc'; // Spectral lilac
+      case 'salamander':
+      case 'magma_golem':
+      case 'flame_wisp':
+      case 'fire_hopper':
+        return '#ea580c'; // Volcanic molten orange
+      case 'scarab':
+      case 'mummy_warrior':
+      case 'sand_serpent':
+      case 'anubis_statue':
+      case 'desert_vulture':
+        return '#f59e0b'; // Golden desert amber
+      case 'cyber_drone':
+      case 'cyberturret':
+      case 'cyber_hound':
+      case 'plasma_trooper':
+      case 'gravity_orb':
+        return '#06b6d4'; // High-tech neon cyan
+      default:
+        return '#38bdf8'; // Electric blue
+    }
+  }
+
   private applyDamageToEnemy(e: Enemy, damage: number, knockbackDir: number) {
     this.registerHit(damage);
     e.hp -= damage;
     e.hitFlash = 12;
     e.vx = knockbackDir * 2.2;
-    this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 8, '#38bdf8');
+    const burstColor = this.getEnemyParticleColor(e.type);
+    this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 10, burstColor);
     sound.playSfx('hit');
     this.addFloatingText(e.x + e.w / 2, e.y - 8, `-${damage}`, '#fde047');
 
@@ -1540,7 +1574,8 @@ export class GameEngine {
         this.defeatedEnemyIndices.add(eIdx);
       }
       this.stats.enemiesDefeated++;
-      this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 16, '#f43f5e');
+      this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 20, burstColor);
+      this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 8, '#ffffff');
       
       const multiplier = this.getComboMultiplier();
       const pts = Math.round((e.scoreValue || 200) * multiplier);
@@ -2186,10 +2221,12 @@ export class GameEngine {
       if (!e.alive) continue;
       if (e.hitFlash && e.hitFlash > 0) e.hitFlash--;
       if (e.alertTimer && e.alertTimer > 0) e.alertTimer--;
+      e.animTimer = (e.animTimer || 0) + 1;
 
       const dist = p.x - e.x;
       const absDist = Math.abs(dist);
-      e.facing = dist >= 0 ? 1 : -1;
+      const isAggro = absDist < 140 || (e.alertTimer && e.alertTimer > 0) || (e.charge && e.charge > 0);
+      e.facing = isAggro ? (dist >= 0 ? 1 : -1) : (e.vx >= 0 ? 1 : -1);
 
       if (e.type === 'patrol') {
         e.x += e.vx;
@@ -2624,6 +2661,11 @@ export class GameEngine {
             e.vy = 0;
           }
         }
+      }
+
+      // Despawn enemy if knocked or fallen off-screen into the abyss/void
+      if (e.y > (this.isOnlyUpMode ? 800 : 230)) {
+        e.alive = false;
       }
     }
   }
@@ -4195,8 +4237,14 @@ export class GameEngine {
         if (!e.alive) continue;
         if (Math.abs(e.x - p.x) > 50 || Math.abs(e.y - p.y) > 50) continue;
         if (this.checkAABB(p, e)) {
-          // Stomp enemy if jumping onto head
-          if (p.vy > 0 && p.y + p.h - p.vy <= e.y + 6 && e.type !== 'sphere') {
+          // Stomp enemy if jumping onto head (exempting hazardous plasma/gravity/fire entities)
+          const isStompable =
+            e.type !== 'sphere' &&
+            e.type !== 'gravity_orb' &&
+            e.type !== 'flame_wisp' &&
+            e.type !== 'cyberturret';
+
+          if (p.vy > 0 && p.y + p.h - p.vy <= e.y + 6 && isStompable) {
             this.applyDamageToEnemy(e, p.attackPower * 2, p.facing);
             p.vy = JUMP_FORCE * 0.75;
             sound.playSfx('hit');

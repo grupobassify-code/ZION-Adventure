@@ -289,38 +289,38 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
       {/* VIEW 1: TITLE SCREEN */}
       {view === 'title' && (
-        <main className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center text-center my-auto py-6">
+        <main className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center text-center my-auto py-3 sm:py-6 px-2">
           {/* Animated Pixel Art Character Zion */}
-          <div className="relative mb-2">
-            <PixelCharacter scale={3.8} interactive={true} />
-            <div className="text-[11px] font-mono text-cyan-400/80 tracking-widest mt-[-10px] animate-pulse">
-              [ HAZ CLIC EN ZION PARA ATACAR ]
+          <div className="relative mb-1 sm:mb-2">
+            <PixelCharacter scale={typeof window !== 'undefined' && window.innerWidth < 640 ? 2.8 : 3.8} interactive={true} />
+            <div className="text-[9px] sm:text-[11px] font-mono text-cyan-400/80 tracking-wider sm:tracking-widest mt-[-6px] sm:mt-[-10px] animate-pulse">
+              [ TOCA A ZION PARA ATACAR ]
             </div>
           </div>
 
           {/* Epic Main Game Title: ZION ADVENTURE */}
-          <div className="relative mt-1 mb-4">
+          <div className="relative mt-1 mb-3 sm:mb-4">
             <div className="absolute -inset-x-8 -inset-y-4 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-2xl -z-10 rounded-full" />
-            <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_5px_25px_rgba(6,182,212,0.8)]">
+            <h1 className="text-3xl xs:text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_5px_25px_rgba(6,182,212,0.8)] leading-tight">
               ZION ADVENTURE
             </h1>
-            <p className="text-sm sm:text-base font-bold text-cyan-300/90 tracking-[0.25em] uppercase font-mono mt-1">
+            <p className="text-xs sm:text-base font-bold text-cyan-300/90 tracking-[0.15em] sm:tracking-[0.25em] uppercase font-mono mt-1">
               LA LEYENDA DEL CONTINUO ESPACIO-TIEMPO
             </p>
           </div>
 
           {/* Primary Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full max-w-md">
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-4 mt-2 sm:mt-4 w-full max-w-md">
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');
                 setView('slots');
               }}
-              className="w-full group relative flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-lg sm:text-xl tracking-wider shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer"
+              className="w-full group relative flex items-center justify-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-base sm:text-xl tracking-wider shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer"
             >
-              <Play className="w-6 h-6 fill-current" />
+              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
               <span>INICIAR JUEGO</span>
-              <Sparkles className="w-5 h-5 text-amber-300 animate-spin" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-spin" />
             </button>
 
             <button
@@ -328,9 +328,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 sound.playSfx('menuSelect');
                 onOpenCredits();
               }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-sm tracking-wide transition-all shadow-lg active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-lg active:scale-95"
             >
-              <Award className="w-5 h-5 text-pink-400" />
+              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
               <span>CRÉDITOS & BSO</span>
             </button>
           </div>
@@ -675,7 +675,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
                         {onlyUpUnlocked
                           ? 'Ascenso vertical infinito con plataformas y trampas de todas las eras. ¡La lava cuántica sube sin cesar: sube rápido para romper tu récord!'
-                          : 'Derrota al Guardián de Bosque Neón (Nivel 2) para desbloquear el desafío de ascenso infinito.'}
+                          : 'Derrota al Guardián de Bosque Neón (Zona 3) para desbloquear el desafío de ascenso infinito.'}
                       </p>
 
                       <div className="flex items-center gap-3 mt-2 text-[11px] font-mono text-slate-400">
@@ -707,7 +707,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     ) : (
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                         <Lock className="w-4 h-4" />
-                        <span>Supera Bosque Neón</span>
+                        <span>Supera Bosque Neón (Zona 3)</span>
                       </div>
                     )}
                   </div>
