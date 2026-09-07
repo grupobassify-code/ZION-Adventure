@@ -80,10 +80,10 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ onClose }) => {
             <div className="bg-slate-950/70 border border-slate-800 p-3.5 rounded-2xl flex flex-col gap-1.5">
               <div className="flex items-center gap-2 text-pink-400 font-bold text-xs font-mono">
                 <UserCheck className="w-4 h-4" />
-                <span>3. APTO PARA TODAS LAS EDADES</span>
+                <span>3. CLASIFICACIÓN: RECOMENDADO PARA MAYORES DE 10 AÑOS (10+)</span>
               </div>
               <p className="text-xs text-slate-400">
-                Cumple con las directrices de seguridad familiar (COPPA y GDPR-K). No contiene compras integradas (*microtransacciones*) ni rastreo de anuncios.
+                Recomendado para mayores de 10 años (10+). Contiene dinámica de plataformas y acción fantástica retro, pero no contiene sangre, gore ni violencia explícita. Cumple con directrices de privacidad familiar sin compras integradas ni rastreo de anuncios.
               </p>
             </div>
 

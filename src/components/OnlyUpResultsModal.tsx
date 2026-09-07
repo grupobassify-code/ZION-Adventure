@@ -47,8 +47,8 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
   }, [onRetry, onReturnToMenu]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg rounded-3xl border-2 border-red-500/60 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-5 sm:p-7 shadow-[0_0_50px_rgba(239,68,68,0.4)] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn select-none">
+      <div className="relative w-full max-w-lg max-h-[96vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-2 border-red-500/60 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-3.5 sm:p-6 shadow-[0_0_50px_rgba(239,68,68,0.4)]">
         {/* Animated Lava Embers background glow */}
         <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-red-600/20 blur-3xl pointer-events-none" />
         <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-orange-600/20 blur-3xl pointer-events-none" />

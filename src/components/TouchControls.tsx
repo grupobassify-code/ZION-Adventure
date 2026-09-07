@@ -1,5 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Shield, Zap, Sparkles, Wind, Swords, Compass } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Shield, Zap, Wind, Swords, ArrowUp } from 'lucide-react';
 import { GameInputState } from '../game/gameEngine';
 
 interface TouchControlsProps {
@@ -95,86 +95,69 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
         id="touch-controls-portrait"
         className="relative w-full flex-1 min-h-[190px] max-h-[44vh] p-1.5 sm:p-3 flex flex-col justify-between z-20 select-none touch-control-surface bg-gradient-to-b from-[#050711] via-[#090e24] to-[#040610] border-t border-cyan-900/40 overflow-hidden"
       >
-        {/* Secondary Row / Utilities */}
-        <div className="flex items-center justify-between gap-1.5 px-1">
-          {/* Mode Switcher */}
-          <div className="flex items-center gap-1 bg-slate-950/80 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-slate-800 text-[9px] sm:text-[10px] text-cyan-400 font-mono">
-            <Compass className="w-3 h-3 text-cyan-400" />
-            <span>{controlMode === 'joystick' ? 'JOYSTICK' : 'D-PAD'}</span>
-            {onToggleControlMode && (
-              <button
-                onClick={onToggleControlMode}
-                className="ml-1 text-[9px] underline text-cyan-300 hover:text-white cursor-pointer"
-              >
-                Cambiar
-              </button>
-            )}
-          </div>
+        {/* Secondary Row / Utilities: Dash, Block, Special */}
+        <div className="flex items-center justify-end gap-2 px-1">
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              onUpdateInput('dash', true);
+            }}
+            onPointerUp={() => onUpdateInput('dash', false)}
+            onPointerCancel={() => onUpdateInput('dash', false)}
+            className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+              inputs.dash
+                ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.8)]'
+                : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
+            }`}
+            title="Dash"
+          >
+            <Wind className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-mono font-bold">DASH</span>
+          </button>
 
-          {/* Dash, Block, Special */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onUpdateInput('dash', true);
-              }}
-              onPointerUp={() => onUpdateInput('dash', false)}
-              onPointerCancel={() => onUpdateInput('dash', false)}
-              className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1 text-[11px] sm:text-xs font-bold border transition-transform active:scale-95 ${
-                inputs.dash
-                  ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.8)]'
-                  : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
-              }`}
-              title="Dash"
-            >
-              <Wind className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="text-[9px] sm:text-[10px] font-mono">DASH</span>
-            </button>
+          <button
+            onPointerDown={(e) => {
+              e.preventDefault();
+              onUpdateInput('block', true);
+            }}
+            onPointerUp={() => onUpdateInput('block', false)}
+            onPointerCancel={() => onUpdateInput('block', false)}
+            className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+              inputs.block
+                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+                : 'bg-slate-900/90 text-amber-300 border-amber-500/40'
+            }`}
+            title="Escudo"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-mono font-bold">ESCUDO</span>
+          </button>
 
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onUpdateInput('block', true);
-              }}
-              onPointerUp={() => onUpdateInput('block', false)}
-              onPointerCancel={() => onUpdateInput('block', false)}
-              className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1 text-[11px] sm:text-xs font-bold border transition-transform active:scale-95 ${
-                inputs.block
-                  ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
-                  : 'bg-slate-900/90 text-amber-300 border-amber-500/40'
-              }`}
-              title="Escudo"
-            >
-              <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="text-[9px] sm:text-[10px] font-mono">ESCUDO</span>
-            </button>
-
-            <button
-              disabled={!canUseSpecial}
-              onPointerDown={(e) => {
-                e.preventDefault();
-                if (canUseSpecial) onUpdateInput('special', true);
-              }}
-              onPointerUp={() => onUpdateInput('special', false)}
-              onPointerCancel={() => onUpdateInput('special', false)}
-              className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1 text-[11px] sm:text-xs font-bold border transition-transform active:scale-95 ${
-                inputs.special
-                  ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
-                  : canUseSpecial
-                  ? 'bg-gradient-to-tr from-rose-600 to-amber-500 text-white border-rose-400 animate-pulse'
-                  : 'bg-slate-900/50 text-slate-600 border-slate-800'
-              }`}
-              title="Especial SP"
-            >
-              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="text-[9px] sm:text-[10px] font-mono">SP {energy}</span>
-            </button>
-          </div>
+          <button
+            disabled={!canUseSpecial}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              if (canUseSpecial) onUpdateInput('special', true);
+            }}
+            onPointerUp={() => onUpdateInput('special', false)}
+            onPointerCancel={() => onUpdateInput('special', false)}
+            className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+              inputs.special
+                ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
+                : canUseSpecial
+                ? 'bg-gradient-to-tr from-rose-600 to-amber-500 text-white border-rose-400 animate-pulse'
+                : 'bg-slate-900/50 text-slate-600 border-slate-800'
+            }`}
+            title="Especial SP"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-mono font-bold">SP {energy}</span>
+          </button>
         </div>
 
         {/* Main Dual Thumb Area */}
         <div className="flex items-center justify-between px-1 sm:px-2 pt-1 pb-1">
-          {/* Left: Joystick or D-Pad */}
+          {/* Left: Joystick or D-Pad (Uncluttered, pure control) */}
           <div className="flex flex-col items-center">
             {controlMode === 'joystick' ? (
               <div
@@ -239,7 +222,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
           </div>
 
           {/* Right: Primary Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2 touch-control-surface">
+          <div className="flex items-center gap-2 touch-control-surface">
             {/* Dagger Throw */}
             <button
               onPointerDown={(e) => {
@@ -248,7 +231,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('dagger', false)}
               onPointerCancel={() => onUpdateInput('dagger', false)}
-              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
                 inputs.dagger
                   ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.8)]'
                   : daggersAvailable > 0
@@ -257,7 +240,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }`}
             >
               <span className="text-xs sm:text-sm">🗡</span>
-              <span className="text-[7px] sm:text-[8px] font-mono leading-none">{daggersAvailable}/3</span>
+              <span className="text-[8px] font-mono leading-none">{daggersAvailable}/3</span>
             </button>
 
             {/* Sword Attack Combo */}
@@ -268,32 +251,35 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('attack', false)}
               onPointerCancel={() => onUpdateInput('attack', false)}
-              className={`w-11 h-11 sm:w-13 sm:h-13 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+              className={`w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
                 inputs.attack
                   ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.9)]'
                   : 'bg-gradient-to-br from-cyan-900/90 to-blue-950/90 text-cyan-200 border-cyan-400/60 shadow-md'
               }`}
             >
               <Swords className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-[7px] sm:text-[8px] font-mono font-black">ATACAR</span>
+              <span className="text-[8px] font-mono font-black">ATACAR</span>
             </button>
 
-            {/* Jump Button */}
+            {/* Jump Button - Contained cleanly inside frame */}
             <button
+              id="portrait-btn-jump"
               onPointerDown={(e) => {
                 e.preventDefault();
                 onUpdateInput('jump', true);
               }}
               onPointerUp={() => onUpdateInput('jump', false)}
               onPointerCancel={() => onUpdateInput('jump', false)}
-              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+              className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
                 inputs.jump
                   ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.9)]'
                   : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/70 shadow-lg'
               }`}
             >
-              <span className="text-[11px] sm:text-xs font-black tracking-wider">SALTAR</span>
-              <span className="text-[7px] sm:text-[8px] text-rose-200/80 font-mono">SALTO</span>
+              <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[3] shrink-0" />
+              <span className="text-[10px] sm:text-[11px] font-black tracking-wide leading-none truncate max-w-full">
+                SALTAR
+              </span>
             </button>
           </div>
         </div>
@@ -312,21 +298,8 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
       }}
       className="absolute inset-x-0 bottom-0 pointer-events-none flex items-end justify-between z-20 select-none touch-control-surface"
     >
-      {/* LEFT SIDE: Virtual Joystick or D-Pad */}
-      <div className="flex flex-col items-start gap-1 pointer-events-auto p-2">
-        <div className="flex items-center gap-1.5 mb-1 bg-slate-950/70 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-800 text-[10px] text-cyan-400 font-mono">
-          <Compass className="w-3 h-3 text-cyan-400" />
-          <span>{controlMode === 'joystick' ? 'JOYSTICK' : 'D-PAD'}</span>
-          {onToggleControlMode && (
-            <button
-              onClick={onToggleControlMode}
-              className="ml-1 text-[9px] underline text-cyan-300 hover:text-white"
-            >
-              Cambiar
-            </button>
-          )}
-        </div>
-
+      {/* LEFT SIDE: Clean Virtual Joystick or D-Pad (Without clutter) */}
+      <div className="flex flex-col items-start pointer-events-auto p-2">
         {controlMode === 'joystick' ? (
           /* Virtual Analog Joystick */
           <div
@@ -492,21 +465,25 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             <span className="text-[7px] sm:text-[8px] font-mono font-black">ATACAR</span>
           </button>
 
+          {/* Jump Button - Strictly Contained Inside Button Frame */}
           <button
+            id="landscape-btn-jump"
             onPointerDown={(e) => {
               e.preventDefault();
               onUpdateInput('jump', true);
             }}
             onPointerUp={() => onUpdateInput('jump', false)}
             onPointerCancel={() => onUpdateInput('jump', false)}
-            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
               inputs.jump
                 ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.9)]'
                 : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/70 shadow-lg'
             }`}
           >
-            <span className="text-xs sm:text-sm font-black tracking-wider">SALTAR</span>
-            <span className="text-[7px] text-rose-200/80 font-mono">SALTO</span>
+            <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[3] shrink-0" />
+            <span className="text-[10px] sm:text-[11px] font-black tracking-wide leading-none truncate max-w-full">
+              SALTAR
+            </span>
           </button>
         </div>
       </div>

@@ -43,6 +43,7 @@ import {
   MAX_SAVE_SLOTS,
   isOnlyUpUnlocked,
   getOnlyUpRecord,
+  isSpecialStageUnlocked,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
@@ -52,6 +53,7 @@ import { Music } from 'lucide-react';
 interface MainMenuProps {
   onStartGame: (levelIndex: number, slotId: number) => void;
   onStartOnlyUp?: (slotId: number) => void;
+  onStartSpecialStage?: (slotId: number) => void;
   onOpenCredits: () => void;
   audioActive: boolean;
   onToggleAudio: () => void;
@@ -125,6 +127,7 @@ const ZONES_DATA: ZoneMeta[] = [
 export const MainMenu: React.FC<MainMenuProps> = ({
   onStartGame,
   onStartOnlyUp,
+  onStartSpecialStage,
   onOpenCredits,
   audioActive,
   onToggleAudio,
@@ -708,6 +711,93 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
                         <Lock className="w-4 h-4" />
                         <span>Supera Bosque Neón (Zona 3)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Special Stages: Extra Mode (Unlocked after completing at least 1 special stage) */}
+          {(() => {
+            const specialUnlocked = isSpecialStageUnlocked(activeSlot);
+            const specialsCount = activeSlot?.specialStagesCompleted || 0;
+
+            return (
+              <div
+                id="special-stage-extra-mode-card"
+                onClick={() => {
+                  if (specialUnlocked) {
+                    sound.playSfx('menuSelect');
+                    if (onStartSpecialStage) {
+                      onStartSpecialStage(activeSlot?.id || 0);
+                    }
+                  } else {
+                    sound.playSfx('block');
+                  }
+                }}
+                className={`relative w-full mt-4 rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer ${
+                  specialUnlocked
+                    ? 'bg-gradient-to-r from-purple-950/60 via-slate-900/90 to-indigo-950/60 border-purple-500/80 hover:border-purple-400 hover:shadow-[0_0_35px_rgba(192,132,252,0.35)] active:scale-98'
+                    : 'bg-slate-950/80 border-slate-800 opacity-65 cursor-not-allowed'
+                }`}
+              >
+                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className={`p-3.5 rounded-2xl border ${
+                      specialUnlocked
+                        ? 'bg-purple-500/20 border-purple-500/50 text-purple-400'
+                        : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                    }`}>
+                      <Sparkles className="w-8 h-8 animate-pulse" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider ${
+                          specialUnlocked
+                            ? 'bg-purple-500 text-slate-950'
+                            : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          NIVEL EXTRA
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black text-white font-heading">
+                          SPECIAL STAGES
+                        </h3>
+                        {specialUnlocked && specialsCount > 0 && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/30">
+                            <Star className="w-3.5 h-3.5 fill-purple-400" />
+                            Completadas: {specialsCount}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                        Desafía la dimensión cuántica secreta. Esquiva vacíos, salta por resortes flotantes y recolecta todos los cristales cósmicos.
+                      </p>
+                      {!specialUnlocked && (
+                        <p className="text-[11px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
+                          <Lock className="w-3.5 h-3.5 shrink-0" />
+                          <span>Bloqueado: Encuentra y completa mínimo una Special Stage en la aventura para jugar como nivel extra.</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-auto flex sm:flex-col items-center justify-end gap-2">
+                    {specialUnlocked ? (
+                      <button
+                        id="play-special-stage-btn"
+                        type="button"
+                        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-slate-950" />
+                        <span>¡JUGAR SPECIAL STAGE!</span>
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+                        <Lock className="w-4 h-4" />
+                        <span>Completa 1 Special Stage</span>
                       </div>
                     )}
                   </div>

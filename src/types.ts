@@ -444,5 +444,6 @@ export interface SaveSlot {
   characterLevel: number;
   specialStagesCompleted?: number;
   specialStageUnlocked?: boolean;
+  levelBestCrystals?: Record<number, number>;
 }
 

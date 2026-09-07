@@ -199,6 +199,7 @@ export class GameEngine {
 
   public onStateChange?: () => void;
   public onLevelComplete?: () => void;
+  public onSpecialStageComplete?: () => void;
   public onCheckpoint?: (cp: Checkpoint) => void;
 
   // Checkpoint & Progression Persistence Sets
@@ -704,8 +705,12 @@ export class GameEngine {
   }
 
   public syncMusic() {
-    if (this.inCutscene || this.isPaused) {
+    if (this.inCutscene || this.isPaused || this.isLevelWon) {
       sound.stopMusic();
+      return;
+    }
+    if (this.isInSpecialStage) {
+      sound.setMusicTrack('kronosTravel');
       return;
     }
     if (this.isOnlyUpMode) {
@@ -808,8 +813,8 @@ export class GameEngine {
       p.maxEnergy = Math.min(200, p.maxEnergy + 20);
       p.energy = p.maxEnergy;
       
-      this.maxLives = Math.min(5, MAX_LIVES_BASE + Math.floor(p.level / 2));
-      this.lives = this.maxLives; // Full heal on level up
+      this.maxLives = 3;
+      this.lives = 3; // Full heal up to 3 hearts on level up
 
       sound.playSfx('levelUp');
       this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 28, '#facc15');
@@ -3848,8 +3853,11 @@ export class GameEngine {
     // 2. Crystal Pickups - Grants High Score + Energy + Milestone Life Recovery!
     for (let idx = 0; idx < this.crystals.length; idx++) {
       const c = this.crystals[idx];
-      if (c.taken || Math.abs(c.x - p.x) > 50 || Math.abs(c.y - p.y) > 50) continue;
-      if (this.checkAABB(p, c)) {
+      if (c.taken) continue;
+      const distX = Math.abs((p.x + p.w / 2) - (c.x + c.w / 2));
+      const distY = Math.abs((p.y + p.h / 2) - (c.y + c.h / 2));
+      if (distX > 56 || distY > 56) continue;
+      if (distX < 44 && distY < 44 || this.checkAABB(p, c)) {
         c.taken = true;
         this.collectedCrystalIndices.add(idx);
         this.stats.crystalsCollected++;
@@ -3885,8 +3893,11 @@ export class GameEngine {
     // 3. Heart Heals - Reliable Health Recovery with Points
     for (let idx = 0; idx < this.heals.length; idx++) {
       const h = this.heals[idx];
-      if (h.taken || Math.abs(h.x - p.x) > 50 || Math.abs(h.y - p.y) > 50) continue;
-      if (this.checkAABB(p, h)) {
+      if (h.taken) continue;
+      const distX = Math.abs((p.x + p.w / 2) - (h.x + h.w / 2));
+      const distY = Math.abs((p.y + p.h / 2) - (h.y + h.h / 2));
+      if (distX > 56 || distY > 56) continue;
+      if (distX < 44 && distY < 44 || this.checkAABB(p, h)) {
         h.taken = true;
         this.collectedHealIndices.add(idx);
         this.lives = Math.min(this.maxLives, this.lives + 1);
@@ -3898,11 +3909,14 @@ export class GameEngine {
       }
     }
 
-    // 4. Secrets
+    // 4. Secrets - Generous collection hitbox ensuring all secrets can be reached
     for (let idx = 0; idx < this.secrets.length; idx++) {
       const s = this.secrets[idx];
-      if (s.taken || Math.abs(s.x - p.x) > 50 || Math.abs(s.y - p.y) > 50) continue;
-      if (this.checkAABB(p, s)) {
+      if (s.taken) continue;
+      const distX = Math.abs((p.x + p.w / 2) - (s.x + s.w / 2));
+      const distY = Math.abs((p.y + p.h / 2) - (s.y + s.h / 2));
+      if (distX > 60 || distY > 60) continue;
+      if (distX < 48 && distY < 48 || this.checkAABB(p, s)) {
         s.taken = true;
         this.collectedSecretIndices.add(idx);
         this.stats.secretsFound++;
@@ -4484,10 +4498,35 @@ export class GameEngine {
     this.addFloatingText(GAME_WIDTH / 2, 40, '★ ETAPA ESPECIAL ACTIVADA ★', '#fbbf24');
   }
 
-  public completeSpecialStage() {
-    if (!this.isInSpecialStage || !this.specialStageReturnState) return;
+  public startSpecialStageStandalone() {
+    this.isOnlyUpMode = false;
+    this.isInSpecialStage = true;
+    this.specialStageReturnState = null;
+    this.specialStageCompleted = false;
+    this.isLevelWon = false;
+    this.isPaused = false;
+    this.inCutscene = false;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.stats = {
+      score: 0,
+      crystalsCollected: 0,
+      totalCrystals: 5,
+      secretsFound: 0,
+      totalSecrets: 0,
+      deaths: 0,
+      enemiesDefeated: 0,
+      elapsedTime: 0,
+    };
+    this.maxLives = 3;
+    this.lives = 3;
+    this.buildSpecialStageLevel();
+    sound.setMusicTrack('kronosTravel');
+    this.notifyState();
+  }
 
-    const returnState = this.specialStageReturnState;
+  public completeSpecialStage() {
+    if (!this.isInSpecialStage) return;
 
     sound.playSfx('win');
     sound.playSfx('secret');
@@ -4495,18 +4534,34 @@ export class GameEngine {
     this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 24, '#c084fc');
     this.screenShake = 6;
 
+    if (this.onSpecialStageComplete) {
+      this.onSpecialStageComplete();
+    }
+
     // Double all points accumulated in this game / match so far!
     const currentScore = this.stats.score;
     const bonusEarned = Math.max(5000, currentScore);
     this.stats.score = currentScore + bonusEarned;
-    this.lives = this.maxLives;
+    this.maxLives = 3;
+    this.lives = 3;
 
     this.isInSpecialStage = false;
     this.specialStageCompleted = true;
     this.specialStagePortal = null;
     this.specialStageExitPortal = null;
 
-    // Restore the main campaign level layout
+    if (!this.specialStageReturnState) {
+      // Standalone Extra Mode victory
+      this.isLevelWon = true;
+      sound.stopMusic();
+      if (this.onLevelComplete) {
+        this.onLevelComplete();
+      }
+      this.notifyState();
+      return;
+    }
+
+    const returnState = this.specialStageReturnState;
     const lvl = buildLevel(returnState.levelIndex);
     this.platforms = lvl.platforms;
     this.hazards = lvl.hazards;
@@ -4566,7 +4621,24 @@ export class GameEngine {
   }
 
   private exitSpecialStageOnDefeat() {
-    if (!this.isInSpecialStage || !this.specialStageReturnState) return;
+    if (!this.isInSpecialStage) return;
+
+    if (!this.specialStageReturnState) {
+      // Standalone extra mode respawn
+      this.player.x = 35;
+      this.player.y = 125;
+      this.player.vx = 0;
+      this.player.vy = 0;
+      this.player.inv = 120;
+      this.maxLives = 3;
+      this.lives = 3;
+      this.stats.deaths++;
+      sound.playSfx('hurt');
+      this.addFloatingText(this.player.x, this.player.y - 20, '⚠️ ¡REINTENTO EN SPECIAL STAGE! [3/3 ❤]', '#f43f5e');
+      this.notifyState();
+      return;
+    }
+
     const returnState = this.specialStageReturnState;
 
     this.isInSpecialStage = false;
@@ -4631,7 +4703,8 @@ export class GameEngine {
 
   private handlePlayerDamage(msg: string) {
     if (this.settings.godMode) return;
-    this.lives--;
+    this.maxLives = 3;
+    this.lives = Math.max(0, Math.min(3, this.lives - 1));
     this.stats.deaths++;
     this.comboCount = 0;
     this.comboTimer = 0;
@@ -4642,7 +4715,7 @@ export class GameEngine {
     this.player.vy = -3.2;
     this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 12, '#f43f5e');
     sound.playSfx('hurt');
-    this.addFloatingText(this.player.x, this.player.y - 15, `${msg} -1 ❤`, '#f43f5e');
+    this.addFloatingText(this.player.x, this.player.y - 15, `${msg} -1 ❤ [${this.lives}/3]`, '#f43f5e');
 
     if (this.lives <= 0) {
       if (this.isInSpecialStage) {
@@ -4657,7 +4730,8 @@ export class GameEngine {
   }
 
   private handlePlayerRespawn() {
-    this.lives = this.maxLives;
+    this.maxLives = 3;
+    this.lives = 3;
 
     const hasCheckpoint = this.hasActiveCheckpoint && this.checkpoints.some((c) => c.active);
     const respawnTarget = hasCheckpoint ? this.spawnPoint : this.levelStartPoint;

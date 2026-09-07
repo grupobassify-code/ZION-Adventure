@@ -175,7 +175,16 @@ export function recordLevelCompletion(
 
   slot.lastPlayed = Date.now();
   slot.totalScore += stats.score;
-  slot.totalCrystals += stats.crystals;
+
+  // Anti-farming protection: Only award crystals that exceed previous best record for this level
+  slot.levelBestCrystals = slot.levelBestCrystals || {};
+  const prevBestCrystals = slot.levelBestCrystals[levelIndex] || 0;
+  if (stats.crystals > prevBestCrystals) {
+    const newCrystalsEarned = stats.crystals - prevBestCrystals;
+    slot.totalCrystals += newCrystalsEarned;
+    slot.levelBestCrystals[levelIndex] = stats.crystals;
+  }
+
   slot.totalSecrets += stats.secrets;
   slot.deaths += stats.deaths;
   slot.playTimeSeconds += Math.round(stats.time);

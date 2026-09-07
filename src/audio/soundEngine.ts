@@ -2,6 +2,7 @@
 // FM Synthesizer 16-Bit Architecture with multi-channel voices and stereo panning
 
 export type MusicTrackName = 
+  | 'menuTheme'
   | 'neonAct1' 
   | 'neonBoss' 
   | 'sakuraAct1' 
@@ -25,6 +26,7 @@ export interface SoundTrackInfo {
 }
 
 export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
+  { id: 'menuTheme', title: 'Preludio de Kronos (Menú)', zone: 'Menú de Inicio', tag: 'Melodía Ligera · Chill Retro' },
   { id: 'neonAct1', title: 'El Despertar de la Arboleda', zone: 'Bosque Neón · Acto 1', tag: 'Neo-Genesis Groove · Pop Chiptune' },
   { id: 'neonBoss', title: 'El Guardián del Núcleo', zone: 'Bosque Neón · Jefe', tag: 'Electro Boss · 16-Bit Battle' },
   { id: 'sakuraAct1', title: 'Flor de Sakura y Torii', zone: 'Bosque de Cerezo · Acto 1', tag: 'Oriental Místico · Pentatónico' },
@@ -868,6 +870,40 @@ class SoundEngine {
         2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 2, 5, 1,
         4, 1, 5, 1, 2, 1, 5, 1, 4, 1, 5, 1, 4, 4, 5, 2,
         2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 4, 5, 1
+      ],
+    },
+
+    // MAIN MENU: PRELUDIO DE KRONOS (Light, relaxing arcade chiptune melody, 64 steps)
+    menuTheme: {
+      tempo: 112,
+      leadWave: 'triangle',
+      harmonyWave: 'sine',
+      bassWave: 'sine',
+      leadNotes: [
+        N.E5, N.G5, N.C6, N.B5,  N.A5, N.G5, N.E5, N.D5,
+        N.E5, N.G5, N.A5, N.G5,  N.E5, N.D5, N.C5, N.D5,
+        N.E5, N.G5, N.C6, N.D6,  N.E6, N.D6, N.C6, N.A5,
+        N.G5, N.A5, N.G5, N.E5,  N.D5, N.E5, N.D5, N.REST,
+        N.A4, N.C5, N.E5, N.G5,  N.A5, N.G5, N.E5, N.C5,
+        N.D5, N.F5, N.A5, N.G5,  N.F5, N.E5, N.D5, N.C5,
+        N.E5, N.G5, N.C6, N.B5,  N.A5, N.G5, N.E5, N.D5,
+        N.C5, N.D5, N.E5, N.G5,  N.C6, N.REST, N.REST, N.REST
+      ],
+      harmonyNotes: [
+        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST, N.D5, N.REST,
+        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.B4, N.REST, N.D5, N.REST, N.G5, N.REST, N.D5, N.REST,
+        N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.C5, N.REST, N.D5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST,
+        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.G5, N.REST, N.REST, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.C2, N.C2, N.G1, N.C2, N.F1, N.F1, N.C2, N.F1, N.C2, N.C2, N.E1, N.G1, N.G1, N.G1, N.B1, N.D2,
+        N.A1, N.A1, N.C2, N.E2, N.D2, N.D2, N.F1, N.A1, N.C2, N.C2, N.G1, N.C2, N.C2, N.G1, N.C2, N.REST
+      ],
+      drumPattern: [
+        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
       ],
     },
   };

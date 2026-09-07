@@ -202,6 +202,22 @@ export default function App() {
     }, 950);
   };
 
+  const handleStartSpecialStageFromMenu = (slotId: number) => {
+    unlockAudioAndLockLandscape();
+    setActiveSlotId(slotId);
+    setActiveSlotIdState(slotId);
+    setInMainMenu(false);
+    setIsCreditsOpen(false);
+    setTransitionActive(true);
+    setTimeout(() => {
+      engine.startSpecialStageStandalone();
+      setShowLevelIntro(false);
+    }, 280);
+    setTimeout(() => {
+      setTransitionActive(false);
+    }, 950);
+  };
+
   // Comprehensive Keyboard Event Handlers (Movement, Jump, Attack, Block, Dash, Special, Pause)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -427,6 +443,7 @@ export default function App() {
           initialZone={mainMenuZone}
           onStartGame={handleStartGameFromMenu}
           onStartOnlyUp={handleStartOnlyUpFromMenu}
+          onStartSpecialStage={handleStartSpecialStageFromMenu}
           onOpenCredits={() => {
             unlockAudio();
             setIsCreditsOpen(true);
