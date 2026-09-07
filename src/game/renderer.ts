@@ -47,7 +47,11 @@ export class GameRenderer {
     this.clear();
 
     // 2. Parallax background scenery
-    this.renderBackground(config.zone, config.act, engine.cameraX, config.worldWidth, engine.time);
+    if (engine.isInSpecialStage) {
+      this.renderSpecialStageBackground(engine.cameraX, engine.time);
+    } else {
+      this.renderBackground(config.zone, config.act, engine.cameraX, config.worldWidth, engine.time);
+    }
 
     // 3. World landmarks and shrines
     this.renderLandmarks(engine.landmarks, engine.cameraX, engine.time);
@@ -70,7 +74,9 @@ export class GameRenderer {
       config.act,
       engine.bossDefeated,
       engine.cameraX,
-      engine.time
+      engine.time,
+      engine.specialStagePortal,
+      engine.specialStageExitPortal
     );
 
     // 7. Regular enemies
@@ -422,14 +428,69 @@ export class GameRenderer {
   public beginFrame(screenShake = 0) {
     this.ctx.save();
     if (screenShake > 0) {
-      const sx = (Math.random() - 0.5) * screenShake * 1.8;
-      const sy = (Math.random() - 0.5) * screenShake * 1.8;
-      this.ctx.translate(sx, sy);
+      // Subtle, controlled, damped arcade shake (max 2.0px displacement, eliminates visual disorientation/motion sickness)
+      const intensity = Math.min(2.0, screenShake * 0.4);
+      const angle = (performance.now() * 0.02);
+      const sx = Math.sin(angle) * intensity;
+      const sy = Math.cos(angle * 1.3) * (intensity * 0.6);
+      this.ctx.translate(Math.round(sx * 10) / 10, Math.round(sy * 10) / 10);
     }
   }
 
   public endFrame() {
     this.ctx.restore();
+  }
+
+  public renderSpecialStageBackground(cameraX: number, time: number) {
+    const ctx = this.ctx;
+    // Deep cosmic cyber gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+    grad.addColorStop(0, '#090014');
+    grad.addColorStop(0.45, '#1e0836');
+    grad.addColorStop(1, '#3b0764');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Cosmic nebula cloud
+    const nebGrad = ctx.createRadialGradient(
+      GAME_WIDTH * 0.5 - cameraX * 0.1, GAME_HEIGHT * 0.4, 20,
+      GAME_WIDTH * 0.5 - cameraX * 0.1, GAME_HEIGHT * 0.4, 140
+    );
+    nebGrad.addColorStop(0, 'rgba(168, 85, 247, 0.22)');
+    nebGrad.addColorStop(0.5, 'rgba(56, 189, 248, 0.12)');
+    nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = nebGrad;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Far cosmic stars with parallax
+    ctx.save();
+    for (let i = 0; i < 45; i++) {
+      const starX = ((i * 37 - cameraX * 0.2) % GAME_WIDTH + GAME_WIDTH) % GAME_WIDTH;
+      const starY = (i * 19 + 7) % (GAME_HEIGHT - 15);
+      const twinkle = Math.sin(time * 0.05 + i) * 0.4 + 0.6;
+      ctx.fillStyle = i % 3 === 0 ? `rgba(250, 204, 21, ${twinkle})` : `rgba(232, 121, 249, ${twinkle})`;
+      const size = (i % 5 === 0) ? 2 : 1;
+      ctx.fillRect(starX, starY, size, size);
+    }
+
+    // Distant cyber grid lines on the quantum horizon
+    ctx.strokeStyle = 'rgba(192, 132, 252, 0.2)';
+    ctx.lineWidth = 1;
+    const horizonY = GAME_HEIGHT - 35;
+    for (let y = horizonY; y < GAME_HEIGHT; y += 7) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(GAME_WIDTH, y);
+      ctx.stroke();
+    }
+    const gridOffset = (cameraX * 0.4) % 24;
+    for (let x = -gridOffset; x < GAME_WIDTH + 24; x += 24) {
+      ctx.beginPath();
+      ctx.moveTo(x, horizonY);
+      ctx.lineTo(x * 1.3 - GAME_WIDTH * 0.15, GAME_HEIGHT);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   public renderBackground(zone: ZoneId, act: number, cameraX: number, worldWidth: number, time: number) {
@@ -1902,6 +1963,403 @@ export class GameRenderer {
         const cooldown = h.shootCooldown || 0;
         ctx.fillStyle = cooldown > 65 ? '#ef4444' : '#d97706';
         ctx.fillRect(x + h.w / 2 - 1, h.y + 3, 2, 2);
+      } else if (h.type === 'rotatingFireChain') {
+        // Rotating Plasma Fire Chain
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const length = h.chainLength || 46;
+        const orbs = h.orbCount || 4;
+        const angle = h.bladeAngle || 0;
+
+        // Pivot Hub Base
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(cx - 1, cy - 1, 2, 2);
+
+        // Fiery Chain & Revolving Plasma Fire Orbs
+        for (let o = 1; o <= orbs; o++) {
+          const dist = (length / orbs) * o;
+          const ox = cx + Math.cos(angle) * dist;
+          const oy = cy + Math.sin(angle) * dist;
+
+          // Connecting fiery plasma beam
+          ctx.strokeStyle = 'rgba(249, 115, 22, 0.4)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(ox, oy);
+          ctx.stroke();
+
+          // Fire Orb Outer Aura
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+          ctx.beginPath();
+          ctx.arc(ox, oy, 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Fire Orb Core Flame
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(ox, oy, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Incandescent white center
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(ox, oy, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (h.type === 'proximityMine') {
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h - 4;
+
+        if (h.detonated) {
+          // Burnt detonated crater casing
+          ctx.fillStyle = '#18181b';
+          ctx.fillRect(x + 2, cy - 1, h.w - 4, 3);
+          ctx.fillStyle = '#3f3f46';
+          ctx.fillRect(cx - 2, cy - 2, 4, 1);
+        } else {
+          // Metallic sensor mine chassis
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, h.w / 2, 3.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Armored rim
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 2, cy - 2, h.w - 4, 3);
+
+          // Sensor Dome
+          const isTriggered = h.mineTriggered;
+          const warn = h.warnTimer || 0;
+          const blink = isTriggered ? (Math.floor(warn / 3) % 2 === 0) : true;
+          const domeColor = isTriggered ? (blink ? '#ef4444' : '#fee2e2') : '#38bdf8';
+
+          ctx.fillStyle = domeColor;
+          ctx.beginPath();
+          ctx.arc(cx, cy - 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Exclamation indicator when armed/triggered
+          if (isTriggered) {
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(cx - 1, cy - 10, 2, 4);
+            ctx.fillRect(cx - 1, cy - 4, 2, 1.5);
+          }
+        }
+      } else if (h.type === 'antigravRift') {
+        // Shimmering Antigravity Spatial Vortex
+        const pulse = 0.6 + Math.sin(time * 0.1 + h.x) * 0.35;
+        const grad = ctx.createLinearGradient(x, h.y + h.h, x, h.y);
+        grad.addColorStop(0, 'rgba(168, 85, 247, 0.45)');
+        grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.35)');
+        grad.addColorStop(1, 'rgba(192, 132, 252, 0.05)');
+
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, h.y, h.w, h.h);
+
+        // Top & Bottom Polarizer Emitters
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x - 2, h.y + h.h - 3, h.w + 4, 3);
+        ctx.fillRect(x - 2, h.y, h.w + 4, 2);
+
+        ctx.fillStyle = '#c084fc';
+        ctx.fillRect(x, h.y + h.h - 4, h.w, 1.5);
+        ctx.fillRect(x, h.y + 1, h.w, 1);
+
+        // Floating energy chevrons pointing up
+        const chevY = (h.y + h.h - ((time * 1.4 + h.x * 2) % h.h));
+        ctx.strokeStyle = `rgba(255, 255, 255, ${pulse})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x + 4, chevY + 3);
+        ctx.lineTo(x + h.w / 2, chevY - 2);
+        ctx.lineTo(x + h.w - 4, chevY + 3);
+        ctx.stroke();
+      } else if (h.type === 'electricArc') {
+        // High-Voltage Oscillating Plasma Arc
+        const tx = Math.round((h.targetX ?? h.x) - cameraX);
+        const ty = Math.round(h.targetY ?? (h.y + (h.beamLength || 48)));
+
+        // Emitter Node 1 (Start)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - 3, h.y - 3, 6, 6);
+        ctx.fillStyle = h.active ? '#38bdf8' : (h.warnTimer && h.warnTimer > 0 ? '#facc15' : '#64748b');
+        ctx.fillRect(x - 1.5, h.y - 1.5, 3, 3);
+
+        // Emitter Node 2 (Target)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(tx - 3, ty - 3, 6, 6);
+        ctx.fillStyle = h.active ? '#38bdf8' : (h.warnTimer && h.warnTimer > 0 ? '#facc15' : '#64748b');
+        ctx.fillRect(tx - 1.5, ty - 1.5, 3, 3);
+
+        if (h.active) {
+          // Crackling high-power lightning bolt
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(x, h.y);
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#e0f2fe';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x, h.y);
+          const segments = 4;
+          for (let s = 1; s < segments; s++) {
+            const st = s / segments;
+            const sx = x + (tx - x) * st + (Math.random() - 0.5) * 8;
+            const sy = h.y + (ty - h.y) * st + (Math.random() - 0.5) * 8;
+            ctx.lineTo(sx, sy);
+          }
+          ctx.lineTo(tx, ty);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else if (h.warnTimer && h.warnTimer > 0) {
+          // Telegraph warning spark trail
+          if (Math.floor(time / 3) % 2 === 0) {
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.7)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, h.y);
+            ctx.lineTo(tx, ty);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        }
+      } else if (h.type === 'rollingSpikeBall') {
+        // Heavy Armored Rolling Spike Ball
+        const radius = (h.w || 16) / 2;
+        const cx = x + radius;
+        const cy = h.y + radius;
+        const angle = h.spinAngle || 0;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + radius - 1, radius * 0.9, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+
+        // 8 Spikes protruding outwards
+        const spikeCount = 8;
+        const spikeLen = radius * 0.55;
+        for (let s = 0; s < spikeCount; s++) {
+          const sa = (s * Math.PI * 2) / spikeCount;
+          ctx.save();
+          ctx.rotate(sa);
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(-3, -radius + 1);
+          ctx.lineTo(0, -radius - spikeLen);
+          ctx.lineTo(3, -radius + 1);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(-1, -radius - spikeLen + 2, 2, spikeLen - 2);
+          ctx.restore();
+        }
+
+        // Iron Core Ball
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Metallic reflection highlight
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(-radius * 0.25, -radius * 0.25, radius * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Warning core beacon
+        const pulse = Math.sin(time * 0.2) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(239, 68, 68, ${pulse})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      } else if (h.type === 'retractableSpikes') {
+        // High-Tech Retractable Floor Spikes
+        // 1. Metal Base Casing embedded into platform
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, h.y + h.h - 4, h.w, 4);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 1, h.y + h.h - 3, h.w - 2, 2);
+
+        const phase = h.spikePhase || 'retracted';
+
+        // 2. LED Status Indicator
+        if (phase === 'retracted') {
+          // Safe green LED
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(x + 2, h.y + h.h - 2, 3, 1.5);
+          ctx.fillRect(x + h.w - 5, h.y + h.h - 2, 3, 1.5);
+        } else if (phase === 'warning') {
+          // Warning blinking amber LED + vibrating tips
+          const blink = Math.floor(time / 4) % 2 === 0;
+          ctx.fillStyle = blink ? '#facc15' : '#713f12';
+          ctx.fillRect(x + 2, h.y + h.h - 2, 3, 1.5);
+          ctx.fillRect(x + h.w - 5, h.y + h.h - 2, 3, 1.5);
+
+          // Peeking spike tips vibrating
+          const count = Math.max(2, Math.floor(h.w / 6));
+          const step = h.w / count;
+          const jitter = (Math.random() - 0.5) * 1;
+          for (let i = 0; i < count; i++) {
+            const sx = x + i * step + step / 2 + jitter;
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.moveTo(sx - 2, h.y + h.h - 4);
+            ctx.lineTo(sx, h.y + h.h - 7);
+            ctx.lineTo(sx + 2, h.y + h.h - 4);
+            ctx.closePath();
+            ctx.fill();
+          }
+        } else {
+          // Extended Deadly Red Spikes!
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(x + 2, h.y + h.h - 2, 3, 1.5);
+          ctx.fillRect(x + h.w - 5, h.y + h.h - 2, 3, 1.5);
+
+          // Full razor-sharp steel spikes protruding
+          const count = Math.max(2, Math.floor(h.w / 6));
+          const step = h.w / count;
+          for (let i = 0; i < count; i++) {
+            const sx = x + i * step + step / 2;
+            // Spike shadow
+            ctx.fillStyle = '#991b1b';
+            ctx.beginPath();
+            ctx.moveTo(sx - 3, h.y + h.h - 4);
+            ctx.lineTo(sx, h.y - 4);
+            ctx.lineTo(sx + 3, h.y + h.h - 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Spike blade highlight
+            ctx.fillStyle = '#f87171';
+            ctx.beginPath();
+            ctx.moveTo(sx - 1, h.y + h.h - 4);
+            ctx.lineTo(sx, h.y - 4);
+            ctx.lineTo(sx + 2, h.y + h.h - 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Energy edge
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(sx - 0.5, h.y - 2, 1, h.h);
+          }
+        }
+      } else if (h.type === 'plasmaTurret') {
+        // Stationary Cyber Plasma Turret
+        const dir = h.shootDir || h.dir || 1;
+        const cd = h.shootCooldown || 0;
+
+        // Base mount
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, h.y + h.h - 4, h.w, 4);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 2, h.y + h.h - 6, h.w - 4, 3);
+
+        // Rotating cannon body
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(x + h.w / 2, h.y + h.h / 2, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Cannon barrel pointing in shoot direction
+        const barrelX = dir === 1 ? x + h.w / 2 : x + h.w / 2 - 8;
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(barrelX, h.y + h.h / 2 - 2, 8, 4);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(barrelX + (dir === 1 ? 5 : 1), h.y + h.h / 2 - 2.5, 2, 5); // Energy ring
+
+        // Glowing core
+        const charge = Math.min(1, cd / 90);
+        ctx.fillStyle = charge > 0.6 ? '#22d3ee' : '#0284c7';
+        ctx.beginPath();
+        ctx.arc(x + h.w / 2, h.y + h.h / 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Aiming laser guide line when charging
+        if (cd >= 50 && cd < 95) {
+          const laserStart = dir === 1 ? x + h.w + 2 : x - 2;
+          const laserEnd = dir === 1 ? laserStart + 160 : laserStart - 160;
+          ctx.strokeStyle = cd >= 75 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(6, 182, 212, 0.4)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(laserStart, h.y + h.h / 2);
+          ctx.lineTo(laserEnd, h.y + h.h / 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      } else if (h.type === 'gravityVortex') {
+        // Quantum Gravitational Singularity Vortex
+        const radius = (h.w || 20) / 2;
+        const cx = x + radius;
+        const cy = h.y + radius;
+        const spin = h.spinAngle || 0;
+
+        // Outer swirling energy disc
+        const outerPulse = Math.sin(time * 0.1) * 0.15 + 0.35;
+        const grad = ctx.createRadialGradient(cx, cy, 3, cx, cy, radius * 2.2);
+        grad.addColorStop(0, 'rgba(168, 85, 247, 0.8)');
+        grad.addColorStop(0.4, `rgba(56, 189, 248, ${outerPulse})`);
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3 Curved swirling spiral arms
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(spin);
+        for (let a = 0; a < 3; a++) {
+          ctx.rotate((Math.PI * 2) / 3);
+          ctx.strokeStyle = a % 2 === 0 ? '#c084fc' : '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 1.3, 0, Math.PI * 0.7);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Singularity Dark Core
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Photon ring around event horizon
+        ctx.strokeStyle = '#e0f2fe';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
+        ctx.stroke();
       }
     }
   }
@@ -1917,7 +2375,9 @@ export class GameRenderer {
     act: number,
     bossDefeated: boolean,
     cameraX: number,
-    time: number
+    time: number,
+    specialStagePortal?: { x: number; y: number; w: number; h: number } | null,
+    specialStageExitPortal?: { x: number; y: number; w: number; h: number } | null
   ) {
     const ctx = this.ctx;
 
@@ -1968,20 +2428,87 @@ export class GameRenderer {
       ctx.strokeRect(x, s.y + bob, 10, 10);
     }
 
-    // Checkpoints
+    // Checkpoints & Holographic Safe Sanctuary Field
     for (const cp of checkpoints) {
       const x = Math.round(cp.x - cameraX);
-      if (x < -30 || x > GAME_WIDTH + 30) continue;
+      if (x < -60 || x > GAME_WIDTH + 60) continue;
 
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(x + 4, cp.y, 2, 40);
-      ctx.fillStyle = cp.active ? '#22c55e' : '#94a3b8';
-      ctx.fillRect(x + 6, cp.y + 4, 10, 8);
+      const groundY = cp.y + 40;
+
+      // 1. Holographic Protected Sanctuary Floor Plate & Perimeter
+      const sancW = 56;
+      const sancX = x + 5 - sancW / 2;
+      const sancPulse = 0.5 + Math.sin(time * 0.1) * 0.25;
+
+      // Safe floor perimeter glow
+      ctx.fillStyle = cp.active ? `rgba(34, 197, 94, ${sancPulse * 0.25})` : `rgba(56, 189, 248, ${sancPulse * 0.15})`;
+      ctx.fillRect(sancX, groundY - 2, sancW, 4);
+
+      // Sanctuary perimeter boundary brackets
+      ctx.strokeStyle = cp.active ? '#4ade80' : '#38bdf8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      // Left bracket
+      ctx.moveTo(sancX, groundY - 4);
+      ctx.lineTo(sancX, groundY + 1);
+      ctx.lineTo(sancX + 5, groundY + 1);
+      // Right bracket
+      ctx.moveTo(sancX + sancW, groundY - 4);
+      ctx.lineTo(sancX + sancW, groundY + 1);
+      ctx.lineTo(sancX + sancW - 5, groundY + 1);
+      ctx.stroke();
+
+      // Holographic sanctuary beam when activated
       if (cp.active) {
-        ctx.fillStyle = '#86efac44';
-        ctx.fillRect(x - 4, cp.y - 4, 20, 20);
-        ctx.fillStyle = '#4ade80';
-        ctx.fillRect(x + 8, cp.y + 6, 6, 4);
+        const beamGrad = ctx.createLinearGradient(x + 5, groundY, x + 5, cp.y - 12);
+        beamGrad.addColorStop(0, 'rgba(74, 222, 128, 0.22)');
+        beamGrad.addColorStop(1, 'rgba(74, 222, 128, 0)');
+        ctx.fillStyle = beamGrad;
+        ctx.fillRect(x - 8, cp.y - 12, 26, groundY - (cp.y - 12));
+      }
+
+      // 2. Heavy Titanium Flag Base
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(x + 1, groundY - 3, 8, 3);
+      ctx.fillStyle = cp.active ? '#22c55e' : '#64748b';
+      ctx.fillRect(x + 3, groundY - 4, 4, 1);
+
+      // Flagpole
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(x + 4, cp.y, 2, 40);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(x + 4, cp.y, 1, 40);
+
+      // Gold/Cyan Finial Sphere at top of flagpole
+      ctx.fillStyle = cp.active ? '#4ade80' : '#facc15';
+      ctx.fillRect(x + 3, cp.y - 3, 4, 3);
+
+      // Dynamic waving banner
+      const wave = Math.sin(time * 0.14) * 1.5;
+      const bannerColor = cp.active ? '#22c55e' : '#94a3b8';
+      const bannerAccent = cp.active ? '#86efac' : '#cbd5e1';
+
+      ctx.fillStyle = bannerColor;
+      ctx.beginPath();
+      ctx.moveTo(x + 6, cp.y + 2);
+      ctx.lineTo(x + 20, cp.y + 3 + wave);
+      ctx.lineTo(x + 16, cp.y + 8 + wave);
+      ctx.lineTo(x + 20, cp.y + 13 + wave);
+      ctx.lineTo(x + 6, cp.y + 12);
+      ctx.closePath();
+      ctx.fill();
+
+      // Banner Crest
+      ctx.fillStyle = bannerAccent;
+      ctx.fillRect(x + 8, cp.y + 5 + wave * 0.5, 5, 3);
+
+      if (cp.active) {
+        // Beacon pulse ring around flag top
+        ctx.strokeStyle = `rgba(74, 222, 128, ${sancPulse * 0.8})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x + 5, cp.y + 7, 10, 0, Math.PI * 2);
+        ctx.stroke();
       }
     }
 
@@ -2022,6 +2549,101 @@ export class GameRenderer {
 
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(x + goal.w / 2 - 2, goal.y + goal.h / 2 - 2 + bob, 4, 4);
+    }
+
+    // Special Stage Entrance Portal (Cosmic violet & gold shimmering vortex)
+    if (specialStagePortal) {
+      const sx = Math.round(specialStagePortal.x - cameraX);
+      const sy = specialStagePortal.y;
+      const sw = specialStagePortal.w;
+      const sh = specialStagePortal.h;
+      const pulse = Math.sin(time * 0.12) * 2.5;
+      const rot = time * 0.08;
+
+      ctx.save();
+      // Outer ethereal aura
+      ctx.fillStyle = 'rgba(192, 132, 252, 0.32)';
+      ctx.beginPath();
+      ctx.ellipse(sx + sw / 2, sy + sh / 2, sw / 2 + 5 + pulse, sh / 2 + 5 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer dimensional ring
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(sx + sw / 2, sy + sh / 2, sw / 2 + 1, sh / 2 + 1, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Swirling portal core
+      const coreGrad = ctx.createRadialGradient(
+        sx + sw / 2, sy + sh / 2, 2,
+        sx + sw / 2, sy + sh / 2, sh / 2
+      );
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.35, '#fbbf24');
+      coreGrad.addColorStop(0.7, '#c084fc');
+      coreGrad.addColorStop(1, '#3b0764');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.ellipse(sx + sw / 2, sy + sh / 2, sw / 2 - 1, sh / 2 - 1, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orbital cyber particles
+      for (let i = 0; i < 4; i++) {
+        const ang = rot + (i * Math.PI) / 2;
+        const orbitR = sw / 2 + 3;
+        const px = sx + sw / 2 + Math.cos(ang) * orbitR;
+        const py = sy + sh / 2 + Math.sin(ang) * (orbitR * 1.25);
+        ctx.fillStyle = i % 2 === 0 ? '#facc15' : '#e879f9';
+        ctx.fillRect(px - 1.5, py - 1.5, 3, 3);
+      }
+
+      // Overhead glowing beacon label
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 6px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SPECIAL STAGE', sx + sw / 2, sy - 8 + Math.sin(time * 0.08) * 1.5);
+      ctx.restore();
+    }
+
+    // Special Stage Exit Portal (Emerald & Gold Return Vortex)
+    if (specialStageExitPortal) {
+      const ex = Math.round(specialStageExitPortal.x - cameraX);
+      const ey = specialStageExitPortal.y;
+      const ew = specialStageExitPortal.w;
+      const eh = specialStageExitPortal.h;
+      const pulse = Math.sin(time * 0.1) * 2.5;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(74, 222, 128, 0.32)';
+      ctx.beginPath();
+      ctx.ellipse(ex + ew / 2, ey + eh / 2, ew / 2 + 5 + pulse, eh / 2 + 5 + pulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#4ade80';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(ex + ew / 2, ey + eh / 2, ew / 2 + 1, eh / 2 + 1, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const exitGrad = ctx.createRadialGradient(
+        ex + ew / 2, ey + eh / 2, 2,
+        ex + ew / 2, ey + eh / 2, eh / 2
+      );
+      exitGrad.addColorStop(0, '#ffffff');
+      exitGrad.addColorStop(0.4, '#4ade80');
+      exitGrad.addColorStop(0.8, '#065f46');
+      exitGrad.addColorStop(1, '#022c22');
+      ctx.fillStyle = exitGrad;
+      ctx.beginPath();
+      ctx.ellipse(ex + ew / 2, ey + eh / 2, ew / 2 - 1, eh / 2 - 1, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#86efac';
+      ctx.font = 'bold 6px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('RETORNO AL NIVEL', ex + ew / 2, ey - 8 + Math.sin(time * 0.08) * 1.5);
+      ctx.restore();
     }
   }
 
@@ -2781,7 +3403,7 @@ export class GameRenderer {
     const y = Math.round(player.y);
     const t = player.time;
 
-    // 1. Render Dash Ghost Afterimages with cyber neon effect
+    // 1. Render Dash Ghost Afterimages with cyber shinobi neon effect
     for (const trail of player.dashTrail) {
       const tx = Math.round(trail.x - cameraX);
       const ty = Math.round(trail.y);
@@ -2790,13 +3412,15 @@ export class GameRenderer {
       if (trail.facing < 0) ctx.scale(-1, 1);
       ctx.globalAlpha = trail.alpha * 0.45;
 
-      // Silhouette with glowing cyan & rose accents
+      // Athletic Shinobi Silhouette: broad shoulders, tapered waist, angular optic line
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-4, -8, 8, 16);
+      ctx.fillRect(-6, -3, 12, 3); // Shoulder line
+      ctx.fillRect(-4, 0, 8, 5);   // Tapered torso
+      ctx.fillRect(-4, -9, 8, 6);  // Masked head
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-2, -6, 5, 2); // Visor trail
+      ctx.fillRect(0, -7, 4, 1.5); // Sharp optic slit
       ctx.fillStyle = '#f43f5e';
-      ctx.fillRect(-4, -9, 7, 2); // Hair crest trail
+      ctx.fillRect(-5, -11, 8, 3); // Spiky anime ninja hair
       ctx.restore();
     }
     ctx.globalAlpha = 1;
@@ -2865,7 +3489,7 @@ export class GameRenderer {
       ctx.restore();
     }
 
-    // --- MAIN ZION SPRITE RENDERING ---
+    // --- MAIN ZION SPRITE RENDERING (CYBER SHINOBI HERO) ---
     ctx.save();
     ctx.translate(x + 7, y + 8 + bobY);
 
@@ -2880,15 +3504,15 @@ export class GameRenderer {
       ctx.rotate(0.06);
     }
 
-    // A. Waving Cyber Scarf (Flows undulating behind Zion)
-    const scarfSegments = 4;
+    // A. Waving Cyber Shinobi Scarf (Aerodynamic, flowing behind Zion)
+    const scarfSegments = 5;
     for (let i = scarfSegments; i >= 1; i--) {
       const waveSpeed = isMoving ? 0.45 : 0.18;
       const waveAmp = isMoving ? 2.5 : 1.2;
-      const sx = -4 - (i * 3) - (isMoving ? 1.5 * i : 0);
+      const sx = -4 - (i * 3.2) - (isMoving ? 1.5 * i : 0);
       const sy = -3 + Math.sin(t * waveSpeed - i * 0.8) * waveAmp + (isJumping ? i * 0.8 : isFalling ? -i * 0.5 : 0);
-      const sw = Math.max(2, 4 - i * 0.6);
-      const sh = Math.max(1.5, 3 - i * 0.3);
+      const sw = Math.max(1.8, 4.2 - i * 0.65);
+      const sh = Math.max(1.2, 3 - i * 0.35);
 
       ctx.fillStyle = i % 2 === 0 ? '#22d3ee' : '#06b6d4';
       ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.ceil(sw), Math.ceil(sh));
@@ -2898,151 +3522,210 @@ export class GameRenderer {
       ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.ceil(sw), 1);
     }
 
-    // B. Legs & Boots Animation
+    // A2. Shinobi Headband Ribbons (Flowing from the back of the metal forehead protector)
+    for (let k = 3; k >= 1; k--) {
+      const rx = -5 - (k * 2.5);
+      const ry = -9 + Math.sin(t * 0.3 - k * 0.9) * 1.6;
+      ctx.fillStyle = k === 1 ? '#0891b2' : '#06b6d4';
+      ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 1.5);
+    }
+
+    // B. Legs & Cyber-Ninja Tabi Boots
     const legPhase = isGrounded && isMoving ? Math.sin(t * 0.45) : 0;
     
     if (isDashing) {
       // Dashing pose (aerodynamic back kick)
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-4, 2, 4, 5);
+      ctx.fillRect(-5, 2, 4, 5);
       ctx.fillRect(0, 1, 5, 5);
-      // Cyan boot tips
+      // Shinobi shin armor & cyber-tabi
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-5, 4, 4, 3);
+      ctx.fillRect(1, 3, 4, 3);
+      // Cyan tabi split sole
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-5, 5, 4, 3);
-      ctx.fillRect(2, 4, 4, 3);
+      ctx.fillRect(-6, 6, 5, 2);
+      ctx.fillRect(1, 5, 5, 2);
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-5, 7, 4, 1);
-      ctx.fillRect(2, 6, 4, 1);
+      ctx.fillRect(-6, 7, 5, 1);
+      ctx.fillRect(1, 6, 5, 1);
     } else if (isJumping) {
-      // Jumping pose (tucked legs)
+      // Jumping pose (tucked ninja legs)
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-3, 2, 3, 4);
+      ctx.fillRect(-4, 2, 3, 4);
       ctx.fillRect(1, 1, 3, 4);
+      // Knee guards
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-4, 3, 3, 2);
+      ctx.fillRect(1, 2, 3, 2);
+      // Tabi boots
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3, 4, 3, 3);
-      ctx.fillRect(1, 3, 3, 3);
+      ctx.fillRect(-4, 5, 3, 2);
+      ctx.fillRect(1, 4, 3, 2);
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-3, 6, 3, 1);
+      ctx.fillRect(-4, 6, 3, 1);
       ctx.fillRect(1, 5, 3, 1);
     } else if (isFalling) {
       // Falling pose (extended legs)
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-3, 3, 3, 5);
+      ctx.fillRect(-4, 3, 3, 5);
       ctx.fillRect(1, 3, 3, 5);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-4, 5, 3, 2);
+      ctx.fillRect(1, 5, 3, 2);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3, 6, 3, 3);
-      ctx.fillRect(1, 6, 3, 3);
+      ctx.fillRect(-4, 7, 3, 2);
+      ctx.fillRect(1, 7, 3, 2);
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-3, 8, 3, 1);
+      ctx.fillRect(-4, 8, 3, 1);
       ctx.fillRect(1, 8, 3, 1);
     } else if (isMoving) {
-      // Running cycle (scissor legs)
-      const l1 = Math.round(legPhase * 2.5);
-      const l2 = Math.round(-legPhase * 2.5);
+      // Running cycle (athletic ninja strides)
+      const l1 = Math.round(legPhase * 2.6);
+      const l2 = Math.round(-legPhase * 2.6);
       
       // Left leg
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(-3 + l1, 3, 3, 4);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-3 + l1, 4, 3, 2);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3 + l1, 5, 3, 3);
+      ctx.fillRect(-3 + l1, 6, 3, 2);
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(-3 + l1, 7, 3, 1);
 
       // Right leg
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(1 + l2, 3, 3, 4);
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(1 + l2, 4, 3, 2);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(1 + l2, 5, 3, 3);
+      ctx.fillRect(1 + l2, 6, 3, 2);
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(1 + l2, 7, 3, 1);
     } else {
-      // Idle standing
+      // Idle ninja stance
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(-3, 3, 3, 4);
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(1, 3, 3, 4);
 
-      // Boots with cyan trim & neon stripe
+      // Shin guards & cyber-tabi
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-3, 4, 3, 2);
+      ctx.fillRect(1, 4, 3, 2);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3, 5, 3, 3);
-      ctx.fillRect(1, 5, 3, 3);
+      ctx.fillRect(-3, 6, 3, 2);
+      ctx.fillRect(1, 6, 3, 2);
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(-3, 7, 3, 1);
       ctx.fillRect(1, 7, 3, 1);
     }
 
-    // C. Torso & Cyber Armor
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-4, -3, 8, 7); // Base torso
+    // C. Torso, V-Taper Silhouette & Shinobi Armor
+    // Undersuit
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(-4, -3, 8, 7);
 
-    // Chestplate plating
+    // Cyber Pauldrons (Shoulder Armor extending outwards to break the round bean shape!)
     ctx.fillStyle = '#1e293b';
-    ctx.fillRect(-3, -2, 6, 5);
+    ctx.fillRect(-6, -3, 3, 3); // Left shoulder plate
+    ctx.fillRect(3, -3, 3, 3);  // Right shoulder plate
+    ctx.fillStyle = '#06b6d4';
+    ctx.fillRect(-6, -3, 3, 1); // Neon shoulder trims
+    ctx.fillRect(3, -3, 3, 1);
 
-    // Cyber Reactor Core (Pulsing Diamond in chest center)
+    // Segmented Chestplate
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-3, -2, 6, 4);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-2, -2, 4, 1);
+
+    // Cyber Shinobi Reactor Core (Glowing Chevron)
     const coreGlow = Math.sin(t * 0.2) * 0.3 + 0.7;
     ctx.fillStyle = `rgba(34, 211, 238, ${coreGlow})`;
-    ctx.fillRect(-1, -1, 3, 2);
+    ctx.fillRect(-1, -1, 2, 2);
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, -1, 1, 1); // Hot center
+    ctx.fillRect(-0.5, -0.5, 1, 1);
 
-    // Tech Belt & Gold Energy Pouches
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(-4, 3, 8, 1);
+    // Shinobi Obi / Utility Sash & Gold Buckle
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(-4, 2, 8, 1.5); // Azure sash
     ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(-4, 2, 1, 2);
-    ctx.fillRect(3, 2, 1, 2);
+    ctx.fillRect(-1, 2, 2, 1.5); // Gold buckle
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-4, 1.5, 1, 2); // Kunai pouch
+    ctx.fillRect(3, 1.5, 1, 2);
 
-    // D. Head, Cyber Crest & Glowing Visor (Matching Main Menu)
-    // Helmet base
-    ctx.fillStyle = '#0f172a';
+    // D. Head: Shinobi Mask, Forehead Protector & Cyber Eyes
+    // Ninja cowl & jawline (angular, sculpted)
+    ctx.fillStyle = '#090d16';
     ctx.fillRect(-4, -9, 8, 6);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-3, -5, 6, 2); // Mouth mask cover
+    // Cyber breather vents on mask
+    ctx.fillStyle = '#06b6d4';
+    ctx.fillRect(-1, -5, 2, 1);
 
-    // Futuristic Cyber Spiky Crest / Hair in Rose/Crimson
-    ctx.fillStyle = '#f43f5e';
-    ctx.fillRect(-4, -11, 7, 3);
-    ctx.fillStyle = '#fb7185';
-    ctx.fillRect(-5, -10, 3, 2); // Side spike
-    ctx.fillRect(1, -10, 3, 2);  // Top spike
+    // Shinobi Forehead Protector (Metallic band with Gold Crest)
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-4, -9, 8, 2);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-3, -9, 6, 1); // Metallic sheen
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-1, -9, 2, 1.5); // Gold ninja crest emblem
 
-    // High-Tech Glowing Visor (Cyan with white gleam)
-    const visorGlow = Math.sin(t * 0.15) * 0.2 + 0.8;
-    ctx.fillStyle = `rgba(34, 211, 238, ${visorGlow})`;
-    ctx.fillRect(-1, -8, 6, 3);
+    // Cyber-Shinobi Eyes / Dual Optic Slits (Replacing the oblong Among Us astronaut visor!)
+    const eyeGlow = Math.sin(t * 0.15) * 0.2 + 0.8;
+    ctx.fillStyle = `rgba(34, 211, 238, ${eyeGlow})`;
+    // Twin sharp cybernetic eyes
+    ctx.fillRect(0, -7, 2, 1.5);  // Inner eye
+    ctx.fillRect(3, -7, 2, 1.5);  // Outer eye
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(2, -8, 2, 2); // Visor eye gleam
+    ctx.fillRect(1, -7, 1, 1);    // Hot pupil sparks
+    ctx.fillRect(4, -7, 1, 1);
 
-    // Scarf Collar around neck
+    // Swept-Back Cyberpunk / Anime Ninja Hair (Sharp dynamic spikes)
+    ctx.fillStyle = '#e11d48';
+    ctx.fillRect(-5, -11, 8, 3);
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(-4, -12, 6, 2);
+    ctx.fillStyle = '#fb7185';
+    ctx.fillRect(-6, -10, 2, 2); // Rear flared spike
+    ctx.fillRect(0, -12, 3, 2);  // Top windblown crest
+    ctx.fillRect(3, -11, 2, 2);  // Forward edge highlight
+
+    // Shinobi Scarf Neck Wrap
     ctx.fillStyle = '#06b6d4';
     ctx.fillRect(-4, -4, 8, 2);
     ctx.fillStyle = '#22d3ee';
     ctx.fillRect(-3, -3, 6, 1);
 
-    // E. Arms & Light Sword (Saber de Luz de Zion)
+    // E. Arms & High-Frequency Beam Ninjato
     if (isAttacking) {
       // Dynamic Combat Attack Stance
       const combo = player.comboStep || 1;
       
       // Left arm guard
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-4, -2, 2, 4);
+      ctx.fillRect(-5, -2, 2, 4);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-4, 0, 2, 2);
+      ctx.fillRect(-5, 0, 2, 2);
 
       // Right arm thrusting / slashing
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(2, -3, 4, 3);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(4, -4, 2, 2); // Gauntlet
+      ctx.fillRect(4, -4, 2, 2);
 
-      // Sword Hilt & Gold Crossguard
+      // Sword Hilt & Gold Tsuba
       ctx.fillStyle = '#475569';
       ctx.fillRect(6, -3, 2, 2);
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(6, -5, 1, 5); // Crossguard
+      ctx.fillRect(6, -5, 1, 5);
 
       // Glowing Beam Energy Blade
-      const bladeLen = combo === 3 ? 14 : 11;
+      const bladeLen = combo === 3 ? 15 : 12;
       const bladeY = combo === 2 ? -6 : -3;
       
       // Outer blade glow
@@ -3053,7 +3736,7 @@ export class GameRenderer {
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(7, bladeY, bladeLen, 2);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(8, bladeY, bladeLen - 2, 1); // White hot center
+      ctx.fillRect(8, bladeY, bladeLen - 2, 1);
 
       // Combat energy sparks
       if (combo === 3) {
@@ -3063,20 +3746,20 @@ export class GameRenderer {
         ctx.fillRect(7 + bladeLen - 3, bladeY - 3, 2, 2);
       }
     } else if (isBlocking) {
-      // Defensive stance with crossed gauntlets
+      // Defensive ninja guard with crossed gauntlets
       ctx.fillStyle = '#1e293b';
       ctx.fillRect(0, -3, 4, 5);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(1, -2, 3, 3); // Gauntlets with power cuffs
+      ctx.fillRect(1, -2, 3, 3);
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(2, -2, 2, 1);
     } else {
-      // Idle / Running Stance — Sword stylishly slung over back
+      // Idle / Running Stance — Ninjato Sheathed Diagonally on Back (Saya)
       // Left arm
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-4, -2, 2, 5);
+      ctx.fillRect(-5, -2, 2, 5);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-4, 1, 2, 2);
+      ctx.fillRect(-5, 1, 2, 2);
 
       // Right arm
       ctx.fillStyle = '#1e293b';
@@ -3084,15 +3767,26 @@ export class GameRenderer {
       ctx.fillStyle = '#06b6d4';
       ctx.fillRect(2, 1, 2, 2);
 
-      // Energy Blade Sheathed on Back (Angled)
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(-5, -10, 2, 3); // Hilt
+      // Distinctive Diagonal Scabbard (Saya) strapped across back with metallic rings
+      // (Diagonal angle completely avoids looking like an astronaut backpack!)
+      ctx.save();
+      ctx.translate(-4, -6);
+      ctx.rotate(-0.4); // 23 degree angle
+      // Scabbard body
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-1, -4, 2.5, 13);
+      // Gold Sageo cord rings
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-6, -8, 4, 1);  // Gold Crossguard
+      ctx.fillRect(-1.5, -2, 3.5, 1);
+      ctx.fillRect(-1.5, 1, 3.5, 1);
+      // Tsuka (Hilt) & Tsuba (Guard)
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(-2, -5, 4.5, 1.2); // Tsuba guard
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-0.8, -8, 2, 3);   // Wrapped hilt
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-4, -7, 2, 9);  // Glowing Beam
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-4, -6, 1, 7);  // White hot core
+      ctx.fillRect(-0.5, -9, 1.4, 1.2); // Pommel emitter
+      ctx.restore();
     }
 
     ctx.restore();

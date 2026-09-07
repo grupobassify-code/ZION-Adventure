@@ -147,17 +147,39 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               <span>PTS</span>
               <span>{engine.stats.score.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-cyan-300 border-l border-slate-700 pl-2">
-              <Diamond className="w-3 h-3 text-cyan-400" />
-              <span>{engine.stats.crystalsCollected}</span>
+            <div 
+              className={`flex items-center gap-1 text-[10px] font-mono font-bold border-l border-slate-700 pl-2 transition-all ${
+                engine.stats.totalCrystals > 0 && engine.stats.crystalsCollected >= engine.stats.totalCrystals
+                  ? 'text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]'
+                  : 'text-cyan-300'
+              }`}
+              title={
+                engine.stats.totalCrystals > 0 && engine.stats.crystalsCollected >= engine.stats.totalCrystals
+                  ? '¡Todos los cristales reunidos! Portal a Special Stage desbloqueado'
+                  : `Cristales reunidos: ${engine.stats.crystalsCollected}/${engine.stats.totalCrystals || '?'}`
+              }
+            >
+              <Diamond className={`w-3 h-3 ${engine.stats.totalCrystals > 0 && engine.stats.crystalsCollected >= engine.stats.totalCrystals ? 'text-amber-400 animate-bounce' : 'text-cyan-400'}`} />
+              <span>
+                {engine.stats.crystalsCollected}
+                {engine.stats.totalCrystals > 0 && !engine.isOnlyUpMode ? `/${engine.stats.totalCrystals}` : ''}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Right: Level Badge, Device Save Indicator & Pause */}
         <div className="flex items-center gap-1.5 pointer-events-auto">
-          {/* Current Level Pill / Only Up Pill */}
-          {engine.isOnlyUpMode ? (
+          {/* Current Level Pill / Special Stage / Only Up Pill */}
+          {engine.isInSpecialStage ? (
+            <div 
+              className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-950/90 border border-purple-500/70 text-xs font-bold text-purple-200 shadow-md backdrop-blur-md animate-pulse"
+              title="Special Stage: Dimensión Cuántica"
+            >
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+              <span className="font-mono text-purple-300">SPECIAL STAGE</span>
+            </div>
+          ) : engine.isOnlyUpMode ? (
             <div 
               className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-orange-950/80 border border-orange-500/60 text-xs font-bold text-orange-200 shadow-md backdrop-blur-md animate-pulse"
               title="Kronos Only Up: ¡Sube sin parar!"

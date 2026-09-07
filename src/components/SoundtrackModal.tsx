@@ -93,7 +93,7 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
                 </span>
               </h2>
               <p className="text-[11px] text-cyan-400/90 font-mono">
-                Sintetizador FM polifónico con melodías contagiosas y líneas de bajo al estilo Sonic & Yuzo Koshiro
+                Sintetizador FM polifónico con melodías contagiosas y líneas de bajo retro 16-bits clásicas
               </p>
             </div>
           </div>

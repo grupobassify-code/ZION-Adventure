@@ -116,6 +116,9 @@ export class GameEngine {
   public specialEffects: SpecialBurstEffect[] = [];
 
   public spawnPoint = { x: 35, y: 100 };
+  public levelStartPoint = { x: 35, y: 100 };
+  public lastSafeGround = { x: 35, y: 100 };
+  public hasActiveCheckpoint = false;
   public arenaActive = false;
   public bossDefeated = false;
   public isLevelWon = false;
@@ -149,6 +152,26 @@ export class GameEngine {
   public onlyUpNextEnemyId: number = 2000;
   public trampolines: Trampoline[] = [];
   public onlyUpAgilityTier: number = 1;
+
+  // Special Stage Portal & Dimension System
+  public specialStagePortal: { x: number; y: number; w: number; h: number } | null = null;
+  public specialStageCompleted: boolean = false;
+  public isInSpecialStage: boolean = false;
+  public specialStageExitPortal: { x: number; y: number; w: number; h: number } | null = null;
+  private specialStageReturnState: {
+    levelIndex: number;
+    playerX: number;
+    playerY: number;
+    cameraX: number;
+    lives: number;
+    score: number;
+    energy: number;
+    collectedCrystalIndices: Set<number>;
+    collectedSecretIndices: Set<number>;
+    collectedHealIndices: Set<number>;
+    collectedNodeIndices: Set<number>;
+    defeatedEnemyIndices: Set<number>;
+  } | null = null;
 
   public stats: GameStats = {
     crystalsCollected: 0,
@@ -255,6 +278,17 @@ export class GameEngine {
     this.boss = lvl.boss;
     this.goal = lvl.goal;
 
+    // Reset Special Stage state for the level
+    this.specialStagePortal = null;
+    this.specialStageCompleted = false;
+    this.isInSpecialStage = false;
+    this.specialStageExitPortal = null;
+    this.specialStageReturnState = null;
+
+    // Sanitize all checkpoints to ensure 100% safe sanctuary zones
+    this.sanitizeCheckpointsAndHazards();
+    this.sanitizeAllHazards();
+
     if (!fromCheckpoint) {
       this.collectedCrystalIndices.clear();
       this.collectedHealIndices.clear();
@@ -268,12 +302,18 @@ export class GameEngine {
       this.cpSavedNodes.clear();
       this.cpSavedEnemies.clear();
 
+      this.hasActiveCheckpoint = false;
+      this.levelStartPoint = { x: 35, y: 100 };
       this.spawnPoint = { x: 35, y: 100 };
+      this.lastSafeGround = { x: 35, y: 100 };
       this.player.x = 35;
       this.player.y = 100;
     } else {
+      this.hasActiveCheckpoint = true;
+      this.levelStartPoint = { x: 35, y: 100 };
       this.player.x = this.spawnPoint.x;
       this.player.y = this.spawnPoint.y;
+      this.lastSafeGround = { x: this.spawnPoint.x, y: this.spawnPoint.y };
 
       // Apply checkpoint saved collections
       this.collectedCrystalIndices = new Set(this.cpSavedCrystals);
@@ -369,6 +409,212 @@ export class GameEngine {
     this.notifyState();
   }
 
+  /**
+   * Guarantees 100% safe checkpoints without hazards or ambush dangers:
+   * 1. Eradicates or pulls any hazard away from the checkpoint safe radius ([spawnX - 95, spawnX + 95]).
+   * 2. Pushes enemy patrols outside the sanctuary zone so enemies never wander into the flag.
+   * 3. Guarantees a flat, stable, solid platform underneath each checkpoint spawn point so the player never spawns over a pit.
+   */
+  private sanitizeCheckpointsAndHazards() {
+    for (const cp of this.checkpoints) {
+      const spawnX = cp.spawn ? cp.spawn.x : cp.x;
+      const spawnY = cp.spawn ? cp.spawn.y : cp.y;
+      const safeRadius = 95;
+
+      // 1. Ensure a safe solid floor platform beneath the checkpoint
+      let floorFound = false;
+      for (const plat of this.platforms) {
+        if (plat.y >= spawnY - 5 && plat.y <= spawnY + 50 && spawnX >= plat.x - 15 && spawnX <= plat.x + plat.w + 15) {
+          floorFound = true;
+          // Widen platform so there's plenty of room to land safely
+          if (plat.x > spawnX - 60) {
+            plat.w += (plat.x - (spawnX - 60));
+            plat.x = spawnX - 60;
+          }
+          if (plat.x + plat.w < spawnX + 60) {
+            plat.w = (spawnX + 60) - plat.x;
+          }
+          break;
+        }
+      }
+
+      if (!floorFound) {
+        this.platforms.push({
+          x: spawnX - 60,
+          y: Math.max(140, spawnY + 20),
+          w: 120,
+          h: 24,
+          kind: 'ground',
+        });
+      }
+
+      // 2. Filter or adjust any hazards within the safe sanctuary radius
+      this.hazards = this.hazards.filter((h) => {
+        const hazardCenterX = h.x + h.w / 2;
+        const distToSpawn = Math.abs(hazardCenterX - spawnX);
+        const distToFlag = Math.abs(hazardCenterX - cp.x);
+
+        if (distToSpawn < safeRadius || distToFlag < safeRadius) {
+          // If it's a moving buzzsaw on a rail, restrict its patrol rail away from the checkpoint
+          if (h.type === 'sawBlade' && h.railMin !== undefined && h.railMax !== undefined) {
+            if (spawnX < (h.railMin + h.railMax) / 2) {
+              h.railMin = spawnX + safeRadius + 15;
+              h.x = Math.max(h.x, h.railMin);
+            } else {
+              h.railMax = spawnX - safeRadius - 15;
+              h.x = Math.min(h.x, h.railMax);
+            }
+            return h.railMax > h.railMin + 25;
+          }
+          // Remove hazards inside the checkpoint sanctuary
+          return false;
+        }
+        return true;
+      });
+
+      // 3. Clear enemies away from checkpoint sanctuary
+      for (const e of this.enemies) {
+        if (!e.alive) continue;
+        const dist = Math.abs(e.x - spawnX);
+        if (dist < safeRadius) {
+          if (e.x >= spawnX) {
+            e.x = spawnX + safeRadius + 25;
+            e.min = Math.max(e.min, spawnX + safeRadius + 15);
+            e.max = Math.max(e.max, e.x + 70);
+          } else {
+            e.x = spawnX - safeRadius - 25;
+            e.max = Math.min(e.max, spawnX - safeRadius - 15);
+            e.min = Math.min(e.min, e.x - 70);
+          }
+        } else {
+          // If enemy patrol path crosses checkpoint, clamp it
+          if (e.min < spawnX + safeRadius && e.max > spawnX - safeRadius) {
+            if (e.x > spawnX) {
+              e.min = Math.max(e.min, spawnX + safeRadius + 15);
+            } else {
+              e.max = Math.min(e.max, spawnX - safeRadius - 15);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Systemic Trap / Hazard Sanitization:
+   * 1. Traps must NOT spawn over empty voids / pits: Any ground hazard (spike, proximityMine, laserGrid floor, sawBlade on floor)
+   *    must be securely supported by a platform beneath it (with at least 4px margin). If a hazard is placed over a gap, it is removed or snapped onto the nearest valid platform.
+   * 2. Traps must NOT spawn on top of each other: Minimum 24px clearance between hazards so hazards never overlap or stack.
+   * 3. Traps must NOT spawn directly on trampolines or bounce pads.
+   */
+  public sanitizeAllHazards() {
+    const filtered: Hazard[] = [];
+    for (const h of this.hazards) {
+      // 1. Check for overlapping / stacked hazards
+      let overlaps = false;
+      const hCenterX = h.x + h.w / 2;
+      const hCenterY = h.y + h.h / 2;
+
+      for (const existing of filtered) {
+        const eCenterX = existing.x + existing.w / 2;
+        const eCenterY = existing.y + existing.h / 2;
+
+        const xOverlap = Math.abs(hCenterX - eCenterX) < Math.max(22, (h.w + existing.w) / 2 + 2);
+        const yOverlap = Math.abs(hCenterY - eCenterY) < Math.max(14, (h.h + existing.h) / 2 + 2);
+
+        if (xOverlap && yOverlap) {
+          overlaps = true;
+          break;
+        }
+      }
+
+      if (overlaps) {
+        continue; // Drop duplicate/overlapping hazard
+      }
+
+      // 2. Ground-based hazards must have a valid supporting platform beneath them (not over an empty void)
+      const isGroundHazard =
+        h.type === 'spike' ||
+        h.type === 'sandSpike' ||
+        h.type === 'proximityMine' ||
+        h.type === 'retractableSpikes' ||
+        (h.type === 'rollingSpikeBall' && (h.railMin !== undefined || h.y >= 135)) ||
+        (h.type === 'sawBlade' && (h.railMin !== undefined || h.y >= 135));
+
+      if (isGroundHazard) {
+        const hazardMidX = h.x + h.w / 2;
+        const hazardBottom = h.y + h.h;
+        let supported = false;
+
+        for (const p of this.platforms) {
+          if (hazardMidX >= p.x && hazardMidX <= p.x + p.w) {
+            if (hazardBottom >= p.y - 4 && hazardBottom <= p.y + 16) {
+              supported = true;
+              // Clamp hazard inside platform bounds so it doesn't hang over edges
+              if (h.x < p.x + 4) h.x = p.x + 4;
+              if (h.x + h.w > p.x + p.w - 4) {
+                h.x = Math.max(p.x + 4, p.x + p.w - h.w - 4);
+              }
+              break;
+            }
+          }
+        }
+
+        if (!supported) {
+          // Check if there is another solid platform below it within 45px
+          let foundPlat: Platform | null = null;
+          for (const p of this.platforms) {
+            if (hazardMidX >= p.x && hazardMidX <= p.x + p.w) {
+              if (p.y >= hazardBottom && p.y <= hazardBottom + 45) {
+                foundPlat = p;
+                break;
+              }
+            }
+          }
+
+          if (foundPlat) {
+            // Snap to the valid platform surface
+            h.y = foundPlat.y - h.h;
+            if (h.x < foundPlat.x + 4) h.x = foundPlat.x + 4;
+            if (h.x + h.w > foundPlat.x + foundPlat.w - 4) {
+              h.x = Math.max(foundPlat.x + 4, foundPlat.x + foundPlat.w - h.w - 4);
+            }
+            supported = true;
+          } else {
+            // Hazard is suspended over a void/gap! Eliminate it.
+            continue;
+          }
+        }
+      }
+
+      // 3. Ensure no hazards are placed on trampolines
+      if (this.trampolines && this.trampolines.length > 0) {
+        let onTrampoline = false;
+        for (const t of this.trampolines) {
+          if (h.x + h.w >= t.x - 6 && h.x <= t.x + t.w + 6 && Math.abs(h.y - t.y) < 20) {
+            onTrampoline = true;
+            break;
+          }
+        }
+        if (onTrampoline) continue;
+      }
+
+      filtered.push(h);
+    }
+    this.hazards = filtered;
+  }
+
+  private pointToSegmentDist(px: number, py: number, x1: number, y1: number, x2: number, y2: number): number {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lenSq));
+    const projX = x1 + t * dx;
+    const projY = y1 + t * dy;
+    return Math.hypot(px - projX, py - projY);
+  }
+
   public startOnlyUpMode(slotId = 0) {
     this.isOnlyUpMode = true;
     this.onlyUpActiveSlotId = slotId;
@@ -439,6 +685,7 @@ export class GameEngine {
     if (initialChunk.trampolines) {
       this.trampolines.push(...initialChunk.trampolines);
     }
+    this.sanitizeAllHazards();
     this.onlyUpGeneratedTopY = -460;
     this.onlyUpNextEnemyId += 100;
 
@@ -873,9 +1120,39 @@ export class GameEngine {
       }
     }
 
-    // Pit fall check (Only in campaign levels; Only Up mode handles falls via the rising lava)
-    if (!this.isOnlyUpMode && p.y > GAME_HEIGHT + 40) {
-      this.handlePlayerDamage('¡Caíste al abismo!');
+    // Track last grounded safe position on platforms
+    if (p.ground && p.y < GAME_HEIGHT - 20 && !this.isInSpecialStage) {
+      this.lastSafeGround = { x: p.x, y: p.y };
+    }
+
+    // Pit fall check (Takes strictly 1 heart and safely resets to checkpoint or quantum bounce)
+    if (p.y > GAME_HEIGHT + 40) {
+      if (this.isInSpecialStage) {
+        // In special stage, safety quantum field launches Zion back to start platform
+        p.x = 35;
+        p.y = 120;
+        p.vx = 0;
+        p.vy = -4.5;
+        p.inv = 60;
+        sound.playSfx('vortexLift');
+        this.createBurst(p.x, p.y + p.h, 16, '#c084fc');
+        this.addFloatingText(p.x, p.y - 15, '✦ REBOTE CUÁNTICO ✦', '#c084fc');
+      } else if (!this.isOnlyUpMode) {
+        if (p.inv <= 0 && !this.settings.godMode) {
+          this.handlePlayerDamage('¡Caíste al abismo!');
+          if (this.lives > 0) {
+            // Still has hearts: safely recover to the last platform/safe ground
+            p.x = this.lastSafeGround.x;
+            p.y = this.lastSafeGround.y;
+            p.vx = 0;
+            p.vy = -1.5;
+            p.inv = 90;
+            sound.playSfx('hurt');
+            this.createBurst(p.x, p.y + p.h, 16, '#38bdf8');
+            this.addFloatingText(p.x, p.y - 18, `⚠️ ¡CAÍDA AL VACÍO! -1 ❤ [${this.lives}/${this.maxLives}]`, '#f43f5e');
+          }
+        }
+      }
     }
 
     // Invulnerability timer
@@ -1649,6 +1926,255 @@ export class GameEngine {
             kind: 'sakuraShuriken',
           });
         }
+      } else if (h.type === 'rotatingFireChain') {
+        // Continuous rotation around central hub
+        h.bladeAngle = ((h.bladeAngle || 0) + (h.spinSpeed || 0.038)) % (Math.PI * 2);
+        // Flame particles along the chain
+        if (Math.random() < 0.25 && this.particles.length < 80) {
+          const pivotX = h.x + h.w / 2;
+          const pivotY = h.y + h.h / 2;
+          const length = h.chainLength || 46;
+          const dist = (0.3 + Math.random() * 0.7) * length;
+          this.particles.push({
+            x: pivotX + Math.cos(h.bladeAngle) * dist,
+            y: pivotY + Math.sin(h.bladeAngle) * dist,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: (Math.random() - 0.5) * 1.2,
+            life: 8,
+            maxLife: 8,
+            color: Math.random() < 0.5 ? '#f97316' : '#facc15',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'proximityMine') {
+        // High-tech pressure / proximity landmine
+        if (!h.detonated) {
+          const dist = Math.hypot(p.x + p.w / 2 - (h.x + h.w / 2), p.y + p.h / 2 - (h.y + h.h / 2));
+          if (!h.mineTriggered && dist < 46) {
+            h.mineTriggered = true;
+            h.warnTimer = 36;
+            sound.playSfx('mineTick');
+            this.addFloatingText(h.x, h.y - 12, '⚠️ ¡MINA ACTIVADA!', '#ef4444');
+          }
+
+          if (h.mineTriggered) {
+            h.warnTimer = (h.warnTimer || 36) - 1;
+            if (h.warnTimer % 8 === 0) {
+              sound.playSfx('mineTick');
+            }
+            if (Math.random() < 0.35 && this.particles.length < 80) {
+              this.particles.push({
+                x: h.x + h.w / 2 + (Math.random() - 0.5) * 6,
+                y: h.y - 2,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: -Math.random() * 1.5,
+                life: 10,
+                maxLife: 10,
+                color: '#ef4444',
+                size: 1.8,
+              });
+            }
+
+            if (h.warnTimer <= 0) {
+              h.detonated = true;
+              sound.playSfx('mineExplode');
+              this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 26, '#ef4444');
+              this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 16, '#fbbf24');
+              this.screenShake = 6;
+              if (dist < 48 && p.inv <= 0 && !this.settings.godMode) {
+                this.handlePlayerDamage('¡Explosión de Mina de Proximidad!');
+              }
+            }
+          }
+        }
+      } else if (h.type === 'antigravRift') {
+        // Zero-gravity quantum field lifting Zion upward
+        const isInRift = p.x + p.w > h.x && p.x < h.x + h.w && p.y + p.h > h.y && p.y < h.y + h.h;
+        if (isInRift) {
+          p.vy = Math.max(p.vy - 0.75, -4.6);
+          if (this.time % 14 === 0) {
+            sound.playSfx('vortexLift');
+          }
+          if (Math.random() < 0.4 && this.particles.length < 80) {
+            this.particles.push({
+              x: p.x + Math.random() * p.w,
+              y: p.y + p.h,
+              vx: (Math.random() - 0.5) * 1.0,
+              vy: -2.0 - Math.random() * 1.5,
+              life: 12,
+              maxLife: 12,
+              color: '#c084fc',
+              size: 2,
+            });
+          }
+        }
+        if (Math.random() < 0.25 && this.particles.length < 80) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + h.h - 2,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -1.2 - Math.random() * 1.4,
+            life: 16,
+            maxLife: 16,
+            color: Math.random() < 0.5 ? '#a855f7' : '#38bdf8',
+            size: 1.6,
+          });
+        }
+      } else if (h.type === 'electricArc') {
+        // Oscillating Electric Arc Conduit
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % 100;
+        h.warnTimer = (h.cycleTimer >= 45 && h.cycleTimer < 60) ? 60 - h.cycleTimer : 0;
+        h.active = (h.cycleTimer >= 60 && h.cycleTimer < 92);
+
+        if (h.cycleTimer === 60) {
+          sound.playSfx('teslaShock');
+        }
+        if (h.active && Math.random() < 0.4 && this.particles.length < 80) {
+          const tx = h.targetX ?? h.x;
+          const ty = h.targetY ?? (h.y + (h.beamLength || 48));
+          const t = Math.random();
+          this.particles.push({
+            x: h.x + (tx - h.x) * t,
+            y: h.y + (ty - h.y) * t,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            life: 6,
+            maxLife: 6,
+            color: '#67e8f9',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'rollingSpikeBall') {
+        const spd = h.moveSpeed || 1.8;
+        const dir = h.dir || 1;
+        h.x += spd * dir;
+        const minX = h.railMin ?? (h.x - 60);
+        const maxX = h.railMax ?? (h.x + 60);
+
+        if (h.x >= maxX) {
+          h.x = maxX;
+          h.dir = -1;
+        } else if (h.x <= minX) {
+          h.x = minX;
+          h.dir = 1;
+        }
+        h.spinAngle = ((h.spinAngle || 0) + 0.18 * (h.dir || 1)) % (Math.PI * 2);
+
+        // Ground roll sparks
+        if (Math.random() < 0.25 && this.particles.length < 80) {
+          this.particles.push({
+            x: h.x + h.w / 2,
+            y: h.y + h.h,
+            vx: (Math.random() - 0.5) * 1.5 - (h.dir || 1) * 1.0,
+            vy: -Math.random() * 1.8,
+            life: 8,
+            maxLife: 8,
+            color: '#f59e0b',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'retractableSpikes') {
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % 120;
+        if (h.cycleTimer < 55) {
+          h.spikePhase = 'retracted';
+          h.active = false;
+        } else if (h.cycleTimer < 80) {
+          h.spikePhase = 'warning';
+          h.active = false;
+          if (h.cycleTimer === 55) {
+            sound.playSfx('bossWarning');
+          }
+        } else {
+          h.spikePhase = 'extended';
+          h.active = true;
+          if (h.cycleTimer === 80) {
+            sound.playSfx('slash');
+          }
+          if (Math.random() < 0.2 && this.particles.length < 80) {
+            this.particles.push({
+              x: h.x + Math.random() * h.w,
+              y: h.y,
+              vx: (Math.random() - 0.5) * 0.8,
+              vy: -Math.random() * 1.2,
+              life: 8,
+              maxLife: 8,
+              color: '#ef4444',
+              size: 1.2,
+            });
+          }
+        }
+      } else if (h.type === 'plasmaTurret') {
+        h.shootCooldown = (h.shootCooldown || 0) + 1;
+        const dir = h.shootDir || h.dir || 1;
+        const dist = Math.abs(p.x - h.x);
+
+        // At frame 75: warning beep
+        if (h.shootCooldown === 75 && dist < 260) {
+          sound.playSfx('bossWarning');
+        }
+
+        // At frame 95: fires glowing high-speed plasma bolt
+        if (h.shootCooldown >= 95 && dist < 280 && Math.abs(p.y - h.y) < 60) {
+          h.shootCooldown = 0;
+          sound.playSfx('laserFire');
+          this.createBurst(dir === 1 ? h.x + h.w : h.x, h.y + h.h / 2, 8, '#22d3ee');
+          this.projectiles.push({
+            x: dir === 1 ? h.x + h.w + 2 : h.x - 8,
+            y: h.y + h.h / 2 - 2,
+            w: 8,
+            h: 4,
+            vx: dir * 4.6,
+            vy: 0,
+            life: 65,
+            isHero: false,
+            damage: 1,
+            kind: 'plasma',
+          });
+        } else if (h.shootCooldown >= 100) {
+          h.shootCooldown = 0;
+        }
+      } else if (h.type === 'gravityVortex') {
+        h.spinAngle = ((h.spinAngle || 0) + 0.14) % (Math.PI * 2);
+        const cx = h.x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const dx = cx - (p.x + p.w / 2);
+        const dy = cy - (p.y + p.h / 2);
+        const dist = Math.hypot(dx, dy);
+        const pullRadius = h.gravityRadius || 72;
+
+        if (dist < pullRadius && dist > 1) {
+          const pull = (1 - dist / pullRadius) * 0.42;
+          p.vx += (dx / dist) * pull;
+          p.vy += (dy / dist) * pull * 0.8;
+
+          if (this.time % 20 === 0) {
+            sound.playSfx('vortexLift');
+          }
+
+          if (Math.random() < 0.35 && this.particles.length < 80) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = 20 + Math.random() * 25;
+            this.particles.push({
+              x: cx + Math.cos(angle) * r,
+              y: cy + Math.sin(angle) * r,
+              vx: -Math.cos(angle) * 1.5,
+              vy: -Math.sin(angle) * 1.5,
+              life: 14,
+              maxLife: 14,
+              color: Math.random() < 0.5 ? '#a855f7' : '#06b6d4',
+              size: 1.5,
+            });
+          }
+
+          // Core collapse damage
+          if (dist < 13 && p.inv <= 0 && !this.settings.godMode) {
+            sound.playSfx('curse');
+            this.createBurst(cx, cy, 22, '#a855f7');
+            this.handlePlayerDamage('¡Colapso en Vórtice Gravitacional!');
+            p.vx = -(dx / dist) * 4.2;
+            p.vy = -3.8;
+          }
+        }
       }
     }
   }
@@ -2112,7 +2638,9 @@ export class GameEngine {
       const cp = this.checkpoints.find((c) => c.arena) || this.checkpoints[this.checkpoints.length - 1];
       if (cp) {
         cp.active = true;
+        this.hasActiveCheckpoint = true;
         this.spawnPoint = { ...cp.spawn };
+        this.lastSafeGround = { ...cp.spawn };
         this.cpSavedCrystals = new Set(this.collectedCrystalIndices);
         this.cpSavedHeals = new Set(this.collectedHealIndices);
         this.cpSavedSecrets = new Set(this.collectedSecretIndices);
@@ -3260,6 +3788,19 @@ export class GameEngine {
         this.applyDamageToBoss(proj.damage || 1);
         proj.life = 0;
       }
+
+      // Proximity Mine Hit by Dagger / Shuriken
+      for (const h of this.hazards) {
+        if (h.type === 'proximityMine' && !h.detonated && this.checkAABB(proj, h)) {
+          h.detonated = true;
+          proj.life = 0;
+          sound.playSfx('mineExplode');
+          this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 26, '#ef4444');
+          this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 16, '#fbbf24');
+          this.screenShake = 5;
+          this.addFloatingText(h.x, h.y - 12, '💥 ¡MINA DETONADA A DISTANCIA!', '#4ade80');
+        }
+      }
     }
 
     // 2. Crystal Pickups - Grants High Score + Energy + Milestone Life Recovery!
@@ -3293,6 +3834,9 @@ export class GameEngine {
             this.addFloatingText(p.x, p.y - 24, '★ ¡BONUS MÁXIMO DE CRISTALES: +500 PTS! ★', '#facc15');
           }
         }
+
+        // Check if all crystals in the level are collected -> Unlock Special Stage mini-portal!
+        this.checkSpecialStageTrigger();
       }
     }
 
@@ -3333,7 +3877,9 @@ export class GameEngine {
       if (cp.active || Math.abs(cp.x - p.x) > 80) continue;
       if (this.checkAABB(p, cp)) {
         cp.active = true;
+        this.hasActiveCheckpoint = true;
         this.spawnPoint = { ...cp.spawn };
+        this.lastSafeGround = { ...cp.spawn };
         // Save complete snapshot of collected items and defeated enemies
         this.cpSavedCrystals = new Set(this.collectedCrystalIndices);
         this.cpSavedHeals = new Set(this.collectedHealIndices);
@@ -3371,8 +3917,11 @@ export class GameEngine {
         if (h.type === 'stalactite' && (!h.falling || (h.vy || 0) < 1.0)) continue; // Only damage while actually falling
         if (h.type === 'flameJet' && !h.erupting) continue;
         if (h.type === 'teslaPillar' && !h.active) continue;
+        if (h.type === 'electricArc' && !h.active) continue;
         if (h.type === 'crusher' && h.crushState !== 'slamming' && h.y < (h.floorY ?? 140) - 6) continue;
         if (h.type === 'dartTrap') continue;
+        if (h.type === 'proximityMine') continue; // Handled by proximity fuse
+        if (h.type === 'antigravRift') continue; // Non-lethal gravitational anomaly
         if (Math.abs(h.x - p.x) > 90 || Math.abs(h.y - p.y) > 90) continue;
 
         let isColliding = false;
@@ -3388,6 +3937,33 @@ export class GameEngine {
           const playerCenterY = p.y + p.h / 2;
           const dist = Math.hypot(playerCenterX - bladeX, playerCenterY - bladeY);
           if (dist < 14) {
+            isColliding = true;
+          }
+        } else if (h.type === 'rotatingFireChain') {
+          // Circular rotating fire orbs
+          const pivotX = h.x + h.w / 2;
+          const pivotY = h.y + h.h / 2;
+          const length = h.chainLength || 46;
+          const orbs = h.orbCount || 4;
+          const angle = h.bladeAngle || 0;
+          const playerCenterX = p.x + p.w / 2;
+          const playerCenterY = p.y + p.h / 2;
+          for (let o = 1; o <= orbs; o++) {
+            const orbDist = (length / orbs) * o;
+            const ox = pivotX + Math.cos(angle) * orbDist;
+            const oy = pivotY + Math.sin(angle) * orbDist;
+            if (Math.hypot(playerCenterX - ox, playerCenterY - oy) < 9) {
+              isColliding = true;
+              break;
+            }
+          }
+        } else if (h.type === 'electricArc') {
+          const tx = h.targetX ?? h.x;
+          const ty = h.targetY ?? (h.y + (h.beamLength || 48));
+          const px = p.x + p.w / 2;
+          const py = p.y + p.h / 2;
+          const distToSegment = this.pointToSegmentDist(px, py, h.x, h.y, tx, ty);
+          if (distToSegment < 8) {
             isColliding = true;
           }
         } else if (h.type === 'sawBlade') {
@@ -3457,6 +4033,30 @@ export class GameEngine {
             h: h.h - 2,
           };
           isColliding = this.checkAABB(p, spikeBox);
+        } else if (h.type === 'retractableSpikes') {
+          if (h.spikePhase === 'extended' || h.active) {
+            const spikeBox = {
+              x: h.x + 2,
+              y: h.y - 4,
+              w: Math.max(2, h.w - 4),
+              h: h.h + 4,
+            };
+            isColliding = this.checkAABB(p, spikeBox);
+          } else {
+            isColliding = false;
+          }
+        } else if (h.type === 'rollingSpikeBall') {
+          const ballRadius = (h.w || 16) / 2;
+          const bcx = h.x + ballRadius;
+          const bcy = h.y + ballRadius;
+          const pcx = p.x + p.w / 2;
+          const pcy = p.y + p.h / 2;
+          const dist = Math.hypot(bcx - pcx, bcy - pcy);
+          isColliding = dist < ballRadius + 6;
+        } else if (h.type === 'plasmaTurret') {
+          isColliding = this.checkAABB(p, h);
+        } else if (h.type === 'gravityVortex') {
+          isColliding = false; // Core suction damage handled in updateHazards
         } else {
           isColliding = this.checkAABB(p, h);
         }
@@ -3470,10 +4070,30 @@ export class GameEngine {
             sound.playSfx('buzzSaw');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 20, '#f59e0b');
             this.handlePlayerDamage('¡Serrado por Sierra Giratoria!');
+          } else if (h.type === 'rollingSpikeBall') {
+            sound.playSfx('buzzSaw');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f59e0b');
+            this.handlePlayerDamage('¡Impacto de Bola de Púas Rodante!');
+          } else if (h.type === 'retractableSpikes') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 20, '#ef4444');
+            this.handlePlayerDamage('¡Empalado por Pinchos Retráctiles!');
+          } else if (h.type === 'plasmaTurret') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#06b6d4');
+            this.handlePlayerDamage('¡Impacto de Torreta Centinela!');
           } else if (h.type === 'flameJet') {
             sound.playSfx('flameWhoosh');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f97316');
             this.handlePlayerDamage('¡Alcanzado por Llamas!');
+          } else if (h.type === 'rotatingFireChain') {
+            sound.playSfx('flameWhoosh');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f97316');
+            this.handlePlayerDamage('¡Alcanzado por Cadena de Fuego!');
+          } else if (h.type === 'electricArc') {
+            sound.playSfx('teslaShock');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#38bdf8');
+            this.handlePlayerDamage('¡Descarga Eléctrica de Alta Tensión!');
           } else if (h.type === 'teslaPillar') {
             sound.playSfx('teslaShock');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#38bdf8');
@@ -3652,11 +4272,313 @@ export class GameEngine {
       }
     }
 
-    // 7. Goal Portal Reached
+    // 7. Special Stage Portal Reached (Enter Mini Bonus Level)
+    if (this.specialStagePortal && !this.isInSpecialStage && this.checkAABB(p, this.specialStagePortal)) {
+      this.enterSpecialStage();
+      return;
+    }
+
+    // 8. Special Stage Exit Portal Reached (Complete Mini Level & Return)
+    if (this.isInSpecialStage && this.specialStageExitPortal && this.checkAABB(p, this.specialStageExitPortal)) {
+      this.completeSpecialStage();
+      return;
+    }
+
+    // 9. Goal Portal Reached
     const config = LEVEL_CONFIGS[this.levelIndex];
     if (this.goal && (config.act === 1 || this.bossDefeated) && this.checkAABB(p, this.goal)) {
       this.handleLevelWin();
     }
+  }
+
+  public checkSpecialStageTrigger() {
+    if (this.isOnlyUpMode || this.isInSpecialStage || this.specialStageCompleted || this.specialStagePortal) {
+      return;
+    }
+    // If all crystals in the current level are collected, reveal the special stage portal before the main goal
+    if (this.stats.totalCrystals > 0 && this.stats.crystalsCollected >= this.stats.totalCrystals) {
+      this.spawnSpecialStagePortal();
+    }
+  }
+
+  private spawnSpecialStagePortal() {
+    if (this.specialStagePortal || !this.goal) return;
+
+    const portalW = 22;
+    const portalH = 36;
+    // Position comfortably before the normal goal portal
+    const targetX = Math.max(80, this.goal.x - 75);
+
+    // Find platform to place portal safely on
+    let foundY = this.goal.y + (this.goal.h - portalH);
+    for (const plat of this.platforms) {
+      if (targetX + portalW / 2 >= plat.x && targetX + portalW / 2 <= plat.x + plat.w) {
+        foundY = plat.y - portalH;
+        break;
+      }
+    }
+
+    this.specialStagePortal = {
+      x: targetX,
+      y: foundY,
+      w: portalW,
+      h: portalH,
+    };
+
+    sound.playSfx('secret');
+    sound.playSfx('checkpoint');
+    this.createBurst(targetX + portalW / 2, foundY + portalH / 2, 28, '#c084fc');
+    this.createBurst(targetX + portalW / 2, foundY + portalH / 2, 20, '#fbbf24');
+    this.createBurst(targetX + portalW / 2, foundY + portalH / 2, 16, '#22d3ee');
+    this.addFloatingText(targetX + portalW / 2, foundY - 22, '🌀 ¡SPECIAL STAGE DESBLOQUEADA! 🌀', '#c084fc');
+    this.addFloatingText(targetX + portalW / 2, foundY - 8, '✦ Todos los cristales reunidos: ¡Entra al portal! ✦', '#fbbf24');
+    this.notifyState();
+  }
+
+  public enterSpecialStage() {
+    if (this.isInSpecialStage || !this.specialStagePortal) return;
+
+    // Snapshot current level state to return exactly here
+    this.specialStageReturnState = {
+      levelIndex: this.levelIndex,
+      playerX: Math.max(10, this.specialStagePortal.x - 28),
+      playerY: this.player.y,
+      cameraX: this.cameraX,
+      lives: this.lives,
+      score: this.stats.score,
+      energy: this.player.energy,
+      collectedCrystalIndices: new Set(this.collectedCrystalIndices),
+      collectedSecretIndices: new Set(this.collectedSecretIndices),
+      collectedHealIndices: new Set(this.collectedHealIndices),
+      collectedNodeIndices: new Set(this.collectedNodeIndices),
+      defeatedEnemyIndices: new Set(this.defeatedEnemyIndices),
+    };
+
+    this.isInSpecialStage = true;
+    sound.playSfx('warp');
+    sound.playSfx('node');
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 28, '#c084fc');
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 20, '#38bdf8');
+    this.screenShake = 6;
+
+    // Build the mini-level
+    this.buildSpecialStageLevel();
+    this.notifyState();
+  }
+
+  private buildSpecialStageLevel() {
+    this.platforms = [
+      // Start foundation
+      { x: 15, y: 154, w: 95, h: 26, kind: 'ground' },
+      // Step 1: Floating neon platform
+      { x: 135, y: 126, w: 55, h: 12, kind: 'cyber' },
+      // Step 2: High platform
+      { x: 230, y: 82, w: 65, h: 12, kind: 'cyber' },
+      // Step 3: Mid platform
+      { x: 320, y: 112, w: 60, h: 12, kind: 'cyber' },
+      // Exit foundation
+      { x: 405, y: 150, w: 105, h: 30, kind: 'ground' },
+    ];
+
+    // Jump trampolines & failsafe bottom quantum bounce trampoline
+    this.trampolines = [
+      { x: 200, y: 150, w: 24, h: 8, bounceForce: -7.5, springAnim: 0, type: 'standard' },
+      { x: 60, y: 178, w: 340, h: 10, bounceForce: -7.8, springAnim: 0, type: 'super' },
+    ];
+
+    // 5 Cosmic bonus crystals (+500 pts each)
+    this.crystals = [
+      { x: 60, y: 130, w: 12, h: 12, taken: false },
+      { x: 160, y: 100, w: 12, h: 12, taken: false },
+      { x: 260, y: 56, w: 14, h: 14, taken: false },
+      { x: 350, y: 86, w: 12, h: 12, taken: false },
+      { x: 425, y: 124, w: 14, h: 14, taken: false },
+    ];
+
+    this.hazards = [];
+    this.enemies = [];
+    this.secrets = [];
+    this.heals = [];
+    this.checkpoints = [];
+    this.landmarks = [];
+    this.nodes = [];
+    this.boss = null;
+    this.goal = null;
+
+    // Special Stage Exit Portal
+    this.specialStageExitPortal = {
+      x: 460,
+      y: 106,
+      w: 24,
+      h: 44,
+    };
+
+    // Position Zion at the beginning of the special course
+    this.player.x = 35;
+    this.player.y = 125;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.ground = true;
+    this.player.inv = 60;
+    this.cameraX = 0;
+
+    // Visual Intro Banner
+    this.levelIntroBanner = {
+      active: true,
+      timer: 160,
+      title: '🌌 SPECIAL STAGE: DIMENSIÓN CUÁNTICA 🌌',
+      subtitle: '¡Supera el mini-circuito para volver al nivel principal!',
+      act: 1,
+      zoneName: 'ETAPA ESPECIAL',
+      themeColor: '#c084fc',
+    };
+
+    this.addFloatingText(GAME_WIDTH / 2, 40, '★ ETAPA ESPECIAL ACTIVADA ★', '#fbbf24');
+  }
+
+  public completeSpecialStage() {
+    if (!this.isInSpecialStage || !this.specialStageReturnState) return;
+
+    const returnState = this.specialStageReturnState;
+
+    sound.playSfx('win');
+    sound.playSfx('secret');
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 32, '#fbbf24');
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 24, '#c084fc');
+    this.screenShake = 6;
+
+    // Double all points accumulated in this game / match so far!
+    const currentScore = this.stats.score;
+    const bonusEarned = Math.max(5000, currentScore);
+    this.stats.score = currentScore + bonusEarned;
+    this.lives = this.maxLives;
+
+    this.isInSpecialStage = false;
+    this.specialStageCompleted = true;
+    this.specialStagePortal = null;
+    this.specialStageExitPortal = null;
+
+    // Restore the main campaign level layout
+    const lvl = buildLevel(returnState.levelIndex);
+    this.platforms = lvl.platforms;
+    this.hazards = lvl.hazards;
+    this.enemies = lvl.enemies;
+    this.crystals = lvl.crystals;
+    this.secrets = lvl.secrets;
+    this.heals = lvl.heals;
+    this.checkpoints = lvl.checkpoints;
+    this.landmarks = lvl.landmarks;
+    this.nodes = lvl.nodes;
+    this.boss = lvl.boss;
+    this.goal = lvl.goal;
+    this.trampolines = [];
+
+    this.sanitizeCheckpointsAndHazards();
+    this.sanitizeAllHazards();
+
+    // Reapply collected sets
+    this.collectedCrystalIndices = returnState.collectedCrystalIndices;
+    this.collectedSecretIndices = returnState.collectedSecretIndices;
+    this.collectedHealIndices = returnState.collectedHealIndices;
+    this.collectedNodeIndices = returnState.collectedNodeIndices;
+    this.defeatedEnemyIndices = returnState.defeatedEnemyIndices;
+
+    this.crystals.forEach((c, idx) => {
+      if (this.collectedCrystalIndices.has(idx)) c.taken = true;
+    });
+    this.heals.forEach((h, idx) => {
+      if (this.collectedHealIndices.has(idx)) h.taken = true;
+    });
+    this.secrets.forEach((s, idx) => {
+      if (this.collectedSecretIndices.has(idx)) s.taken = true;
+    });
+    this.nodes.forEach((n, idx) => {
+      if (this.collectedNodeIndices.has(idx)) n.taken = true;
+    });
+    this.enemies.forEach((e, idx) => {
+      if (this.defeatedEnemyIndices.has(idx)) e.alive = false;
+    });
+
+    // Reposition player right at the return point before the normal goal
+    this.player.x = returnState.playerX;
+    this.player.y = returnState.playerY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.facing = 1;
+    this.player.inv = 90;
+    this.cameraX = Math.max(0, this.player.x - GAME_WIDTH / 2);
+
+    this.addFloatingText(this.player.x, this.player.y - 30, '★ ¡SPECIAL STAGE SUPERADA! ★', '#fbbf24');
+    this.addFloatingText(this.player.x, this.player.y - 15, `★ ¡PUNTOS DUPLICADOS (x2)! +${bonusEarned.toLocaleString()} PTS ★`, '#facc15');
+    this.addFloatingText(this.player.x, this.player.y + 2, '❤ ¡SALUD COMPLETA! EL PORTAL TE ESPERA ❤', '#4ade80');
+
+    this.specialStageReturnState = null;
+    this.syncMusic();
+    this.notifyState();
+  }
+
+  private exitSpecialStageOnDefeat() {
+    if (!this.isInSpecialStage || !this.specialStageReturnState) return;
+    const returnState = this.specialStageReturnState;
+
+    this.isInSpecialStage = false;
+    this.specialStageCompleted = true;
+    this.specialStagePortal = null;
+    this.specialStageExitPortal = null;
+
+    // Reload main level
+    const lvl = buildLevel(returnState.levelIndex);
+    this.platforms = lvl.platforms;
+    this.hazards = lvl.hazards;
+    this.enemies = lvl.enemies;
+    this.crystals = lvl.crystals;
+    this.secrets = lvl.secrets;
+    this.heals = lvl.heals;
+    this.checkpoints = lvl.checkpoints;
+    this.landmarks = lvl.landmarks;
+    this.nodes = lvl.nodes;
+    this.boss = lvl.boss;
+    this.goal = lvl.goal;
+    this.trampolines = [];
+
+    this.sanitizeCheckpointsAndHazards();
+    this.sanitizeAllHazards();
+
+    this.collectedCrystalIndices = returnState.collectedCrystalIndices;
+    this.collectedSecretIndices = returnState.collectedSecretIndices;
+    this.collectedHealIndices = returnState.collectedHealIndices;
+    this.collectedNodeIndices = returnState.collectedNodeIndices;
+    this.defeatedEnemyIndices = returnState.defeatedEnemyIndices;
+
+    this.crystals.forEach((c, idx) => {
+      if (this.collectedCrystalIndices.has(idx)) c.taken = true;
+    });
+    this.heals.forEach((h, idx) => {
+      if (this.collectedHealIndices.has(idx)) h.taken = true;
+    });
+    this.secrets.forEach((s, idx) => {
+      if (this.collectedSecretIndices.has(idx)) s.taken = true;
+    });
+    this.nodes.forEach((n, idx) => {
+      if (this.collectedNodeIndices.has(idx)) n.taken = true;
+    });
+    this.enemies.forEach((e, idx) => {
+      if (this.defeatedEnemyIndices.has(idx)) e.alive = false;
+    });
+
+    this.player.x = returnState.playerX;
+    this.player.y = returnState.playerY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.facing = 1;
+    this.player.inv = 120;
+    this.lives = 1; // Returned safely with 1 heart to finish the level
+    this.cameraX = Math.max(0, this.player.x - GAME_WIDTH / 2);
+
+    this.addFloatingText(this.player.x, this.player.y - 20, '✦ RETORNO AL NIVEL PRINCIPAL ✦', '#38bdf8');
+    this.specialStageReturnState = null;
+    this.syncMusic();
+    this.notifyState();
   }
 
   private handlePlayerDamage(msg: string) {
@@ -3672,10 +4594,12 @@ export class GameEngine {
     this.player.vy = -3.2;
     this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 12, '#f43f5e');
     sound.playSfx('hurt');
-    this.addFloatingText(this.player.x, this.player.y - 15, msg, '#f43f5e');
+    this.addFloatingText(this.player.x, this.player.y - 15, `${msg} -1 ❤`, '#f43f5e');
 
     if (this.lives <= 0) {
-      if (this.isOnlyUpMode) {
+      if (this.isInSpecialStage) {
+        this.exitSpecialStageOnDefeat();
+      } else if (this.isOnlyUpMode) {
         this.onlyUpIsGameOver = true;
       } else {
         this.handlePlayerRespawn();
@@ -3686,15 +4610,23 @@ export class GameEngine {
 
   private handlePlayerRespawn() {
     this.lives = this.maxLives;
-    this.player.x = this.spawnPoint.x;
-    this.player.y = this.spawnPoint.y;
+
+    const hasCheckpoint = this.hasActiveCheckpoint && this.checkpoints.some((c) => c.active);
+    const respawnTarget = hasCheckpoint ? this.spawnPoint : this.levelStartPoint;
+
+    this.player.x = respawnTarget.x;
+    this.player.y = respawnTarget.y;
     this.player.vx = 0;
     this.player.vy = 0;
-    this.player.inv = 90;
+    this.player.inv = 220; // 3.6+ seconds of solid sanctuary invulnerability!
     this.player.shieldEnergy = this.player.maxShieldEnergy;
     this.player.isShieldBroken = false;
     this.daggers = DAGGER_MAX_AMMO;
     this.player.energy = Math.max(60, this.player.energy);
+
+    sound.playSfx('checkpoint');
+    this.createBurst(respawnTarget.x, respawnTarget.y, 24, '#38bdf8');
+    this.createBurst(respawnTarget.x, respawnTarget.y, 16, '#4ade80');
 
     // If player died during a boss arena battle, reset the boss state for an immediate, fair retry inside the arena
     if (this.arenaActive && this.boss && this.boss.alive) {
@@ -3721,9 +4653,22 @@ export class GameEngine {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
       }
-      this.addFloatingText(this.spawnPoint.x, this.spawnPoint.y - 20, '⚡ ¡Zion Reaparece en la Arena del Jefe!', '#38bdf8');
+      this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '⚡ ¡Zion Reaparece en la Arena del Jefe! (3/3 ❤)', '#38bdf8');
+    } else if (hasCheckpoint) {
+      this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '✦ REGRESASTE AL ÚLTIMO CHECKPOINT (3/3 ❤) ✦', '#4ade80');
     } else {
-      this.addFloatingText(this.spawnPoint.x, this.spawnPoint.y - 20, '⚡ ¡Zion Reaparece en Checkpoint!', '#38bdf8');
+      this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '✦ REGRESASTE AL INICIO DEL NIVEL (3/3 ❤) ✦', '#38bdf8');
+    }
+
+    // Repulsion wave: push any nearby enemies away from the sanctuary spawn point
+    for (const e of this.enemies) {
+      if (!e.alive) continue;
+      const dist = Math.abs(e.x - respawnTarget.x);
+      if (dist < 150) {
+        e.x = e.x >= respawnTarget.x ? respawnTarget.x + 150 : respawnTarget.x - 150;
+        e.vx = e.x >= respawnTarget.x ? 0.8 : -0.8;
+        e.wait = 70;
+      }
     }
 
     // Revert/sync to checkpoint saved state so everything collected up to the checkpoint remains collected
@@ -3775,10 +4720,11 @@ export class GameEngine {
       }
     }
 
-    // 2. Screen Shake Decay
+    // 2. Screen Shake Decay (Strictly clamped to prevent motion sickness and camera disorientation)
     if (this.screenShake > 0) {
-      this.screenShake *= 0.88;
-      if (this.screenShake < 0.2) this.screenShake = 0;
+      if (this.screenShake > 2.5) this.screenShake = 2.5;
+      this.screenShake *= 0.8;
+      if (this.screenShake < 0.15) this.screenShake = 0;
     }
 
     // 3. Boss Intro Banner Timer Decay
@@ -3874,6 +4820,13 @@ export class GameEngine {
       const targetCameraY = this.player.y - GAME_HEIGHT * 0.58;
       this.cameraY += (targetCameraY - this.cameraY) * 0.14;
       this.cameraX = 0;
+      return;
+    }
+    if (this.isInSpecialStage) {
+      const specialWidth = 520;
+      const targetCameraX = this.player.x - GAME_WIDTH * 0.38;
+      this.cameraX += (targetCameraX - this.cameraX) * 0.12;
+      this.cameraX = Math.max(0, Math.min(specialWidth - GAME_WIDTH, this.cameraX));
       return;
     }
     const config = LEVEL_CONFIGS[this.levelIndex];
@@ -4074,6 +5027,7 @@ export class GameEngine {
       if (nextChunk.trampolines) {
         this.trampolines.push(...nextChunk.trampolines);
       }
+      this.sanitizeAllHazards();
       this.onlyUpGeneratedTopY -= 450;
       this.onlyUpNextEnemyId += 100;
     }

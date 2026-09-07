@@ -542,8 +542,57 @@ export function buildLevel(levelIndex: number) {
       });
     }
     hazards.push(
-      { x: 1350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 0, flameAngle: 0 },
+      { x: 1540, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 0, flameAngle: 0 },
       { x: 4600, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 50, flameAngle: 0 }
+    );
+
+    // 6. Proximity Landmines (Beeps when near, can be detonated from afar with daggers)
+    hazards.push(
+      { x: 1020, y: 144, w: 16, h: 8, type: 'proximityMine', mineTriggered: false, warnTimer: 0, detonated: false },
+      { x: 2580, y: 144, w: 16, h: 8, type: 'proximityMine', mineTriggered: false, warnTimer: 0, detonated: false },
+      { x: 4240, y: 144, w: 16, h: 8, type: 'proximityMine', mineTriggered: false, warnTimer: 0, detonated: false }
+    );
+
+    // 7. Rotating Plasma Fire Chains
+    hazards.push(
+      { x: 2120, y: 105, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 42, orbCount: 4, bladeSpeed: 0.04, bladeAngle: 0 },
+      { x: 3950, y: 105, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 45, orbCount: 4, bladeSpeed: -0.045, bladeAngle: 1.5 }
+    );
+
+    // 8. Antigravitational Quantum Rifts (Lifts Zion smoothly to reach high paths)
+    hazards.push(
+      { x: 2220, y: 80, w: 36, h: 72, type: 'antigravRift', liftPower: -0.42 },
+      { x: 4720, y: 80, w: 38, h: 72, type: 'antigravRift', liftPower: -0.45 }
+    );
+
+    // 9. High-Voltage Electric Arc Discharges
+    hazards.push(
+      { x: 1420, y: 92, w: 10, h: 10, type: 'electricArc', targetX: 1420, targetY: 146, active: false, cycleTimer: 20, beamLength: 54 },
+      { x: 3720, y: 92, w: 10, h: 10, type: 'electricArc', targetX: 3720, targetY: 146, active: true, cycleTimer: 70, beamLength: 54 }
+    );
+
+    // 10. Heavy Rolling Spike Balls
+    hazards.push(
+      { x: 1950, y: 136, w: 18, h: 18, type: 'rollingSpikeBall', railMin: 1880, railMax: 2040, moveSpeed: 1.8, dir: 1 },
+      { x: 4400, y: 136, w: 18, h: 18, type: 'rollingSpikeBall', railMin: 4320, railMax: 4500, moveSpeed: 2.1, dir: -1 }
+    );
+
+    // 11. High-Tech Retractable Floor Spikes
+    hazards.push(
+      { x: 1260, y: 144, w: 28, h: 8, type: 'retractableSpikes', cycleTimer: 0 },
+      { x: 3120, y: 144, w: 32, h: 8, type: 'retractableSpikes', cycleTimer: 60 },
+      { x: 5200, y: 144, w: 32, h: 8, type: 'retractableSpikes', cycleTimer: 30 }
+    );
+
+    // 12. Automated Cyber Plasma Turrets
+    hazards.push(
+      { x: 2720, y: 140, w: 16, h: 12, type: 'plasmaTurret', shootCooldown: 20, shootDir: -1 },
+      { x: 4850, y: 140, w: 16, h: 12, type: 'plasmaTurret', shootCooldown: 60, shootDir: 1 }
+    );
+
+    // 13. Gravitational Singularity Vortex
+    hazards.push(
+      { x: 3550, y: 105, w: 22, h: 22, type: 'gravityVortex', gravityRadius: 80 }
     );
 
     const enemyTypes: Enemy['type'][] = ['patrol', 'sentinel', 'hopper', 'charger', 'sphere'];
@@ -660,6 +709,38 @@ export function buildLevel(levelIndex: number) {
     hazards.push(
       { x: 2300, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 10, flameAngle: 0 },
       { x: 4800, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+    );
+
+    // Proximity Landmines
+    hazards.push(
+      { x: 980, y: 144, w: 16, h: 8, type: 'proximityMine', mineTriggered: false, warnTimer: 0, detonated: false },
+      { x: 2750, y: 144, w: 16, h: 8, type: 'proximityMine', mineTriggered: false, warnTimer: 0, detonated: false }
+    );
+
+    // Rotating Fire Chains
+    hazards.push(
+      { x: 2100, y: 105, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 44, orbCount: 4, bladeSpeed: 0.045, bladeAngle: 0 },
+      { x: 4200, y: 105, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 48, orbCount: 5, bladeSpeed: -0.04, bladeAngle: 2.0 }
+    );
+
+    // Antigravity Quantum Rifts
+    hazards.push(
+      { x: 1620, y: 80, w: 36, h: 72, type: 'antigravRift', liftPower: -0.44 },
+      { x: 3720, y: 80, w: 36, h: 72, type: 'antigravRift', liftPower: -0.44 }
+    );
+
+    // High-Voltage Electric Arc Discharges
+    hazards.push(
+      { x: 1450, y: 92, w: 10, h: 10, type: 'electricArc', targetX: 1450, targetY: 146, active: true, cycleTimer: 40, beamLength: 54 },
+      { x: 3600, y: 92, w: 10, h: 10, type: 'electricArc', targetX: 3600, targetY: 146, active: false, cycleTimer: 80, beamLength: 54 }
+    );
+
+    // Rolling Spike Balls, Retractable Spikes, and Plasma Turrets
+    hazards.push(
+      { x: 2500, y: 136, w: 18, h: 18, type: 'rollingSpikeBall', railMin: 2420, railMax: 2600, moveSpeed: 2.0, dir: 1 },
+      { x: 1850, y: 144, w: 30, h: 8, type: 'retractableSpikes', cycleTimer: 45 },
+      { x: 4450, y: 144, w: 30, h: 8, type: 'retractableSpikes', cycleTimer: 10 },
+      { x: 3100, y: 140, w: 16, h: 12, type: 'plasmaTurret', shootCooldown: 30, shootDir: -1 }
     );
 
     const enemyTypes: Enemy['type'][] = ['sentinel', 'charger', 'hopper', 'patrol'];

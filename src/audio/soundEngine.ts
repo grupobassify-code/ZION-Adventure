@@ -1,5 +1,5 @@
-// Web Audio API Polyphonic Retro Chiptune & Sonic-Grade Synth Engine
-// Inspired by Masato Nakamura (Sonic 1/2), Yuzo Koshiro (Streets of Rage) & Hiroshi Kawaguchi (OutRun)
+// Web Audio API Polyphonic Retro Chiptune & Arcade-Grade Synth Engine
+// FM Synthesizer 16-Bit Architecture with multi-channel voices and stereo panning
 
 export type MusicTrackName = 
   | 'neonAct1' 
@@ -25,7 +25,7 @@ export interface SoundTrackInfo {
 }
 
 export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
-  { id: 'neonAct1', title: 'El Despertar de la Arboleda', zone: 'Bosque Neón · Acto 1', tag: 'Sonic 1 Groove · Pop Chiptune' },
+  { id: 'neonAct1', title: 'El Despertar de la Arboleda', zone: 'Bosque Neón · Acto 1', tag: 'Neo-Genesis Groove · Pop Chiptune' },
   { id: 'neonBoss', title: 'El Guardián del Núcleo', zone: 'Bosque Neón · Jefe', tag: 'Electro Boss · 16-Bit Battle' },
   { id: 'sakuraAct1', title: 'Flor de Sakura y Torii', zone: 'Bosque de Cerezo · Acto 1', tag: 'Oriental Místico · Pentatónico' },
   { id: 'sakuraBoss', title: 'Duelo de la Luna Roja', zone: 'Bosque de Cerezo · Jefe', tag: 'Ninja Beat · Darksynth' },
@@ -34,7 +34,7 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'desertAct1', title: 'Sol de Ra y Dunas Olvidadas', zone: 'Santuario del Desierto · Acto 1', tag: 'Egipcio Frigio · Slap Bass' },
   { id: 'desertAct2', title: 'Cámara del Faraón Oscuro', zone: 'Santuario del Desierto · Acto 2', tag: 'Místico Arcana · Ambient Beat' },
   { id: 'desertBoss', title: 'Faraón Akhen\'Ra Despierta', zone: 'Santuario del Desierto · Jefe', tag: 'Boss Faraónico · High Energy' },
-  { id: 'kronoAct1', title: 'Avenida Ciberpunk & Autopistas Neón', zone: 'Krono City · Acto 1', tag: 'Darksynth Drive · Sonic Speed' },
+  { id: 'kronoAct1', title: 'Avenida Ciberpunk & Autopistas Neón', zone: 'Krono City · Acto 1', tag: 'Darksynth Drive · Cyber Speed' },
   { id: 'kronoAct2', title: 'Reactor de Fusión y Red Central', zone: 'Krono City · Acto 2', tag: 'Industrial Techno · FM Bass' },
   { id: 'kronoBoss', title: 'Titán Mecánico Kronos-Ω', zone: 'Krono City · Jefe Final', tag: 'Gran Clímax Final · Sinfonía Chiptune' },
   { id: 'kronosTravel', title: 'Kronos Travel: Odisea Dimensional', zone: 'Nivel Extra · Fusión Suprema', tag: 'Medley Legendario Multizona' },
@@ -329,6 +329,16 @@ class SoundEngine {
         this.tone(90, 0.28, 'sawtooth', 0.09, 0, 35);
         this.tone(180, 0.15, 'square', 0.05, 0.02, 60);
         break;
+      case 'mineTick':
+        this.tone(1760, 0.04, 'square', 0.035, 0);
+        break;
+      case 'mineExplode':
+        this.tone(75, 0.35, 'sawtooth', 0.09, 0, 30);
+        this.tone(140, 0.22, 'square', 0.06, 0.02, 45);
+        break;
+      case 'vortexLift':
+        this.tone(523, 0.12, 'sine', 0.025, 0, 784);
+        break;
       case 'buzzSaw':
         this.tone(960, 0.06, 'sawtooth', 0.035, 0, 480);
         this.tone(1440, 0.04, 'square', 0.02, 0.01, 720);
@@ -365,6 +375,12 @@ class SoundEngine {
         this.tone(659, 0.06, 'triangle', 0.03, 0);
         this.tone(988, 0.08, 'sine', 0.035, 0.03);
         break;
+      case 'portal':
+      case 'warp':
+        [392, 523, 659, 784, 1046, 1318].forEach((n, i) => {
+          this.tone(n, 0.14, 'sine', 0.04, i * 0.05, n * 1.5);
+        });
+        break;
       case 'win':
         [523, 659, 784, 1046, 1318, 1568].forEach((n, i) => {
           this.tone(n, 0.2, 'triangle', 0.04, i * 0.09);
@@ -376,9 +392,9 @@ class SoundEngine {
     }
   }
 
-  // Multi-channel sound themes with rich multi-bar melodic structures, Sonic 1/2 pop syncopation, catchy hooks and walking bass
+  // Multi-channel sound themes with rich multi-bar melodic structures, retro 16-bit pop syncopation, catchy hooks and walking bass
   private trackThemes: Record<MusicTrackName, MusicTrackPattern> = {
-    // ZONE 1 · ACT 1: NEON FOREST (Sonic Green Hill / Emerald Hill upbeat pop groove, 64 steps)
+    // ZONE 1 · ACT 1: NEON FOREST (Upbeat retro pop groove, 64 steps)
     neonAct1: {
       tempo: 138,
       leadWave: 'triangle',
@@ -389,7 +405,7 @@ class SoundEngine {
       leadNotes: [
         // Bar 1 (Iconic Catchy Upbeat Hook: C-E-G-A-C5 bouncy phrasing)
         N.C4, N.E4, N.G4, N.A4, N.C5, N.A4, N.G4, N.E4,  N.D4, N.F4, N.A4, N.C5, N.D5, N.C5, N.A4, N.F4,
-        // Bar 2 (Sonic Syncopated Ascent with playful triplet swing feel)
+        // Bar 2 (Syncopated Ascent with playful triplet swing feel)
         N.E4, N.G4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.F4, N.A4, N.C5, N.D5, N.E5, N.D5, N.C5, N.D5,
         // Bar 3 (Chorus B: Soaring high register melody)
         N.E5, N.G5, N.E5, N.D5, N.C5, N.D5, N.E5, N.G4,  N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.C5, N.D5,
@@ -403,7 +419,7 @@ class SoundEngine {
         N.G5, N.REST, N.F5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.REST, N.REST
       ],
       bassNotes: [
-        // Sonic Slap Bass Line (Groovy 8th notes with octave jumps)
+        // Slap Bass Line (Groovy 8th notes with octave jumps)
         N.C2, N.C3, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,  N.F2, N.F3, N.F2, N.G2, N.A2, N.A3, N.G2, N.F2,
         N.C2, N.C3, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,  N.F2, N.F3, N.G2, N.G3, N.A2, N.G2, N.F2, N.G2,
         N.A2, N.A3, N.G2, N.E2, N.F2, N.F3, N.G2, N.E2,  N.F2, N.F3, N.G2, N.A2, N.As2, N.A2, N.G2, N.F2,
@@ -675,7 +691,7 @@ class SoundEngine {
       ],
     },
 
-    // ZONE 5 · ACT 1: KRONO CITY HIGHWAY (Darksynth Synthwave Cyber Drive, Sonic Starlight Zone style, 64 steps)
+    // ZONE 5 · ACT 1: KRONO CITY HIGHWAY (Darksynth Synthwave Cyber Drive, 64 steps)
     kronoAct1: {
       tempo: 142,
       leadWave: 'sawtooth',
@@ -823,7 +839,7 @@ class SoundEngine {
       ],
     },
 
-    // CREDITS & EPILOGUE: ZION VICTORY HYMN (Upbeat Sonic Ending Pop Theme, 64 steps)
+    // CREDITS & EPILOGUE: ZION VICTORY HYMN (Upbeat Ending Pop Theme, 64 steps)
     creditsTune: {
       tempo: 126,
       leadWave: 'triangle',
@@ -884,7 +900,7 @@ class SoundEngine {
         this.toneAtTime(harmNote, stepDuration * 0.75, track.harmonyWave, 0.011, this.nextNoteTime);
       }
 
-      // 3. Sub-Bassline (Sonic slap bass warmth, 8th note cadence)
+      // 3. Sub-Bassline (Analog slap bass warmth, 8th note cadence)
       if (step % 2 === 0 && bassNote > 0) {
         this.toneAtTime(bassNote, stepDuration * 1.85, track.bassWave, 0.026, this.nextNoteTime);
       }

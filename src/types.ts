@@ -121,11 +121,22 @@ export interface Hazard {
     | 'flameJet'
     | 'teslaPillar'
     | 'acidPool'
-    | 'dartTrap';
+    | 'dartTrap'
+    | 'rotatingFireChain'
+    | 'proximityMine'
+    | 'antigravRift'
+    | 'electricArc'
+    | 'rollingSpikeBall'
+    | 'retractableSpikes'
+    | 'plasmaTurret'
+    | 'gravityVortex';
   life?: number;
   dead?: boolean;
   active?: boolean;
   cycleTimer?: number;
+  spikePhase?: 'retracted' | 'warning' | 'extended';
+  turretAngle?: number;
+  gravityRadius?: number;
   
   // Geyser / Stalactite / Trap mechanics
   erupting?: boolean;
@@ -159,6 +170,20 @@ export interface Hazard {
   acidTimer?: number;
   shootCooldown?: number;
   shootDir?: 1 | -1;
+
+  // New Obstacle Mechanics: Fire Chain, Proximity Mine, Antigrav Rift, Electric Arc
+  spinAngle?: number;
+  spinSpeed?: number;
+  chainLength?: number;
+  orbCount?: number;
+  mineArmed?: boolean;
+  mineTriggered?: boolean;
+  mineTimer?: number;
+  detonated?: boolean;
+  vortexForce?: number;
+  liftPower?: number;
+  targetX?: number;
+  targetY?: number;
 }
 
 export interface Collectible {
