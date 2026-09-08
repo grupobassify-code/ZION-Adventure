@@ -88,6 +88,7 @@ export class GameEngine {
   public time = 0;
 
   public player: Player;
+  public inMainMenu = true;
   public maxLives = MAX_LIVES_BASE;
   public lives = MAX_LIVES_BASE;
   public daggers = DAGGER_MAX_AMMO;
@@ -291,6 +292,7 @@ export class GameEngine {
     this.sanitizeAllHazards();
 
     if (!fromCheckpoint) {
+      this.stats.crystalsCollected = 0;
       this.collectedCrystalIndices.clear();
       this.collectedHealIndices.clear();
       this.collectedSecretIndices.clear();
@@ -322,6 +324,7 @@ export class GameEngine {
       this.collectedSecretIndices = new Set(this.cpSavedSecrets);
       this.collectedNodeIndices = new Set(this.cpSavedNodes);
       this.defeatedEnemyIndices = new Set(this.cpSavedEnemies);
+      this.stats.crystalsCollected = this.cpSavedCrystals.size;
 
       this.crystals.forEach((c, idx) => {
         if (this.collectedCrystalIndices.has(idx)) c.taken = true;
@@ -705,7 +708,7 @@ export class GameEngine {
   }
 
   public syncMusic() {
-    if (this.inCutscene || this.isPaused || this.isLevelWon) {
+    if (this.inMainMenu || this.inCutscene || this.isPaused || this.isLevelWon) {
       sound.stopMusic();
       return;
     }
@@ -1130,31 +1133,27 @@ export class GameEngine {
       this.lastSafeGround = { x: p.x, y: p.y };
     }
 
-    // Pit fall check (Takes strictly 1 heart and safely resets to checkpoint or quantum bounce)
-    if (p.y > GAME_HEIGHT + 40) {
+    // Pit fall check (Takes strictly 1 heart and safely resets to last checkpoint, or exits special stage)
+    if (p.y > GAME_HEIGHT + 25) {
       if (this.isInSpecialStage) {
-        // In special stage, safety quantum field launches Zion back to start platform
-        p.x = 35;
-        p.y = 120;
-        p.vx = 0;
-        p.vy = -4.5;
-        p.inv = 60;
-        sound.playSfx('vortexLift');
-        this.createBurst(p.x, p.y + p.h, 16, '#c084fc');
-        this.addFloatingText(p.x, p.y - 15, '✦ REBOTE CUÁNTICO ✦', '#c084fc');
+        // In special stage: Strictly 1 attempt! Falling into the abyss returns to normal level
+        this.exitSpecialStageOnDefeat();
+        return;
       } else if (!this.isOnlyUpMode) {
         if (p.inv <= 0 && !this.settings.godMode) {
           this.handlePlayerDamage('¡Caíste al abismo!');
           if (this.lives > 0) {
-            // Still has hearts: safely recover to the last platform/safe ground
-            p.x = this.lastSafeGround.x;
-            p.y = this.lastSafeGround.y;
+            // Respawn strictly at the last reached checkpoint (or level start if none reached)
+            p.x = this.spawnPoint.x;
+            p.y = this.spawnPoint.y;
             p.vx = 0;
-            p.vy = -1.5;
+            p.vy = 0;
             p.inv = 90;
+            this.lastSafeGround = { x: this.spawnPoint.x, y: this.spawnPoint.y };
+            this.cameraX = Math.max(0, p.x - GAME_WIDTH * 0.38);
             sound.playSfx('hurt');
-            this.createBurst(p.x, p.y + p.h, 16, '#38bdf8');
-            this.addFloatingText(p.x, p.y - 18, `⚠️ ¡CAÍDA AL VACÍO! -1 ❤ [${this.lives}/${this.maxLives}]`, '#f43f5e');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#38bdf8');
+            this.addFloatingText(p.x, p.y - 18, `⚠️ ¡CAÍDA AL VACÍO! RETORNO A CHECKPOINT -1 ❤ [${this.lives}/${this.maxLives}]`, '#f43f5e');
           }
         }
       }
@@ -1685,7 +1684,9 @@ export class GameEngine {
       if (this.daggerRechargeTimer >= DAGGER_RECHARGE_TIME) {
         this.daggers++;
         this.daggerRechargeTimer = 0;
-        this.addFloatingText(this.player.x, this.player.y - 12, '🗡 +1 Daga', '#a855f7');
+        this.createBurst(this.player.x + this.player.w / 2, this.player.y + 4, 10, '#c084fc');
+        sound.playSfx('menuSelect');
+        this.addFloatingText(this.player.x, this.player.y - 14, `🗡 +1 DAGA [${this.daggers}/${DAGGER_MAX_AMMO}]`, '#c084fc');
       }
     }
   }
@@ -3854,10 +3855,8 @@ export class GameEngine {
     for (let idx = 0; idx < this.crystals.length; idx++) {
       const c = this.crystals[idx];
       if (c.taken) continue;
-      const distX = Math.abs((p.x + p.w / 2) - (c.x + c.w / 2));
-      const distY = Math.abs((p.y + p.h / 2) - (c.y + c.h / 2));
-      if (distX > 56 || distY > 56) continue;
-      if (distX < 44 && distY < 44 || this.checkAABB(p, c)) {
+      // Exact physical collision: Player must physically contact the crystal bounding box
+      if (this.checkAABB(p, c)) {
         c.taken = true;
         this.collectedCrystalIndices.add(idx);
         this.stats.crystalsCollected++;
@@ -3894,10 +3893,8 @@ export class GameEngine {
     for (let idx = 0; idx < this.heals.length; idx++) {
       const h = this.heals[idx];
       if (h.taken) continue;
-      const distX = Math.abs((p.x + p.w / 2) - (h.x + h.w / 2));
-      const distY = Math.abs((p.y + p.h / 2) - (h.y + h.h / 2));
-      if (distX > 56 || distY > 56) continue;
-      if (distX < 44 && distY < 44 || this.checkAABB(p, h)) {
+      // Exact physical collision: Player must physically contact the heart
+      if (this.checkAABB(p, h)) {
         h.taken = true;
         this.collectedHealIndices.add(idx);
         this.lives = Math.min(this.maxLives, this.lives + 1);
@@ -3909,14 +3906,12 @@ export class GameEngine {
       }
     }
 
-    // 4. Secrets - Generous collection hitbox ensuring all secrets can be reached
+    // 4. Secrets - Requires physical touch contact
     for (let idx = 0; idx < this.secrets.length; idx++) {
       const s = this.secrets[idx];
       if (s.taken) continue;
-      const distX = Math.abs((p.x + p.w / 2) - (s.x + s.w / 2));
-      const distY = Math.abs((p.y + p.h / 2) - (s.y + s.h / 2));
-      if (distX > 60 || distY > 60) continue;
-      if (distX < 48 && distY < 48 || this.checkAABB(p, s)) {
+      // Exact physical collision: Player must physically touch the secret artifact
+      if (this.checkAABB(p, s)) {
         s.taken = true;
         this.collectedSecretIndices.add(idx);
         this.stats.secretsFound++;
@@ -4430,31 +4425,53 @@ export class GameEngine {
 
   private buildSpecialStageLevel() {
     this.platforms = [
-      // Start foundation
-      { x: 15, y: 154, w: 95, h: 26, kind: 'ground' },
-      // Step 1: Floating neon platform
-      { x: 135, y: 126, w: 55, h: 12, kind: 'cyber' },
-      // Step 2: High platform
-      { x: 230, y: 82, w: 65, h: 12, kind: 'cyber' },
-      // Step 3: Mid platform
-      { x: 320, y: 112, w: 60, h: 12, kind: 'cyber' },
-      // Exit foundation
-      { x: 405, y: 150, w: 105, h: 30, kind: 'ground' },
+      // Sector 1: Quantum Launchpad (x: 15 - 260)
+      { x: 15, y: 154, w: 90, h: 26, kind: 'cyber' },
+      { x: 130, y: 130, w: 52, h: 12, kind: 'cyber' },
+      { x: 205, y: 104, w: 55, h: 12, kind: 'cyber' },
+
+      // Sector 2: Aerial Trampoline Arc (x: 280 - 580)
+      { x: 285, y: 150, w: 65, h: 20, kind: 'ground' },
+      { x: 380, y: 78, w: 55, h: 12, kind: 'cyber' },
+      { x: 465, y: 115, w: 50, h: 12, kind: 'cyber' },
+      { x: 540, y: 145, w: 60, h: 14, kind: 'cyber' },
+
+      // Sector 3: High Precision Cyber Steps (x: 620 - 920)
+      { x: 630, y: 152, w: 55, h: 20, kind: 'ground' },
+      { x: 715, y: 88, w: 50, h: 12, kind: 'cyber' },
+      { x: 795, y: 64, w: 50, h: 12, kind: 'cyber' },
+      { x: 875, y: 110, w: 60, h: 12, kind: 'cyber' },
+
+      // Sector 4: Super Leap & Staggered Run (x: 950 - 1240)
+      { x: 960, y: 152, w: 60, h: 20, kind: 'ground' },
+      { x: 1050, y: 75, w: 55, h: 12, kind: 'cyber' },
+      { x: 1135, y: 118, w: 52, h: 12, kind: 'cyber' },
+      { x: 1215, y: 142, w: 55, h: 14, kind: 'cyber' },
+
+      // Sector 5: Grand Dimensional Sanctuary Exit (x: 1290 - 1470)
+      { x: 1290, y: 126, w: 52, h: 12, kind: 'cyber' },
+      { x: 1360, y: 150, w: 110, h: 30, kind: 'ground' },
     ];
 
-    // Jump trampolines & failsafe bottom quantum bounce trampoline
+    // Calculated Jump Trampolines to vault across cosmic chasms
     this.trampolines = [
-      { x: 200, y: 150, w: 24, h: 8, bounceForce: -7.5, springAnim: 0, type: 'standard' },
-      { x: 60, y: 178, w: 340, h: 10, bounceForce: -7.8, springAnim: 0, type: 'super' },
+      { x: 305, y: 142, w: 24, h: 8, bounceForce: -7.6, springAnim: 0, type: 'standard' },
+      { x: 645, y: 144, w: 24, h: 8, bounceForce: -7.8, springAnim: 0, type: 'standard' },
+      { x: 978, y: 144, w: 24, h: 8, bounceForce: -8.0, springAnim: 0, type: 'super' },
     ];
 
-    // 5 Cosmic bonus crystals (+500 pts each)
+    // 10 Radiant Cosmic Bonus Crystals (+500 pts each) across the extended run
     this.crystals = [
-      { x: 60, y: 130, w: 12, h: 12, taken: false },
-      { x: 160, y: 100, w: 12, h: 12, taken: false },
-      { x: 260, y: 56, w: 14, h: 14, taken: false },
-      { x: 350, y: 86, w: 12, h: 12, taken: false },
-      { x: 425, y: 124, w: 14, h: 14, taken: false },
+      { x: 60, y: 128, w: 12, h: 12, taken: false },
+      { x: 150, y: 104, w: 12, h: 12, taken: false },
+      { x: 225, y: 78, w: 12, h: 12, taken: false },
+      { x: 400, y: 52, w: 14, h: 14, taken: false },
+      { x: 485, y: 90, w: 12, h: 12, taken: false },
+      { x: 735, y: 62, w: 12, h: 12, taken: false },
+      { x: 815, y: 38, w: 14, h: 14, taken: false },
+      { x: 895, y: 84, w: 12, h: 12, taken: false },
+      { x: 1070, y: 48, w: 14, h: 14, taken: false },
+      { x: 1310, y: 100, w: 14, h: 14, taken: false },
     ];
 
     this.hazards = [];
@@ -4467,9 +4484,9 @@ export class GameEngine {
     this.boss = null;
     this.goal = null;
 
-    // Special Stage Exit Portal
+    // Special Stage Exit Portal situated at the climax of the long course
     this.specialStageExitPortal = {
-      x: 460,
+      x: 1410,
       y: 106,
       w: 24,
       h: 44,
@@ -4489,13 +4506,13 @@ export class GameEngine {
       active: true,
       timer: 160,
       title: '🌌 SPECIAL STAGE: DIMENSIÓN CUÁNTICA 🌌',
-      subtitle: '¡Supera el mini-circuito para volver al nivel principal!',
+      subtitle: '¡Un solo intento! Supera el gran circuito para abrir el portal.',
       act: 1,
       zoneName: 'ETAPA ESPECIAL',
       themeColor: '#c084fc',
     };
 
-    this.addFloatingText(GAME_WIDTH / 2, 40, '★ ETAPA ESPECIAL ACTIVADA ★', '#fbbf24');
+    this.addFloatingText(GAME_WIDTH / 2, 40, '★ ETAPA ESPECIAL — UN SOLO INTENTO ★', '#fbbf24');
   }
 
   public startSpecialStageStandalone() {
@@ -4511,7 +4528,7 @@ export class GameEngine {
     this.stats = {
       score: 0,
       crystalsCollected: 0,
-      totalCrystals: 5,
+      totalCrystals: 10,
       secretsFound: 0,
       totalSecrets: 0,
       deaths: 0,
@@ -4602,18 +4619,40 @@ export class GameEngine {
       if (this.defeatedEnemyIndices.has(idx)) e.alive = false;
     });
 
-    // Reposition player right at the return point before the normal goal
-    this.player.x = returnState.playerX;
-    this.player.y = returnState.playerY;
+    // Reposition player right safely in front of the Goal Portal to the next level
+    this.bossDefeated = true;
+    if (this.boss) {
+      this.boss.alive = false;
+      this.boss.hp = 0;
+    }
+
+    if (this.goal) {
+      this.player.x = Math.max(30, this.goal.x - 55);
+      let groundY = this.goal.y + this.goal.h - this.player.h;
+      for (const plat of this.platforms) {
+        if (this.player.x + this.player.w / 2 >= plat.x && this.player.x + this.player.w / 2 <= plat.x + plat.w) {
+          groundY = plat.y - this.player.h;
+          break;
+        }
+      }
+      this.player.y = groundY;
+    } else {
+      this.player.x = returnState.playerX;
+      this.player.y = returnState.playerY;
+    }
     this.player.vx = 0;
     this.player.vy = 0;
     this.player.facing = 1;
     this.player.inv = 90;
     this.cameraX = Math.max(0, this.player.x - GAME_WIDTH / 2);
 
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 28, '#38bdf8');
+    if (this.goal) {
+      this.createBurst(this.goal.x + this.goal.w / 2, this.goal.y + this.goal.h / 2, 35, '#a855f7');
+    }
     this.addFloatingText(this.player.x, this.player.y - 30, '★ ¡SPECIAL STAGE SUPERADA! ★', '#fbbf24');
     this.addFloatingText(this.player.x, this.player.y - 15, `★ ¡PUNTOS DUPLICADOS (x2)! +${bonusEarned.toLocaleString()} PTS ★`, '#facc15');
-    this.addFloatingText(this.player.x, this.player.y + 2, '❤ ¡SALUD COMPLETA! EL PORTAL TE ESPERA ❤', '#4ade80');
+    this.addFloatingText(this.player.x, this.player.y + 2, '🌀 ¡PORTAL AL SIGUIENTE NIVEL ABIERTO! 🌀', '#38bdf8');
 
     this.specialStageReturnState = null;
     this.syncMusic();
@@ -4622,6 +4661,9 @@ export class GameEngine {
 
   private exitSpecialStageOnDefeat() {
     if (!this.isInSpecialStage) return;
+
+    sound.playSfx('hurt');
+    sound.playSfx('warp');
 
     if (!this.specialStageReturnState) {
       // Standalone extra mode respawn
@@ -4633,7 +4675,6 @@ export class GameEngine {
       this.maxLives = 3;
       this.lives = 3;
       this.stats.deaths++;
-      sound.playSfx('hurt');
       this.addFloatingText(this.player.x, this.player.y - 20, '⚠️ ¡REINTENTO EN SPECIAL STAGE! [3/3 ❤]', '#f43f5e');
       this.notifyState();
       return;
@@ -4642,7 +4683,7 @@ export class GameEngine {
     const returnState = this.specialStageReturnState;
 
     this.isInSpecialStage = false;
-    this.specialStageCompleted = true;
+    this.specialStageCompleted = true; // Consumed the 1 single attempt
     this.specialStagePortal = null;
     this.specialStageExitPortal = null;
 
@@ -4692,10 +4733,12 @@ export class GameEngine {
     this.player.vy = 0;
     this.player.facing = 1;
     this.player.inv = 120;
-    this.lives = 1; // Returned safely with 1 heart to finish the level
+    this.lives = Math.max(1, returnState.lives);
     this.cameraX = Math.max(0, this.player.x - GAME_WIDTH / 2);
 
-    this.addFloatingText(this.player.x, this.player.y - 20, '✦ RETORNO AL NIVEL PRINCIPAL ✦', '#38bdf8');
+    this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 20, '#f43f5e');
+    this.addFloatingText(this.player.x, this.player.y - 25, '⚠️ SPECIAL STAGE FALLIDA (UN SOLO INTENTO)', '#f43f5e');
+    this.addFloatingText(this.player.x, this.player.y - 10, '✦ RETORNO AL NIVEL PRINCIPAL ✦', '#38bdf8');
     this.specialStageReturnState = null;
     this.syncMusic();
     this.notifyState();
@@ -4703,6 +4746,11 @@ export class GameEngine {
 
   private handlePlayerDamage(msg: string) {
     if (this.settings.godMode) return;
+    if (this.isInSpecialStage) {
+      // In Special Stage: Strictly 1 single attempt! Any hit exits back to normal level
+      this.exitSpecialStageOnDefeat();
+      return;
+    }
     this.maxLives = 3;
     this.lives = Math.max(0, Math.min(3, this.lives - 1));
     this.stats.deaths++;
@@ -4945,7 +4993,7 @@ export class GameEngine {
       return;
     }
     if (this.isInSpecialStage) {
-      const specialWidth = 520;
+      const specialWidth = 1500;
       const targetCameraX = this.player.x - GAME_WIDTH * 0.38;
       this.cameraX += (targetCameraX - this.cameraX) * 0.12;
       this.cameraX = Math.max(0, Math.min(specialWidth - GAME_WIDTH, this.cameraX));

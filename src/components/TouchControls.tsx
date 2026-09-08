@@ -7,6 +7,7 @@ interface TouchControlsProps {
   onUpdateInput: (key: keyof GameInputState, value: boolean) => void;
   onUpdateAnalogX?: (val: number) => void;
   daggersAvailable: number;
+  daggerRechargePercent?: number;
   energy: number;
   maxEnergy: number;
   controlMode?: 'joystick' | 'dpad';
@@ -19,6 +20,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
   onUpdateInput,
   onUpdateAnalogX,
   daggersAvailable,
+  daggerRechargePercent = 0,
   energy,
   controlMode = 'joystick',
   onToggleControlMode,
@@ -223,7 +225,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
 
           {/* Right: Primary Action Buttons */}
           <div className="flex items-center gap-2 touch-control-surface">
-            {/* Dagger Throw */}
+            {/* Dagger Throw with Live Recharge Visualizer */}
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -231,16 +233,33 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('dagger', false)}
               onPointerCancel={() => onUpdateInput('dagger', false)}
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
+              className={`relative overflow-hidden w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
                 inputs.dagger
-                  ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.8)]'
+                  ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.9)]'
                   : daggersAvailable > 0
-                  ? 'bg-purple-950/90 text-purple-200 border-purple-500/50'
-                  : 'bg-slate-900/60 text-slate-600 border-slate-800'
+                  ? 'bg-gradient-to-b from-purple-900/90 to-slate-950/90 text-purple-200 border-purple-500/60 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                  : 'bg-slate-900/90 text-slate-500 border-purple-950/60'
               }`}
             >
-              <span className="text-xs sm:text-sm">🗡</span>
-              <span className="text-[8px] font-mono leading-none">{daggersAvailable}/3</span>
+              {/* Pixel Kunai Icon */}
+              <svg viewBox="0 0 10 18" className="w-3.5 h-3.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
+                <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
+                <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
+                <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
+                <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
+              </svg>
+              <span className="text-[8px] font-mono leading-none font-bold">
+                {daggersAvailable < 3 ? `${daggersAvailable}/3 (${daggerRechargePercent}%)` : '3/3 MAX'}
+              </span>
+              {/* Active Fill Bottom Gauge */}
+              {daggersAvailable < 3 && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-950/90 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-cyan-300 transition-all duration-75"
+                    style={{ width: `${daggerRechargePercent}%` }}
+                  />
+                </div>
+              )}
             </button>
 
             {/* Sword Attack Combo */}
@@ -429,6 +448,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
 
         {/* Primary Row: Daggers, Sword Attack, Jump */}
         <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-950/80 backdrop-blur-md p-1 sm:p-1.5 rounded-3xl border border-slate-800 shadow-2xl">
+          {/* Dagger Throw with Live Recharge Visualizer */}
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -436,16 +456,33 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dagger', false)}
             onPointerCancel={() => onUpdateInput('dagger', false)}
-            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`relative overflow-hidden w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
               inputs.dagger
-                ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.8)]'
+                ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.9)]'
                 : daggersAvailable > 0
-                ? 'bg-purple-950/90 text-purple-200 border-purple-500/50'
-                : 'bg-slate-900/60 text-slate-600 border-slate-800'
+                ? 'bg-gradient-to-b from-purple-900/90 to-slate-950/90 text-purple-200 border-purple-500/60 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                : 'bg-slate-900/90 text-slate-500 border-purple-950/60'
             }`}
           >
-            <span className="text-xs sm:text-sm">🗡</span>
-            <span className="text-[7px] sm:text-[8px] font-mono leading-none">{daggersAvailable}/3</span>
+            {/* Pixel Kunai Icon */}
+            <svg viewBox="0 0 10 18" className="w-3.5 h-3.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
+              <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
+              <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
+              <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
+              <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
+            </svg>
+            <span className="text-[7px] sm:text-[8px] font-mono leading-none font-bold">
+              {daggersAvailable < 3 ? `${daggersAvailable}/3 (${daggerRechargePercent}%)` : '3/3 MAX'}
+            </span>
+            {/* Active Fill Bottom Gauge */}
+            {daggersAvailable < 3 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-950/90 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-cyan-300 transition-all duration-75"
+                  style={{ width: `${daggerRechargePercent}%` }}
+                />
+              </div>
+            )}
           </button>
 
           <button

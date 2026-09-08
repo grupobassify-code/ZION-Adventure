@@ -227,37 +227,33 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
             </div>
           </div>
 
-          {/* EXTRA LEVEL UNLOCKED: KRONOS TRAVEL */}
-          <div className="bg-gradient-to-r from-cyan-950/90 via-purple-950/90 to-rose-950/90 border-2 border-cyan-400 p-4 rounded-2xl shadow-[0_0_35px_rgba(6,182,212,0.4)] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          {/* EXTRA LEVEL INFO: KRONOS TRAVEL */}
+          <div className="bg-gradient-to-r from-cyan-950/90 via-purple-950/90 to-rose-950/90 border-2 border-cyan-400/60 p-4 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.25)] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
-                <Sparkles className="w-3 h-3 text-amber-400 animate-spin" />
-                ¡NIVEL EXTRA DESBLOQUEADO!
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                DESAFÍO SUPREMO
               </div>
               <h4 className="text-base font-black text-white font-heading tracking-wide">
                 🌌 Kronos Travel: La Fusión Dimensional
               </h4>
               <p className="text-xs text-slate-300 mt-0.5">
-                Todas las eras, enemigos, peligros y mecánicas combinados en un último y descomunal desafío.
+                Todas las eras, enemigos, trampas y jefes combinados en un desafío final legendario.
               </p>
             </div>
 
-            <button
-              onClick={() => onSelectLevel(11)}
-              className="shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-300 to-pink-400 hover:from-cyan-300 hover:to-pink-300 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(6,182,212,0.6)] active:scale-95 transition-all animate-pulse"
-            >
-              <span>ENTRAR A KRONOS TRAVEL</span>
-              <Sparkles className="w-4 h-4" />
-            </button>
+            <div className="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-cyan-400/40 text-[11px] font-mono text-cyan-300 font-semibold">
+              🔒 Desbloqueable al completar la campaña
+            </div>
           </div>
         </div>
 
         {/* Bottom Footer Actions Bar */}
-        <div className="p-3 sm:p-4 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-between gap-2 shrink-0">
+        <div className="p-3 sm:p-4 bg-slate-950/90 border-t border-slate-800/80 flex items-center justify-center gap-3 shrink-0">
           {onClose ? (
             <button
               onClick={onClose}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs sm:text-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-lg shadow-cyan-900/40"
             >
               <Home className="w-4 h-4" />
               <span>Volver al Menú</span>
@@ -265,20 +261,12 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
           ) : (
             <button
               onClick={() => onSelectLevel(0)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs sm:text-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-lg shadow-cyan-900/40"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Volver al Inicio (Acto 1)</span>
             </button>
           )}
-
-          <button
-            onClick={onRestartGame}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-amber-500 hover:from-cyan-400 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-cyan-900/50 active:scale-95 transition-all"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>NUEVA PARTIDA PLUS</span>
-          </button>
         </div>
       </div>
     </div>

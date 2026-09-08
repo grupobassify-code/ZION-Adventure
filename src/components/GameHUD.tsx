@@ -116,28 +116,120 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             </span>
           </div>
 
-          {/* Dagger Ammo - Hidden on very small mobile portrait to save room */}
-          <div className="hidden md:flex items-center gap-1 bg-slate-950/90 backdrop-blur-md px-2 py-1 rounded-xl border border-purple-500/30 shadow-md">
-            <span className="text-xs font-mono font-bold text-purple-400">🗡</span>
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: DAGGER_MAX_AMMO }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`w-1.5 h-3 rounded-sm transition-all ${
-                    idx < engine.daggers
-                      ? 'bg-purple-400 shadow-[0_0_6px_#c084fc]'
-                      : 'bg-slate-800 border border-slate-700'
-                  }`}
-                />
-              ))}
+          {/* Dagger Ammo & Dynamic Recharge Visualizer */}
+          <div 
+            className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/95 backdrop-blur-md px-2 sm:px-2.5 py-1 rounded-xl border border-purple-500/50 shadow-[0_0_12px_rgba(168,85,247,0.25)] transition-all"
+            title={`Dagas Shinobi: ${engine.daggers}/${DAGGER_MAX_AMMO}${engine.daggers < DAGGER_MAX_AMMO ? ` (Recargando: ${rechargePercent}%)` : ' (Completas)'}`}
+          >
+            {/* Handcrafted Pixel-Art Kunai Daggers */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: DAGGER_MAX_AMMO }).map((_, idx) => {
+                const isFull = idx < engine.daggers;
+                const isCharging = idx === engine.daggers;
+                const fillPct = isFull ? 100 : isCharging ? rechargePercent : 0;
+                
+                return (
+                  <div
+                    key={idx}
+                    className="relative flex flex-col items-center justify-center w-3 sm:w-3.5 h-6 transition-all"
+                  >
+                    <svg viewBox="0 0 12 24" className="w-full h-full">
+                      <defs>
+                        <linearGradient id={`kunaiGrad-${idx}`} x1="0%" y1="100%" x2="0%" y2="0%">
+                          <stop offset="0%" stopColor="#7e22ce" />
+                          <stop offset="50%" stopColor="#a855f7" />
+                          <stop offset="85%" stopColor="#c084fc" />
+                          <stop offset="100%" stopColor="#ffffff" />
+                        </linearGradient>
+                        <clipPath id={`bladeClip-${idx}`}>
+                          <rect x="0" y={14 - (14 * fillPct) / 100} width="12" height="14" />
+                        </clipPath>
+                      </defs>
+
+                      {/* Pommel Ring */}
+                      <circle
+                        cx="6"
+                        cy="21.5"
+                        r="2"
+                        fill="none"
+                        stroke={isFull ? '#eab308' : isCharging ? '#c084fc' : '#475569'}
+                        strokeWidth="1.2"
+                      />
+                      {/* Handle Grip */}
+                      <rect
+                        x="5"
+                        y="15"
+                        width="2"
+                        height="5"
+                        fill={isFull ? '#3b0764' : isCharging ? '#1e1b4b' : '#1e293b'}
+                      />
+                      {/* Grip Ties */}
+                      <line x1="4.5" y1="16.5" x2="7.5" y2="16.5" stroke={isFull ? '#c084fc' : '#475569'} strokeWidth="0.8" />
+                      <line x1="4.5" y1="18.5" x2="7.5" y2="18.5" stroke={isFull ? '#c084fc' : '#475569'} strokeWidth="0.8" />
+                      {/* Guard */}
+                      <rect
+                        x="3"
+                        y="14"
+                        width="6"
+                        height="1.5"
+                        rx="0.5"
+                        fill={isFull ? '#facc15' : isCharging ? '#a855f7' : '#334155'}
+                      />
+
+                      {/* Empty Blade Outline Slot */}
+                      <polygon
+                        points="6,1 11,14 1,14"
+                        fill={isFull || isCharging ? '#2e1065' : '#090d16'}
+                        stroke={isFull ? '#a855f7' : isCharging ? '#6b21a8' : '#334155'}
+                        strokeWidth="1"
+                      />
+
+                      {/* Active Plasma Blade Fill */}
+                      {(isFull || isCharging) && (
+                        <g clipPath={`url(#bladeClip-${idx})`}>
+                          <polygon points="6,1 11,14 1,14" fill={`url(#kunaiGrad-${idx})`} />
+                          {/* Center Spine Ridge Highlight */}
+                          <line x1="6" y1="1" x2="6" y2="14" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.8" />
+                        </g>
+                      )}
+
+                      {/* Recharge Line Particle Spark */}
+                      {isCharging && rechargePercent > 5 && (
+                        <circle
+                          cx="6"
+                          cy={14 - (14 * fillPct) / 100}
+                          r="1.2"
+                          fill="#38bdf8"
+                        />
+                      )}
+                    </svg>
+
+                    {/* Subtle Neon Under-Glow when ready */}
+                    {isFull && (
+                      <div className="absolute inset-0 bg-purple-500/20 blur-[3px] rounded-full pointer-events-none" />
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            {engine.daggers < DAGGER_MAX_AMMO && (
-              <div className="w-6 h-1.5 bg-slate-800 rounded-full overflow-hidden ml-0.5 border border-purple-900">
-                <div
-                  className="h-full bg-purple-400 transition-all duration-100"
-                  style={{ width: `${rechargePercent}%` }}
-                />
+
+            {/* Recharge Progress Bar & Real-time Percentage */}
+            {engine.daggers < DAGGER_MAX_AMMO ? (
+              <div className="flex items-center gap-1.5 pl-0.5">
+                <div className="w-10 sm:w-14 h-2 bg-slate-900/90 rounded-full overflow-hidden border border-purple-800/80 p-[1px]">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-600 via-fuchsia-400 to-cyan-300 rounded-full transition-all duration-75 shadow-[0_0_8px_rgba(168,85,247,0.7)]"
+                    style={{ width: `${rechargePercent}%` }}
+                  />
+                </div>
+                <span className="text-[9px] font-mono font-black text-fuchsia-300 min-w-[26px] text-right">
+                  {rechargePercent}%
+                </span>
               </div>
+            ) : (
+              <span className="text-[9px] font-mono font-black text-emerald-400 tracking-wider pl-0.5 animate-pulse">
+                MAX
+              </span>
             )}
           </div>
         </div>

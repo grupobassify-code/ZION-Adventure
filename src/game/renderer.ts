@@ -22,15 +22,18 @@ import {
   ZoneId,
 } from '../types';
 import { EnemyRenderer } from './enemyRenderer';
+import { BossRenderer } from './bossRenderer';
 
 export class GameRenderer {
   private ctx: CanvasRenderingContext2D;
   private enemyRenderer: EnemyRenderer;
+  private bossRenderer: BossRenderer;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
     this.ctx.imageSmoothingEnabled = false;
     this.enemyRenderer = new EnemyRenderer(ctx);
+    this.bossRenderer = new BossRenderer(ctx);
   }
 
   public clear(color = '#050711') {
@@ -2658,351 +2661,7 @@ export class GameRenderer {
   }
 
   public renderBoss(boss: Boss | null, cameraX: number, time: number) {
-    if (!boss || !boss.alive) return;
-    const ctx = this.ctx;
-    const x = Math.round(boss.x - cameraX);
-    const y = Math.round(boss.y);
-
-    if (boss.inv > 0 && Math.floor(boss.inv / 3) % 2 === 0) return;
-
-    // Render Boss Shield Forcefield
-    if (boss.shield) {
-      ctx.fillStyle = '#06b6d433';
-      ctx.beginPath();
-      ctx.arc(x + boss.w / 2, y + boss.h / 2, boss.w * 0.75, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    // Render Boss Clones (Phase 3 Illusion)
-    if (boss.clones) {
-      for (const clone of boss.clones) {
-        const cx = Math.round(clone.x - cameraX);
-        const cy = Math.round(clone.y);
-        ctx.save();
-        ctx.globalAlpha = clone.alpha * 0.65;
-        ctx.fillStyle = '#c084fc';
-        ctx.fillRect(cx, cy, clone.w, clone.h);
-        ctx.fillStyle = '#f472b6';
-        ctx.fillRect(cx + 4, cy + 4, clone.w - 8, clone.h - 8);
-        ctx.restore();
-      }
-    }
-
-    // Render Boss Shockwaves
-    for (const sw of boss.shockwaves) {
-      const swX = Math.round(sw.x - cameraX);
-      ctx.fillStyle = sw.color;
-      ctx.fillRect(swX, sw.y, sw.w, sw.h);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(swX + 2, sw.y + 2, sw.w - 4, sw.h - 4);
-    }
-
-    // Render Boss Cyber Laser Beam
-    if (boss.laser && boss.laser.active) {
-      const l = boss.laser;
-      const lx = Math.round(l.x - cameraX);
-      ctx.save();
-      ctx.fillStyle = '#06b6d444';
-      ctx.fillRect(lx, l.y - 4, l.length, l.thickness + 8);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(lx, l.y, l.length, l.thickness);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(lx, l.y + 3, l.length, l.thickness - 6);
-      ctx.restore();
-    }
-
-    // Render Laser Charging Warning Line
-    if (boss.state === 'charging' && boss.name.includes('Guardián')) {
-      const lx = Math.round(boss.x - cameraX);
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(lx + (boss.facing > 0 ? boss.w : 0), y + 10);
-      ctx.lineTo(lx + (boss.facing > 0 ? 300 : -300), y + 10);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    // Thruster Flame when jumping/slamming
-    if (boss.thrusterFlame && boss.thrusterFlame > 0) {
-      ctx.fillStyle = boss.name.includes('Ignis') ? '#f97316' : '#06b6d4';
-      ctx.fillRect(x + 4, y + boss.h, 6, 8);
-      ctx.fillRect(x + boss.w - 10, y + boss.h, 6, 8);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + 6, y + boss.h, 2, 5);
-      ctx.fillRect(x + boss.w - 8, y + boss.h, 2, 5);
-    }
-
-    if (boss.name.includes('Guardián')) {
-      // Boss 1: Guardián Neón MK-IV
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(x + 2, y + 4, boss.w - 4, boss.h - 4);
-      
-      const coreColor = boss.phase === 3 ? '#ef4444' : boss.phase === 2 ? '#f59e0b' : '#06b6d4';
-      ctx.fillStyle = coreColor;
-      ctx.fillRect(x + 4, y + 6, boss.w - 8, boss.h - 10);
-      
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(x + 6, y, 12, 6);
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(x + 8, y + 2, 8, 2);
-
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(x - 3, y + 6, 5, 14);
-      ctx.fillRect(x + boss.w - 2, y + 6, 5, 14);
-    } else if (boss.name.includes('Kunoichi')) {
-      // Boss 2: Maestra Kunoichi Rosa
-      ctx.fillStyle = '#831843';
-      ctx.fillRect(x + 3, y + 6, 18, 24);
-      ctx.fillStyle = '#f43f5e';
-      ctx.fillRect(x + 5, y + 8, 14, 16);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(x + 5, y, 14, 8);
-      ctx.fillStyle = '#fda4af';
-      ctx.fillRect(x + 6, y + 3, 12, 2);
-      ctx.fillStyle = '#f43f5e';
-      const scarfWave = Math.sin(time * 0.25) * 3;
-      ctx.fillRect(x + (boss.facing > 0 ? -5 : 19), y + 4 + scarfWave, 6, 4);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x - 2, y + 4, 2, 18);
-      ctx.fillRect(x + boss.w, y + 4, 2, 18);
-    } else if (boss.name.includes('Ignis')) {
-      // Boss 3: Ignis, Coloso de Magma Primordial
-      // Massive Basalt Titan Body
-      ctx.fillStyle = '#1c0a0a';
-      ctx.fillRect(x + 2, y + 6, boss.w - 4, boss.h - 6);
-
-      // Molten Fiery Heart & Armor Fissures
-      const coreColor = boss.phase === 3 ? '#fbbf24' : boss.phase === 2 ? '#f97316' : '#ea580c';
-      ctx.fillStyle = coreColor;
-      ctx.fillRect(x + 6, y + 10, boss.w - 12, boss.h - 18);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + boss.w / 2 - 3, y + 14, 6, 8);
-
-      // Obsidian Crown Horns & Glowing Fiery Eyes
-      ctx.fillStyle = '#0a0a0f';
-      ctx.fillRect(x + 4, y, boss.w - 8, 8);
-      // Horns
-      ctx.fillRect(x + 2, y - 4, 4, 6);
-      ctx.fillRect(x + boss.w - 6, y - 4, 4, 6);
-      // Fiery Eyes
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(x + 8, y + 3, 3, 2);
-      ctx.fillRect(x + boss.w - 11, y + 3, 3, 2);
-
-      // Massive Molten Fists
-      ctx.fillStyle = '#7f1d1d';
-      ctx.fillRect(x - 5, y + 8, 7, 16);
-      ctx.fillRect(x + boss.w - 2, y + 8, 7, 16);
-      ctx.fillStyle = '#f97316';
-      ctx.fillRect(x - 4, y + 12, 5, 8);
-      ctx.fillRect(x + boss.w - 1, y + 12, 5, 8);
-    } else if (boss.name.includes('Akhen') || boss.name.includes('Faraón') || boss.name.includes('Momia')) {
-      // Boss 4: Faraón Akhen'Ra, La Momia Eterna
-      // Ancient Bandaged Golden Mummy Body
-      ctx.fillStyle = '#451a03';
-      ctx.fillRect(x + 2, y + 6, boss.w - 4, boss.h - 6);
-
-      // Mummy Bandages and Golden Armor
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(x + 4, y + 8, boss.w - 8, boss.h - 12);
-      ctx.fillStyle = '#d97706';
-      ctx.fillRect(x + 4, y + 12, boss.w - 8, 3);
-      ctx.fillRect(x + 4, y + 20, boss.w - 8, 3);
-      ctx.fillRect(x + 4, y + 28, boss.w - 8, 3);
-
-      // Royal Nemes Crown (Gold & Lapis Blue)
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(x + 2, y, boss.w - 4, 10);
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(x + 5, y + 2, 4, 8);
-      ctx.fillRect(x + boss.w - 9, y + 2, 4, 8);
-
-      // Royal Golden Cobra Uraeus on forehead
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(x + boss.w / 2 - 1, y - 3, 3, 3);
-
-      // Glowing Spectral Turquoise Eyes
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w - 10 : 6), y + 4, 4, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w - 8 : 7), y + 4, 1, 1);
-
-      // Golden Ankh Scepter / Flail
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w : -4), y + 4, 3, 24);
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w - 2 : -6), y + 4, 7, 3);
-
-      // Swirling Sandstorm Aura in Phase 2 & 3
-      if (boss.phase >= 2) {
-        for (let sa = 0; sa < 6; sa++) {
-          const sAngle = time * 0.2 + (sa * Math.PI) / 3;
-          const sX = x + boss.w / 2 + Math.cos(sAngle) * 20;
-          const sY = y + boss.h / 2 + Math.sin(sAngle) * 16;
-          ctx.fillStyle = '#f59e0bcc';
-          ctx.fillRect(sX, sY, 3, 3);
-        }
-      }
-    } else if (boss.name.includes('Kronos')) {
-      // --- BOSS 5: TITÁN MECÁNICO KRONOS-Ω (JEFE FINAL) ---
-      const isOverheated = boss.state === 'overheat';
-
-      // Phase 3: Chrono-Temporal Hologram Wings & Aegis Arcs
-      if (boss.phase === 3) {
-        for (let w = 0; w < 3; w++) {
-          const wingSpread = 18 + w * 10;
-          const wingFlap = Math.sin(time * 0.15 + w) * 4;
-          ctx.fillStyle = w % 2 === 0 ? '#06b6d444' : '#f43f5e44';
-          // Left Wing Blade
-          ctx.beginPath();
-          ctx.moveTo(x + 8, y + 10);
-          ctx.lineTo(x - wingSpread, y - 6 + wingFlap);
-          ctx.lineTo(x - wingSpread + 8, y + 12 + wingFlap);
-          ctx.fill();
-          // Right Wing Blade
-          ctx.beginPath();
-          ctx.moveTo(x + boss.w - 8, y + 10);
-          ctx.lineTo(x + boss.w + wingSpread, y - 6 + wingFlap);
-          ctx.lineTo(x + boss.w + wingSpread - 8, y + 12 + wingFlap);
-          ctx.fill();
-        }
-      }
-
-      // Heavy Reinforced Mech Chassis
-      ctx.fillStyle = isOverheated ? '#3f1d1d' : '#090d16';
-      ctx.fillRect(x + 2, y + 6, boss.w - 4, boss.h - 6);
-
-      // Cybernetic Titanium Armor Plating
-      ctx.fillStyle = isOverheated ? '#7f1d1d' : '#1e293b';
-      ctx.fillRect(x + 4, y + 8, boss.w - 8, boss.h - 14);
-
-      // Quantum Chrono Fusion Reactor (Chest Core)
-      const corePulse = Math.sin(time * (isOverheated ? 0.4 : 0.15)) * 0.5 + 0.5;
-      const coreColor = isOverheated
-        ? '#f97316'
-        : boss.phase === 3
-        ? '#f43f5e'
-        : boss.phase === 2
-        ? '#38bdf8'
-        : '#06b6d4';
-      ctx.fillStyle = coreColor;
-      ctx.fillRect(x + boss.w / 2 - 6, y + 10, 12, 12);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + boss.w / 2 - 2, y + 14, 4, 4);
-
-      // Orbiting Fusion Energy Rings around core
-      ctx.strokeStyle = isOverheated ? '#fbbf24' : '#67e8f9';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.ellipse(x + boss.w / 2, y + 16, 14, 7, time * 0.1, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Cyber Armor Neon Trim Lines
-      ctx.fillStyle = isOverheated ? '#fbbf24' : '#06b6d4';
-      ctx.fillRect(x + 4, y + 6, boss.w - 8, 2);
-      ctx.fillRect(x + 4, y + 26, boss.w - 8, 2);
-
-      // Mecha Head & Dual Visor Array
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(x + 6, y, boss.w - 12, 8);
-      // Cyber Crest
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(x + boss.w / 2 - 2, y - 4, 4, 5);
-      // Glowing Optical Visor Eyes
-      ctx.fillStyle = isOverheated ? '#facc15' : boss.phase === 3 ? '#f43f5e' : '#22d3ee';
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w - 12 : 8), y + 3, 6, 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + (boss.facing > 0 ? boss.w - 10 : 10), y + 3, 2, 1);
-
-      // Shoulder Rocket Launchers / Thrusters & Missile Pods
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(x - 4, y + 2, 6, 8);
-      ctx.fillRect(x + boss.w - 2, y + 2, 6, 8);
-
-      if (boss.state === 'missileBarrage') {
-        // Open Missile Hatch warning glow
-        ctx.fillStyle = '#ea580c';
-        ctx.fillRect(x - 4, y, 6, 3);
-        ctx.fillRect(x + boss.w - 2, y, 6, 3);
-      }
-
-      if (boss.state === 'slamming' || (boss.thrusterFlame && boss.thrusterFlame > 0)) {
-        // Rocket Thruster Fire
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(x - 3, y + 10, 4, 10);
-        ctx.fillRect(x + boss.w - 1, y + 10, 4, 10);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x - 2, y + 10, 2, 6);
-        ctx.fillRect(x + boss.w, y + 10, 2, 6);
-      }
-
-      // Massive Twin Chrono-Beam Arm Cannons
-      ctx.fillStyle = '#1e293b';
-      const armX = boss.facing > 0 ? x + boss.w - 3 : x - 7;
-      ctx.fillRect(armX, y + 8, 10, 14);
-      ctx.fillStyle = isOverheated ? '#ea580c' : '#0891b2';
-      ctx.fillRect(armX + (boss.facing > 0 ? 6 : 0), y + 10, 4, 8);
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(armX + (boss.facing > 0 ? 8 : 0), y + 12, 2, 4);
-
-      // Overheat Vents & Steam Effects
-      if (isOverheated) {
-        ctx.fillStyle = '#ea580c';
-        ctx.fillRect(x + 2, y + boss.h - 4, boss.w - 4, 2);
-        // Warning Hazard Stripes
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(x + 6, y + 8, 3, 3);
-        ctx.fillRect(x + 14, y + 8, 3, 3);
-      }
-    }
-
-    // Stagger / Stun Animation (Dizzy stars orbiting head)
-    if (boss.isStaggered) {
-      for (let s = 0; s < 4; s++) {
-        const angle = time * 0.15 + (s * Math.PI) / 2;
-        const starX = x + boss.w / 2 + Math.cos(angle) * 16;
-        const starY = y - 6 + Math.sin(angle) * 5;
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(starX - 2, starY - 2, 4, 4);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(starX - 1, starY - 1, 2, 2);
-      }
-    }
-
-    // Boss Boss HP & Posture Stagger Bar
-    const hpW = 100;
-    const hpH = 5;
-    const hpX = (GAME_WIDTH - hpW) / 2;
-    const hpY = 14;
-
-    // HP Bar
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(hpX - 1, hpY - 1, hpW + 2, hpH + 2);
-    ctx.fillStyle = boss.shield ? '#0284c7' : '#ef4444';
-    ctx.fillRect(hpX, hpY, Math.max(0, (boss.hp / boss.maxHp) * hpW), hpH);
-    ctx.strokeStyle = '#ffffff88';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(hpX - 1, hpY - 1, hpW + 2, hpH + 2);
-
-    // Stagger Posture Bar
-    const stagH = 3;
-    const stagY = hpY + hpH + 2;
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(hpX - 1, stagY - 1, hpW + 2, stagH + 2);
-    ctx.fillStyle = boss.isStaggered ? '#facc15' : '#eab308';
-    const stagRatio = Math.min(1, boss.stagger / boss.maxStagger);
-    ctx.fillRect(hpX, stagY, stagRatio * hpW, stagH);
-
-    // Boss Name Label
-    ctx.font = '6px "Press Start 2P", monospace';
-    ctx.fillStyle = '#f8fafc';
-    ctx.textAlign = 'center';
-    ctx.fillText(`${boss.title || boss.name} [Fase ${boss.phase}]`, GAME_WIDTH / 2, hpY - 4);
-    ctx.textAlign = 'left';
+    this.bossRenderer.render(boss, cameraX, time);
   }
 
   public renderProjectiles(projectiles: Projectile[], cameraX: number) {
@@ -3012,10 +2671,32 @@ export class GameRenderer {
       if (x < -10 || x > GAME_WIDTH + 10) continue;
 
       if (p.isHero) {
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(x, p.y, p.w, p.h);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(x + (p.vx > 0 ? p.w - 3 : 0), p.y - 1, 3, p.h + 2);
+        // High-frequency cyber throwing dagger / kunai
+        const dir = p.vx >= 0 ? 1 : -1;
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        if (dir < 0) ctx.scale(-1, 1);
+        
+        // Energy vapor trail behind dagger
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.45)';
+        ctx.fillRect(-7, -1, 5, 2);
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+        ctx.fillRect(-3, -0.5, 3, 1);
+
+        // Kunai blade (pointed tip)
+        ctx.fillStyle = '#6b21a8'; // Deep purple outer edge
+        ctx.fillRect(-2, -2, 6, 4);
+        ctx.fillStyle = '#c084fc'; // Vibrant purple core
+        ctx.fillRect(0, -1.5, 5, 3);
+        ctx.fillStyle = '#ffffff'; // White razor tip
+        ctx.fillRect(4, -0.5, 3, 1);
+        
+        // Ring hilt (pommel)
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(-4, -1, 2, 2);
+        ctx.fillStyle = '#facc15'; // Gold ring
+        ctx.fillRect(-6, -1.5, 2, 3);
+        ctx.restore();
       } else if (p.kind === 'sakuraShuriken') {
         ctx.save();
         ctx.translate(x + p.w / 2, p.y + p.h / 2);
@@ -3107,8 +2788,8 @@ export class GameRenderer {
       ctx.fillRect(-4, -9, 8, 6);  // Masked head
       ctx.fillStyle = '#22d3ee';
       ctx.fillRect(0, -7, 4, 1.5); // Sharp optic slit
-      ctx.fillStyle = '#f43f5e';
-      ctx.fillRect(-5, -11, 8, 3); // Spiky anime ninja hair
+      ctx.fillStyle = '#a855f7';
+      ctx.fillRect(-5, -11, 8, 3); // Spiky anime ninja hair (Electric Purple)
       ctx.restore();
     }
     ctx.globalAlpha = 1;
@@ -3132,7 +2813,7 @@ export class GameRenderer {
       ctx.save();
       const auraPulse = 0.25 + Math.sin(t * 0.18) * 0.15;
       ctx.globalAlpha = auraPulse;
-      ctx.fillStyle = player.showdownActive ? '#f43f5e' : '#22d3ee';
+      ctx.fillStyle = player.showdownActive ? '#a855f7' : '#22d3ee';
       ctx.beginPath();
       ctx.arc(x + 7, y + 8 + bobY, 13, 0, Math.PI * 2);
       ctx.fill();
@@ -3373,15 +3054,17 @@ export class GameRenderer {
     ctx.fillRect(1, -7, 1, 1);    // Hot pupil sparks
     ctx.fillRect(4, -7, 1, 1);
 
-    // Swept-Back Cyberpunk / Anime Ninja Hair (Sharp dynamic spikes)
-    ctx.fillStyle = '#e11d48';
+    // Swept-Back Cyberpunk / Anime Ninja Hair (Royal Violet / Electric Purple Gradient)
+    ctx.fillStyle = '#6b21a8'; // Deep royal violet base
     ctx.fillRect(-5, -11, 8, 3);
-    ctx.fillStyle = '#f43f5e';
+    ctx.fillStyle = '#9333ea'; // Electric purple midtone
     ctx.fillRect(-4, -12, 6, 2);
-    ctx.fillStyle = '#fb7185';
+    ctx.fillStyle = '#c084fc'; // Vibrant radiant lilac spikes
     ctx.fillRect(-6, -10, 2, 2); // Rear flared spike
     ctx.fillRect(0, -12, 3, 2);  // Top windblown crest
     ctx.fillRect(3, -11, 2, 2);  // Forward edge highlight
+    ctx.fillStyle = '#e9d5ff';   // Shimmer glint on hair tip
+    ctx.fillRect(1, -12, 1, 1);
 
     // Shinobi Scarf Neck Wrap
     ctx.fillStyle = '#06b6d4';

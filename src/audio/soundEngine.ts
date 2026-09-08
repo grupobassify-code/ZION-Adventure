@@ -79,6 +79,7 @@ class SoundEngine {
   private nextNoteTime = 0;
   private currentStep = 0;
   private currentTrack: MusicTrackName | null = null;
+  private musicGainNode: GainNode | null = null;
   public soundEnabled = true;
   public musicEnabled = true;
   public masterVolume = 0.5;
@@ -93,6 +94,10 @@ class SoundEngine {
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume();
+    }
+    if (this.ctx && !this.musicGainNode) {
+      this.musicGainNode = this.ctx.createGain();
+      this.musicGainNode.connect(this.ctx.destination);
     }
     return this.ctx;
   }
@@ -159,7 +164,7 @@ class SoundEngine {
       gain.gain.setValueAtTime(vol * this.masterVolume, time);
       gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.13);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.musicGainNode || this.ctx.destination);
       osc.start(time);
       osc.stop(time + 0.14);
     } catch {}
@@ -187,7 +192,7 @@ class SoundEngine {
 
       noise.connect(filter);
       filter.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.musicGainNode || this.ctx.destination);
       noise.start(time);
       noise.stop(time + 0.1);
 
@@ -200,7 +205,7 @@ class SoundEngine {
       oscGain.gain.setValueAtTime(vol * 0.65 * this.masterVolume, time);
       oscGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.07);
       osc.connect(oscGain);
-      oscGain.connect(this.ctx.destination);
+      oscGain.connect(this.musicGainNode || this.ctx.destination);
       osc.start(time);
       osc.stop(time + 0.08);
     } catch {}
@@ -227,7 +232,7 @@ class SoundEngine {
 
       noise.connect(filter);
       filter.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.musicGainNode || this.ctx.destination);
       noise.start(time);
       noise.stop(time + 0.035);
     } catch {}
@@ -982,7 +987,7 @@ class SoundEngine {
       gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.musicGainNode || this.ctx.destination);
 
       osc.start(time);
       osc.stop(time + duration + 0.05);
@@ -1003,6 +1008,13 @@ class SoundEngine {
     const ctx = this.initContext();
     if (!ctx) return;
 
+    if (this.musicGainNode) {
+      try {
+        this.musicGainNode.gain.cancelScheduledValues(ctx.currentTime);
+        this.musicGainNode.gain.setValueAtTime(1, ctx.currentTime);
+      } catch {}
+    }
+
     this.currentStep = 0;
     this.nextNoteTime = ctx.currentTime + 0.05;
 
@@ -1018,6 +1030,12 @@ class SoundEngine {
       this.schedulerTimer = null;
     }
     this.currentTrack = null;
+    if (this.musicGainNode && this.ctx) {
+      try {
+        this.musicGainNode.gain.cancelScheduledValues(this.ctx.currentTime);
+        this.musicGainNode.gain.setValueAtTime(0, this.ctx.currentTime);
+      } catch {}
+    }
   }
 }
 

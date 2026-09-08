@@ -182,15 +182,17 @@ export const PixelCharacter: React.FC<PixelCharacterProps> = ({
       ctx.fillRect(cx - 3 * sc, py - 30 * sc, 1.8 * sc, 2 * sc); // White hot pupil sparks
       ctx.fillRect(cx + 3 * sc, py - 30 * sc, 1.8 * sc, 2 * sc);
 
-      // Spiky Anime Ninja Hair (Cyberpunk Crimson / Rose Gradient)
-      ctx.fillStyle = '#e11d48';
+      // Spiky Anime Ninja Hair (Cyberpunk Royal Violet / Electric Purple Gradient)
+      ctx.fillStyle = '#6b21a8'; // Deep royal violet base
       ctx.fillRect(cx - 8 * sc, py - 40 * sc, 16 * sc, 6 * sc);
-      ctx.fillStyle = '#f43f5e';
+      ctx.fillStyle = '#9333ea'; // Electric cyber purple midtone
       ctx.fillRect(cx - 6 * sc, py - 43 * sc, 12 * sc, 4 * sc);
-      ctx.fillStyle = '#fb7185';
+      ctx.fillStyle = '#c084fc'; // Vibrant radiant lilac spikes
       ctx.fillRect(cx - 9 * sc, py - 41 * sc, 4 * sc, 3 * sc); // Swept-back rear spike
       ctx.fillRect(cx + 2 * sc, py - 44 * sc, 5 * sc, 3 * sc); // Windblown top crest
       ctx.fillRect(cx + 5 * sc, py - 41 * sc, 3 * sc, 3 * sc); // Forward spike
+      ctx.fillStyle = '#e9d5ff'; // Crystalline glint highlight
+      ctx.fillRect(cx + 3 * sc, py - 44 * sc, 2 * sc, 1.5 * sc);
 
       // Shinobi Scarf Collar around neck
       ctx.fillStyle = '#06b6d4';

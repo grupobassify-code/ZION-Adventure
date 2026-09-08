@@ -6,7 +6,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { GameEngine, GameInputState } from './game/gameEngine';
 import { GameRenderer } from './game/renderer';
-import { GAME_HEIGHT, GAME_WIDTH } from './game/constants';
+import { GAME_HEIGHT, GAME_WIDTH, DAGGER_RECHARGE_TIME } from './game/constants';
 import { sound } from './audio/soundEngine';
 import { GameHUD } from './components/GameHUD';
 import { TouchControls } from './components/TouchControls';
@@ -179,6 +179,7 @@ export default function App() {
 
   const handleStartGameFromMenu = (levelIndex: number, slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -188,6 +189,7 @@ export default function App() {
 
   const handleStartOnlyUpFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -204,6 +206,7 @@ export default function App() {
 
   const handleStartSpecialStageFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -217,6 +220,40 @@ export default function App() {
       setTransitionActive(false);
     }, 950);
   };
+
+  // Sync inMainMenu and stop music immediately on menu or tab exit
+  useEffect(() => {
+    engine.inMainMenu = inMainMenu;
+    if (inMainMenu) {
+      sound.stopMusic();
+    }
+  }, [inMainMenu, engine]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        sound.stopMusic();
+      } else if (!engine.inMainMenu && audioUnlocked && engine.settings.musicEnabled && !engine.isPaused) {
+        engine.syncMusic();
+      }
+    };
+    const handleBlur = () => {
+      sound.stopMusic();
+    };
+    const handleFocus = () => {
+      if (!engine.inMainMenu && audioUnlocked && engine.settings.musicEnabled && !engine.isPaused) {
+        engine.syncMusic();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [engine, audioUnlocked]);
 
   // Comprehensive Keyboard Event Handlers (Movement, Jump, Attack, Block, Dash, Special, Pause)
   useEffect(() => {
@@ -358,10 +395,12 @@ export default function App() {
 
       accumulator += delta;
 
-      // 1. Run Fixed Simulation Updates at strictly 60Hz
+      // 1. Run Fixed Simulation Updates at strictly 60Hz (Only when actively playing, not in main menu)
       let updates = 0;
       while (accumulator >= FIXED_TIMESTEP && updates < MAX_UPDATES_PER_FRAME) {
-        engine.update(inputsRef.current);
+        if (!engine.inMainMenu) {
+          engine.update(inputsRef.current);
+        }
         accumulator -= FIXED_TIMESTEP;
         updates++;
       }
@@ -520,6 +559,7 @@ export default function App() {
           isPortrait={isPortrait}
           inputs={inputsRef.current}
           daggersAvailable={engine.daggers}
+          daggerRechargePercent={Math.min(100, Math.round((engine.daggerRechargeTimer / DAGGER_RECHARGE_TIME) * 100))}
           energy={engine.player.energy}
           maxEnergy={engine.player.maxEnergy}
           controlMode={engine.settings.controlMode}
