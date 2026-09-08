@@ -855,7 +855,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 1950, y: 90, w: 30, h: 58 };
+    goal = { x: 1060, y: 90, w: 32, h: 58 };
   } else if (config.id === 'sakura-1') {
     // -------------------------------------------------------------
     // ZONA 2 · ACTO 1 — BAJO LOS CEREZOS
@@ -1226,7 +1226,7 @@ export function buildLevel(levelIndex: number) {
       { x: 5000, y: 108, w: 10, h: 40, active: false, spawn: { x: 5020, y: 110 } }
     );
 
-    goal = { x: 5550, y: 90, w: 30, h: 58 };
+    goal = { x: 5680, y: 90, w: 30, h: 58 };
   } else if (config.id === 'sakura-3') {
     // -------------------------------------------------------------
     // ZONA 2 · ACTO 3 — EL PATIO LUNAR: MAESTRA KUNOICHI ROSA (JEFE)
@@ -1285,7 +1285,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 1950, y: 90, w: 30, h: 58 };
+    goal = { x: 1060, y: 90, w: 32, h: 58 };
   } else if (config.id === 'lavacliff-1') {
     // -------------------------------------------------------------
     // ZONA 3 · ACTO 1 — LAVACLIFF: ACANTILADOS VOLCÁNICOS (Exterior)
@@ -1636,7 +1636,7 @@ export function buildLevel(levelIndex: number) {
       { x: 5000, y: 108, w: 10, h: 40, active: false, spawn: { x: 5020, y: 110 } }
     );
 
-    goal = { x: 5650, y: 90, w: 30, h: 58 };
+    goal = { x: 5720, y: 90, w: 30, h: 58 };
   } else if (config.id === 'lavacliff-3') {
     // -------------------------------------------------------------
     // ZONA 3 · ACTO 3 — EL CORAZÓN DEL VOLCÁN: COLOSO IGNIS (JEFE)
@@ -1695,7 +1695,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 1950, y: 90, w: 30, h: 58 };
+    goal = { x: 1060, y: 90, w: 32, h: 58 };
   } else if (config.id === 'desert-1') {
     // -------------------------------------------------------------
     // ZONA 4 · ACTO 1 — SANTUARIO DEL DESIERTO: DUNAS OLVIDADAS
@@ -2107,7 +2107,7 @@ export function buildLevel(levelIndex: number) {
       introTimer: 0
     };
 
-    goal = { x: 1950, y: 90, w: 30, h: 58 };
+    goal = { x: 1060, y: 90, w: 32, h: 58 };
   } else if (config.id === 'krono-1') {
     // -------------------------------------------------------------
     // ZONA 5 · ACTO 1 — KRONO CITY: DISTRITO TECNOLÓGICO
@@ -2686,7 +2686,7 @@ export function buildLevel(levelIndex: number) {
       shieldCores: 2
     };
 
-    goal = { x: 2200, y: 88, w: 34, h: 62 };
+    goal = { x: 1080, y: 88, w: 34, h: 62 };
   } else if (config.id === 'krono-travel') {
     // -------------------------------------------------------------
     // NIVEL EXTRA — KRONOS TRAVEL: LA FUSIÓN DIMENSIONAL

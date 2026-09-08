@@ -223,6 +223,7 @@ export class BossRenderer {
       const isRight = boss.facing > 0;
       const startX = lx + (isRight ? boss.w : 0);
       const targetX = startX + (isRight ? 320 : -320);
+      const beamCenterY = boss.name.includes('Kronos') ? y + 29 : y + 12;
 
       ctx.save();
       ctx.strokeStyle = '#ef4444';
@@ -230,18 +231,18 @@ export class BossRenderer {
       ctx.setLineDash([4, 4]);
       ctx.lineDashOffset = -time * 2;
       ctx.beginPath();
-      ctx.moveTo(startX, y + Math.floor(boss.h * 0.35));
-      ctx.lineTo(targetX, y + Math.floor(boss.h * 0.35));
+      ctx.moveTo(startX, beamCenterY);
+      ctx.lineTo(targetX, beamCenterY);
       ctx.stroke();
 
       // Laser charge sparks at emitter muzzle
       const sparkPulse = Math.sin(time * 0.4) * 3 + 4;
       ctx.fillStyle = '#facc15';
       ctx.beginPath();
-      ctx.arc(startX, y + Math.floor(boss.h * 0.35), sparkPulse, 0, Math.PI * 2);
+      ctx.arc(startX, beamCenterY, sparkPulse, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(startX - 1, y + Math.floor(boss.h * 0.35) - 1, 2, 2);
+      ctx.fillRect(startX - 1, beamCenterY - 1, 2, 2);
       ctx.restore();
     }
   }

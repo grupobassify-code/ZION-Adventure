@@ -1292,10 +1292,37 @@ export class GameEngine {
     }
 
     // Hit Boss
-    if (this.boss && this.boss.alive && !this.boss.shield && this.checkAABB(counterHitbox, this.boss)) {
-      const bossDmg = this.boss.state === 'overheat' ? counterDamage * 3 : counterDamage * 2;
-      this.applyDamageToBoss(bossDmg);
-      this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 35, '#facc15');
+    if (this.boss && this.boss.alive) {
+      const bossTarget = {
+        x: this.boss.x - 6,
+        y: this.boss.y - 6,
+        w: this.boss.w + 12,
+        h: this.boss.h + 12,
+      };
+      if (this.checkAABB(counterHitbox, bossTarget)) {
+        if (this.boss.shield) {
+          sound.playSfx('block');
+          this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 16, '#38bdf8');
+          this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
+        } else {
+          const bossDmg = this.boss.state === 'overheat' ? counterDamage * 3 : counterDamage * 2;
+          this.applyDamageToBoss(bossDmg);
+          this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 35, '#facc15');
+        }
+      }
+
+      // Dispel Kunoichi shadow clones in radius
+      if (this.boss.clones && this.boss.clones.length > 0) {
+        for (let cIdx = this.boss.clones.length - 1; cIdx >= 0; cIdx--) {
+          const clone = this.boss.clones[cIdx];
+          if (this.checkAABB(counterHitbox, clone)) {
+            sound.playSfx('hit');
+            this.createBurst(clone.x + clone.w / 2, clone.y + clone.h / 2, 22, '#f472b6');
+            this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DESTRUIDA!', '#f472b6');
+            this.boss.clones.splice(cIdx, 1);
+          }
+        }
+      }
     }
   }
 
@@ -1388,15 +1415,17 @@ export class GameEngine {
         combo: p.comboStep,
       });
 
-      // Hitbox for Melee Attack
+      // Hitbox for Melee Attack (Balanced arc with inner start and generous reach)
+      const isCombo3 = p.comboStep === 3;
+      const reach = isCombo3 ? MELEE_RANGE + 14 : MELEE_RANGE + 6;
       const attackHitbox = {
-        x: p.facing > 0 ? p.x + p.w : p.x - MELEE_RANGE,
-        y: p.y - 6,
-        w: MELEE_RANGE + 4,
-        h: p.h + 12,
+        x: p.facing > 0 ? p.x - 4 : p.x + p.w - reach - 2,
+        y: isCombo3 ? p.y - 14 : p.y - 10,
+        w: reach + 6,
+        h: isCombo3 ? p.h + 24 : p.h + 18,
       };
 
-      const dmg = p.attackPower + (p.comboStep === 3 ? 2 : 0);
+      const dmg = p.attackPower + (isCombo3 ? 2 : 0);
 
       // Hit Enemies
       for (const e of this.enemies) {
@@ -1421,10 +1450,40 @@ export class GameEngine {
         }
       }
 
-      // Hit Boss
-      if (this.boss && this.boss.alive && !this.boss.shield && this.boss.inv <= 0 && this.checkAABB(attackHitbox, this.boss)) {
-        this.applyDamageToBoss(dmg);
-        this.addEnergy(8);
+      // Hit Boss (Generous boss target box ensures Zion's sword slashes connect consistently)
+      if (this.boss && this.boss.alive) {
+        const bossTargetBox = {
+          x: this.boss.x - 4,
+          y: this.boss.y - 4,
+          w: this.boss.w + 8,
+          h: this.boss.h + 8,
+        };
+
+        if (this.checkAABB(attackHitbox, bossTargetBox)) {
+          if (this.boss.shield) {
+            sound.playSfx('block');
+            this.createBurst(p.facing > 0 ? this.boss.x : this.boss.x + this.boss.w, p.y + p.h / 2, 8, '#38bdf8');
+            this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
+          } else if (this.boss.inv <= 0) {
+            this.applyDamageToBoss(dmg);
+            this.addEnergy(8);
+          }
+        }
+
+        // Dispel Kunoichi shadow clones with sword strike
+        if (this.boss.clones && this.boss.clones.length > 0) {
+          for (let cIdx = this.boss.clones.length - 1; cIdx >= 0; cIdx--) {
+            const clone = this.boss.clones[cIdx];
+            if (this.checkAABB(attackHitbox, clone)) {
+              sound.playSfx('hit');
+              this.createBurst(clone.x + clone.w / 2, clone.y + clone.h / 2, 18, '#f472b6');
+              this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DISPERSADA!', '#f472b6');
+              this.boss.clones.splice(cIdx, 1);
+              this.addEnergy(10);
+              this.addScore(150);
+            }
+          }
+        }
       }
 
       this.attackInputHeld = true;
@@ -1486,9 +1545,36 @@ export class GameEngine {
         }
       }
 
-      // Damage Boss if in radius
-      if (this.boss && this.boss.alive && !this.boss.shield && this.checkAABB(burstArea, this.boss)) {
-        this.applyDamageToBoss(specialDmg);
+      // Damage Boss if in radius (Consistent target area)
+      if (this.boss && this.boss.alive) {
+        const bossTargetBox = {
+          x: this.boss.x - 6,
+          y: this.boss.y - 6,
+          w: this.boss.w + 12,
+          h: this.boss.h + 12,
+        };
+        if (this.checkAABB(burstArea, bossTargetBox)) {
+          if (this.boss.shield) {
+            sound.playSfx('block');
+            this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 14, '#38bdf8');
+            this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
+          } else {
+            this.applyDamageToBoss(specialDmg);
+          }
+        }
+
+        // Dispel Kunoichi clones in special burst
+        if (this.boss.clones && this.boss.clones.length > 0) {
+          for (let cIdx = this.boss.clones.length - 1; cIdx >= 0; cIdx--) {
+            const clone = this.boss.clones[cIdx];
+            if (this.checkAABB(burstArea, clone)) {
+              sound.playSfx('hit');
+              this.createBurst(clone.x + clone.w / 2, clone.y + clone.h / 2, 22, '#f472b6');
+              this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DISPERSADA!', '#f472b6');
+              this.boss.clones.splice(cIdx, 1);
+            }
+          }
+        }
       }
 
       this.addFloatingText(p.x, p.y - 24, '💥 ¡HABILIDAD ESPECIAL!', burstColor);
@@ -1647,11 +1733,16 @@ export class GameEngine {
     if (b.hp <= 0) {
       b.alive = false;
       this.bossDefeated = true;
-      this.screenShake = 12;
-      this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 50, '#ffd700');
+      this.arenaActive = false;
+      this.screenShake = 14;
+      this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 60, '#ffd700');
       sound.playSfx('win');
       this.addXp(600);
       this.addFloatingText(b.x + b.w / 2, b.y - 25, '🏆 ¡JEFE DERROTADO! +600 XP', '#facc15');
+      if (this.goal) {
+        this.createBurst(this.goal.x + this.goal.w / 2, this.goal.y + this.goal.h / 2, 40, '#a855f7');
+        this.addFloatingText(this.goal.x + this.goal.w / 2, this.goal.y - 30, '🌀 ¡PORTAL DESBLOQUEADO! ➔', '#38bdf8');
+      }
     }
   }
 
@@ -2755,7 +2846,7 @@ export class GameEngine {
     }
 
     // --- BOSS 1: GUARDIÁN NEÓN MK-IV ---
-    if (this.levelIndex <= 1) {
+    if (b.name.includes('Guardián') || b.name.includes('Neón')) {
       const speed = b.shield ? 0.7 : b.phase === 1 ? 1.0 : b.phase === 2 ? 1.35 : 1.7;
       
       if (b.state === 'idle') {
@@ -3554,9 +3645,9 @@ export class GameEngine {
             maxCharge: 30,
             dir: b.facing,
             x: b.facing > 0 ? b.x + b.w : b.x - 340,
-            y: b.y + 12,
+            y: b.y + 22,
             length: 340,
-            thickness: 18,
+            thickness: 14,
             duration: b.phase === 3 ? 40 : 32,
           };
         }
@@ -3564,7 +3655,7 @@ export class GameEngine {
         b.stateTimer--;
         if (b.laser) {
           b.laser.x = b.facing > 0 ? b.x + b.w : b.x - b.laser.length;
-          b.laser.y = b.y + 12;
+          b.laser.y = b.y + 22;
 
           const laserHitbox = {
             x: b.laser.x,
@@ -3699,8 +3790,9 @@ export class GameEngine {
       sw.x += sw.vx;
       sw.life--;
 
-      // Check collision with Player
-      if (this.checkAABB(this.player, sw) && this.player.inv <= 0 && !this.settings.godMode) {
+      // Check collision with Player (grant 2 frames of emergence so slam ground-impact gives reactable jumping window)
+      const isEmerging = sw.maxLife && sw.life > sw.maxLife - 2;
+      if (!isEmerging && this.checkAABB(this.player, sw) && this.player.inv <= 0 && !this.settings.godMode) {
         if (this.player.isBlocking) {
           if (this.player.perfectParryTimer > 0) {
             sound.playSfx('parry');
@@ -3735,11 +3827,17 @@ export class GameEngine {
     const maxParticles = this.settings.performanceMode ? 40 : 80;
     for (let i = 0; i < this.projectiles.length; i++) {
       const p = this.projectiles[i];
-      if (p.kind === 'homing' && p.homingTimer && p.homingTimer > 0) {
+      if (p.homingTimer && p.homingTimer > 0) {
         p.homingTimer--;
         const angle = Math.atan2(this.player.y - p.y, this.player.x - p.x);
         p.vx += Math.cos(angle) * 0.12;
         p.vy += Math.sin(angle) * 0.12;
+        const spd = Math.hypot(p.vx, p.vy);
+        const maxSpd = 4.2;
+        if (spd > maxSpd) {
+          p.vx = (p.vx / spd) * maxSpd;
+          p.vy = (p.vy / spd) * maxSpd;
+        }
       }
       if (p.kind === 'sakuraShuriken') {
         p.angle = ((p.angle || 0) + 0.25) % (Math.PI * 2);
@@ -3831,10 +3929,42 @@ export class GameEngine {
         }
       }
 
-      // Boss Direct Hit
-      if (this.boss && this.boss.alive && !this.boss.shield && this.boss.inv <= 0 && this.checkAABB(proj, this.boss)) {
-        this.applyDamageToBoss(proj.damage || 1);
-        proj.life = 0;
+      // Boss Direct Hit (Generous target box so thrown daggers register reliably)
+      if (this.boss && this.boss.alive) {
+        const bossTarget = {
+          x: this.boss.x - 4,
+          y: this.boss.y - 4,
+          w: this.boss.w + 8,
+          h: this.boss.h + 8,
+        };
+        if (this.checkAABB(proj, bossTarget)) {
+          if (this.boss.shield) {
+            proj.life = 0;
+            sound.playSfx('block');
+            this.createBurst(proj.x, proj.y, 8, '#38bdf8');
+            this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 16, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
+          } else if (this.boss.inv <= 0) {
+            this.applyDamageToBoss(proj.damage || 1);
+            proj.life = 0;
+          }
+        }
+      }
+
+      // Kunoichi Shadow Clones Hit by Daggers
+      if (this.boss && this.boss.clones && this.boss.clones.length > 0) {
+        for (let cIdx = this.boss.clones.length - 1; cIdx >= 0; cIdx--) {
+          const clone = this.boss.clones[cIdx];
+          if (this.checkAABB(proj, clone)) {
+            proj.life = 0;
+            sound.playSfx('hit');
+            this.createBurst(clone.x + clone.w / 2, clone.y + clone.h / 2, 18, '#f472b6');
+            this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DISPERSADA!', '#f472b6');
+            this.boss.clones.splice(cIdx, 1);
+            this.addEnergy(10);
+            this.addScore(150);
+            break;
+          }
+        }
       }
 
       // Proximity Mine Hit by Dagger / Shuriken
@@ -4290,13 +4420,25 @@ export class GameEngine {
         }
       }
 
-      // Boss Body Collision (Only when boss is actively performing offensive move, NOT while staggered/idle/recovering)
+      // Boss Body Collision (Fair Collision Design: Only when boss is actively performing physical body moves like dash tackles or ground-slam drops, NEVER during charging, stationary projectile attacks, overheat, or teleport)
+      const isPhysicalBodyAttack =
+        this.boss &&
+        (this.boss.state === 'dash' || (this.boss.state === 'slamming' && this.boss.vy > 1.5));
+
       const bossCanDamage =
         this.boss &&
         this.boss.alive &&
         !this.boss.isStaggered &&
         this.boss.state !== 'staggered' &&
         this.boss.state !== 'idle' &&
+        this.boss.state !== 'overheat' &&
+        this.boss.state !== 'charging' &&
+        this.boss.state !== 'teleport' &&
+        this.boss.state !== 'laser' &&
+        this.boss.state !== 'barrage' &&
+        this.boss.state !== 'missileBarrage' &&
+        this.boss.state !== 'emp' &&
+        isPhysicalBodyAttack &&
         this.boss.inv < 15 &&
         (this.boss.introTimer || 0) <= 0;
 
@@ -4309,21 +4451,36 @@ export class GameEngine {
         };
         if (this.checkAABB(p, bossHurtbox)) {
           if (p.isBlocking && !p.isShieldBroken) {
-            p.shieldEnergy = Math.max(0, p.shieldEnergy - 30);
-            p.vx = -p.facing * 2.8;
-            sound.playSfx('block');
-            if (p.shieldEnergy <= 0) {
-              p.isBlocking = false;
-              p.isShieldBroken = true;
-              p.shieldBreakTimer = 120;
-              sound.playSfx('shieldBreak');
-              this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 25, '#ef4444');
-              this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR EL JEFE!', '#ef4444');
+            if (p.perfectParryTimer > 0) {
+              sound.playSfx('parry');
+              sound.playSfx('stagger');
+              this.screenShake = 10;
+              this.boss.isStaggered = true;
+              this.boss.state = 'staggered';
+              this.boss.stateTimer = 180;
+              this.boss.stagger = this.boss.maxStagger;
+              this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 30, '#facc15');
+              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 30, '⚔️ ¡PERFECT PARRY! ¡JEFE ATURDIDO!', '#facc15');
+              this.addEnergy(45);
+              p.shieldEnergy = Math.min(p.maxShieldEnergy, p.shieldEnergy + 35);
             } else {
-              this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Impacto Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+              p.shieldEnergy = Math.max(0, p.shieldEnergy - 25);
+              p.vx = -p.facing * 2.8;
+              sound.playSfx('block');
+              this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 12, '#38bdf8');
+              if (p.shieldEnergy <= 0) {
+                p.isBlocking = false;
+                p.isShieldBroken = true;
+                p.shieldBreakTimer = 120;
+                sound.playSfx('shieldBreak');
+                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 25, '#ef4444');
+                this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR EL JEFE!', '#ef4444');
+              } else {
+                this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Impacto Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+              }
             }
           } else {
-            this.handlePlayerDamage('¡Impacto contra el jefe!');
+            this.handlePlayerDamage('¡Embestida del jefe!');
           }
         }
       }
@@ -4341,9 +4498,19 @@ export class GameEngine {
       return;
     }
 
-    // 9. Goal Portal Reached
-    const config = LEVEL_CONFIGS[this.levelIndex];
-    if (this.goal && (config.act === 1 || this.bossDefeated) && this.checkAABB(p, this.goal)) {
+    // 9. Goal Portal Reached (Active in all exploration acts & after boss defeat in boss acts)
+    const isBossFightOngoing = !!(this.boss && this.boss.alive && !this.bossDefeated);
+    if (
+      this.goal &&
+      !this.isInSpecialStage &&
+      !isBossFightOngoing &&
+      this.checkAABB(p, {
+        x: this.goal.x - 4,
+        y: this.goal.y - 4,
+        w: this.goal.w + 8,
+        h: this.goal.h + 8,
+      })
+    ) {
       this.handleLevelWin();
     }
   }
@@ -4814,12 +4981,12 @@ export class GameEngine {
       this.boss.inv = 0;
       if (this.boss.clones) this.boss.clones = [];
       // Restore shield nodes for Guardián Neón (Boss 1)
-      if (this.levelIndex <= 1) {
+      if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
       }
       // Restore shield nodes for Kronos-Ω (Boss 5)
-      if (this.levelIndex === 10) {
+      if (this.boss.name.includes('Kronos')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
       }

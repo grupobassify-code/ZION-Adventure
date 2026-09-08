@@ -2533,28 +2533,147 @@ export class GameRenderer {
       ctx.fillRect(x + 3, node.y + 2 + bob, 4, 8);
     }
 
-    // Goal Portal
-    if (goal && (act === 1 || bossDefeated)) {
+    // Goal Portal (Always active in exploration acts, and after boss defeat in boss acts)
+    if (goal && (act !== 3 || bossDefeated)) {
       const x = Math.round(goal.x - cameraX);
-      const bob = Math.sin(time * 0.08) * 3;
+      if (x >= -80 && x <= GAME_WIDTH + 80) {
+        const bob = Math.sin(time * 0.08) * 2.5;
 
-      const portalColor = zone === 'neon' ? '#22d3ee33' : zone === 'sakura' ? '#f472b644' : '#ea580c44';
-      ctx.fillStyle = portalColor;
-      ctx.fillRect(x - bob, goal.y - bob, goal.w + bob * 2, goal.h + bob * 2);
+        // Zone-specific portal color palettes
+        let outerGlow = 'rgba(34, 211, 238, 0.35)';
+        let frameDark = '#0f172a';
+        let frameTrim = '#38bdf8';
+        let vortexC1 = '#06b6d4';
+        let vortexC2 = '#a855f7';
+        let vortexCore = '#ffffff';
+        let beaconText = 'PORTAL NEÓN';
 
-      ctx.fillStyle = zone === 'neon' ? '#1e1b4b' : zone === 'sakura' ? '#4c0519' : '#330a0a';
-      ctx.fillRect(x, goal.y, goal.w, 14);
-      ctx.fillRect(x, goal.y, 6, goal.h);
-      ctx.fillRect(x + goal.w - 6, goal.y, 6, goal.h);
+        if (zone === 'sakura') {
+          outerGlow = 'rgba(244, 114, 182, 0.38)';
+          frameDark = '#2a0815';
+          frameTrim = '#f472b6';
+          vortexC1 = '#fb7185';
+          vortexC2 = '#c084fc';
+          vortexCore = '#fff1f2';
+          beaconText = 'PORTAL TORII';
+        } else if (zone === 'lavacliff') {
+          outerGlow = 'rgba(249, 115, 22, 0.42)';
+          frameDark = '#1c0a06';
+          frameTrim = '#f97316';
+          vortexC1 = '#ea580c';
+          vortexC2 = '#facc15';
+          vortexCore = '#fffbeb';
+          beaconText = 'PORTAL ÍGNEO';
+        } else if (zone === 'desert') {
+          outerGlow = 'rgba(251, 191, 36, 0.38)';
+          frameDark = '#291804';
+          frameTrim = '#fbbf24';
+          vortexC1 = '#d97706';
+          vortexC2 = '#34d399';
+          vortexCore = '#fefce8';
+          beaconText = 'PORTAL SOLAR';
+        } else if (zone === 'krono') {
+          outerGlow = 'rgba(99, 102, 241, 0.42)';
+          frameDark = '#090d16';
+          frameTrim = '#818cf8';
+          vortexC1 = '#06b6d4';
+          vortexC2 = '#ec4899';
+          vortexCore = '#e0e7ff';
+          beaconText = 'PORTAL CUÁNTICO';
+        } else if (zone === 'travel') {
+          outerGlow = 'rgba(168, 85, 247, 0.45)';
+          frameDark = '#050510';
+          frameTrim = '#c084fc';
+          vortexC1 = '#38bdf8';
+          vortexC2 = '#f43f5e';
+          vortexCore = '#fef08a';
+          beaconText = 'FISURA DIMENSIONAL';
+        }
 
-      const pGrad = ctx.createLinearGradient(x, goal.y, x, goal.y + goal.h);
-      pGrad.addColorStop(0, zone === 'neon' ? '#38bdf8' : zone === 'sakura' ? '#fb7185' : '#f97316');
-      pGrad.addColorStop(1, zone === 'neon' ? '#a855f7' : zone === 'sakura' ? '#9333ea' : '#dc2626');
-      ctx.fillStyle = pGrad;
-      ctx.fillRect(x + 6, goal.y + 14, goal.w - 12, goal.h - 14);
+        // 1. Radiant Outer Energy Aura
+        ctx.fillStyle = outerGlow;
+        ctx.fillRect(x - 6 - bob, goal.y - 6 - bob, goal.w + 12 + bob * 2, goal.h + 12 + bob * 2);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x + goal.w / 2 - 2, goal.y + goal.h / 2 - 2 + bob, 4, 4);
+        // 2. Heavy Architectural Pillar Frame (Torii / Monolith / Pylon)
+        ctx.fillStyle = frameDark;
+        ctx.fillRect(x - 2, goal.y, goal.w + 4, goal.h);
+
+        // Frame High-contrast Neon Trim
+        ctx.fillStyle = frameTrim;
+        ctx.fillRect(x - 2, goal.y, goal.w + 4, 3); // Top arch
+        ctx.fillRect(x - 2, goal.y, 4, goal.h); // Left pillar
+        ctx.fillRect(x + goal.w - 2, goal.y, 4, goal.h); // Right pillar
+        ctx.fillRect(x - 4, goal.y + goal.h - 4, goal.w + 8, 4); // Base pedestal
+
+        // Inner Portal Opening
+        const innerX = x + 3;
+        const innerY = goal.y + 4;
+        const innerW = goal.w - 6;
+        const innerH = goal.h - 8;
+
+        // 3. Swirling Plasma Gradient
+        const pGrad = ctx.createLinearGradient(innerX, innerY, innerX, innerY + innerH);
+        pGrad.addColorStop(0, vortexC1);
+        pGrad.addColorStop(0.5, vortexC2);
+        pGrad.addColorStop(1, vortexC1);
+        ctx.fillStyle = pGrad;
+        ctx.fillRect(innerX, innerY, innerW, innerH);
+
+        // 4. Moving Plasma Bands / Vortex Current
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+        for (let bIdx = 0; bIdx < 4; bIdx++) {
+          const bandOffset = ((time * 0.9 + bIdx * (innerH / 4)) % innerH);
+          const by = innerY + bandOffset;
+          const bandThickness = 2 + (bIdx % 2);
+          ctx.fillRect(innerX + 1, by, innerW - 2, bandThickness);
+        }
+
+        // 5. Pulsing Core Star / Singularity
+        const coreBob = Math.sin(time * 0.12) * 2;
+        const coreSize = 6 + Math.round(Math.sin(time * 0.15) * 2);
+        ctx.fillStyle = vortexCore;
+        ctx.fillRect(
+          Math.round(innerX + innerW / 2 - coreSize / 2),
+          Math.round(innerY + innerH / 2 - coreSize / 2 + coreBob),
+          coreSize,
+          coreSize
+        );
+
+        // 6. Orbiting Celestial Sparkles
+        for (let sp = 0; sp < 3; sp++) {
+          const angle = time * 0.09 + (sp * (Math.PI * 2 / 3));
+          const sx = innerX + innerW / 2 + Math.cos(angle) * (innerW * 0.35);
+          const sy = innerY + innerH / 2 + Math.sin(angle) * (innerH * 0.35);
+          ctx.fillStyle = vortexCore;
+          ctx.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 3, 3);
+        }
+
+        // 7. Floating Animated Beacon above Portal (Clear visual cue)
+        const arrowBob = Math.sin(time * 0.1) * 3;
+        const arrowY = goal.y - 14 + arrowBob;
+        const beaconMidX = x + Math.round(goal.w / 2);
+
+        // Pulsing glowing down-arrow
+        ctx.fillStyle = frameTrim;
+        ctx.beginPath();
+        ctx.moveTo(beaconMidX, arrowY + 8);
+        ctx.lineTo(beaconMidX - 5, arrowY + 2);
+        ctx.lineTo(beaconMidX + 5, arrowY + 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Mini Label Badge
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+        ctx.fillRect(beaconMidX - 32, arrowY - 10, 64, 10);
+        ctx.strokeStyle = frameTrim;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(beaconMidX - 32, arrowY - 10, 64, 10);
+
+        ctx.font = '600 6px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillText(beaconText, beaconMidX, arrowY - 3);
+      }
     }
 
     // Special Stage Entrance Portal (Cosmic violet & gold shimmering vortex)
@@ -2724,6 +2843,22 @@ export class GameRenderer {
         ctx.arc(x + p.w / 2, p.y + p.h / 2, p.w / 4, 0, Math.PI * 2);
         ctx.fill();
       } else if (p.kind === 'magmaMeteor') {
+        // Ground impact hazard warning marker so player can anticipate where meteors land
+        if (p.vy > 0 && p.y < 144) {
+          ctx.save();
+          const groundY = 146;
+          const distToGround = Math.max(0, groundY - p.y);
+          const shadowRadius = Math.max(3, 10 - distToGround * 0.05);
+          const alpha = Math.min(0.7, Math.max(0.2, 1 - distToGround / 160));
+          ctx.fillStyle = `rgba(239, 68, 68, ${alpha.toFixed(2)})`;
+          ctx.beginPath();
+          ctx.ellipse(x + p.w / 2, groundY, shadowRadius, 2.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = `rgba(251, 191, 36, ${(alpha * 0.8).toFixed(2)})`;
+          ctx.fillRect(x + p.w / 2 - 1, groundY - 1, 2, 2);
+          ctx.restore();
+        }
+
         // Volcanic Meteor descending with trail
         ctx.fillStyle = '#450a0a';
         ctx.fillRect(x, p.y, p.w, p.h);
