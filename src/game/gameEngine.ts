@@ -1480,7 +1480,7 @@ export class GameEngine {
               this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DISPERSADA!', '#f472b6');
               this.boss.clones.splice(cIdx, 1);
               this.addEnergy(10);
-              this.addScore(150);
+              this.stats.score += 150;
             }
           }
         }
@@ -2306,6 +2306,14 @@ export class GameEngine {
             p.vx = -(dx / dist) * 4.2;
             p.vy = -3.8;
           }
+        }
+      } else if (h.type === 'plasmaBeam') {
+        const cycle = h.maxCycle || 120;
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % cycle;
+        h.warnTimer = (h.cycleTimer >= cycle * 0.65 && h.cycleTimer < cycle * 0.8) ? Math.round(cycle * 0.8 - h.cycleTimer) : 0;
+        h.active = (h.cycleTimer >= cycle * 0.8);
+        if (h.cycleTimer === Math.round(cycle * 0.8)) {
+          sound.playSfx('laserFire');
         }
       }
     }
@@ -3961,7 +3969,7 @@ export class GameEngine {
             this.addFloatingText(clone.x, clone.y - 12, '🌸 ¡ILUSIÓN DISPERSADA!', '#f472b6');
             this.boss.clones.splice(cIdx, 1);
             this.addEnergy(10);
-            this.addScore(150);
+            this.stats.score += 150;
             break;
           }
         }
@@ -4093,6 +4101,7 @@ export class GameEngine {
       for (const h of this.hazards) {
         if (h.type === 'bamboo' || h.type === 'branch' || h.type === 'rock') continue; // Decorative
         if (h.type === 'laserGate' && !h.active) continue;
+        if (h.type === 'plasmaBeam' && !h.active) continue;
         if (h.type === 'geyser' && !h.erupting) continue;
         if (h.type === 'fallingBlock' && (!h.isFalling || (h.fallVy || 0) < 1.0)) continue; // Only damage while actually falling
         if (h.type === 'stalactite' && (!h.falling || (h.vy || 0) < 1.0)) continue; // Only damage while actually falling
@@ -4435,7 +4444,6 @@ export class GameEngine {
         this.boss.state !== 'charging' &&
         this.boss.state !== 'teleport' &&
         this.boss.state !== 'laser' &&
-        this.boss.state !== 'barrage' &&
         this.boss.state !== 'missileBarrage' &&
         this.boss.state !== 'emp' &&
         isPhysicalBodyAttack &&
@@ -4916,6 +4924,22 @@ export class GameEngine {
     if (this.isInSpecialStage) {
       // In Special Stage: Strictly 1 single attempt! Any hit exits back to normal level
       this.exitSpecialStageOnDefeat();
+      return;
+    }
+    if (this.isOnlyUpMode) {
+      // In Only Up mode, hearts are eliminated as requested:
+      // Obstacles push or stun the player downward/backward instead of deducting hearts
+      this.comboCount = 0;
+      this.comboTimer = 0;
+      this.comboRank = 'D';
+      this.screenShake = 6;
+      this.player.inv = 50;
+      this.player.vx = -this.player.facing * 4.2;
+      this.player.vy = 2.8; // knocks downward to challenge climb
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#f97316');
+      sound.playSfx('hurt');
+      this.addFloatingText(this.player.x, this.player.y - 15, `¡ATURDIDO! 💫 ${msg}`, '#f97316');
+      this.notifyState();
       return;
     }
     this.maxLives = 3;

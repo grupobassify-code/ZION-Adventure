@@ -305,7 +305,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         title: 'NUEVAS MECÁNICAS DE KRONO CITY',
         lines: [
           '• CINTAS TRANSPORTADORAS: Aceleran o frenan tu avance en la dirección de la energía.',
-          '• SUELOS EMP ELECTRIFICADOS: Descargas periódicas de alto voltaje; salta o usa Dash para no recibir daño.',
+          '• BARRERAS LÁSER & ARCOS ELÉCTRICOS: Vigila los intervalos de descarga de alta tensión y los emisores de plasma; esquívalos saltando o usando Dash.',
           '• DRONES Y TORRETAS CIBER: Apuntan con lásers de precisión; desvía sus disparos con bloqueo o destruye sus emisores.',
           '• SABUESOS BIÓNICOS: Rápidos y letales; embisten en línea recta al detectar tu proximidad.'
         ],
@@ -1357,13 +1357,17 @@ export function buildLevel(levelIndex: number) {
       crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
-    // Varied Volcanic Obstacles
-    // 1. High-Pressure Flame Jets
+    // Varied Volcanic Obstacles (Abundante Fuego y Magma de Lavacliff)
+    // 1. High-Pressure Flame Jets (8 potentes cañones de fuego volcánico)
     hazards.push(
       { x: 880, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 0, flameAngle: 0 },
-      { x: 2350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 45, flameAngle: 0 },
-      { x: 3950, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 20, flameAngle: 0 },
-      { x: 5700, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+      { x: 1650, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 30, flameAngle: 0 },
+      { x: 2350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 50, flameAngle: 0 },
+      { x: 3200, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 15, flameAngle: 0 },
+      { x: 3950, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 40, flameAngle: 0 },
+      { x: 4900, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 10, flameAngle: 0 },
+      { x: 5700, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 },
+      { x: 6500, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 25, flameAngle: 0 }
     );
 
     // 2. Basalt Crusher Pistons
@@ -1381,8 +1385,16 @@ export function buildLevel(levelIndex: number) {
       { x: 6150, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 6080, railMax: 6280, bladeSpeed: 2.2, bladeAngle: 0 }
     );
 
-    // 4. Volcanic Geysers & Falling Stalactites
-    for (let x = 950; x < 7000; x += 1100) {
+    // 4. Cadenas de Fuego Giratorias sobre cornisas de basalto
+    hazards.push(
+      { x: 1850, y: 92, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 0, chainLength: 42, orbCount: 4, spinSpeed: 0.034 },
+      { x: 3480, y: 94, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 1.5, chainLength: 42, orbCount: 4, spinSpeed: -0.034 },
+      { x: 5200, y: 94, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 3.1, chainLength: 42, orbCount: 4, spinSpeed: 0.036 },
+      { x: 6850, y: 96, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 0.8, chainLength: 42, orbCount: 4, spinSpeed: -0.036 }
+    );
+
+    // 5. Volcanic Geysers & Falling Stalactites
+    for (let x = 750; x < 7100; x += 720) {
       hazards.push({
         x,
         y: 142,
@@ -1395,7 +1407,7 @@ export function buildLevel(levelIndex: number) {
         maxCycle: 160
       });
       hazards.push({
-        x: x + 120,
+        x: x + 100,
         y: 60,
         w: 12,
         h: 18,
@@ -1533,13 +1545,17 @@ export function buildLevel(levelIndex: number) {
       crystals.push({ x: cx, y: 132, w: 8, h: 10, taken: false, t: Math.random() * 6.28 });
     }
 
-    // Varied Magma Core Obstacles
-    // 1. Dual Flame Jets
+    // Varied Magma Core Obstacles (Profusión de Lava y Fuego Subterráneo)
+    // 1. Dual Flame Jets (8 cañones de llamas en el núcleo volcánico)
     hazards.push(
       { x: 820, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 10, flameAngle: 0 },
+      { x: 1600, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 35, flameAngle: 0 },
       { x: 2380, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 55, flameAngle: 0 },
-      { x: 4050, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 25, flameAngle: 0 },
-      { x: 5350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 65, flameAngle: 0 }
+      { x: 3100, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 20, flameAngle: 0 },
+      { x: 4050, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 45, flameAngle: 0 },
+      { x: 4750, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 15, flameAngle: 0 },
+      { x: 5350, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 65, flameAngle: 0 },
+      { x: 5650, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 30, flameAngle: 0 }
     );
 
     // 2. Obsidian Crushers
@@ -1556,8 +1572,17 @@ export function buildLevel(levelIndex: number) {
       { x: 4480, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 4400, railMax: 4600, bladeSpeed: 2.5, bladeAngle: 0 }
     );
 
-    // 4. Geysers & Falling Stalactites
-    for (let x = 900; x < 5800; x += 1150) {
+    // 4. Cadenas de Fuego Giratorias sobre los Lagos de Magma
+    hazards.push(
+      { x: 1020, y: 94, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 0, chainLength: 44, orbCount: 4, spinSpeed: 0.035 },
+      { x: 1780, y: 90, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 1.8, chainLength: 44, orbCount: 4, spinSpeed: -0.035 },
+      { x: 2550, y: 100, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 3.2, chainLength: 44, orbCount: 4, spinSpeed: 0.038 },
+      { x: 3380, y: 94, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 0.5, chainLength: 44, orbCount: 4, spinSpeed: -0.036 },
+      { x: 5080, y: 92, w: 10, h: 10, type: 'rotatingFireChain', bladeAngle: 2.4, chainLength: 44, orbCount: 4, spinSpeed: 0.038 }
+    );
+
+    // 5. Geysers & Falling Stalactites
+    for (let x = 800; x < 5800; x += 650) {
       hazards.push({
         x,
         y: 142,
@@ -1570,7 +1595,7 @@ export function buildLevel(levelIndex: number) {
         maxCycle: 160
       });
       hazards.push({
-        x: x + 100,
+        x: x + 90,
         y: 60,
         w: 14,
         h: 18,
@@ -2112,10 +2137,9 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // ZONA 5 · ACTO 1 — KRONO CITY: DISTRITO TECNOLÓGICO
     // -------------------------------------------------------------
-    // Clean Base Floor with Conveyor & Cyber Sections
+    // Clean Base Floor with Conveyor & Cyber Sections (SUELOS ELECTRICOS EMP ELIMINADOS PARA NUNCA BLOQUEAR EL PASO)
     for (let x = 0; x < LW; x += 320) {
       const isConveyor = (x / 320) % 3 === 1;
-      const isEmp = (x / 320) % 5 === 4;
       
       if (isConveyor) {
         platforms.push({ 
@@ -2129,19 +2153,6 @@ export function buildLevel(levelIndex: number) {
         });
       } else {
         platforms.push({ x, y: 148, w: 260, h: 40, kind: 'cyber' });
-      }
-
-      if (isEmp) {
-        hazards.push({
-          x: x + 40,
-          y: 146,
-          w: 180,
-          h: 12,
-          type: 'empFloor',
-          cycleTimer: (x % 120),
-          maxCycle: 140,
-          active: false
-        });
       }
     }
 
@@ -2162,7 +2173,7 @@ export function buildLevel(levelIndex: number) {
     ];
     platforms.push(...krono1Catwalks);
 
-    // Varied Sci-Fi Obstacles
+    // Varied Sci-Fi Obstacles: LÁSERES Y DESCARGAS ELÉCTRICAS DE ALTO VOLTAJE (Sin fuego ni pisos eléctricos)
     // 1. High-Speed Laser Saws
     hazards.push(
       { x: 950, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 860, railMax: 1060, bladeSpeed: 2.5, bladeAngle: 0 },
@@ -2179,33 +2190,51 @@ export function buildLevel(levelIndex: number) {
       { x: 6850, y: 55, w: 34, h: 30, type: 'crusher', crushState: 'idle', crushTimer: 45, floorY: 148, crushSpeed: 5.5 }
     );
 
-    // 3. Tesla Arcing Pillars
+    // 3. Torres Tesla de Alta Tensión (6 Torres con descarga eléctrica periódica)
     hazards.push(
       { x: 1150, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 0, teslaState: 'charging' },
-      { x: 2800, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 40, teslaState: 'charging' },
-      { x: 4500, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 20, teslaState: 'charging' },
-      { x: 6200, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 50, teslaState: 'charging' }
+      { x: 2100, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 30, teslaState: 'charging' },
+      { x: 2800, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 50, teslaState: 'charging' },
+      { x: 3800, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 15, teslaState: 'charging' },
+      { x: 4500, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 35, teslaState: 'charging' },
+      { x: 6200, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 55, teslaState: 'charging' }
     );
 
-    // 4. Coolant Chemical Leak Pools & Thermal Exhaust Flame Jets
+    // 4. Arcos Eléctricos Conductores de Alta Tensión en el aire
     hazards.push(
-      { x: 1980, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 0 },
-      { x: 3680, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 1.5 },
-      { x: 5380, y: 150, w: 42, h: 10, type: 'acidPool', acidTimer: 3.0 },
-      { x: 1500, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 20, flameAngle: 0 },
-      { x: 4900, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 60, flameAngle: 0 }
+      { x: 1600, y: 80, w: 8, h: 8, type: 'electricArc', targetX: 1720, targetY: 80, cycleTimer: 10, maxCycle: 100 },
+      { x: 3300, y: 75, w: 8, h: 8, type: 'electricArc', targetX: 3420, targetY: 75, cycleTimer: 45, maxCycle: 100 },
+      { x: 5000, y: 80, w: 8, h: 8, type: 'electricArc', targetX: 5120, targetY: 80, cycleTimer: 25, maxCycle: 100 },
+      { x: 6650, y: 75, w: 8, h: 8, type: 'electricArc', targetX: 6770, targetY: 75, cycleTimer: 60, maxCycle: 100 }
     );
 
-    for (let x = 800; x < LW - 800; x += 1100) {
+    // 5. Barreras Láser de Seguridad (Horizontales y Verticales con ciclo de encendido/apagado)
+    hazards.push(
+      { x: 1450, y: 92, w: 50, h: 8, type: 'laserGate', cycleTimer: 0, active: true },
+      { x: 3150, y: 90, w: 50, h: 8, type: 'laserGate', cycleTimer: 30, active: true },
+      { x: 4850, y: 92, w: 50, h: 8, type: 'laserGate', cycleTimer: 60, active: true },
+      { x: 6550, y: 90, w: 50, h: 8, type: 'laserGate', cycleTimer: 20, active: true }
+    );
+
+    // 6. Minas Holográficas de Proximidad Cuánticas (Se pueden desactivar con dagas)
+    hazards.push(
+      { x: 1880, y: 136, w: 14, h: 14, type: 'proximityMine', detonated: false, mineTriggered: false },
+      { x: 3580, y: 136, w: 14, h: 14, type: 'proximityMine', detonated: false, mineTriggered: false },
+      { x: 5280, y: 136, w: 14, h: 14, type: 'proximityMine', detonated: false, mineTriggered: false },
+      { x: 6980, y: 136, w: 14, h: 14, type: 'proximityMine', detonated: false, mineTriggered: false }
+    );
+
+    // 7. Columnas Láser de Rayos Plasma Verticales Continuos con advertencia previa
+    for (let x = 700; x < LW - 700; x += 550) {
       hazards.push({
         x: x + 40,
-        y: 40,
+        y: 35,
         w: 12,
-        h: 108,
+        h: 112,
         type: 'plasmaBeam',
         cycleTimer: (x % 90),
         maxCycle: 120,
-        active: true
+        active: false
       });
     }
 
@@ -2416,36 +2445,44 @@ export function buildLevel(levelIndex: number) {
       { x: 6150, y: 136, w: 22, h: 22, type: 'sawBlade', railMin: 6050, railMax: 6280, bladeSpeed: 2.7, bladeAngle: 0 }
     );
 
-    // 4. Coolant Chemical Pools & Plasma Eruption Exhausts
+    // 4. Piscinas Químicas de Refrigerante (Sin llamas)
     hazards.push(
       { x: 1950, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 0 },
       { x: 3650, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 1.8 },
-      { x: 5350, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 3.2 },
-      { x: 1450, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 25, flameAngle: 0 },
-      { x: 4850, y: 142, w: 16, h: 10, type: 'flameJet', erupting: false, flameTimer: 65, flameAngle: 0 }
+      { x: 5350, y: 150, w: 45, h: 10, type: 'acidPool', acidTimer: 3.2 }
     );
 
-    for (let x = 600; x < LW - 600; x += 900) {
-      hazards.push({
-        x: x + 60,
-        y: 146,
-        w: 160,
-        h: 12,
-        type: 'empFloor',
-        cycleTimer: (x % 80),
-        maxCycle: 100,
-        active: false
-      });
+    // 5. Torres Tesla & Arcos de Alta Tensión del Reactor
+    hazards.push(
+      { x: 1450, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 25, teslaState: 'charging' },
+      { x: 3100, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 45, teslaState: 'charging' },
+      { x: 4850, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 15, teslaState: 'charging' },
+      { x: 6500, y: 122, w: 16, h: 26, type: 'teslaPillar', teslaTimer: 65, teslaState: 'charging' },
+      { x: 1250, y: 80, w: 8, h: 8, type: 'electricArc', targetX: 1370, targetY: 80, cycleTimer: 15, maxCycle: 90 },
+      { x: 2900, y: 78, w: 8, h: 8, type: 'electricArc', targetX: 3020, targetY: 78, cycleTimer: 55, maxCycle: 90 },
+      { x: 4600, y: 80, w: 8, h: 8, type: 'electricArc', targetX: 4720, targetY: 80, cycleTimer: 35, maxCycle: 90 },
+      { x: 6300, y: 78, w: 8, h: 8, type: 'electricArc', targetX: 6420, targetY: 78, cycleTimer: 75, maxCycle: 90 }
+    );
 
+    // 6. Barreras Láser Cuánticas en Pasadizos
+    hazards.push(
+      { x: 1800, y: 92, w: 55, h: 8, type: 'laserGate', cycleTimer: 10, active: true },
+      { x: 3500, y: 90, w: 55, h: 8, type: 'laserGate', cycleTimer: 40, active: true },
+      { x: 5200, y: 92, w: 55, h: 8, type: 'laserGate', cycleTimer: 70, active: true },
+      { x: 6900, y: 90, w: 55, h: 8, type: 'laserGate', cycleTimer: 25, active: true }
+    );
+
+    // 7. Columnas Láser de Plasma Verticales (SUELOS ELECTRICOS EMP ELIMINADOS COMPLETAMENTE)
+    for (let x = 600; x < LW - 600; x += 520) {
       hazards.push({
-        x: x + 120,
+        x: x + 80,
         y: 35,
         w: 14,
         h: 115,
         type: 'plasmaBeam',
         cycleTimer: ((x * 2) % 90),
         maxCycle: 110,
-        active: true
+        active: false
       });
     }
 

@@ -55,19 +55,25 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             </div>
           </div>
 
-          {/* Hearts Container */}
-          <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-950/90 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-xl border border-pink-500/30 shadow-md" title={`Vidas: ${engine.lives}/${engine.maxLives}`}>
-            {Array.from({ length: engine.maxLives }).map((_, idx) => (
-              <Heart
-                key={idx}
-                className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-all duration-300 ${
-                  idx < engine.lives
-                    ? 'text-rose-500 fill-rose-500 scale-100 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]'
-                    : 'text-slate-700 fill-transparent scale-90'
-                }`}
-              />
-            ))}
-          </div>
+          {/* Hearts Container (Eliminated in Only Up mode as requested) */}
+          {!engine.isOnlyUpMode ? (
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-950/90 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-xl border border-pink-500/30 shadow-md" title={`Vidas: ${engine.lives}/${engine.maxLives}`}>
+              {Array.from({ length: engine.maxLives }).map((_, idx) => (
+                <Heart
+                  key={idx}
+                  className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-all duration-300 ${
+                    idx < engine.lives
+                      ? 'text-rose-500 fill-rose-500 scale-100 drop-shadow-[0_0_6px_rgba(244,63,94,0.7)]'
+                      : 'text-slate-700 fill-transparent scale-90'
+                  }`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 bg-orange-950/90 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl border border-orange-500/50 shadow-[0_0_10px_rgba(249,115,22,0.3)]" title="Modo Only Up: ¡Sin corazones! Los obstáculos te empujan y aturden.">
+              <span className="text-orange-400 font-black text-[10px] sm:text-[11px] font-mono tracking-wide">▲ ONLY UP</span>
+            </div>
+          )}
 
           {/* Shield Stamina & Recharge Gauge */}
           <div 
