@@ -4500,9 +4500,16 @@ export class GameEngine {
       return;
     }
 
-    // 8. Special Stage Exit Portal Reached (Complete Mini Level & Return)
+    // 8. Special Stage Exit Portal Reached (Complete Mini Level & Return with tolerance of up to 3 missed crystals)
     if (this.isInSpecialStage && this.specialStageExitPortal && this.checkAABB(p, this.specialStageExitPortal)) {
-      this.completeSpecialStage();
+      const neededInSpecial = Math.max(1, this.stats.totalCrystals - 3);
+      if (this.stats.crystalsCollected >= neededInSpecial) {
+        this.completeSpecialStage();
+      } else {
+        const remaining = neededInSpecial - this.stats.crystalsCollected;
+        this.addFloatingText(this.player.x, this.player.y - 20, `¡Faltan ${remaining} cristales! (Tolerancia: puedes dejar 3)`, '#f59e0b');
+        sound.playSfx('block');
+      }
       return;
     }
 
@@ -4527,8 +4534,9 @@ export class GameEngine {
     if (this.isOnlyUpMode || this.isInSpecialStage || this.specialStageCompleted || this.specialStagePortal) {
       return;
     }
-    // If all crystals in the current level are collected, reveal the special stage portal before the main goal
-    if (this.stats.totalCrystals > 0 && this.stats.crystalsCollected >= this.stats.totalCrystals) {
+    // Tolerance of up to 3 missed crystals: no pasa nada si se te pasaron 1, 2 incluso 3
+    const requiredCrystals = Math.max(1, this.stats.totalCrystals - 3);
+    if (this.stats.totalCrystals > 0 && this.stats.crystalsCollected >= requiredCrystals) {
       this.spawnSpecialStagePortal();
     }
   }
@@ -4563,7 +4571,7 @@ export class GameEngine {
     this.createBurst(targetX + portalW / 2, foundY + portalH / 2, 20, '#fbbf24');
     this.createBurst(targetX + portalW / 2, foundY + portalH / 2, 16, '#22d3ee');
     this.addFloatingText(targetX + portalW / 2, foundY - 22, '🌀 ¡SPECIAL STAGE DESBLOQUEADA! 🌀', '#c084fc');
-    this.addFloatingText(targetX + portalW / 2, foundY - 8, '✦ Todos los cristales reunidos: ¡Entra al portal! ✦', '#fbbf24');
+    this.addFloatingText(targetX + portalW / 2, foundY - 8, '✦ Meta alcanzada (Tolerancia +3): ¡Entra al portal! ✦', '#fbbf24');
     this.notifyState();
   }
 
@@ -4681,7 +4689,7 @@ export class GameEngine {
       active: true,
       timer: 160,
       title: '🌌 SPECIAL STAGE: DIMENSIÓN CUÁNTICA 🌌',
-      subtitle: '¡Un solo intento! Supera el gran circuito para abrir el portal.',
+      subtitle: '¡Tolerancia de hasta 3 cristales! Supera el gran circuito y cruza el portal.',
       act: 1,
       zoneName: 'ETAPA ESPECIAL',
       themeColor: '#c084fc',

@@ -24,8 +24,9 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   const isFinalLevel = levelIndex >= LEVEL_CONFIGS.length - 1;
   const isSpecialStage = stats.totalCrystals === 5 && stats.totalSecrets === 0;
 
-  // Calculate Performance Rank
-  const crystalRatio = stats.totalCrystals > 0 ? stats.crystalsCollected / stats.totalCrystals : 1;
+  // Calculate Performance Rank (With Special Stage tolerance of up to 3 crystals)
+  const crystalTarget = isSpecialStage ? Math.max(1, stats.totalCrystals - 3) : stats.totalCrystals;
+  const crystalRatio = crystalTarget > 0 ? Math.min(1, stats.crystalsCollected / crystalTarget) : 1;
   const secretRatio = stats.totalSecrets > 0 ? stats.secretsFound / stats.totalSecrets : 1;
   const scoreFactor = crystalRatio * 0.5 + secretRatio * 0.5 - stats.deaths * 0.1;
   const rank = scoreFactor >= 0.85 ? 'S' : scoreFactor >= 0.65 ? 'A' : scoreFactor >= 0.45 ? 'B' : 'C';

@@ -24,6 +24,7 @@ import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActi
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
+import { LoadingIntroScreen } from './components/LoadingIntroScreen';
 import { ZoneId } from './types';
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
   });
 
   const [, setRenderTick] = useState(0);
+  const [showIntroLoading, setShowIntroLoading] = useState<boolean>(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
   const [inMainMenu, setInMainMenu] = useState(true);
@@ -457,6 +459,20 @@ export default function App() {
         <RotatePrompt 
           onDismiss={() => setPromptDismissed(true)}
           onPlayVertical={() => setPromptDismissed(true)}
+        />
+      )}
+
+      {/* Studio Intro & Brawl Stars / Duolingo Style Loading Screen */}
+      {showIntroLoading && (
+        <LoadingIntroScreen
+          onComplete={() => {
+            setShowIntroLoading(false);
+            unlockAudio();
+            if (engine.settings.musicEnabled) {
+              sound.setMusicTrack('menuTheme');
+            }
+          }}
+          onUnlockAudio={unlockAudio}
         />
       )}
 

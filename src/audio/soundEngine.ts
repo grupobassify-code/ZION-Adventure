@@ -278,6 +278,19 @@ class SoundEngine {
         this.tone(2200, 0.4, 'triangle', 0.08, 0.02, 330);
         this.tone(1480, 0.3, 'square', 0.07, 0.06, 160);
         break;
+      case 'studioIntro':
+        this.tone(73.4, 0.9, 'sawtooth', 0.08, 0, 110);
+        this.tone(110.0, 0.85, 'triangle', 0.06, 0.05);
+        this.tone(146.8, 0.8, 'sine', 0.05, 0.1);
+        this.tone(220.0, 0.7, 'sine', 0.04, 0.15);
+        this.tone(440.0, 0.6, 'triangle', 0.03, 0.25);
+        this.tone(880.0, 0.5, 'sine', 0.025, 0.35);
+        break;
+      case 'splashLoadComplete':
+        [523.3, 659.3, 784.0, 1046.5].forEach((f, i) => {
+          this.tone(f, 0.22, 'sine', 0.045, i * 0.07);
+        });
+        break;
       case 'showdownReady':
         [1046, 1318, 1568, 2093].forEach((f, i) => this.tone(f, 0.18, 'sine', 0.05, i * 0.06));
         break;

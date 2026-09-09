@@ -773,7 +773,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                         )}
                       </div>
                       <p className="text-xs text-slate-300 mt-1 max-w-xl">
-                        Desafía la dimensión cuántica secreta. Esquiva vacíos, salta por resortes flotantes y recolecta todos los cristales cósmicos.
+                        Desafía la dimensión cuántica secreta. Esquiva vacíos, salta por resortes flotantes y recolecta los cristales cósmicos (¡tolerancia de hasta 3 cristales permitida!).
                       </p>
                       {!specialUnlocked && (
                         <p className="text-[11px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
