@@ -445,5 +445,8 @@ export interface SaveSlot {
   specialStagesCompleted?: number;
   specialStageUnlocked?: boolean;
   levelBestCrystals?: Record<number, number>;
+  kronosPiecesPlaced?: string[];
+  kronosLockerUnlocked?: boolean;
+  selectedSkin?: string;
 }
 

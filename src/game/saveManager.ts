@@ -295,3 +295,218 @@ export function recordSpecialStageCompleted(slotId: number): void {
   }
 }
 
+export interface KronosPieceInfo {
+  id: 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono';
+  name: string;
+  subtitle: string;
+  bossName: string;
+  zoneName: string;
+  levelId: string;
+  levelIndex: number;
+  color: string;
+  accentColor: string;
+  position: 'top' | 'right' | 'bottomRight' | 'bottomLeft' | 'center';
+  angle: number;
+  iconName: string;
+  lore: string;
+}
+
+export const KRONOS_PIECES: KronosPieceInfo[] = [
+  {
+    id: 'neon',
+    name: 'Dial Solar Neón',
+    subtitle: 'Corona Bioluminiscente Ancestral',
+    bossName: 'Guardián Neón MK-IV',
+    zoneName: 'Bosque Neón (Acto 3)',
+    levelId: 'neon-3',
+    levelIndex: 2,
+    color: '#22d3ee',
+    accentColor: '#4ade80',
+    position: 'top',
+    angle: 0,
+    iconName: 'Sun',
+    lore: 'Canaliza la energía cuántica de las raíces de la arboleda para sincronizar el amanecer temporal.',
+  },
+  {
+    id: 'sakura',
+    name: 'Péndulo Místico Sakura',
+    subtitle: 'Agujas Espirituales de Cristal',
+    bossName: 'Maestra Kunoichi Rosa',
+    zoneName: 'Cerezo Espiritual (Acto 3)',
+    levelId: 'sakura-3',
+    levelIndex: 5,
+    color: '#f472b6',
+    accentColor: '#fb7185',
+    position: 'right',
+    angle: 72,
+    iconName: 'Sparkles',
+    lore: 'Oscila entre las dimensiones astrales asegurando un paso suave y preciso de los segundos.',
+  },
+  {
+    id: 'lavacliff',
+    name: 'Engranaje Térmico Ígneo',
+    subtitle: 'Rueda Dentada de Basalto Forjado',
+    bossName: 'Coloso Ignis',
+    zoneName: 'Acantilados de Lava (Acto 3)',
+    levelId: 'lavacliff-3',
+    levelIndex: 8,
+    color: '#f97316',
+    accentColor: '#ef4444',
+    position: 'bottomRight',
+    angle: 144,
+    iconName: 'Flame',
+    lore: 'Transmite la inmensa fuerza motriz del magma primigenio para impulsar los ejes del reloj.',
+  },
+  {
+    id: 'desert',
+    name: 'Resorte Astral de la Eternidad',
+    subtitle: 'Espiral Sagrada de Arena Dorada',
+    bossName: 'Faraón Akhen\'Ra',
+    zoneName: 'Santuario del Desierto (Acto 3)',
+    levelId: 'desert-3',
+    levelIndex: 11,
+    color: '#f59e0b',
+    accentColor: '#10b981',
+    position: 'bottomLeft',
+    angle: 216,
+    iconName: 'Clock',
+    lore: 'Mantiene la tensión cósmica para que el tiempo nunca decaiga ni se disipe en el olvido.',
+  },
+  {
+    id: 'krono',
+    name: 'Corazón Cuántico Kronos-Ω',
+    subtitle: 'Núcleo Central de Singularidad',
+    bossName: 'Titán Mecánico Kronos-Ω',
+    zoneName: 'Krono City (Acto 3)',
+    levelId: 'krono-3',
+    levelIndex: 14,
+    color: '#a855f7',
+    accentColor: '#38bdf8',
+    position: 'center',
+    angle: 288,
+    iconName: 'Zap',
+    lore: 'El epicentro gravitatorio que unifica todas las épocas pasadas, presentes y futuras.',
+  },
+];
+
+/**
+ * Checks if player owns a specific Kronos piece by defeating its corresponding boss
+ */
+export function hasKronosPiece(slot: SaveSlot | null, pieceId: string): boolean {
+  if (!slot) return false;
+  const piece = KRONOS_PIECES.find((p) => p.id === pieceId);
+  if (!piece) return false;
+  return slot.completedLevels.includes(piece.levelIndex);
+}
+
+/**
+ * Checks if a specific piece has already been placed on the clock
+ */
+export function isKronosPiecePlaced(slot: SaveSlot | null, pieceId: string): boolean {
+  if (!slot || !slot.kronosPiecesPlaced) return false;
+  return slot.kronosPiecesPlaced.includes(pieceId);
+}
+
+/**
+ * Places a Kronos piece into the clock mechanism
+ */
+export function placeKronosPiece(slotId: number, pieceId: string): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+
+  slot.kronosPiecesPlaced = slot.kronosPiecesPlaced || [];
+  if (!slot.kronosPiecesPlaced.includes(pieceId)) {
+    slot.kronosPiecesPlaced.push(pieceId);
+  }
+
+  // If all 5 pieces are placed, unlock character locker
+  if (slot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
+    slot.kronosLockerUnlocked = true;
+  }
+
+  slot.lastPlayed = Date.now();
+  saveAllSlots(slots);
+  return slot;
+}
+
+/**
+ * Places all available (unplaced) Kronos pieces in the player's possession
+ */
+export function placeAllAvailableKronosPieces(slotId: number): { slot: SaveSlot | null; newlyPlaced: string[] } {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return { slot: null, newlyPlaced: [] };
+
+  slot.kronosPiecesPlaced = slot.kronosPiecesPlaced || [];
+  const newlyPlaced: string[] = [];
+
+  for (const piece of KRONOS_PIECES) {
+    const isOwned = slot.completedLevels.includes(piece.levelIndex);
+    const isPlaced = slot.kronosPiecesPlaced.includes(piece.id);
+    if (isOwned && !isPlaced) {
+      slot.kronosPiecesPlaced.push(piece.id);
+      newlyPlaced.push(piece.id);
+    }
+  }
+
+  if (slot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
+    slot.kronosLockerUnlocked = true;
+  }
+
+  slot.lastPlayed = Date.now();
+  saveAllSlots(slots);
+  return { slot, newlyPlaced };
+}
+
+/**
+ * Checks whether the entire Kronos Clock is fully repaired (all 5 pieces placed)
+ */
+export function isKronosClockCompleted(slot: SaveSlot | null): boolean {
+  if (!slot || !slot.kronosPiecesPlaced) return false;
+  return KRONOS_PIECES.every((p) => slot.kronosPiecesPlaced?.includes(p.id));
+}
+
+/**
+ * Checks if the Character Locker is unlocked
+ */
+export function isKronosLockerUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  return Boolean(slot.kronosLockerUnlocked || isKronosClockCompleted(slot));
+}
+
+/**
+ * For testing/demo purposes: grants all 5 boss completions to test the clock assembly & cinematic
+ */
+export function unlockAllKronosBossesForDemo(slotId: number): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+
+  for (const piece of KRONOS_PIECES) {
+    if (!slot.completedLevels.includes(piece.levelIndex)) {
+      slot.completedLevels.push(piece.levelIndex);
+    }
+    if (!slot.unlockedLevels.includes(piece.levelIndex)) {
+      slot.unlockedLevels.push(piece.levelIndex);
+    }
+  }
+
+  slot.lastPlayed = Date.now();
+  saveAllSlots(slots);
+  return slot;
+}
+
+/**
+ * Set selected skin
+ */
+export function setSelectedSkin(slotId: number, skinId: string): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+  slot.selectedSkin = skinId;
+  saveAllSlots(slots);
+  return slot;
+}
+
+

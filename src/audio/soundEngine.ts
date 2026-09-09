@@ -83,6 +83,7 @@ class SoundEngine {
   public soundEnabled = true;
   public musicEnabled = true;
   public masterVolume = 0.5;
+  private lastSfxTime: Record<string, number> = {};
 
   private initContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -240,6 +241,11 @@ class SoundEngine {
 
   public playSfx(name: string) {
     if (!this.soundEnabled) return;
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    if (this.lastSfxTime[name] && now - this.lastSfxTime[name] < 50) {
+      return; // Suppress duplicate SFX spam within 50ms
+    }
+    this.lastSfxTime[name] = now;
     switch (name) {
       case 'jump':
         this.tone(480, 0.09, 'square', 0.035, 0, 820);

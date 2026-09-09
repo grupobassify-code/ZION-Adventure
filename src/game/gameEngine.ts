@@ -1559,7 +1559,7 @@ export class GameEngine {
             this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 14, '#38bdf8');
             this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
           } else {
-            this.applyDamageToBoss(specialDmg);
+            this.applyDamageToBoss(specialDmg, true);
           }
         }
 
@@ -1688,29 +1688,58 @@ export class GameEngine {
     }
   }
 
-  private applyDamageToBoss(rawDamage: number) {
+  // Play sound effect only if the enemy is in close combat proximity to Zion ("hasta llegar a ellos")
+  public playEnemySfx(e: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 95) {
+    const ex = e.x + (e.w ? e.w / 2 : 7);
+    const ey = e.y + (e.h ? e.h / 2 : 8);
+    const px = this.player.x + this.player.w / 2;
+    const py = this.player.y + this.player.h / 2;
+    const dist = Math.hypot(px - ex, py - ey);
+    if (dist <= maxDist) {
+      sound.playSfx(sfx);
+    }
+  }
+
+  // Play hazard sound effect only if Zion is in immediate vicinity, silencing off-screen/startup noise
+  public playHazardSfx(h: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 80) {
+    if (this.isOnlyUpMode && this.onlyUpGraceTimer > 0) return;
+    const hx = h.x + (h.w ? h.w / 2 : 8);
+    const hy = h.y + (h.h ? h.h / 2 : 8);
+    const px = this.player.x + this.player.w / 2;
+    const py = this.player.y + this.player.h / 2;
+    const dist = Math.hypot(px - hx, py - hy);
+    if (dist <= maxDist) {
+      sound.playSfx(sfx);
+    }
+  }
+
+  private applyDamageToBoss(rawDamage: number, isSpecial = false) {
     const b = this.boss;
     if (!b || !b.alive || b.shield) return;
 
-    let damage = rawDamage;
+    // Reduced potency for Super ability on bosses so bosses don't die instantly
+    const baseDmg = isSpecial ? Math.max(1.5, Math.min(2.5, rawDamage * 0.52)) : rawDamage;
+    let damage = baseDmg;
     let isStaggerHit = false;
 
     // Bonus damage if boss is currently staggered or overheated
     if (b.state === 'overheat') {
-      damage = Math.round(rawDamage * 2.0);
+      damage = Math.round(baseDmg * 1.8);
       isStaggerHit = true;
-      this.addFloatingText(b.x + b.w / 2, b.y - 28, '🔥 ¡GOLPE CRÍTICO EN SOBRECALENTAMIENTO (x2)!', '#f97316');
+      this.addFloatingText(b.x + b.w / 2, b.y - 28, '🔥 ¡GOLPE CRÍTICO EN SOBRECALENTAMIENTO (x1.8)!', '#f97316');
     } else if (b.isStaggered) {
-      damage = Math.round(rawDamage * 1.5);
+      damage = Math.round(baseDmg * 1.4);
       isStaggerHit = true;
-      this.addFloatingText(b.x + b.w / 2, b.y - 28, '💥 ¡GOLPE EN ATURDIMIENTO (+50%)!', '#fbbf24');
+      this.addFloatingText(b.x + b.w / 2, b.y - 28, '💥 ¡GOLPE EN ATURDIMIENTO (+40%)!', '#fbbf24');
     }
 
+    damage = Math.max(1, damage);
     this.registerHit(damage, isStaggerHit);
 
-    // Build stagger bar if not already staggered
+    // Build stagger bar if not already staggered (special builds moderate stagger)
     if (!b.isStaggered) {
-      b.stagger += rawDamage * 12;
+      const staggerAmount = isSpecial ? Math.min(18, baseDmg * 5) : baseDmg * 12;
+      b.stagger += staggerAmount;
       if (b.stagger >= b.maxStagger) {
         b.isStaggered = true;
         b.state = 'staggered';
@@ -1728,7 +1757,8 @@ export class GameEngine {
     b.flash = 16;
     this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 14, '#ef4444');
     sound.playSfx('crit');
-    this.addFloatingText(b.x + b.w / 2, b.y - 15, `💥 -${damage} HP [${b.hp}/${b.maxHp}]`, '#f43f5e');
+    const hitLabel = isSpecial ? `💫 -${damage} HP [SÚPER]` : `💥 -${damage} HP`;
+    this.addFloatingText(b.x + b.w / 2, b.y - 15, `${hitLabel} [${b.hp}/${b.maxHp}]`, '#f43f5e');
 
     if (b.hp <= 0) {
       b.alive = false;
@@ -1809,10 +1839,10 @@ export class GameEngine {
 
         const geyserBaseY = this.isOnlyUpMode ? h.y : 140;
         if (h.warnTimer === 15) {
-          sound.playSfx('bossWarning');
+          this.playHazardSfx(h, 'bossWarning', 85);
         }
         if (h.cycleTimer === 80) {
-          sound.playSfx('lava');
+          this.playHazardSfx(h, 'lava', 85);
           this.createBurst(h.x + h.w / 2, geyserBaseY, 12, '#f97316');
         }
         if (h.erupting && Math.random() < 0.4) {
@@ -1828,8 +1858,8 @@ export class GameEngine {
           });
         }
       } else if (h.type === 'stalactite') {
-        // Fall when player walks underneath
-        if (!h.falling && Math.abs(p.x - (h.x + h.w / 2)) < 38 && p.y > h.y) {
+        // Fall when player walks underneath within reasonable proximity
+        if (!h.falling && Math.abs(p.x - (h.x + h.w / 2)) < 38 && p.y > h.y && (p.y - h.y) < 85) {
           h.falling = true;
           h.vy = 0;
           this.createBurst(h.x + h.w / 2, h.y, 4, '#ea580c');
@@ -1841,7 +1871,7 @@ export class GameEngine {
           if (h.y >= stFloorY) {
             h.falling = false;
             h.y = stFloorY;
-            sound.playSfx('hit');
+            this.playHazardSfx(h, 'hit', 90);
             this.createBurst(h.x + h.w / 2, stFloorY + 3, 10, '#ea580c');
           }
         }
@@ -1849,16 +1879,16 @@ export class GameEngine {
         // Desert temple swinging pendulum blade
         const speed = h.bladeSpeed || 0.04;
         h.bladeAngle = Math.sin(this.time * speed) * 1.25;
-        if (Math.abs(Math.sin(this.time * speed)) > 0.96 && this.time % 10 === 0) {
-          sound.playSfx('slash');
+        if (Math.abs(Math.sin(this.time * speed)) > 0.96 && this.time % 20 === 0) {
+          this.playHazardSfx(h, 'slash', 75);
         }
       } else if (h.type === 'fallingBlock') {
-        // Sandstone falling block
-        if (!h.isFalling && Math.abs(p.x - (h.x + h.w / 2)) < 36 && p.y > h.y) {
+        // Sandstone falling block - only trigger when player is directly underneath (within 85px)
+        if (!h.isFalling && Math.abs(p.x - (h.x + h.w / 2)) < 36 && p.y > h.y && (p.y - h.y) < 85) {
           h.isFalling = true;
           h.fallVy = 0;
           this.createBurst(h.x + h.w / 2, h.y + h.h, 6, '#d97706');
-          sound.playSfx('bossWarning');
+          this.playHazardSfx(h, 'bossWarning', 85);
         }
         if (h.isFalling) {
           h.fallVy = Math.min((h.fallVy || 0) + 0.45, 7.5);
@@ -1867,7 +1897,7 @@ export class GameEngine {
           if (h.y >= blockFloorY) {
             h.y = blockFloorY;
             h.isFalling = false;
-            sound.playSfx('bossSlam');
+            this.playHazardSfx(h, 'bossSlam', 90);
             this.createBurst(h.x + h.w / 2, blockFloorY + 2, 12, '#d97706');
           }
         }
@@ -1989,7 +2019,7 @@ export class GameEngine {
         h.erupting = (h.cycleTimer >= 75 && h.cycleTimer < 115);
 
         if (h.cycleTimer === 75) {
-          sound.playSfx('flameWhoosh');
+          this.playHazardSfx(h, 'flameWhoosh', 80);
         }
         if (h.erupting && Math.random() < 0.45) {
           this.particles.push({
@@ -2009,7 +2039,7 @@ export class GameEngine {
         h.active = (h.cycleTimer >= 45 && h.cycleTimer < 90);
 
         if (h.cycleTimer === 45) {
-          sound.playSfx('teslaShock');
+          this.playHazardSfx(h, 'teslaShock', 80);
         }
         if (h.active && Math.random() < 0.35) {
           this.particles.push({
@@ -2038,12 +2068,12 @@ export class GameEngine {
           });
         }
       } else if (h.type === 'dartTrap') {
-        // Sentry dart trap that fires when player approaches
+        // Sentry dart trap that fires only when player is close in combat range
         h.shootCooldown = (h.shootCooldown || 0) + 1;
         const dist = Math.abs(p.x - h.x);
-        if (h.shootCooldown >= 85 && dist < 240 && Math.abs(p.y - h.y) < 45) {
+        if (h.shootCooldown >= 85 && dist < 120 && Math.abs(p.y - h.y) < 40) {
           h.shootCooldown = 0;
-          sound.playSfx('dartFire');
+          this.playHazardSfx(h, 'dartFire', 90);
           const isFacingRight = h.shootDir === 1 || h.dir === 1;
           this.projectiles.push({
             x: isFacingRight ? h.x + h.w + 2 : h.x - 6,
@@ -2085,14 +2115,14 @@ export class GameEngine {
           if (!h.mineTriggered && dist < 46) {
             h.mineTriggered = true;
             h.warnTimer = 36;
-            sound.playSfx('mineTick');
+            this.playHazardSfx(h, 'mineTick', 70);
             this.addFloatingText(h.x, h.y - 12, '⚠️ ¡MINA ACTIVADA!', '#ef4444');
           }
 
           if (h.mineTriggered) {
             h.warnTimer = (h.warnTimer || 36) - 1;
             if (h.warnTimer % 8 === 0) {
-              sound.playSfx('mineTick');
+              this.playHazardSfx(h, 'mineTick', 70);
             }
             if (Math.random() < 0.35 && this.particles.length < 80) {
               this.particles.push({
@@ -2109,7 +2139,7 @@ export class GameEngine {
 
             if (h.warnTimer <= 0) {
               h.detonated = true;
-              sound.playSfx('mineExplode');
+              this.playHazardSfx(h, 'mineExplode', 95);
               this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 26, '#ef4444');
               this.createBurst(h.x + h.w / 2, h.y + h.h / 2, 16, '#fbbf24');
               this.screenShake = 6;
@@ -2159,7 +2189,7 @@ export class GameEngine {
         h.active = (h.cycleTimer >= 60 && h.cycleTimer < 92);
 
         if (h.cycleTimer === 60) {
-          sound.playSfx('teslaShock');
+          this.playHazardSfx(h, 'teslaShock', 80);
         }
         if (h.active && Math.random() < 0.4 && this.particles.length < 80) {
           const tx = h.targetX ?? h.x;
@@ -2214,13 +2244,13 @@ export class GameEngine {
           h.spikePhase = 'warning';
           h.active = false;
           if (h.cycleTimer === 55) {
-            sound.playSfx('bossWarning');
+            this.playHazardSfx(h, 'bossWarning', 80);
           }
         } else {
           h.spikePhase = 'extended';
           h.active = true;
           if (h.cycleTimer === 80) {
-            sound.playSfx('slash');
+            this.playHazardSfx(h, 'slash', 80);
           }
           if (Math.random() < 0.2 && this.particles.length < 80) {
             this.particles.push({
@@ -2240,15 +2270,15 @@ export class GameEngine {
         const dir = h.shootDir || h.dir || 1;
         const dist = Math.abs(p.x - h.x);
 
-        // At frame 75: warning beep
-        if (h.shootCooldown === 75 && dist < 260) {
-          sound.playSfx('bossWarning');
+        // At frame 75: warning beep (only if nearby)
+        if (h.shootCooldown === 75 && dist < 120 && Math.abs(p.y - h.y) < 55) {
+          this.playHazardSfx(h, 'bossWarning', 90);
         }
 
         // At frame 95: fires glowing high-speed plasma bolt
-        if (h.shootCooldown >= 95 && dist < 280 && Math.abs(p.y - h.y) < 60) {
+        if (h.shootCooldown >= 95 && dist < 140 && Math.abs(p.y - h.y) < 55) {
           h.shootCooldown = 0;
-          sound.playSfx('laserFire');
+          this.playHazardSfx(h, 'laserFire', 90);
           this.createBurst(dir === 1 ? h.x + h.w : h.x, h.y + h.h / 2, 8, '#22d3ee');
           this.projectiles.push({
             x: dir === 1 ? h.x + h.w + 2 : h.x - 8,
@@ -2313,7 +2343,7 @@ export class GameEngine {
         h.warnTimer = (h.cycleTimer >= cycle * 0.65 && h.cycleTimer < cycle * 0.8) ? Math.round(cycle * 0.8 - h.cycleTimer) : 0;
         h.active = (h.cycleTimer >= cycle * 0.8);
         if (h.cycleTimer === Math.round(cycle * 0.8)) {
-          sound.playSfx('laserFire');
+          this.playHazardSfx(h, 'laserFire', 85);
         }
       }
     }
@@ -2330,7 +2360,9 @@ export class GameEngine {
 
       const dist = p.x - e.x;
       const absDist = Math.abs(dist);
-      const isAggro = absDist < 140 || (e.alertTimer && e.alertTimer > 0) || (e.charge && e.charge > 0);
+      const absYDist = Math.abs(p.y - e.y);
+      // Aggro only triggers when player is within direct proximity both horizontally and vertically
+      const isAggro = (absDist < 120 && absYDist < 65) || (e.alertTimer && e.alertTimer > 0) || (e.charge && e.charge > 0);
       e.facing = isAggro ? (dist >= 0 ? 1 : -1) : (e.vx >= 0 ? 1 : -1);
 
       if (e.type === 'patrol') {
@@ -2339,12 +2371,12 @@ export class GameEngine {
           e.vx *= -1;
         }
       } else if (e.type === 'sentinel') {
-        if (absDist < 140) {
+        if (absDist < 120 && absYDist < 65) {
           e.vx += Math.sign(dist) * 0.03;
           e.cool = (e.cool || 80) - 1;
           if (e.cool === 25) {
             e.alertTimer = 25;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             this.projectiles.push({
@@ -2358,7 +2390,7 @@ export class GameEngine {
               isHero: false,
               kind: 'laserBolt',
             });
-            sound.playSfx('bossShot');
+            this.playEnemySfx(e, 'bossShot');
             e.cool = 90;
           }
         } else {
@@ -2390,11 +2422,11 @@ export class GameEngine {
               size: 2,
             });
           }
-        } else if (absDist < 150) {
+        } else if (absDist < 120 && absYDist < 55) {
           e.wait = (e.wait || 0) + 1;
           if (e.wait === 10) {
             e.alertTimer = 25;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.wait > 30) {
             e.charge = 40;
@@ -2417,13 +2449,13 @@ export class GameEngine {
           e.alertTimer = 20;
         }
       } else if (e.type === 'kage' || e.type === 'kagered') {
-        const range = e.type === 'kagered' ? 160 : 120;
+        const range = e.type === 'kagered' ? 140 : 110;
         const sp = e.type === 'kagered' ? 1.6 : 1.1;
-        if (absDist < range) {
+        if (absDist < range && absYDist < 55) {
           e.cool = (e.cool || 60) - 1;
           if (e.cool === 20) {
             e.alertTimer = 20;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             e.vx = Math.sign(dist) * sp * 2.6;
@@ -2462,11 +2494,11 @@ export class GameEngine {
         // Magma Salamander: Patrols and shoots fireballs
         e.x += e.vx;
         if (e.x < e.min || e.x > e.max) e.vx *= -1;
-        if (absDist < 130) {
+        if (absDist < 120 && absYDist < 55) {
           e.cool = (e.cool || 75) - 1;
           if (e.cool === 20) {
             e.alertTimer = 20;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             this.projectiles.push({
@@ -2480,22 +2512,22 @@ export class GameEngine {
               isHero: false,
               kind: 'fireball',
             });
-            sound.playSfx('bossShot');
+            this.playEnemySfx(e, 'bossShot');
             e.cool = 85;
           }
         }
       } else if (e.type === 'magma_golem') {
         // Heavy Magma Golem: Armor and ground shock
-        if (absDist < 110) {
+        if (absDist < 110 && absYDist < 55) {
           e.vx += Math.sign(dist) * 0.04;
           e.cool = (e.cool || 90) - 1;
           if (e.cool === 25) {
             e.alertTimer = 25;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             e.vy = -3.8;
-            sound.playSfx('bossSlam');
+            this.playEnemySfx(e, 'bossSlam');
             this.createBurst(e.x + e.w / 2, e.y + e.h, 12, '#ea580c');
             e.cool = 110;
           }
@@ -2522,7 +2554,7 @@ export class GameEngine {
         // Armored Rolling Scarab
         e.x += e.vx;
         if (e.x < e.min || e.x > e.max) e.vx *= -1;
-        if (absDist < 120) {
+        if (absDist < 110 && absYDist < 50) {
           e.vx = Math.sign(dist) * 1.8;
           if (this.time % 4 === 0) {
             this.particles.push({
@@ -2539,16 +2571,16 @@ export class GameEngine {
         }
       } else if (e.type === 'mummy_warrior') {
         // Ancient Mummy Warrior: Lunges with bandage wrap
-        if (absDist < 110) {
+        if (absDist < 110 && absYDist < 50) {
           e.cool = (e.cool || 60) - 1;
           if (e.cool === 20) {
             e.alertTimer = 20;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             e.vx = Math.sign(dist) * 2.8;
             e.vy = -3.2;
-            sound.playSfx('slash');
+            this.playEnemySfx(e, 'slash');
             this.addFloatingText(e.x, e.y - 12, '🗡️ ¡Estocada Sagrada!', '#d97706');
             e.cool = 75;
           }
@@ -2559,11 +2591,11 @@ export class GameEngine {
         e.vx *= 0.88;
       } else if (e.type === 'sand_serpent') {
         // Sand Serpent: Burrows and shoots venom sand
-        if (absDist < 140) {
+        if (absDist < 120 && absYDist < 60) {
           e.cool = (e.cool || 70) - 1;
           if (e.cool === 20) {
             e.alertTimer = 20;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             this.projectiles.push({
@@ -2577,17 +2609,17 @@ export class GameEngine {
               isHero: false,
               kind: 'sandSpit',
             });
-            sound.playSfx('bossShot');
+            this.playEnemySfx(e, 'bossShot');
             e.cool = 80;
           }
         }
       } else if (e.type === 'anubis_statue') {
         // Anubis Statue: Heavy guardian with curse lasers
-        if (absDist < 160) {
+        if (absDist < 130 && absYDist < 60) {
           e.cool = (e.cool || 90) - 1;
           if (e.cool === 25) {
             e.alertTimer = 25;
-            sound.playSfx('laserCharge');
+            this.playEnemySfx(e, 'laserCharge');
           }
           if (e.cool <= 0) {
             this.projectiles.push({
@@ -2601,7 +2633,7 @@ export class GameEngine {
               isHero: false,
               kind: 'curseOrb',
             });
-            sound.playSfx('laserFire');
+            this.playEnemySfx(e, 'laserFire');
             e.cool = 100;
           }
         }
@@ -2624,11 +2656,11 @@ export class GameEngine {
         e.x += Math.sign(dist) * 0.75;
         e.x = Math.max(e.min, Math.min(e.max, e.x));
 
-        if (absDist < 140) {
+        if (absDist < 120 && absYDist < 65) {
           e.cool = (e.cool || 70) - 1;
           if (e.cool === 18) {
             e.alertTimer = 18;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             this.projectiles.push({
@@ -2642,17 +2674,17 @@ export class GameEngine {
               isHero: false,
               kind: 'plasma',
             });
-            sound.playSfx('bossShot');
+            this.playEnemySfx(e, 'bossShot');
             e.cool = 75;
           }
         }
       } else if (e.type === 'cyberturret') {
         // Automated Cyber Turret: High velocity laser tracking
-        if (absDist < 180) {
+        if (absDist < 140 && absYDist < 65) {
           e.cool = (e.cool || 80) - 1;
           if (e.cool === 22) {
             e.alertTimer = 22;
-            sound.playSfx('laserCharge');
+            this.playEnemySfx(e, 'laserCharge');
           }
           if (e.cool <= 0) {
             const angle = Math.atan2(this.player.y - e.y, this.player.x - e.x);
@@ -2667,22 +2699,22 @@ export class GameEngine {
               isHero: false,
               kind: 'laserBolt',
             });
-            sound.playSfx('laserFire');
+            this.playEnemySfx(e, 'laserFire');
             e.cool = 85;
           }
         }
       } else if (e.type === 'cyber_hound') {
         // Fast Cybernetic Hound: Lunges with turbo boost
-        if (absDist < 130) {
+        if (absDist < 120 && absYDist < 50) {
           e.cool = (e.cool || 50) - 1;
           if (e.cool === 16) {
             e.alertTimer = 16;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             e.vx = Math.sign(dist) * 3.6;
             e.vy = -3.0;
-            sound.playSfx('dash');
+            this.playEnemySfx(e, 'dash');
             this.createBurst(e.x + e.w / 2, e.y + e.h, 8, '#06b6d4');
             e.cool = 65;
           }
@@ -2693,11 +2725,11 @@ export class GameEngine {
         e.vx *= 0.9;
       } else if (e.type === 'plasma_trooper') {
         // Heavy Plasma Trooper: Frontal shielding & rapid burst
-        if (absDist < 150) {
+        if (absDist < 130 && absYDist < 55) {
           e.cool = (e.cool || 85) - 1;
           if (e.cool === 24) {
             e.alertTimer = 24;
-            sound.playSfx('bossWarning');
+            this.playEnemySfx(e, 'bossWarning');
           }
           if (e.cool <= 0) {
             for (let i = 0; i < 2; i++) {
@@ -2713,7 +2745,7 @@ export class GameEngine {
                 kind: 'plasma',
               });
             }
-            sound.playSfx('bossShot');
+            this.playEnemySfx(e, 'bossShot');
             e.cool = 90;
           }
         } else {

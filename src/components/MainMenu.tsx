@@ -27,9 +27,12 @@ import {
   Flame,
   Trophy,
   ArrowUpRight,
+  Shirt,
 } from 'lucide-react';
 import { PixelCharacter } from './PixelCharacter';
 import { LevelPixelThumbnail } from './LevelPixelThumbnail';
+import { KronosClockView } from './KronosClockView';
+import { CharacterLocker } from './CharacterLocker';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { SaveSlot, ZoneId } from '../types';
 import {
@@ -44,6 +47,11 @@ import {
   isOnlyUpUnlocked,
   getOnlyUpRecord,
   isSpecialStageUnlocked,
+  KRONOS_PIECES,
+  isKronosClockCompleted,
+  isKronosLockerUnlocked,
+  hasKronosPiece,
+  setSelectedSkin,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
@@ -62,7 +70,7 @@ interface MainMenuProps {
   initialZone?: ZoneId | null;
 }
 
-type MenuView = 'title' | 'slots' | 'zones' | 'acts' | 'controls';
+type MenuView = 'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker';
 
 interface ZoneMeta {
   id: ZoneId;
@@ -621,190 +629,361 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             })}
           </div>
 
-          {/* Kronos Only Up Banner & Mode Selection */}
-          {(() => {
-            const onlyUpUnlocked = isOnlyUpUnlocked(activeSlot);
-            const onlyUpRecord = getOnlyUpRecord(activeSlot?.id || 0);
-
-            return (
-              <div
-                id="kronos-only-up-card"
-                onClick={() => {
-                  if (onlyUpUnlocked) {
-                    sound.playSfx('menuSelect');
-                    if (onStartOnlyUp) {
-                      onStartOnlyUp(activeSlot?.id || 0);
-                    }
-                  } else {
-                    sound.playSfx('block');
-                  }
-                }}
-                className={`relative w-full mt-6 rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer ${
-                  onlyUpUnlocked
-                    ? 'bg-gradient-to-r from-orange-950/60 via-slate-900/90 to-red-950/60 border-orange-500/80 hover:border-orange-400 hover:shadow-[0_0_35px_rgba(249,115,22,0.35)] active:scale-98'
-                    : 'bg-slate-950/80 border-slate-800 opacity-65 cursor-not-allowed'
-                }`}
-              >
-                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3.5 rounded-2xl border ${
-                      onlyUpUnlocked
-                        ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
-                        : 'bg-slate-800/40 border-slate-700 text-slate-500'
-                    }`}>
-                      <Flame className="w-8 h-8 animate-pulse" />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider ${
-                          onlyUpUnlocked
-                            ? 'bg-orange-500 text-slate-950'
-                            : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          NUEVO MODO
-                        </span>
-                        <h3 className="text-xl sm:text-2xl font-black text-white font-heading">
-                          KRONOS ONLY UP
-                        </h3>
-                        {onlyUpUnlocked && onlyUpRecord > 0 && (
-                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
-                            <Trophy className="w-3.5 h-3.5" />
-                            Récord: {onlyUpRecord}m
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-                        {onlyUpUnlocked
-                          ? 'Ascenso vertical infinito con plataformas y trampas de todas las eras. ¡La lava cuántica sube sin cesar: sube rápido para romper tu récord!'
-                          : 'Derrota al Guardián de Bosque Neón (Zona 3) para desbloquear el desafío de ascenso infinito.'}
-                      </p>
-
-                      <div className="flex items-center gap-3 mt-2 text-[11px] font-mono text-slate-400">
-                        <span className="flex items-center gap-1 text-orange-400">
-                          <Flame className="w-3 h-3" /> Lava creciente
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-cyan-400">
-                          <Layers className="w-3 h-3" /> Plataformas híbridas
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-amber-400">
-                          <Trophy className="w-3 h-3" /> Dificultad progresiva
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="w-full sm:w-auto flex sm:flex-col items-center justify-end gap-2">
-                    {onlyUpUnlocked ? (
-                      <button
-                        id="play-only-up-btn"
-                        type="button"
-                        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
-                      >
-                        <Play className="w-4 h-4 fill-slate-950" />
-                        <span>¡ASCENDER AHORA!</span>
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
-                        <Lock className="w-4 h-4" />
-                        <span>Supera Bosque Neón (Zona 3)</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+          {/* SECTION: MODOS ESPECIALES & MECANISMOS CUÁNTICOS */}
+          <div className="w-full mt-8 pt-6 border-t border-slate-800/80">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <h3 className="text-sm font-mono font-black tracking-widest text-cyan-300 uppercase">
+                  MODOS ESPECIALES & RELOJ DE KRONOS
+                </h3>
               </div>
-            );
-          })()}
+              <span className="text-[11px] font-mono text-slate-500">
+                Desafíos Dimensionales
+              </span>
+            </div>
 
-          {/* Special Stages: Extra Mode (Unlocked after completing at least 1 special stage) */}
-          {(() => {
-            const specialUnlocked = isSpecialStageUnlocked(activeSlot);
-            const specialsCount = activeSlot?.specialStagesCompleted || 0;
+            {/* FEATURED: EL GRAN RELOJ DE KRONOS */}
+            {(() => {
+              const clockDone = isKronosClockCompleted(activeSlot);
+              const lockerOpen = isKronosLockerUnlocked(activeSlot);
+              const placedList = activeSlot?.kronosPiecesPlaced || [];
+              const placedCount = placedList.length;
 
-            return (
-              <div
-                id="special-stage-extra-mode-card"
-                onClick={() => {
-                  if (specialUnlocked) {
+              return (
+                <div
+                  id="kronos-clock-card"
+                  onClick={() => {
                     sound.playSfx('menuSelect');
-                    if (onStartSpecialStage) {
-                      onStartSpecialStage(activeSlot?.id || 0);
-                    }
-                  } else {
-                    sound.playSfx('block');
-                  }
-                }}
-                className={`relative w-full mt-4 rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer ${
-                  specialUnlocked
-                    ? 'bg-gradient-to-r from-purple-950/60 via-slate-900/90 to-indigo-950/60 border-purple-500/80 hover:border-purple-400 hover:shadow-[0_0_35px_rgba(192,132,252,0.35)] active:scale-98'
-                    : 'bg-slate-950/80 border-slate-800 opacity-65 cursor-not-allowed'
-                }`}
-              >
-                <div className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3.5 rounded-2xl border ${
-                      specialUnlocked
-                        ? 'bg-purple-500/20 border-purple-500/50 text-purple-400'
-                        : 'bg-slate-800/40 border-slate-700 text-slate-500'
-                    }`}>
-                      <Sparkles className="w-8 h-8 animate-pulse" />
+                    setView('clock');
+                  }}
+                  className={`relative w-full rounded-2xl border-2 overflow-hidden transition-all shadow-2xl cursor-pointer mb-5 group ${
+                    clockDone
+                      ? 'bg-gradient-to-r from-amber-950/70 via-slate-900/95 to-cyan-950/70 border-amber-400 hover:border-amber-300 hover:shadow-[0_0_45px_rgba(245,158,11,0.4)]'
+                      : 'bg-gradient-to-r from-[#1c1335]/90 via-[#0d122b]/95 to-[#16203d]/90 border-amber-500/60 hover:border-amber-400 hover:shadow-[0_0_35px_rgba(245,158,11,0.25)]'
+                  }`}
+                >
+                  {/* Glowing background runes / circuit scanlines */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#f59e0b08_1px,transparent_1px),linear-gradient(to_bottom,#f59e0b08_1px,transparent_1px)] bg-[size:2rem_2rem] pointer-events-none" />
+
+                  <div className="relative p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                    <div className="flex items-start gap-4">
+                      {/* Big Clock Icon Badge */}
+                      <div className={`p-4 rounded-2xl border-2 shrink-0 transition-transform group-hover:scale-105 ${
+                        clockDone
+                          ? 'bg-gradient-to-br from-amber-500/30 to-orange-500/20 border-amber-400 text-amber-300 shadow-lg shadow-amber-500/30'
+                          : 'bg-amber-500/10 border-amber-500/40 text-amber-400'
+                      }`}>
+                        <Clock className={`w-9 h-9 ${clockDone ? 'animate-spin' : 'animate-pulse'}`} style={{ animationDuration: clockDone ? '18s' : '3s' }} />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                            clockDone
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                          }`}>
+                            {clockDone ? '✓ RELOJ RESTAURADO' : 'MECANISMO FRACTURADO'}
+                          </span>
+
+                          <h3 className="text-xl sm:text-2xl font-black text-white font-heading tracking-wide group-hover:text-amber-200 transition-colors">
+                            KRONOS CLOCK — EL GRAN RELOJ
+                          </h3>
+
+                          {lockerOpen && (
+                            <span className="flex items-center gap-1 text-xs font-mono font-bold text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                              <Shirt className="w-3.5 h-3.5 fill-cyan-400" />
+                              Casillero Desbloqueado
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-2xl leading-relaxed">
+                          Reconstruye el colosal mecanismo del tiempo con las 5 piezas ancestrales obtenidas al derrotar al jefe del acto final de cada zona. ¡Al completarlo se activará la cinemática de giro y desbloquearás el Casillero de skins estilo Fortnite!
+                        </p>
+
+                        {/* 5 Pieces Mini Status Icons */}
+                        <div className="flex items-center gap-2 mt-3 flex-wrap">
+                          <span className="text-[11px] font-mono text-slate-400 font-bold mr-1">
+                            Piezas [{placedCount}/5]:
+                          </span>
+                          {KRONOS_PIECES.map((piece) => {
+                            const isOwned = hasKronosPiece(activeSlot, piece.id);
+                            const isPlaced = placedList.includes(piece.id);
+
+                            return (
+                              <div
+                                key={piece.id}
+                                title={`${piece.name} (${piece.bossName}): ${isPlaced ? 'Ensamblada' : isOwned ? 'Obtenida (Lista para encajar)' : 'Bloqueada'}`}
+                                className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                                  isPlaced
+                                    ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300'
+                                    : isOwned
+                                    ? 'bg-amber-500/20 border-amber-500/60 text-amber-300 animate-pulse'
+                                    : 'bg-slate-900 border-slate-800 text-slate-600'
+                                }`}
+                              >
+                                <span>{isPlaced ? '✓' : isOwned ? '⚡' : '🔒'}</span>
+                                <span>{piece.id.toUpperCase()}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider ${
-                          specialUnlocked
-                            ? 'bg-purple-500 text-slate-950'
-                            : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          NIVEL EXTRA
-                        </span>
-                        <h3 className="text-xl sm:text-2xl font-black text-white font-heading">
-                          SPECIAL STAGES
-                        </h3>
-                        {specialUnlocked && specialsCount > 0 && (
-                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/30">
-                            <Star className="w-3.5 h-3.5 fill-purple-400" />
-                            Completadas: {specialsCount}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-300 mt-1 max-w-xl">
-                        Desafía la dimensión cuántica secreta. Esquiva vacíos, salta por resortes flotantes y recolecta los cristales cósmicos (¡tolerancia de hasta 3 cristales permitida!).
-                      </p>
-                      {!specialUnlocked && (
-                        <p className="text-[11px] text-amber-400 font-mono mt-1.5 flex items-center gap-1">
-                          <Lock className="w-3.5 h-3.5 shrink-0" />
-                          <span>Bloqueado: Encuentra y completa mínimo una Special Stage en la aventura para jugar como nivel extra.</span>
-                        </p>
+                    {/* Action Button */}
+                    <div className="w-full lg:w-auto flex sm:flex-row lg:flex-col items-center justify-end gap-2.5 shrink-0">
+                      <button
+                        id="open-kronos-clock-btn"
+                        type="button"
+                        className="w-full lg:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-xl shadow-amber-500/25 active:scale-95 transition-all"
+                      >
+                        <Clock className="w-4 h-4 fill-slate-950" />
+                        <span>ENTRAR AL RELOJ</span>
+                      </button>
+
+                      {lockerOpen && (
+                        <button
+                          id="open-locker-shortcut-btn"
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            sound.playSfx('menuSelect');
+                            setView('locker');
+                          }}
+                          className="w-full lg:w-auto px-4 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md"
+                        >
+                          <Shirt className="w-3.5 h-3.5" />
+                          <span>CASILLERO</span>
+                        </button>
                       )}
                     </div>
                   </div>
-
-                  <div className="w-full sm:w-auto flex sm:flex-col items-center justify-end gap-2">
-                    {specialUnlocked ? (
-                      <button
-                        id="play-special-stage-btn"
-                        type="button"
-                        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 transition-all"
-                      >
-                        <Play className="w-4 h-4 fill-slate-950" />
-                        <span>¡JUGAR SPECIAL STAGE!</span>
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
-                        <Lock className="w-4 h-4" />
-                        <span>Completa 1 Special Stage</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
+
+            {/* DUAL GRID: ONLY UP & SPECIAL STAGES (Visual Redesign) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* KRONOS ONLY UP CARD */}
+              {(() => {
+                const onlyUpUnlocked = isOnlyUpUnlocked(activeSlot);
+                const onlyUpRecord = getOnlyUpRecord(activeSlot?.id || 0);
+
+                return (
+                  <div
+                    id="kronos-only-up-card"
+                    onClick={() => {
+                      if (onlyUpUnlocked) {
+                        sound.playSfx('menuSelect');
+                        if (onStartOnlyUp) {
+                          onStartOnlyUp(activeSlot?.id || 0);
+                        }
+                      } else {
+                        sound.playSfx('block');
+                      }
+                    }}
+                    className={`relative rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer flex flex-col justify-between group ${
+                      onlyUpUnlocked
+                        ? 'bg-gradient-to-b from-orange-950/70 via-slate-900/95 to-red-950/80 border-orange-500/80 hover:border-orange-400 hover:shadow-[0_0_35px_rgba(249,115,22,0.4)] active:scale-98'
+                        : 'bg-slate-950/80 border-slate-800 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    {/* Fiery ember top glow */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-amber-400 to-red-500 opacity-80" />
+
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-3.5 rounded-2xl border-2 shrink-0 ${
+                            onlyUpUnlocked
+                              ? 'bg-orange-500/20 border-orange-500/60 text-orange-400 shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform'
+                              : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                          }`}>
+                            <Flame className={`w-7 h-7 ${onlyUpUnlocked ? 'animate-pulse text-orange-400' : ''}`} />
+                          </div>
+
+                          <div>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                              onlyUpUnlocked
+                                ? 'bg-orange-500/20 text-orange-300 border-orange-500/40'
+                                : 'bg-slate-800 text-slate-400 border-slate-700'
+                            }`}>
+                              ARCADE VERTICAL
+                            </span>
+                            <h3 className="text-xl font-black text-white font-heading mt-0.5">
+                              KRONOS ONLY UP
+                            </h3>
+                          </div>
+                        </div>
+
+                        {onlyUpUnlocked && onlyUpRecord > 0 && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-xl border border-amber-500/40 shadow-sm shrink-0">
+                            <Trophy className="w-3.5 h-3.5 fill-amber-400" />
+                            {onlyUpRecord}m
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                        {onlyUpUnlocked
+                          ? 'Ascenso vertical infinito con plataformas híbridas y trampas de todas las eras. ¡La lava cuántica sube constantemente: salta y asciende rápido para romper tu récord!'
+                          : 'Derrota al Guardián de Bosque Neón (Acto 3) para desbloquear el modo de ascenso infinito.'}
+                      </p>
+
+                      {/* Feature Tags */}
+                      <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-orange-950/60 border border-orange-500/30 text-orange-300 flex items-center gap-1">
+                          <Flame className="w-3 h-3" /> Lava creciente
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+                          <Layers className="w-3 h-3" /> Híbridas
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/30 text-amber-300 flex items-center gap-1">
+                          <Trophy className="w-3 h-3" /> Checkpoints
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Strip */}
+                    <div className="p-4 pt-3 border-t border-slate-800/80 bg-slate-950/40 flex items-center justify-between">
+                      {onlyUpUnlocked ? (
+                        <>
+                          <span className="text-xs font-mono font-bold text-orange-400 flex items-center gap-1">
+                            <Play className="w-3.5 h-3.5 fill-orange-400" /> MODO DESBLOQUEADO
+                          </span>
+                          <button
+                            id="play-only-up-btn"
+                            type="button"
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 font-black text-xs font-heading flex items-center gap-1.5 shadow-md shadow-orange-500/20 active:scale-95 transition-all"
+                          >
+                            <span>¡ASCENDER!</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full flex items-center justify-between text-xs text-slate-500 font-mono">
+                          <span className="flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5" /> Supera Bosque Neón
+                          </span>
+                          <span className="text-slate-600">Bloqueado</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* SPECIAL STAGES CARD */}
+              {(() => {
+                const specialUnlocked = isSpecialStageUnlocked(activeSlot);
+                const specialsCount = activeSlot?.specialStagesCompleted || 0;
+
+                return (
+                  <div
+                    id="special-stage-extra-mode-card"
+                    onClick={() => {
+                      if (specialUnlocked) {
+                        sound.playSfx('menuSelect');
+                        if (onStartSpecialStage) {
+                          onStartSpecialStage(activeSlot?.id || 0);
+                        }
+                      } else {
+                        sound.playSfx('block');
+                      }
+                    }}
+                    className={`relative rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer flex flex-col justify-between group ${
+                      specialUnlocked
+                        ? 'bg-gradient-to-b from-purple-950/70 via-slate-900/95 to-indigo-950/80 border-purple-500/80 hover:border-purple-400 hover:shadow-[0_0_35px_rgba(168,85,247,0.4)] active:scale-98'
+                        : 'bg-slate-950/80 border-slate-800 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    {/* Cosmic purple top glow */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-fuchsia-400 to-indigo-500 opacity-80" />
+
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-3.5 rounded-2xl border-2 shrink-0 ${
+                            specialUnlocked
+                              ? 'bg-purple-500/20 border-purple-500/60 text-purple-400 shadow-md shadow-purple-500/20 group-hover:scale-105 transition-transform'
+                              : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                          }`}>
+                            <Sparkles className={`w-7 h-7 ${specialUnlocked ? 'animate-pulse text-purple-400' : ''}`} />
+                          </div>
+
+                          <div>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                              specialUnlocked
+                                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                                : 'bg-slate-800 text-slate-400 border-slate-700'
+                            }`}>
+                              DIMENSIÓN SECRETA
+                            </span>
+                            <h3 className="text-xl font-black text-white font-heading mt-0.5">
+                              SPECIAL STAGES
+                            </h3>
+                          </div>
+                        </div>
+
+                        {specialUnlocked && specialsCount > 0 && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-purple-300 bg-purple-500/15 px-2.5 py-1 rounded-xl border border-purple-500/40 shadow-sm shrink-0">
+                            <Star className="w-3.5 h-3.5 fill-purple-400" />
+                            {specialsCount}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                        Desafía la dimensión astral cuántica secreta. Esquiva vacíos cósmicos, salta por resortes flotantes y recolecta los cristales cósmicos (¡con tolerancia de hasta 3 cristales permitida!).
+                      </p>
+
+                      {/* Feature Tags */}
+                      <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" /> Tolerancia: 3
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 flex items-center gap-1">
+                          <Zap className="w-3 h-3" /> Resortes
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+                          <Star className="w-3 h-3" /> Cristales
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Strip */}
+                    <div className="p-4 pt-3 border-t border-slate-800/80 bg-slate-950/40 flex items-center justify-between">
+                      {specialUnlocked ? (
+                        <>
+                          <span className="text-xs font-mono font-bold text-purple-400 flex items-center gap-1">
+                            <Play className="w-3.5 h-3.5 fill-purple-400" /> NIVEL EXTRA ACTIVO
+                          </span>
+                          <button
+                            id="play-special-stage-btn"
+                            type="button"
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-slate-950 font-black text-xs font-heading flex items-center gap-1.5 shadow-md shadow-purple-500/20 active:scale-95 transition-all"
+                          >
+                            <span>¡JUGAR!</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full flex items-center justify-between text-xs text-slate-500 font-mono">
+                          <span className="flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5" /> Supera 1 Special Stage
+                          </span>
+                          <span className="text-slate-600">Bloqueado</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
 
           {/* Más Niveles Próximamente Placeholder */}
           <div
@@ -1024,6 +1203,28 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </div>
           </div>
         </main>
+      )}
+
+      {/* VIEW 6: KRONOS CLOCK SANCTUARY */}
+      {view === 'clock' && (
+        <KronosClockView
+          slot={activeSlot}
+          onBack={() => setView('zones')}
+          onOpenLocker={() => setView('locker')}
+          onRefreshSlot={refreshSlots}
+        />
+      )}
+
+      {/* VIEW 7: CHARACTER & SKIN LOCKER (FORTNITE STYLE) */}
+      {view === 'locker' && (
+        <CharacterLocker
+          slot={activeSlot}
+          onBack={() => setView('clock')}
+          onSelectSkin={(skinId) => {
+            setSelectedSkin(activeSlot?.id || 0, skinId);
+            refreshSlots();
+          }}
+        />
       )}
 
       {/* MODAL: CREAR NUEVA PARTIDA */}

@@ -40,7 +40,7 @@ export const SHOWDOWN_CHARGE_ON_PARRY = 100; // Instantly fills on perfect parry
 // Special Ability (Balanced: Recharges passively over time and through combat)
 export const SPECIAL_ENERGY_COST = 70;
 export const SPECIAL_BURST_RADIUS = 68;
-export const SPECIAL_BASE_DAMAGE = 3.5;
+export const SPECIAL_BASE_DAMAGE = 2.2;
 export const SPECIAL_PASSIVE_REGEN = 0.08; // Passive SP charge over time (~4.8 SP/sec)
 export const SPECIAL_HIT_SP_GAIN = 3.2; // SP gained per sword hit
 export const SPECIAL_PARRY_SP_GAIN = 25.0; // SP gained on perfect parry

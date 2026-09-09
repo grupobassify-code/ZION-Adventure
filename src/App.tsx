@@ -51,7 +51,7 @@ export default function App() {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
   const [inMainMenu, setInMainMenu] = useState(true);
-  const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls'>('title');
+  const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker'>('title');
   const [mainMenuZone, setMainMenuZone] = useState<ZoneId | null>(null);
   const [activeSlotId, setActiveSlotIdState] = useState<number>(0);
   const [isPortrait, setIsPortrait] = useState<boolean>(() => {
