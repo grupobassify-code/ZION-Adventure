@@ -2395,28 +2395,58 @@ export function buildLevel(levelIndex: number) {
     // ZONA 5 · ACTO 2 — KRONO CITY: REACTOR DE FUSIÓN & RED CENTRAL
     // (Extrema dificultad, sin jefe tradicional, guantelete de alta tensión con 3 Nodos Cuánticos)
     // -------------------------------------------------------------
-    // Reactor Base Platforms with High-Energy Chasm Gaps
-    for (let x = 0; x < LW; x += 300) {
-      const isGap = (x > 1200 && x < 1500) || (x > 3200 && x < 3500) || (x > 5400 && x < 5700) || (x > 7200 && x < 7500);
-      if (!isGap) {
-        platforms.push({ x, y: 148, w: 240, h: 40, kind: 'cyber' });
-      }
+    // 1. Continuous Reliable Base Floor Platforms across the entire Fusion Reactor (no impassable gaps)
+    for (let x = 0; x < LW; x += 280) {
+      platforms.push({ x, y: 148, w: 260, h: 40, kind: 'cyber' });
     }
 
-    // Strategic Reactor Upper Catwalks (Reduced density, clear elevation)
+    // 2. Upper Catwalks, Node Stairways and High-Precision Walkways (Every section is 100% passable)
     const krono2Catwalks: Platform[] = [
       { x: 500, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 920, y: 100, w: 80, h: 10, kind: 'cyber' },
       { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      
+      // Node 1 Access Stairs & Stand Platform (Node 1 at x: 1850, y: 56)
+      { x: 1740, y: 116, w: 65, h: 10, kind: 'cyber' },
+      { x: 1795, y: 90, w: 65, h: 10, kind: 'cyber' },
+      { x: 1830, y: 72, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 1
+
       { x: 2100, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 2170, y: 64, w: 75, h: 10, kind: 'cyber' },
+      { x: 2550, y: 98, w: 85, h: 10, kind: 'cyber' },
       { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+
+      // Previously missing middle reactor platforms (x: 3200 - 3600 now fully bridged)
+      { x: 3250, y: 106, w: 90, h: 10, kind: 'cyber' },
+      { x: 3380, y: 88, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 3520, y: 104, w: 85, h: 10, kind: 'cyber' },
+
       { x: 3800, y: 104, w: 90, h: 10, kind: 'cyber' },
+
+      // Node 2 Access Stairs & Stand Platform (Node 2 at x: 4250, y: 26)
+      { x: 4070, y: 114, w: 65, h: 10, kind: 'cyber' },
+      { x: 4135, y: 88, w: 65, h: 10, kind: 'cyber' },
+      { x: 4195, y: 62, w: 65, h: 10, kind: 'cyber' },
+      { x: 4230, y: 44, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 2
+      { x: 4305, y: 68, w: 65, h: 10, kind: 'cyber' },
+
       { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
       { x: 4970, y: 60, w: 75, h: 10, kind: 'cyber' },
+      { x: 5200, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 5500, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 5950, y: 98, w: 90, h: 10, kind: 'cyber' },
       { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+
+      // Node 3 Access Stairs & Stand Platform (Node 3 at x: 6750, y: 26)
+      { x: 6570, y: 114, w: 65, h: 10, kind: 'cyber' },
+      { x: 6635, y: 88, w: 65, h: 10, kind: 'cyber' },
+      { x: 6695, y: 62, w: 65, h: 10, kind: 'cyber' },
+      { x: 6730, y: 44, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 3
+      { x: 6805, y: 68, w: 65, h: 10, kind: 'cyber' },
+
       { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' },
-      { x: 7370, y: 62, w: 75, h: 10, kind: 'cyber' }
+      { x: 7370, y: 62, w: 75, h: 10, kind: 'cyber' },
+      { x: 7650, y: 104, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono2Catwalks);
 

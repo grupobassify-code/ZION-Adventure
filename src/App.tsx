@@ -25,6 +25,11 @@ import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './u
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
 import { LoadingIntroScreen } from './components/LoadingIntroScreen';
+import { MultiplayerModal } from './components/MultiplayerModal';
+import { VersusHUD } from './components/VersusHUD';
+import { OnlineMatchResultModal } from './components/OnlineMatchResultModal';
+import { multiplayerClient } from './multiplayer/socketClient';
+import type { RoomState } from './types/multiplayer';
 import { ZoneId } from './types';
 
 export default function App() {
@@ -63,6 +68,16 @@ export default function App() {
   const [transitionActive, setTransitionActive] = useState(false);
   const [showLevelIntro, setShowLevelIntro] = useState(false);
   const [targetLevelIndex, setTargetLevelIndex] = useState<number>(0);
+
+  // Online 1v1 Multiplayer State
+  const [isMultiplayerModalOpen, setIsMultiplayerModalOpen] = useState(false);
+  const [activeMultiplayerRoom, setActiveMultiplayerRoom] = useState<RoomState | null>(null);
+  const [multiplayerMatchResult, setMultiplayerMatchResult] = useState<{
+    winnerId: string;
+    winnerName: string;
+    reason: string;
+    trophiesAwarded: number;
+  } | null>(null);
 
   // Initialize Game Engine once
   if (!engineRef.current) {
@@ -222,6 +237,70 @@ export default function App() {
       setTransitionActive(false);
     }, 950);
   };
+
+  const handleStartMultiplayerMatch = useCallback((room: RoomState) => {
+    setActiveMultiplayerRoom(room);
+    setIsMultiplayerModalOpen(false);
+    setMultiplayerMatchResult(null);
+
+    engine.isMultiplayerMatch = true;
+    engine.multiplayerMode = room.mode;
+
+    if (room.mode === 'onlyup') {
+      handleStartOnlyUpFromMenu(activeSlotId);
+    } else {
+      handleStartGameFromMenu(0, activeSlotId);
+    }
+  }, [engine, activeSlotId]);
+
+  const handleRematch = () => {
+    setMultiplayerMatchResult(null);
+    if (activeMultiplayerRoom) {
+      if (activeMultiplayerRoom.mode === 'onlyup') {
+        engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
+      } else {
+        triggerLevelTransition(0, false);
+      }
+    }
+  };
+
+  const handleExitMultiplayer = () => {
+    multiplayerClient.leaveRoom();
+    engine.isMultiplayerMatch = false;
+    engine.remotePlayer = null;
+    setActiveMultiplayerRoom(null);
+    setMultiplayerMatchResult(null);
+    sound.stopMusic();
+    setInMainMenu(true);
+    setMainMenuView('title');
+  };
+
+  // Wire up engine multiplayer notifications and socket match results
+  useEffect(() => {
+    engine.onGoalReachedMultiplayer = () => {
+      if (engine.isMultiplayerMatch) {
+        multiplayerClient.notifyGoalReached();
+      }
+    };
+    engine.onEliminatedMultiplayer = (altitude: number) => {
+      if (engine.isMultiplayerMatch) {
+        multiplayerClient.notifyEliminated(altitude);
+      }
+    };
+
+    const unsubMatchEnd = multiplayerClient.onMatchEnd((result) => {
+      setMultiplayerMatchResult(result);
+      if (result.winnerId === multiplayerClient.playerId) {
+        sound.playSfx('win');
+      } else {
+        sound.playSfx('bossHit');
+      }
+    });
+
+    return () => {
+      unsubMatchEnd();
+    };
+  }, [engine]);
 
   // Sync inMainMenu and stop music immediately on menu or tab exit
   useEffect(() => {
@@ -402,6 +481,33 @@ export default function App() {
       while (accumulator >= FIXED_TIMESTEP && updates < MAX_UPDATES_PER_FRAME) {
         if (!engine.inMainMenu) {
           engine.update(inputsRef.current);
+
+          // Synchronize Multiplayer 1v1 state if match is active
+          if (engine.isMultiplayerMatch) {
+            multiplayerClient.updateInterpolation();
+            engine.remotePlayer = multiplayerClient.getInterpolatedRemotePlayer();
+
+            const isDead = engine.isOnlyUpMode ? engine.onlyUpIsGameOver : engine.lives <= 0;
+            const levelWidth = LEVEL_CONFIGS[engine.levelIndex]?.worldWidth || 1200;
+            const progress = engine.isOnlyUpMode
+              ? 0
+              : Math.min(100, Math.max(0, (engine.player.x / (levelWidth - 100)) * 100));
+
+            multiplayerClient.sendPlayerUpdate({
+              x: engine.player.x,
+              y: engine.player.y,
+              vx: engine.player.vx,
+              vy: engine.player.vy,
+              facing: engine.player.facing,
+              animState: engine.player.animState,
+              isAttacking: engine.player.isAttacking,
+              isDashing: engine.player.isDashing,
+              isBlocking: engine.player.isBlocking,
+              isDead,
+              altitude: engine.isOnlyUpMode ? engine.onlyUpMaxAltitude : 0,
+              progressPercent: progress,
+            });
+          }
         }
         accumulator -= FIXED_TIMESTEP;
         updates++;
@@ -441,6 +547,9 @@ export default function App() {
   }, [engine]);
 
   const currentZoneColor = LEVEL_CONFIGS[engine.levelIndex]?.themeColor || '#06b6d4';
+  const playerProgressPercent = engine.isOnlyUpMode
+    ? 0
+    : Math.min(100, Math.max(0, (engine.player.x / ((LEVEL_CONFIGS[engine.levelIndex]?.worldWidth || 1200) - 100)) * 100));
 
   return (
     <div
@@ -502,6 +611,10 @@ export default function App() {
           onOpenCredits={() => {
             unlockAudio();
             setIsCreditsOpen(true);
+          }}
+          onOpenMultiplayer={() => {
+            unlockAudio();
+            setIsMultiplayerModalOpen(true);
           }}
           audioActive={audioUnlocked && engine.settings.soundEnabled}
           onToggleAudio={() => {
@@ -615,8 +728,41 @@ export default function App() {
         />
       )}
 
+      {/* 1.5 Online Multiplayer Lobby & Matchmaking Modal */}
+      <MultiplayerModal
+        isOpen={isMultiplayerModalOpen}
+        onClose={() => setIsMultiplayerModalOpen(false)}
+        onStartMatch={handleStartMultiplayerMatch}
+      />
+
+      {/* 1.6 Online 1v1 In-Game Heads Up Display (Versus HUD) */}
+      {!inMainMenu && engine.isMultiplayerMatch && activeMultiplayerRoom && (
+        <VersusHUD
+          room={activeMultiplayerRoom}
+          playerProgressPercent={playerProgressPercent}
+          playerAltitude={engine.onlyUpAltitude}
+          isOnlyUp={engine.isOnlyUpMode}
+          remotePlayer={engine.remotePlayer}
+        />
+      )}
+
+      {/* 1.7 Online Match Result Modal (Victory / Defeat / Copas) */}
+      {!inMainMenu && multiplayerMatchResult && activeMultiplayerRoom && (
+        <OnlineMatchResultModal
+          winnerId={multiplayerMatchResult.winnerId}
+          winnerName={multiplayerMatchResult.winnerName}
+          reason={multiplayerMatchResult.reason}
+          trophiesAwarded={multiplayerMatchResult.trophiesAwarded}
+          winnerTrophiesAwarded={multiplayerMatchResult.winnerTrophiesAwarded}
+          loserTrophiesLost={multiplayerMatchResult.loserTrophiesLost}
+          room={activeMultiplayerRoom}
+          onRematch={handleRematch}
+          onExit={handleExitMultiplayer}
+        />
+      )}
+
       {/* Victory & Act Complete Modal */}
-      {!inMainMenu && engine.isLevelWon && !isCreditsOpen && (
+      {!inMainMenu && engine.isLevelWon && !engine.isMultiplayerMatch && !isCreditsOpen && (
         <VictoryModal
           levelIndex={engine.levelIndex}
           stats={engine.stats}
@@ -664,7 +810,7 @@ export default function App() {
       )}
 
       {/* Only Up Mode Game Over Results Modal */}
-      {!inMainMenu && engine.isOnlyUpMode && engine.onlyUpIsGameOver && (
+      {!inMainMenu && engine.isOnlyUpMode && engine.onlyUpIsGameOver && !engine.isMultiplayerMatch && (
         <OnlyUpResultsModal
           altitude={engine.onlyUpAltitude}
           record={engine.onlyUpRecord}

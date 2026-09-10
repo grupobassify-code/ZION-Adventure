@@ -63,6 +63,7 @@ interface MainMenuProps {
   onStartOnlyUp?: (slotId: number) => void;
   onStartSpecialStage?: (slotId: number) => void;
   onOpenCredits: () => void;
+  onOpenMultiplayer?: () => void;
   audioActive: boolean;
   onToggleAudio: () => void;
   onToggleFullscreen: () => void;
@@ -137,6 +138,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onStartOnlyUp,
   onStartSpecialStage,
   onOpenCredits,
+  onOpenMultiplayer,
   audioActive,
   onToggleAudio,
   onToggleFullscreen,
@@ -321,28 +323,43 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           </div>
 
           {/* Primary Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-4 mt-2 sm:mt-4 w-full max-w-md">
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3 mt-2 sm:mt-4 w-full max-w-lg">
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');
                 setView('slots');
               }}
-              className="w-full group relative flex items-center justify-center gap-2.5 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-base sm:text-xl tracking-wider shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer"
+              className="w-full flex-1 group relative flex items-center justify-center gap-2 px-5 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer"
             >
-              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />
+              <Play className="w-5 h-5 fill-current" />
               <span>INICIAR JUEGO</span>
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-spin" />
             </button>
+
+            {onOpenMultiplayer && (
+              <button
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  onOpenMultiplayer();
+                }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-500 to-orange-500 hover:from-rose-500 hover:to-amber-400 text-white font-black text-xs sm:text-sm tracking-wide shadow-[0_0_30px_rgba(244,63,94,0.5)] active:scale-95 transition-all cursor-pointer border border-amber-300/40"
+              >
+                <Swords className="w-4 h-4 text-amber-200" />
+                <span>MODO ONLINE 1v1</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-extrabold">
+                  +20 🏆
+                </span>
+              </button>
+            )}
 
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');
                 onOpenCredits();
               }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-lg active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3.5 sm:py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 border-2 border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-lg active:scale-95"
             >
-              <Award className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
-              <span>CRÉDITOS & BSO</span>
+              <Award className="w-4 h-4 text-pink-400" />
+              <span>CRÉDITOS</span>
             </button>
           </div>
 

@@ -379,6 +379,7 @@ export interface Player {
   coyoteTimer: number;
   jumpBufferTimer: number;
   inv: number;
+  damageInvTimer?: number;
   time: number;
   animState: 'idle' | 'run' | 'jump' | 'fall' | 'dash' | 'attack' | 'block';
   

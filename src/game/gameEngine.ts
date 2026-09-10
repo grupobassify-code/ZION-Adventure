@@ -58,6 +58,7 @@ import {
   SpecialBurstEffect,
   Trampoline,
 } from '../types';
+import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
 
 export interface GameInputState {
   left: boolean;
@@ -154,6 +155,13 @@ export class GameEngine {
   public trampolines: Trampoline[] = [];
   public onlyUpAgilityTier: number = 1;
 
+  // Online Multiplayer (1v1 Matchmaking & Duels)
+  public remotePlayer: RemotePlayerState | null = null;
+  public isMultiplayerMatch: boolean = false;
+  public multiplayerMode: MultiplayerMode = 'parkour';
+  public onGoalReachedMultiplayer?: () => void;
+  public onEliminatedMultiplayer?: (altitude: number) => void;
+
   // Special Stage Portal & Dimension System
   public specialStagePortal: { x: number; y: number; w: number; h: number } | null = null;
   public specialStageCompleted: boolean = false;
@@ -230,6 +238,7 @@ export class GameEngine {
       coyoteTimer: 0,
       jumpBufferTimer: 0,
       inv: 0,
+      damageInvTimer: 0,
       time: 0,
       animState: 'idle',
       isDashing: false,
@@ -1159,9 +1168,12 @@ export class GameEngine {
       }
     }
 
-    // Invulnerability timer
+    // Invulnerability timers
     if (p.inv > 0) {
       p.inv--;
+    }
+    if (p.damageInvTimer && p.damageInvTimer > 0) {
+      p.damageInvTimer--;
     }
 
     // Update Dash Trail Fading (in-place zero allocation)
@@ -4128,7 +4140,8 @@ export class GameEngine {
     }
 
     // 6. Hazards & Enemies Contact (Damage, Stomp, Block & Parry)
-    if (p.inv <= 0 && !this.settings.godMode) {
+    const isDamagedRecently = (p.damageInvTimer !== undefined && p.damageInvTimer > 0);
+    if (!this.settings.godMode) {
       // Hazards (Fix phantom damage: only deal damage when hazards are actively dangerous)
       for (const h of this.hazards) {
         if (h.type === 'bamboo' || h.type === 'branch' || h.type === 'rock') continue; // Decorative
@@ -4145,6 +4158,12 @@ export class GameEngine {
         if (h.type === 'proximityMine') continue; // Handled by proximity fuse
         if (h.type === 'antigravRift') continue; // Non-lethal gravitational anomaly
         if (Math.abs(h.x - p.x) > 90 || Math.abs(h.y - p.y) > 90) continue;
+
+        const isSpikeHazard = h.type === 'spike' || h.type === 'sandSpike' || h.type === 'retractableSpikes' || h.type === 'rollingSpikeBall';
+        // Spikes deal damage even if player is dashing (canceling dash), but respect post-damage recovery iframe
+        if (isSpikeHazard && isDamagedRecently) continue;
+        // Non-spike hazards respect general invulnerability / dash iframe
+        if (!isSpikeHazard && (p.inv > 0 || isDamagedRecently)) continue;
 
         let isColliding = false;
         if (h.type === 'swingingBlade') {
@@ -4366,6 +4385,10 @@ export class GameEngine {
             sound.playSfx('laserFire');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#22d3ee');
             this.handlePlayerDamage('¡Desintegración por Rayo de Plasma!');
+          } else if (h.type === 'spike') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 18, '#ef4444');
+            this.handlePlayerDamage('¡Pinchado por Púas Afiladas!');
           } else {
             this.handlePlayerDamage('¡Peligro en el terreno!');
           }
@@ -4373,8 +4396,10 @@ export class GameEngine {
         }
       }
 
-      // Hostile Projectiles
-      for (const proj of this.projectiles) {
+      // Hostile Projectiles, Enemies and Boss contact (Protected by Dash dodge & Invulnerability frames)
+      if (p.inv <= 0 && !isDamagedRecently && !p.isDashing) {
+        // Hostile Projectiles
+        for (const proj of this.projectiles) {
         if (!proj.isHero) {
           if (Math.abs(proj.x - p.x) > 30 || Math.abs(proj.y - p.y) > 30) continue;
           if (this.checkAABB(p, proj)) {
@@ -4525,6 +4550,7 @@ export class GameEngine {
         }
       }
     }
+  }
 
     // 7. Special Stage Portal Reached (Enter Mini Bonus Level)
     if (this.specialStagePortal && !this.isInSpecialStage && this.checkAABB(p, this.specialStagePortal)) {
@@ -4642,51 +4668,61 @@ export class GameEngine {
     this.platforms = [
       // Sector 1: Quantum Launchpad (x: 15 - 260)
       { x: 15, y: 154, w: 90, h: 26, kind: 'cyber' },
-      { x: 130, y: 130, w: 52, h: 12, kind: 'cyber' },
-      { x: 205, y: 104, w: 55, h: 12, kind: 'cyber' },
+      { x: 125, y: 132, w: 55, h: 12, kind: 'cyber' },
+      { x: 195, y: 110, w: 60, h: 12, kind: 'cyber' },
 
-      // Sector 2: Aerial Trampoline Arc (x: 280 - 580)
-      { x: 285, y: 150, w: 65, h: 20, kind: 'ground' },
-      { x: 380, y: 78, w: 55, h: 12, kind: 'cyber' },
-      { x: 465, y: 115, w: 50, h: 12, kind: 'cyber' },
-      { x: 540, y: 145, w: 60, h: 14, kind: 'cyber' },
+      // Sector 2: Aerial Trampoline Arc & Stepped Catwalk (x: 270 - 600)
+      { x: 270, y: 150, w: 70, h: 20, kind: 'ground' },
+      { x: 330, y: 120, w: 55, h: 12, kind: 'cyber' }, // Intermediate step (no impossible height!)
+      { x: 385, y: 92, w: 60, h: 12, kind: 'cyber' },
+      { x: 450, y: 112, w: 55, h: 12, kind: 'cyber' },
+      { x: 515, y: 134, w: 60, h: 12, kind: 'cyber' },
+      { x: 575, y: 150, w: 65, h: 20, kind: 'cyber' },
 
-      // Sector 3: High Precision Cyber Steps (x: 620 - 920)
-      { x: 630, y: 152, w: 55, h: 20, kind: 'ground' },
-      { x: 715, y: 88, w: 50, h: 12, kind: 'cyber' },
-      { x: 795, y: 64, w: 50, h: 12, kind: 'cyber' },
-      { x: 875, y: 110, w: 60, h: 12, kind: 'cyber' },
+      // Sector 3: Precision Stepped Stairs (x: 625 - 940)
+      { x: 625, y: 150, w: 65, h: 20, kind: 'ground' },
+      { x: 680, y: 122, w: 55, h: 12, kind: 'cyber' }, // Intermediate step
+      { x: 735, y: 96, w: 55, h: 12, kind: 'cyber' },  // Intermediate step
+      { x: 790, y: 76, w: 60, h: 12, kind: 'cyber' },
+      { x: 860, y: 98, w: 55, h: 12, kind: 'cyber' },
+      { x: 915, y: 126, w: 55, h: 12, kind: 'cyber' },
 
-      // Sector 4: Super Leap & Staggered Run (x: 950 - 1240)
-      { x: 960, y: 152, w: 60, h: 20, kind: 'ground' },
-      { x: 1050, y: 75, w: 55, h: 12, kind: 'cyber' },
-      { x: 1135, y: 118, w: 52, h: 12, kind: 'cyber' },
-      { x: 1215, y: 142, w: 55, h: 14, kind: 'cyber' },
+      // Sector 4: Super Leap & Stepped Run (x: 960 - 1260)
+      { x: 960, y: 150, w: 65, h: 20, kind: 'ground' },
+      { x: 1015, y: 122, w: 55, h: 12, kind: 'cyber' }, // Intermediate step
+      { x: 1070, y: 96, w: 60, h: 12, kind: 'cyber' },  // Intermediate step
+      { x: 1135, y: 116, w: 55, h: 12, kind: 'cyber' },
+      { x: 1205, y: 138, w: 60, h: 14, kind: 'cyber' },
 
-      // Sector 5: Grand Dimensional Sanctuary Exit (x: 1290 - 1470)
-      { x: 1290, y: 126, w: 52, h: 12, kind: 'cyber' },
-      { x: 1360, y: 150, w: 110, h: 30, kind: 'ground' },
+      // Sector 5: Grand Dimensional Sanctuary Exit (x: 1275 - 1480)
+      { x: 1275, y: 126, w: 60, h: 12, kind: 'cyber' },
+      { x: 1345, y: 150, w: 140, h: 30, kind: 'ground' },
     ];
+
+    // Continuous quantum safety floor across the special stage so player can never get trapped in a pit
+    for (let x = 0; x <= 1450; x += 140) {
+      this.platforms.push({ x, y: 158, w: 150, h: 24, kind: 'cyber' });
+    }
 
     // Calculated Jump Trampolines to vault across cosmic chasms
     this.trampolines = [
-      { x: 305, y: 142, w: 24, h: 8, bounceForce: -7.6, springAnim: 0, type: 'standard' },
-      { x: 645, y: 144, w: 24, h: 8, bounceForce: -7.8, springAnim: 0, type: 'standard' },
-      { x: 978, y: 144, w: 24, h: 8, bounceForce: -8.0, springAnim: 0, type: 'super' },
+      { x: 300, y: 142, w: 26, h: 8, bounceForce: -7.8, springAnim: 0, type: 'standard' },
+      { x: 645, y: 142, w: 26, h: 8, bounceForce: -8.0, springAnim: 0, type: 'standard' },
+      { x: 980, y: 142, w: 26, h: 8, bounceForce: -8.2, springAnim: 0, type: 'super' },
     ];
 
-    // 10 Radiant Cosmic Bonus Crystals (+500 pts each) across the extended run
+    // 10 Radiant Cosmic Bonus Crystals (+500 pts each) placed at accessible heights
     this.crystals = [
       { x: 60, y: 128, w: 12, h: 12, taken: false },
-      { x: 150, y: 104, w: 12, h: 12, taken: false },
-      { x: 225, y: 78, w: 12, h: 12, taken: false },
-      { x: 400, y: 52, w: 14, h: 14, taken: false },
-      { x: 485, y: 90, w: 12, h: 12, taken: false },
-      { x: 735, y: 62, w: 12, h: 12, taken: false },
-      { x: 815, y: 38, w: 14, h: 14, taken: false },
-      { x: 895, y: 84, w: 12, h: 12, taken: false },
-      { x: 1070, y: 48, w: 14, h: 14, taken: false },
-      { x: 1310, y: 100, w: 14, h: 14, taken: false },
+      { x: 140, y: 108, w: 12, h: 12, taken: false },
+      { x: 215, y: 88, w: 12, h: 12, taken: false },
+      { x: 395, y: 70, w: 14, h: 14, taken: false },
+      { x: 475, y: 92, w: 12, h: 12, taken: false },
+      { x: 745, y: 74, w: 12, h: 12, taken: false },
+      { x: 805, y: 56, w: 14, h: 14, taken: false },
+      { x: 880, y: 80, w: 12, h: 12, taken: false },
+      { x: 1080, y: 74, w: 14, h: 14, taken: false },
+      { x: 1300, y: 104, w: 14, h: 14, taken: false },
     ];
 
     this.hazards = [];
@@ -4973,7 +5009,10 @@ export class GameEngine {
       this.comboTimer = 0;
       this.comboRank = 'D';
       this.screenShake = 6;
+      this.player.isDashing = false;
+      this.player.dashTimer = 0;
       this.player.inv = 50;
+      this.player.damageInvTimer = 50;
       this.player.vx = -this.player.facing * 4.2;
       this.player.vy = 2.8; // knocks downward to challenge climb
       this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#f97316');
@@ -4989,7 +5028,10 @@ export class GameEngine {
     this.comboTimer = 0;
     this.comboRank = 'D';
     this.screenShake = 6;
+    this.player.isDashing = false;
+    this.player.dashTimer = 0;
     this.player.inv = INVULNERABILITY_FRAMES;
+    this.player.damageInvTimer = INVULNERABILITY_FRAMES;
     this.player.vx = -this.player.facing * 2.5;
     this.player.vy = -3.2;
     this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 12, '#f43f5e');
@@ -5106,6 +5148,9 @@ export class GameEngine {
     sound.stopMusic();
     sound.playSfx('win');
     this.notifyState();
+    if (this.onGoalReachedMultiplayer) {
+      this.onGoalReachedMultiplayer();
+    }
     if (this.onLevelComplete) {
       this.onLevelComplete();
     }
@@ -5404,6 +5449,9 @@ export class GameEngine {
       if (this.lives <= 0) {
         this.lives = 0;
         this.onlyUpIsGameOver = true;
+        if (this.onEliminatedMultiplayer) {
+          this.onEliminatedMultiplayer(this.onlyUpMaxAltitude);
+        }
         this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 35, '#ea580c');
         this.createBurst(this.player.x + this.player.w / 2, this.onlyUpLavaY, 20, '#fbbf24');
         this.screenShake = 16;

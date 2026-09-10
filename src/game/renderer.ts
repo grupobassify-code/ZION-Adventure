@@ -23,6 +23,7 @@ import {
 } from '../types';
 import { EnemyRenderer } from './enemyRenderer';
 import { BossRenderer } from './bossRenderer';
+import type { RemotePlayerState } from '../types/multiplayer';
 
 export class GameRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -96,6 +97,11 @@ export class GameRenderer {
 
     // 10. Player Hero Zion
     this.renderZion(engine.player, engine.cameraX);
+
+    // 10b. Online 1v1 Rival Player
+    if (engine.remotePlayer) {
+      this.renderRemotePlayer(engine.remotePlayer, engine.cameraX, 0, engine.time);
+    }
 
     // 11. Melee sword slash arcs & special energy bursts
     this.renderMeleeEffects(engine.meleeEffects, engine.cameraX);
@@ -205,6 +211,11 @@ export class GameRenderer {
 
     // G. Hero Zion
     this.renderZion(engine.player, 0);
+
+    // Gb. Online 1v1 Rival Player in Only Up
+    if (engine.remotePlayer) {
+      this.renderRemotePlayer(engine.remotePlayer, 0, 0, engine.time);
+    }
 
     // H. Melee and Special Effects
     this.renderMeleeEffects(engine.meleeEffects, 0);
@@ -3295,6 +3306,144 @@ export class GameRenderer {
       ctx.restore();
     }
 
+    ctx.restore();
+  }
+
+  public renderRemotePlayer(remote: RemotePlayerState, cameraX: number, cameraY: number = 0, time: number) {
+    const ctx = this.ctx;
+    const x = Math.round(remote.x - cameraX);
+    const y = Math.round(remote.y - cameraY);
+
+    if (x < -40 || x > GAME_WIDTH + 40) return;
+
+    ctx.save();
+
+    // 1. If opponent is eliminated/dead
+    if (remote.isDead) {
+      ctx.globalAlpha = 0.45;
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 7px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('💀 CAÍDO', x + 7, y - 10);
+      ctx.restore();
+      return;
+    }
+
+    // 2. Overhead Rival Name Tag & Trophies Badge
+    const tagY = y - 12;
+    ctx.save();
+    ctx.font = 'bold 6px monospace';
+    ctx.textAlign = 'center';
+    
+    // Background pill
+    const displayName = remote.name || 'Rival';
+    const tagText = `⚔️ ${displayName}`;
+    const textMetrics = ctx.measureText(tagText);
+    const pillW = Math.max(34, textMetrics.width + 8);
+    const pillH = 9;
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(x + 7 - pillW / 2, tagY - 7, pillW, pillH);
+    ctx.strokeStyle = '#f43f5e';
+    ctx.lineWidth = 0.8;
+    ctx.strokeRect(x + 7 - pillW / 2, tagY - 7, pillW, pillH);
+
+    // Text with glowing highlight
+    ctx.fillStyle = '#fecdd3';
+    ctx.fillText(tagText, x + 7, tagY);
+    ctx.restore();
+
+    // 3. Dash Ghost / Movement Afterimages
+    if (remote.isDashing) {
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#f43f5e';
+      ctx.fillRect(x + (remote.facing > 0 ? -6 : 6), y, 14, 16);
+      ctx.restore();
+    }
+
+    // 4. Shield Barrier if blocking
+    if (remote.isBlocking) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.25)';
+      ctx.beginPath();
+      ctx.arc(x + 7, y + 8, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fb7185';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 5. Opponent Rival Sprite (Cyber Crimson Shinobi)
+    const isMoving = Math.abs(remote.vx) > 0.2;
+    const isGrounded = remote.animState === 'idle' || remote.animState === 'run';
+    const bobY = isGrounded && isMoving ? Math.sin(time * 0.55) * 1.5 : 0;
+
+    ctx.save();
+    ctx.translate(x + 7, y + 8 + bobY);
+    if (remote.facing < 0) {
+      ctx.scale(-1, 1);
+    }
+
+    // Crimson Flowing Scarf
+    for (let i = 4; i >= 1; i--) {
+      const sx = -4 - (i * 2.8);
+      const sy = -3 + Math.sin(time * 0.3 - i * 0.8) * 1.8;
+      ctx.fillStyle = i % 2 === 0 ? '#ef4444' : '#dc2626';
+      ctx.fillRect(sx, sy, Math.max(2, 4 - i * 0.5), Math.max(1.5, 3 - i * 0.4));
+    }
+
+    // Legs / Greaves (Dark Charcoal with Crimson Accents)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-4, 3, 3, 6);
+    ctx.fillRect(1, 3, 3, 6);
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(-3, 6, 2, 2);
+    ctx.fillRect(2, 6, 2, 2);
+
+    // Torso & Chestplate
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(-4, -3, 8, 6);
+    ctx.fillStyle = '#f43f5e'; // Rival Core (Crimson Reactor)
+    ctx.fillRect(-1, -1, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-0.5, -0.5, 1, 1);
+
+    // Shinobi Belt (Crimson & Gold)
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-4, 2, 8, 1.5);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-1, 2, 2, 1.5);
+
+    // Masked Head & Cowl
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-4, -9, 8, 6);
+    ctx.fillStyle = '#312e81';
+    ctx.fillRect(-3, -5, 6, 2);
+
+    // Rival Optic Eyes (Glowing Ruby Slits)
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(0, -7, 2, 1.5);
+    ctx.fillRect(3, -7, 2, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(1, -7, 1, 1);
+
+    // Ninja Hair (Crimson / Flame Tipped)
+    ctx.fillStyle = '#991b1b';
+    ctx.fillRect(-5, -11, 8, 3);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-4, -12, 6, 2);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(0, -12, 3, 1.5);
+
+    // Katana / Scabbard on Back
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(-5, -6, 2, 10);
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillRect(-6, -7, 3, 2);
+
+    ctx.restore();
     ctx.restore();
   }
 
