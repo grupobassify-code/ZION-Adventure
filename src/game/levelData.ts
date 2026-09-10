@@ -1,4 +1,4 @@
-import { Boss, Checkpoint, Collectible, Enemy, Hazard, Landmark, LevelConfig, NodePillar, Platform, SecretItem } from '../types';
+import { Boss, Checkpoint, Collectible, Enemy, Hazard, Landmark, LevelConfig, NodePillar, Platform, SecretItem, Trampoline } from '../types';
 
 export const LEVEL_CONFIGS: LevelConfig[] = [
   {
@@ -2137,38 +2137,63 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // ZONA 5 · ACTO 1 — KRONO CITY: DISTRITO TECNOLÓGICO
     // -------------------------------------------------------------
-    // Clean Base Floor with Conveyor & Cyber Sections (SUELOS ELECTRICOS EMP ELIMINADOS PARA NUNCA BLOQUEAR EL PASO)
-    for (let x = 0; x < LW; x += 320) {
-      const isConveyor = (x / 320) % 3 === 1;
+    // Clean Base Floor with Conveyor & Cyber Sections (Continuous reliable footing across the tech district)
+    for (let x = 0; x < LW; x += 300) {
+      const isConveyor = (x / 300) % 3 === 1;
       
       if (isConveyor) {
         platforms.push({ 
           x, 
           y: 148, 
-          w: 260, 
+          w: 305, 
           h: 40, 
           kind: 'conveyor',
-          speed: 1.6,
-          dir: (x % 640 === 0) ? 1 : -1
+          speed: 1.4,
+          dir: (x % 600 === 0) ? 1 : -1
         });
       } else {
-        platforms.push({ x, y: 148, w: 260, h: 40, kind: 'cyber' });
+        platforms.push({ x, y: 148, w: 305, h: 40, kind: 'cyber' });
       }
     }
 
-    // Strategic Elevated Catwalks (Reduced density, high aesthetic purpose)
+    // Strategic Elevated Catwalks (Fluid stepped ascents with no unreachable jumps)
     const krono1Catwalks: Platform[] = [
       { x: 550, y: 106, w: 90, h: 10, kind: 'cyber' },
+      
+      // Catwalk 1 with stepped transition (x: 1280 - 1450)
+      { x: 1280, y: 120, w: 60, h: 10, kind: 'cyber' },
       { x: 1350, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
-      { x: 1760, y: 68, w: 75, h: 10, kind: 'cyber' },
+      
+      // Secret 1 Stairway to Microchip Cuántico (smooth 32-34px steps: 148 -> 114 -> 82 -> secret 48)
+      { x: 1680, y: 114, w: 65, h: 10, kind: 'cyber' },
+      { x: 1745, y: 82, w: 85, h: 10, kind: 'cyber' },
+      
       { x: 2200, y: 104, w: 90, h: 10, kind: 'cyber' },
+      
+      // Catwalk 2 with stepped transition
+      { x: 2980, y: 118, w: 60, h: 10, kind: 'cyber' },
       { x: 3050, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
+      
       { x: 3900, y: 104, w: 90, h: 10, kind: 'cyber' },
-      { x: 4360, y: 64, w: 75, h: 10, kind: 'cyber' },
+      
+      // Secret 2 Stairway to Holodisco de Seguridad Central (smooth 32-34px steps: 148 -> 112 -> 80 -> secret 46)
+      { x: 4270, y: 112, w: 65, h: 10, kind: 'cyber' },
+      { x: 4340, y: 80, w: 85, h: 10, kind: 'cyber' },
+      
+      // Catwalk 3 with stepped transition
+      { x: 4680, y: 120, w: 60, h: 10, kind: 'cyber' },
       { x: 4750, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
+      
       { x: 5600, y: 104, w: 90, h: 10, kind: 'cyber' },
+      
+      // Catwalk 4 with stepped transition
+      { x: 6380, y: 118, w: 60, h: 10, kind: 'cyber' },
       { x: 6450, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
-      { x: 6760, y: 68, w: 75, h: 10, kind: 'cyber' },
+      
+      // Secret 3 Stairway to Batería de Plasma Iónico (smooth 32-34px steps: 148 -> 112 -> 80 -> secret 46)
+      { x: 6680, y: 112, w: 65, h: 10, kind: 'cyber' },
+      { x: 6745, y: 80, w: 85, h: 10, kind: 'cyber' },
+      
       { x: 7300, y: 102, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono1Catwalks);
@@ -2372,9 +2397,9 @@ export function buildLevel(levelIndex: number) {
     );
 
     secrets.push(
-      { x: 1800, y: 30, w: 10, h: 12, taken: false, name: '⚡ Microchip Cuántico Kronos-α' },
-      { x: 4400, y: 24, w: 10, h: 12, taken: false, name: '💾 Holodisco de Seguridad Central' },
-      { x: 6800, y: 30, w: 10, h: 12, taken: false, name: '🔋 Batería de Plasma Iónico' }
+      { x: 1785, y: 48, w: 10, h: 12, taken: false, name: '⚡ Microchip Cuántico Kronos-α' },
+      { x: 4380, y: 46, w: 10, h: 12, taken: false, name: '💾 Holodisco de Seguridad Central' },
+      { x: 6785, y: 46, w: 10, h: 12, taken: false, name: '🔋 Batería de Plasma Iónico' }
     );
 
     heals.push(
@@ -2397,14 +2422,15 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // 1. Continuous Reliable Base Floor Platforms across the entire Fusion Reactor (no impassable gaps)
     for (let x = 0; x < LW; x += 280) {
-      platforms.push({ x, y: 148, w: 260, h: 40, kind: 'cyber' });
+      platforms.push({ x, y: 148, w: 285, h: 40, kind: 'cyber' });
     }
 
     // 2. Upper Catwalks, Node Stairways and High-Precision Walkways (Every section is 100% passable)
     const krono2Catwalks: Platform[] = [
       { x: 500, y: 104, w: 90, h: 10, kind: 'cyber' },
       { x: 920, y: 100, w: 80, h: 10, kind: 'cyber' },
-      { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 1235, y: 118, w: 60, h: 10, kind: 'cyber' },
+      { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
       
       // Node 1 Access Stairs & Stand Platform (Node 1 at x: 1850, y: 56)
       { x: 1740, y: 116, w: 65, h: 10, kind: 'cyber' },
@@ -2412,13 +2438,14 @@ export function buildLevel(levelIndex: number) {
       { x: 1830, y: 72, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 1
 
       { x: 2100, y: 102, w: 90, h: 10, kind: 'cyber' },
-      { x: 2170, y: 64, w: 75, h: 10, kind: 'cyber' },
+      { x: 2170, y: 74, w: 85, h: 10, kind: 'cyber' }, // Stepped jump from 2100 (28px rise, secret above at 42)
       { x: 2550, y: 98, w: 85, h: 10, kind: 'cyber' },
-      { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+      { x: 2880, y: 116, w: 60, h: 10, kind: 'cyber' },
+      { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: -1 },
 
-      // Previously missing middle reactor platforms (x: 3200 - 3600 now fully bridged)
+      // Middle reactor platforms (x: 3200 - 3600 fully bridged)
       { x: 3250, y: 106, w: 90, h: 10, kind: 'cyber' },
-      { x: 3380, y: 88, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 3380, y: 88, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
       { x: 3520, y: 104, w: 85, h: 10, kind: 'cyber' },
 
       { x: 3800, y: 104, w: 90, h: 10, kind: 'cyber' },
@@ -2430,12 +2457,16 @@ export function buildLevel(levelIndex: number) {
       { x: 4230, y: 44, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 2
       { x: 4305, y: 68, w: 65, h: 10, kind: 'cyber' },
 
-      { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: 1 },
-      { x: 4970, y: 60, w: 75, h: 10, kind: 'cyber' },
+      { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
+      // Secret 2 Stairway to Llave Maestra Cuántica (accessible stepped path: 148 -> 114 -> 80 -> secret 46)
+      { x: 4880, y: 114, w: 65, h: 10, kind: 'cyber' },
+      { x: 4950, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 5060, y: 104, w: 70, h: 10, kind: 'cyber' },
       { x: 5200, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 5500, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 5950, y: 98, w: 90, h: 10, kind: 'cyber' },
-      { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.8, dir: -1 },
+      { x: 6280, y: 116, w: 60, h: 10, kind: 'cyber' },
+      { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: -1 },
 
       // Node 3 Access Stairs & Stand Platform (Node 3 at x: 6750, y: 26)
       { x: 6570, y: 114, w: 65, h: 10, kind: 'cyber' },
@@ -2445,7 +2476,11 @@ export function buildLevel(levelIndex: number) {
       { x: 6805, y: 68, w: 65, h: 10, kind: 'cyber' },
 
       { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' },
-      { x: 7370, y: 62, w: 75, h: 10, kind: 'cyber' },
+      // Secret 3 Stairway to Condensador Infinito Kronos (accessible stepped path: 148 -> 112 -> 80 -> secret 46)
+      { x: 7270, y: 112, w: 65, h: 10, kind: 'cyber' },
+      { x: 7340, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 7450, y: 106, w: 65, h: 10, kind: 'cyber' },
+      { x: 7540, y: 112, w: 65, h: 10, kind: 'cyber' },
       { x: 7650, y: 104, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono2Catwalks);
@@ -2656,9 +2691,9 @@ export function buildLevel(levelIndex: number) {
     );
 
     secrets.push(
-      { x: 2200, y: 25, w: 10, h: 12, taken: false, name: '💠 Núcleo de Fusión Sobrecargado' },
-      { x: 5000, y: 20, w: 10, h: 12, taken: false, name: '🔑 Llave Maestra Cuántica' },
-      { x: 7400, y: 24, w: 10, h: 12, taken: false, name: '⚡ Condensador Infinito Kronos' }
+      { x: 2200, y: 42, w: 10, h: 12, taken: false, name: '💠 Núcleo de Fusión Sobrecargado' },
+      { x: 4990, y: 46, w: 10, h: 12, taken: false, name: '🔑 Llave Maestra Cuántica' },
+      { x: 7380, y: 46, w: 10, h: 12, taken: false, name: '⚡ Condensador Infinito Kronos' }
     );
 
     heals.push(
@@ -2681,19 +2716,21 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     platforms.push({ x: 0, y: 148, w: LW, h: 40, kind: 'arena' });
     
-    // Multi-tier floating battle platforms
-    platforms.push({ x: 350, y: 108, w: 100, h: 10, kind: 'cyber' });
-    platforms.push({ x: 550, y: 76, w: 110, h: 10, kind: 'cyber' });
-    platforms.push({ x: 750, y: 46, w: 100, h: 10, kind: 'cyber' });
+    // Multi-tier floating battle platforms (Properly spaced so jumping between tiers is 100% fluid)
+    // Left Wing (Tiers to Overclock Power Relay 1 and Kronos Crown)
+    platforms.push({ x: 320, y: 114, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 480, y: 84, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 640, y: 56, w: 115, h: 10, kind: 'cyber' });
     
-    platforms.push({ x: 1100, y: 108, w: 100, h: 10, kind: 'cyber' });
-    platforms.push({ x: 1300, y: 76, w: 110, h: 10, kind: 'cyber' });
-    platforms.push({ x: 1500, y: 46, w: 100, h: 10, kind: 'cyber' });
+    // Right Wing (Tiers to Overclock Power Relay 2)
+    platforms.push({ x: 1050, y: 56, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 1210, y: 84, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 1370, y: 114, w: 115, h: 10, kind: 'cyber' });
 
     // 2 Overclock Power Relays on high platforms to disable the Mech's Overdrive Shield in phase 1 & 3
     nodes.push(
-      { x: 600, y: 40, w: 18, h: 34, taken: false, id: 'core1' },
-      { x: 1350, y: 40, w: 18, h: 34, taken: false, id: 'core2' }
+      { x: 530, y: 48, w: 18, h: 34, taken: false, id: 'core1' },
+      { x: 1260, y: 48, w: 18, h: 34, taken: false, id: 'core2' }
     );
 
     for (let x = 100; x < 2000; x += 120) {
@@ -2706,7 +2743,7 @@ export function buildLevel(levelIndex: number) {
     );
 
     secrets.push(
-      { x: 750, y: 20, w: 12, h: 14, taken: false, name: '🏆 Corona Suprema del Tiempo: Kronos' }
+      { x: 680, y: 24, w: 12, h: 14, taken: false, name: '🏆 Corona Suprema del Tiempo: Kronos' }
     );
 
     checkpoints.push(
