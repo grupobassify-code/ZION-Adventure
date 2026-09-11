@@ -258,6 +258,7 @@ interface ActiveRoom {
   players: Map<string, NetworkPlayer>;
   parkourLevelIndex: number;
   countdownTimer?: NodeJS.Timeout;
+  botInterval?: NodeJS.Timeout;
   startedAt?: number;
   winnerId?: string | null;
   winnerReason?: string;
@@ -266,7 +267,7 @@ interface ActiveRoom {
 }
 
 const rooms = new Map<string, ActiveRoom>();
-const matchmakingQueue: { socketId: string; playerId: string; name: string; skin: string }[] = [];
+const matchmakingQueue: { socketId: string; playerId: string; name: string; skin: string; timeout?: NodeJS.Timeout }[] = [];
 
 function generateRoomCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -380,12 +381,18 @@ io.on('connection', (socket: Socket) => {
     // Remove any existing entry in queue
     const existingIndex = matchmakingQueue.findIndex((q) => q.playerId === playerId);
     if (existingIndex >= 0) {
+      if (matchmakingQueue[existingIndex].timeout) {
+        clearTimeout(matchmakingQueue[existingIndex].timeout);
+      }
       matchmakingQueue.splice(existingIndex, 1);
     }
 
     // Check if another player is waiting
     if (matchmakingQueue.length > 0) {
       const opponent = matchmakingQueue.shift()!;
+      if (opponent.timeout) {
+        clearTimeout(opponent.timeout);
+      }
       const opponentSocket = io.sockets.sockets.get(opponent.socketId);
 
       if (opponentSocket) {
@@ -435,23 +442,157 @@ io.on('connection', (socket: Socket) => {
       }
     }
 
-    // Otherwise, add player to queue
-    matchmakingQueue.push({
+    // Otherwise, add player to queue and setup auto-bot fallback after 4 seconds
+    const queueItem: { socketId: string; playerId: string; name: string; skin: string; timeout?: NodeJS.Timeout } = {
       socketId: socket.id,
       playerId,
       name: entry.name,
       skin: skin || 'zion',
-    });
+    };
 
+    queueItem.timeout = setTimeout(() => {
+      const qIdx = matchmakingQueue.findIndex((q) => q.playerId === playerId);
+      if (qIdx === -1) return;
+      matchmakingQueue.splice(qIdx, 1);
+
+      const code = generateRoomCode();
+      const hostPlayer: NetworkPlayer = {
+        id: playerId,
+        name: entry.name,
+        isHost: true,
+        isReady: true,
+        skin: skin || 'zion',
+        trophies: entry.trophies,
+      };
+
+      const botNames = ['KronoShadow [AI]', 'Rival_Quantum [AI]', 'Nexus_Runner [AI]', 'CyberPulse [AI]'];
+      const botName = botNames[Math.floor(Math.random() * botNames.length)];
+      const botId = 'bot_' + Math.random().toString(36).substring(2, 8);
+      const botPlayer: NetworkPlayer = {
+        id: botId,
+        name: botName,
+        isHost: false,
+        isReady: true,
+        isBot: true,
+        skin: 'kael',
+        trophies: Math.max(100, entry.trophies + Math.floor(Math.random() * 40) - 20),
+      };
+
+      const room: ActiveRoom = {
+        code,
+        mode: preferredMode as MultiplayerMode,
+        status: 'ready',
+        hostId: playerId,
+        players: new Map([
+          [playerId, hostPlayer],
+          [botId, botPlayer],
+        ]),
+        parkourLevelIndex: 0,
+        playerAltitudes: new Map(),
+        playerEliminated: new Map(),
+      };
+
+      rooms.set(code, room);
+      socket.join(code);
+      currentRoomCode = code;
+
+      io.to(code).emit('match_found', serializeRoom(room));
+    }, 4200);
+
+    matchmakingQueue.push(queueItem);
     socket.emit('matchmaking_waiting', { queueLength: matchmakingQueue.length });
+  });
+
+  // Direct Training Match against Bot (Instant 1v1)
+  socket.on('start_bot_match', ({ playerId, name, skin, preferredMode = 'parkour' }) => {
+    currentUserId = playerId;
+    const entry = getOrCreatePlayerEntry(playerId, name, skin);
+
+    const existingIndex = matchmakingQueue.findIndex((q) => q.playerId === playerId);
+    if (existingIndex >= 0) {
+      if (matchmakingQueue[existingIndex].timeout) {
+        clearTimeout(matchmakingQueue[existingIndex].timeout);
+      }
+      matchmakingQueue.splice(existingIndex, 1);
+    }
+
+    const code = generateRoomCode();
+    const hostPlayer: NetworkPlayer = {
+      id: playerId,
+      name: entry.name,
+      isHost: true,
+      isReady: true,
+      skin: skin || 'zion',
+      trophies: entry.trophies,
+    };
+
+    const botNames = ['KronoShadow [AI]', 'Rival_Quantum [AI]', 'Nexus_Runner [AI]'];
+    const botName = botNames[Math.floor(Math.random() * botNames.length)];
+    const botId = 'bot_' + Math.random().toString(36).substring(2, 8);
+    const botPlayer: NetworkPlayer = {
+      id: botId,
+      name: botName,
+      isHost: false,
+      isReady: true,
+      isBot: true,
+      skin: 'kael',
+      trophies: Math.max(100, entry.trophies + Math.floor(Math.random() * 40) - 20),
+    };
+
+    const room: ActiveRoom = {
+      code,
+      mode: preferredMode as MultiplayerMode,
+      status: 'ready',
+      hostId: playerId,
+      players: new Map([
+        [playerId, hostPlayer],
+        [botId, botPlayer],
+      ]),
+      parkourLevelIndex: 0,
+      playerAltitudes: new Map(),
+      playerEliminated: new Map(),
+    };
+
+    rooms.set(code, room);
+    socket.join(code);
+    currentRoomCode = code;
+
+    io.to(code).emit('match_found', serializeRoom(room));
   });
 
   socket.on('cancel_matchmaking', ({ playerId }) => {
     const idx = matchmakingQueue.findIndex((q) => q.playerId === playerId);
     if (idx >= 0) {
+      if (matchmakingQueue[idx].timeout) {
+        clearTimeout(matchmakingQueue[idx].timeout);
+      }
       matchmakingQueue.splice(idx, 1);
     }
     socket.emit('matchmaking_cancelled');
+  });
+
+  // Add Bot to Custom Room
+  socket.on('add_bot', ({ code }) => {
+    const room = rooms.get(code);
+    if (!room || room.status !== 'waiting') return;
+    if (room.hostId !== currentUserId) return;
+    if (room.players.size >= 2) return;
+
+    const botId = 'bot_' + Math.random().toString(36).substring(2, 8);
+    const botPlayer: NetworkPlayer = {
+      id: botId,
+      name: 'Rival Cuántico [AI]',
+      isHost: false,
+      isReady: true,
+      isBot: true,
+      skin: 'kael',
+      trophies: 450 + Math.floor(Math.random() * 60),
+    };
+
+    room.players.set(botId, botPlayer);
+    room.status = 'ready';
+
+    io.to(code).emit('room_updated', serializeRoom(room));
   });
 
   // 4. Host Changes Game Mode ("parkour" | "onlyup")
@@ -504,6 +645,157 @@ io.on('connection', (socket: Socket) => {
         room.playerAltitudes.clear();
         room.playerEliminated.clear();
 
+        // Check if room contains an AI Bot Player
+        const botPlayer = Array.from(room.players.values()).find((p) => p.isBot || p.id.startsWith('bot_'));
+        if (botPlayer) {
+          let botX = 40;
+          let botY = 135;
+          let botVx = 2.1;
+          let botVy = 0;
+          let botAltitude = 0;
+          let botFacing: 1 | -1 = 1;
+          let botDashTimer = 0;
+          let botJumpTimer = 0;
+          let botAttackTimer = 0;
+
+          room.botInterval = setInterval(() => {
+            if (room.status !== 'playing') {
+              if (room.botInterval) clearInterval(room.botInterval);
+              return;
+            }
+
+            if (room.mode === 'onlyup') {
+              botAltitude += 0.08 + Math.random() * 0.06;
+              botY = Math.max(20, 140 - (botAltitude * 8) % 120);
+              botX = 160 + Math.sin(Date.now() / 800) * 40;
+              botVx = Math.cos(Date.now() / 800) * 1.5;
+              botFacing = botVx >= 0 ? 1 : -1;
+
+              const payload: RemotePlayerState = {
+                id: botPlayer.id,
+                name: botPlayer.name,
+                x: botX,
+                y: botY,
+                vx: botVx,
+                vy: botVy,
+                facing: botFacing,
+                animState: botAltitude > 0 ? 'jump' : 'run',
+                altitude: parseFloat(botAltitude.toFixed(1)),
+                skin: botPlayer.skin || 'kael',
+                trophies: botPlayer.trophies,
+                timestamp: Date.now(),
+              };
+              io.to(code).emit('remote_player_update', payload);
+
+              if (botAltitude >= 120) {
+                if (room.botInterval) clearInterval(room.botInterval);
+                room.status = 'finished';
+                room.winnerId = botPlayer.id;
+                room.winnerReason = '¡Rival Cuántico alcanzó la cima!';
+
+                const playerList = Array.from(room.players.values());
+                const humanPlayer = playerList.find((p) => p.id !== botPlayer.id);
+                let trophyResult = { winnerGained: 25, loserLost: 12 };
+                if (humanPlayer) {
+                  trophyResult = recordMatchWin(botPlayer.id, humanPlayer.id);
+                }
+
+                io.to(code).emit('match_ended', {
+                  winnerId: botPlayer.id,
+                  winnerName: botPlayer.name,
+                  reason: room.winnerReason,
+                  winnerTrophiesAwarded: trophyResult.winnerGained,
+                  loserTrophiesLost: trophyResult.loserLost,
+                  trophiesAwarded: trophyResult.winnerGained,
+                  room: serializeRoom(room),
+                });
+              }
+            } else {
+              botDashTimer++;
+              botJumpTimer++;
+              botAttackTimer++;
+
+              let isDashing = false;
+              let isAttacking = false;
+              let animState: 'idle' | 'run' | 'jump' | 'fall' | 'dash' | 'attack' = 'run';
+
+              if (botDashTimer > 80 && Math.random() < 0.28) {
+                isDashing = true;
+                botDashTimer = 0;
+                animState = 'dash';
+                botX += 14;
+              } else {
+                botX += 2.05 + Math.sin(botX / 100) * 0.35;
+              }
+
+              if (botJumpTimer > 45 && Math.random() < 0.25) {
+                botVy = -5.8;
+                botJumpTimer = 0;
+                animState = 'jump';
+              }
+
+              if (botVy < 6) {
+                botVy += 0.3;
+              }
+              botY += botVy;
+              if (botY > 135) {
+                botY = 135;
+                botVy = 0;
+              }
+
+              if (botAttackTimer > 70 && Math.random() < 0.2) {
+                isAttacking = true;
+                botAttackTimer = 0;
+                animState = 'attack';
+              }
+
+              const progressPercent = Math.min(100, Math.round((botX / 7100) * 100));
+
+              const payload: RemotePlayerState = {
+                id: botPlayer.id,
+                name: botPlayer.name,
+                x: Math.round(botX),
+                y: Math.round(botY),
+                vx: 2.1,
+                vy: botVy,
+                facing: 1,
+                animState,
+                isDashing,
+                isAttacking,
+                progressPercent,
+                skin: botPlayer.skin || 'kael',
+                trophies: botPlayer.trophies,
+                timestamp: Date.now(),
+              };
+              io.to(code).emit('remote_player_update', payload);
+
+              if (botX >= 7100) {
+                if (room.botInterval) clearInterval(room.botInterval);
+                room.status = 'finished';
+                room.winnerId = botPlayer.id;
+                room.winnerReason = '¡Rival Cuántico cruzó la meta!';
+
+                const playerList = Array.from(room.players.values());
+                const humanPlayer = playerList.find((p) => p.id !== botPlayer.id);
+                let trophyResult = { winnerGained: 25, loserLost: 12 };
+                if (humanPlayer) {
+                  trophyResult = recordMatchWin(botPlayer.id, humanPlayer.id);
+                }
+
+                io.to(code).emit('match_ended', {
+                  winnerId: botPlayer.id,
+                  winnerName: botPlayer.name,
+                  reason: room.winnerReason,
+                  winnerTrophiesAwarded: trophyResult.winnerGained,
+                  loserTrophiesLost: trophyResult.loserLost,
+                  trophiesAwarded: trophyResult.winnerGained,
+                  room: serializeRoom(room),
+                });
+              }
+            }
+          }, 60);
+        }
+
         io.to(code).emit('match_started', serializeRoom(room));
       }
     }, 1000);
@@ -533,6 +825,10 @@ io.on('connection', (socket: Socket) => {
   socket.on('player_reach_goal', ({ code, playerId }) => {
     const room = rooms.get(code);
     if (!room || room.status !== 'playing') return;
+
+    if (room.botInterval) {
+      clearInterval(room.botInterval);
+    }
 
     // First player to reach goal wins
     room.status = 'finished';
@@ -574,6 +870,7 @@ io.on('connection', (socket: Socket) => {
 
     // If only one player remains alive in a 2-player match
     if (alivePlayers.length === 1) {
+      if (room.botInterval) clearInterval(room.botInterval);
       const winner = alivePlayers[0];
       const loser = playerList.find((p) => p.id === playerId)!;
 
@@ -641,6 +938,10 @@ io.on('connection', (socket: Socket) => {
     const room = rooms.get(code);
     if (!room) return;
 
+    if (room.botInterval) {
+      clearInterval(room.botInterval);
+    }
+
     room.status = 'ready';
     room.winnerId = null;
     room.winnerReason = undefined;
@@ -685,6 +986,7 @@ io.on('connection', (socket: Socket) => {
 
         if (room.players.size === 0) {
           if (room.countdownTimer) clearInterval(room.countdownTimer);
+          if (room.botInterval) clearInterval(room.botInterval);
           rooms.delete(currentRoomCode);
         } else {
           // If host left, assign new host

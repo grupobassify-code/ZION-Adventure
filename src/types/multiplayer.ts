@@ -10,6 +10,7 @@ export interface NetworkPlayer {
   skin?: string;
   trophies: number;
   ping?: number;
+  isBot?: boolean;
 }
 
 export interface RoomState {

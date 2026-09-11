@@ -245,13 +245,20 @@ export default function App() {
 
     engine.isMultiplayerMatch = true;
     engine.multiplayerMode = room.mode;
+    engine.inCutscene = false;
 
     if (room.mode === 'onlyup') {
       handleStartOnlyUpFromMenu(activeSlotId);
     } else {
-      handleStartGameFromMenu(0, activeSlotId);
+      unlockAudioAndLockLandscape();
+      engine.inMainMenu = false;
+      setActiveSlotId(activeSlotId);
+      setActiveSlotIdState(activeSlotId);
+      setInMainMenu(false);
+      setIsCreditsOpen(false);
+      triggerLevelTransition(room.parkourLevelIndex || 0, false);
     }
-  }, [engine, activeSlotId]);
+  }, [engine, activeSlotId, unlockAudioAndLockLandscape, triggerLevelTransition]);
 
   const handleRematch = () => {
     setMultiplayerMatchResult(null);
@@ -273,6 +280,10 @@ export default function App() {
     sound.stopMusic();
     setInMainMenu(true);
     setMainMenuView('title');
+  };
+
+  const handleContinueMultiplayer = () => {
+    handleExitMultiplayer();
   };
 
   // Wire up engine multiplayer notifications and socket match results
@@ -716,14 +727,18 @@ export default function App() {
       )}
 
       {/* Narrative Lore Cutscene Screen */}
-      {!inMainMenu && engine.inCutscene && (
+      {!inMainMenu && !engine.isMultiplayerMatch && engine.inCutscene && (
         <DialogModal
           levelIndex={engine.levelIndex}
           currentPage={engine.currentCutscenePage}
-          onAdvance={() => engine.advanceCutscene()}
+          onAdvance={() => {
+            engine.advanceCutscene();
+            setRenderTick((t) => (t + 1) % 100000);
+          }}
           onSkip={() => {
             engine.skipCutscene();
             setShowLevelIntro(true);
+            setRenderTick((t) => (t + 1) % 100000);
           }}
         />
       )}
@@ -758,6 +773,7 @@ export default function App() {
           room={activeMultiplayerRoom}
           onRematch={handleRematch}
           onExit={handleExitMultiplayer}
+          onContinue={handleContinueMultiplayer}
         />
       )}
 

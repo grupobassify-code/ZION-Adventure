@@ -13,6 +13,7 @@ interface OnlineMatchResultModalProps {
   room: RoomState;
   onRematch: () => void;
   onExit: () => void;
+  onContinue?: () => void;
 }
 
 export const OnlineMatchResultModal: React.FC<OnlineMatchResultModalProps> = ({
@@ -25,6 +26,7 @@ export const OnlineMatchResultModal: React.FC<OnlineMatchResultModalProps> = ({
   room,
   onRematch,
   onExit,
+  onContinue,
 }) => {
   const isWinner = winnerId === multiplayerClient.playerId;
   const opponent = room.players.find((p) => p.id !== multiplayerClient.playerId);
@@ -165,23 +167,34 @@ export const OnlineMatchResultModal: React.FC<OnlineMatchResultModalProps> = ({
         </div>
 
         {/* Buttons */}
-        <div className="w-full grid grid-cols-2 gap-3">
+        <div className="w-full flex flex-col gap-2.5">
           <button
             type="button"
-            onClick={onExit}
-            className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+            onClick={onContinue || onExit}
+            className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 transition-transform active:scale-[0.98] cursor-pointer"
           >
-            Salir al Menú
+            <ArrowRight className="w-4.5 h-4.5 stroke-[2.5]" />
+            CONTINUAR
           </button>
 
-          <button
-            type="button"
-            onClick={onRematch}
-            className="py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98]"
-          >
-            <RotateCcw className="w-4 h-4" />
-            REVANCHA (1v1)
-          </button>
+          <div className="w-full grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={onExit}
+              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-colors"
+            >
+              Salir al Menú
+            </button>
+
+            <button
+              type="button"
+              onClick={onRematch}
+              className="py-2.5 px-3 rounded-xl bg-slate-900 border border-cyan-500/50 hover:bg-cyan-950 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              REVANCHA (1v1)
+            </button>
+          </div>
         </div>
       </div>
     </div>

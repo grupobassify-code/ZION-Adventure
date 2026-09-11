@@ -18,6 +18,7 @@ import {
   X,
   User,
   Edit2,
+  Bot,
 } from 'lucide-react';
 import { multiplayerClient } from '../multiplayer/socketClient';
 import {
@@ -403,9 +404,19 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
                     </div>
                   ) : (
                     <div className="p-4 rounded-xl bg-slate-950/30 border border-dashed border-slate-800 flex flex-col items-center justify-center text-center text-slate-500">
-                      <Users className="w-8 h-8 mb-2 opacity-50" />
-                      <div className="text-xs font-medium">Invita a un amigo</div>
-                      <div className="text-[11px] text-slate-600 mt-0.5">Comparte el código {currentRoom.code}</div>
+                      <Users className="w-6 h-6 mb-1 opacity-50 text-cyan-400" />
+                      <div className="text-xs font-medium text-slate-300">Esperando rival...</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5 mb-2.5">Comparte código: {currentRoom.code}</div>
+                      {isHost && (
+                        <button
+                          type="button"
+                          onClick={() => multiplayerClient.addBotOpponent()}
+                          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-cyan-950/50 flex items-center gap-1.5 cursor-pointer transition-transform active:scale-95"
+                        >
+                          <Bot className="w-3.5 h-3.5" />
+                          Añadir Rival IA (Bot)
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -622,14 +633,28 @@ export const MultiplayerModal: React.FC<MultiplayerModalProps> = ({
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={handleFindMatch}
-                        className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
-                      >
-                        <Search className="w-4 h-4" />
-                        BUSCAR PARTIDA AHORA
-                      </button>
+                      <div className="flex flex-col gap-2.5">
+                        <button
+                          type="button"
+                          onClick={handleFindMatch}
+                          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                        >
+                          <Search className="w-4 h-4" />
+                          BUSCAR PARTIDA AHORA
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setErrorMessage(null);
+                            multiplayerClient.startDirectBotMatch(selectedMode);
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer"
+                        >
+                          <Bot className="w-4 h-4 text-cyan-400" />
+                          PARTIDA RÁPIDA 1v1 (RIVAL IA INSTANTÁNEO)
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

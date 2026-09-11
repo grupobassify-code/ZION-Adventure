@@ -2156,44 +2156,52 @@ export function buildLevel(levelIndex: number) {
       }
     }
 
-    // Strategic Elevated Catwalks (Fluid stepped ascents with no unreachable jumps)
+    // Strategic Elevated Catwalks (Fluid stepped ascents with smooth accessible progression)
     const krono1Catwalks: Platform[] = [
+      { x: 490, y: 128, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to catwalk 550
       { x: 550, y: 106, w: 90, h: 10, kind: 'cyber' },
       
       // Catwalk 1 with stepped transition (x: 1280 - 1450)
       { x: 1280, y: 120, w: 60, h: 10, kind: 'cyber' },
       { x: 1350, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
       
-      // Secret 1 Stairway to Microchip Cuántico (smooth 32-34px steps: 148 -> 114 -> 82 -> secret 48)
+      // Secret 1 Stairway to Microchip Cuántico (smooth accessible steps: 148 -> 114 -> 82 -> 64 -> secret 48)
       { x: 1680, y: 114, w: 65, h: 10, kind: 'cyber' },
       { x: 1745, y: 82, w: 85, h: 10, kind: 'cyber' },
+      { x: 1770, y: 64, w: 45, h: 10, kind: 'cyber' },
       
+      { x: 2140, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 2200
       { x: 2200, y: 104, w: 90, h: 10, kind: 'cyber' },
       
       // Catwalk 2 with stepped transition
       { x: 2980, y: 118, w: 60, h: 10, kind: 'cyber' },
       { x: 3050, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
       
+      { x: 3840, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 3900
       { x: 3900, y: 104, w: 90, h: 10, kind: 'cyber' },
       
-      // Secret 2 Stairway to Holodisco de Seguridad Central (smooth 32-34px steps: 148 -> 112 -> 80 -> secret 46)
+      // Secret 2 Stairway to Holodisco de Seguridad Central (smooth accessible steps: 148 -> 112 -> 80 -> 64 -> secret 46)
       { x: 4270, y: 112, w: 65, h: 10, kind: 'cyber' },
       { x: 4340, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 4360, y: 64, w: 45, h: 10, kind: 'cyber' },
       
       // Catwalk 3 with stepped transition
       { x: 4680, y: 120, w: 60, h: 10, kind: 'cyber' },
       { x: 4750, y: 98, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: 1 },
       
+      { x: 5540, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 5600
       { x: 5600, y: 104, w: 90, h: 10, kind: 'cyber' },
       
       // Catwalk 4 with stepped transition
       { x: 6380, y: 118, w: 60, h: 10, kind: 'cyber' },
       { x: 6450, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.4, dir: -1 },
       
-      // Secret 3 Stairway to Batería de Plasma Iónico (smooth 32-34px steps: 148 -> 112 -> 80 -> secret 46)
+      // Secret 3 Stairway to Batería de Plasma Iónico (smooth accessible steps: 148 -> 112 -> 80 -> 64 -> secret 46)
       { x: 6680, y: 112, w: 65, h: 10, kind: 'cyber' },
       { x: 6745, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 6765, y: 64, w: 45, h: 10, kind: 'cyber' },
       
+      { x: 7240, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 7300
       { x: 7300, y: 102, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono1Catwalks);
@@ -2427,7 +2435,9 @@ export function buildLevel(levelIndex: number) {
 
     // 2. Upper Catwalks, Node Stairways and High-Precision Walkways (Every section is 100% passable)
     const krono2Catwalks: Platform[] = [
+      { x: 440, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 500
       { x: 500, y: 104, w: 90, h: 10, kind: 'cyber' },
+      { x: 860, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 920
       { x: 920, y: 100, w: 80, h: 10, kind: 'cyber' },
       { x: 1235, y: 118, w: 60, h: 10, kind: 'cyber' },
       { x: 1300, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
@@ -2437,17 +2447,21 @@ export function buildLevel(levelIndex: number) {
       { x: 1795, y: 90, w: 65, h: 10, kind: 'cyber' },
       { x: 1830, y: 72, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 1
 
+      { x: 2040, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 2100
       { x: 2100, y: 102, w: 90, h: 10, kind: 'cyber' },
       { x: 2170, y: 74, w: 85, h: 10, kind: 'cyber' }, // Stepped jump from 2100 (28px rise, secret above at 42)
+      { x: 2490, y: 122, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 2550
       { x: 2550, y: 98, w: 85, h: 10, kind: 'cyber' },
       { x: 2880, y: 116, w: 60, h: 10, kind: 'cyber' },
       { x: 2950, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: -1 },
 
       // Middle reactor platforms (x: 3200 - 3600 fully bridged)
+      { x: 3190, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 3250
       { x: 3250, y: 106, w: 90, h: 10, kind: 'cyber' },
       { x: 3380, y: 88, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
       { x: 3520, y: 104, w: 85, h: 10, kind: 'cyber' },
 
+      { x: 3740, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 3800
       { x: 3800, y: 104, w: 90, h: 10, kind: 'cyber' },
 
       // Node 2 Access Stairs & Stand Platform (Node 2 at x: 4250, y: 26)
@@ -2458,12 +2472,16 @@ export function buildLevel(levelIndex: number) {
       { x: 4305, y: 68, w: 65, h: 10, kind: 'cyber' },
 
       { x: 4650, y: 96, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: 1 },
-      // Secret 2 Stairway to Llave Maestra Cuántica (accessible stepped path: 148 -> 114 -> 80 -> secret 46)
+      // Secret 2 Stairway to Llave Maestra Cuántica (accessible stepped path: 148 -> 114 -> 80 -> 64 -> secret 46)
       { x: 4880, y: 114, w: 65, h: 10, kind: 'cyber' },
       { x: 4950, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 4970, y: 64, w: 45, h: 10, kind: 'cyber' },
       { x: 5060, y: 104, w: 70, h: 10, kind: 'cyber' },
+      { x: 5140, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 5200
       { x: 5200, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 5440, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 5500
       { x: 5500, y: 102, w: 90, h: 10, kind: 'cyber' },
+      { x: 5890, y: 122, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 5950
       { x: 5950, y: 98, w: 90, h: 10, kind: 'cyber' },
       { x: 6280, y: 116, w: 60, h: 10, kind: 'cyber' },
       { x: 6350, y: 94, w: 95, h: 10, kind: 'conveyor', speed: 1.6, dir: -1 },
@@ -2475,12 +2493,15 @@ export function buildLevel(levelIndex: number) {
       { x: 6730, y: 44, w: 85, h: 12, kind: 'cyber' }, // Stable platform directly beneath Node 3
       { x: 6805, y: 68, w: 65, h: 10, kind: 'cyber' },
 
+      { x: 7140, y: 124, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 7200
       { x: 7200, y: 100, w: 90, h: 10, kind: 'cyber' },
-      // Secret 3 Stairway to Condensador Infinito Kronos (accessible stepped path: 148 -> 112 -> 80 -> secret 46)
+      // Secret 3 Stairway to Condensador Infinito Kronos (accessible stepped path: 148 -> 112 -> 80 -> 64 -> secret 46)
       { x: 7270, y: 112, w: 65, h: 10, kind: 'cyber' },
       { x: 7340, y: 80, w: 85, h: 10, kind: 'cyber' },
+      { x: 7360, y: 64, w: 45, h: 10, kind: 'cyber' },
       { x: 7450, y: 106, w: 65, h: 10, kind: 'cyber' },
       { x: 7540, y: 112, w: 65, h: 10, kind: 'cyber' },
+      { x: 7590, y: 126, w: 55, h: 10, kind: 'cyber' }, // Stepping ascent to 7650
       { x: 7650, y: 104, w: 90, h: 10, kind: 'cyber' }
     ];
     platforms.push(...krono2Catwalks);
@@ -2718,14 +2739,18 @@ export function buildLevel(levelIndex: number) {
     
     // Multi-tier floating battle platforms (Properly spaced so jumping between tiers is 100% fluid)
     // Left Wing (Tiers to Overclock Power Relay 1 and Kronos Crown)
+    platforms.push({ x: 240, y: 130, w: 60, h: 10, kind: 'cyber' }); // Smooth entry step from arena floor
     platforms.push({ x: 320, y: 114, w: 115, h: 10, kind: 'cyber' });
     platforms.push({ x: 480, y: 84, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 570, y: 70, w: 60, h: 10, kind: 'cyber' }); // Intermediate step below Relay 1
     platforms.push({ x: 640, y: 56, w: 115, h: 10, kind: 'cyber' });
     
     // Right Wing (Tiers to Overclock Power Relay 2)
     platforms.push({ x: 1050, y: 56, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 1160, y: 70, w: 60, h: 10, kind: 'cyber' }); // Intermediate step below Relay 2
     platforms.push({ x: 1210, y: 84, w: 115, h: 10, kind: 'cyber' });
     platforms.push({ x: 1370, y: 114, w: 115, h: 10, kind: 'cyber' });
+    platforms.push({ x: 1500, y: 130, w: 60, h: 10, kind: 'cyber' }); // Smooth entry step from arena floor
 
     // 2 Overclock Power Relays on high platforms to disable the Mech's Overdrive Shield in phase 1 & 3
     nodes.push(
@@ -3119,6 +3144,7 @@ export function buildLevel(levelIndex: number) {
     for (let s = 0; s < 3; s++) {
       const bx = 7300 + s * 400;
       platforms.push(
+        { x: bx - 10, y: 128, w: 50, h: 9, kind: 'cyber' }, // Accessible stepping platform
         { x: bx + 50, y: 110, w: 85, h: 9, kind: 'cyber' },
         { x: bx + 160, y: 78, w: 80, h: 9, kind: 'hologram', phase: s * 2 },
         { x: bx + 270, y: 106, w: 85, h: 9, kind: 'cyber' }

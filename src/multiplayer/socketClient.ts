@@ -41,12 +41,12 @@ class MultiplayerClient {
 
   private initPlayerIdentity() {
     try {
-      let storedId = localStorage.getItem('zion_multiplayer_player_id');
-      if (!storedId) {
-        storedId = 'p_' + Math.random().toString(36).substring(2, 9);
-        localStorage.setItem('zion_multiplayer_player_id', storedId);
+      let tabId = sessionStorage.getItem('zion_multiplayer_player_id');
+      if (!tabId) {
+        tabId = 'p_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36).slice(-4);
+        sessionStorage.setItem('zion_multiplayer_player_id', tabId);
       }
-      this.playerId = storedId;
+      this.playerId = tabId;
 
       let storedName = localStorage.getItem('zion_multiplayer_player_name');
       if (!storedName) {
@@ -298,6 +298,21 @@ class MultiplayerClient {
     if (this.socket && this.currentRoom) {
       this.socket.emit('start_match', { code: this.currentRoom.code });
     }
+  }
+
+  public addBotOpponent() {
+    if (this.socket && this.currentRoom) {
+      this.socket.emit('add_bot', { code: this.currentRoom.code });
+    }
+  }
+
+  public startDirectBotMatch(preferredMode: MultiplayerMode = 'parkour') {
+    this.connect().emit('start_bot_match', {
+      playerId: this.playerId,
+      name: this.playerName,
+      skin: this.playerSkin,
+      preferredMode,
+    });
   }
 
   public reportGoalReached() {

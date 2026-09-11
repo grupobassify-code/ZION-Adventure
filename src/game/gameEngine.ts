@@ -4697,6 +4697,12 @@ export class GameEngine {
       // Sector 5: Grand Dimensional Sanctuary Exit (x: 1275 - 1480)
       { x: 1275, y: 126, w: 60, h: 12, kind: 'cyber' },
       { x: 1345, y: 150, w: 140, h: 30, kind: 'ground' },
+      { x: 1380, y: 130, w: 75, h: 14, kind: 'cyber' }, // Portal ascent dais
+
+      // Flow Recovery Stepping Platforms (ensures 100% fluid ascent even if dropping onto safety floor)
+      { x: 420, y: 138, w: 50, h: 10, kind: 'cyber' },
+      { x: 760, y: 138, w: 50, h: 10, kind: 'cyber' },
+      { x: 1100, y: 138, w: 50, h: 10, kind: 'cyber' },
     ];
 
     // Continuous quantum safety floor across the special stage so player can never get trapped in a pit
@@ -4704,11 +4710,11 @@ export class GameEngine {
       this.platforms.push({ x, y: 158, w: 150, h: 24, kind: 'cyber' });
     }
 
-    // Calculated Jump Trampolines to vault across cosmic chasms
+    // Calculated Jump Trampolines to vault across cosmic chasms (comfortably wide for smooth landing)
     this.trampolines = [
-      { x: 300, y: 142, w: 26, h: 8, bounceForce: -7.8, springAnim: 0, type: 'standard' },
-      { x: 645, y: 142, w: 26, h: 8, bounceForce: -8.0, springAnim: 0, type: 'standard' },
-      { x: 980, y: 142, w: 26, h: 8, bounceForce: -8.2, springAnim: 0, type: 'super' },
+      { x: 295, y: 142, w: 36, h: 8, bounceForce: -7.8, springAnim: 0, type: 'standard' },
+      { x: 640, y: 142, w: 36, h: 8, bounceForce: -8.0, springAnim: 0, type: 'standard' },
+      { x: 975, y: 142, w: 36, h: 8, bounceForce: -8.2, springAnim: 0, type: 'super' },
     ];
 
     // 10 Radiant Cosmic Bonus Crystals (+500 pts each) placed at accessible heights
