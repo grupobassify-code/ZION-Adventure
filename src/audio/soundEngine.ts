@@ -16,6 +16,8 @@ export type MusicTrackName =
   | 'kronoAct2'
   | 'kronoBoss'
   | 'kronosTravel'
+  | 'jungleAct1'
+  | 'jungleBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -40,6 +42,8 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'kronoAct2', title: 'Reactor de Fusión y Red Central', zone: 'Krono City · Acto 2', tag: 'Industrial Techno · FM Bass' },
   { id: 'kronoBoss', title: 'Titán Mecánico Kronos-Ω', zone: 'Krono City · Jefe Final', tag: 'Gran Clímax Final · Sinfonía Chiptune' },
   { id: 'kronosTravel', title: 'Kronos Travel: Odisea Dimensional', zone: 'Nivel Extra · Fusión Suprema', tag: 'Medley Legendario Multizona' },
+  { id: 'jungleAct1', title: 'Jungle Run: Templo Maya y Selva Tropical', zone: 'Jungle Run · Acto 1 y 2', tag: 'Aventura Selvática · Percusión Tribal' },
+  { id: 'jungleBoss', title: 'Balam: Furia del Jaguar Ancestral', zone: 'Jungle Run · Jefe', tag: 'Duelo Chamánico · Feline Battle Beat' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 

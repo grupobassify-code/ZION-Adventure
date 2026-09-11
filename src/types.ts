@@ -1,4 +1,4 @@
-export type ZoneId = 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono' | 'travel';
+export type ZoneId = 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono' | 'travel' | 'jungle';
 
 export interface LevelConfig {
   id: string;
@@ -21,7 +21,7 @@ export interface Platform {
   y: number;
   w: number;
   h: number;
-  kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram';
+  kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram' | 'jungle_stone' | 'temple_stone' | 'treetop' | 'vine_bridge';
   phase?: number;
   hidden?: boolean;
   speed?: number;
@@ -59,7 +59,10 @@ export type EnemyType =
   | 'cyberturret'
   | 'cyber_hound'
   | 'plasma_trooper'
-  | 'gravity_orb';
+  | 'gravity_orb'
+  | 'jungle_serpent'
+  | 'jungle_monkey'
+  | 'giant_hornet';
 
 export interface Enemy {
   id: number;
@@ -202,7 +205,27 @@ export interface Trampoline {
   h: number;
   bounceForce: number;
   springAnim: number;
-  type?: 'standard' | 'super';
+  type?: 'standard' | 'super' | 'mega';
+}
+
+export interface Liana {
+  id: number;
+  x: number;
+  y: number;
+  length: number;
+  angle?: number;
+  angularVelocity?: number;
+  maxAngle?: number;
+}
+
+export interface Waterfall {
+  id: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  flowSpeed?: number;
+  mistParticles?: boolean;
 }
 
 export interface SecretItem extends Collectible {
@@ -312,7 +335,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave';
   homingTimer?: number;
   angle?: number;
 }
@@ -357,7 +380,7 @@ export interface FloatingText {
 }
 
 export interface Landmark {
-  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift';
+  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins';
   x: number;
   y?: number;
   w?: number;
@@ -415,6 +438,12 @@ export interface Player {
   maxEnergy: number;
   attackPower: number;
   dashTrail: { x: number; y: number; facing: 1 | -1; alpha: number }[];
+
+  // Jungle Liana Vine Mechanics
+  onVine?: boolean;
+  vineId?: number;
+  vineGrabY?: number;
+  vineCooldown?: number;
 }
 
 export interface GameSettings {
