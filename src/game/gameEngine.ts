@@ -59,6 +59,9 @@ import {
   Trampoline,
 } from '../types';
 import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
+import { AiRunner } from './aiRunner';
+import { GhostFrame, loadGhostRecording, saveGhostRecording, sampleGhostAtTime } from './timeAttackGhost';
+import { getLevelBestTime, saveLevelBestTime, isBossLevel } from './saveManager';
 
 export interface GameInputState {
   left: boolean;
@@ -161,6 +164,25 @@ export class GameEngine {
   public multiplayerMode: MultiplayerMode = 'parkour';
   public onGoalReachedMultiplayer?: () => void;
   public onEliminatedMultiplayer?: (altitude: number) => void;
+
+  // Carrera VS IA Mode
+  public isVsAiMode: boolean = false;
+  public aiRunner: AiRunner | null = null;
+  public vsAiDifficulty: string = 'normal';
+  public vsAiResult: 'won' | 'lost' | null = null;
+  public onVsAiFinish?: (playerWon: boolean, playerTime: number, aiTime: number) => void;
+
+  // Modo Contrarreloj (Time Attack) & Fantasma
+  public isTimeAttackMode: boolean = false;
+  public timeAttackStartTime: number = 0;
+  public timeAttackCurrentMs: number = 0;
+  public timeAttackBestMs: number | null = null;
+  public timeAttackGhostFrames: GhostFrame[] = [];
+  public timeAttackRecordedFrames: GhostFrame[] = [];
+  public timeAttackLastSampleTime: number = 0;
+  public timeAttackActiveSlotId: number = 0;
+  public timeAttackResult: { finalTimeMs: number; isNewBest: boolean; deltaMs: number } | null = null;
+  public onTimeAttackFinish?: (finalTimeMs: number, isNewBest: boolean, deltaMs: number) => void;
 
   // Special Stage Portal & Dimension System
   public specialStagePortal: { x: number; y: number; w: number; h: number } | null = null;
@@ -272,6 +294,15 @@ export class GameEngine {
 
   public loadLevel(index: number, showLore = true, fromCheckpoint = false) {
     this.isOnlyUpMode = false;
+    if (!this.isVsAiMode) {
+      this.aiRunner = null;
+      this.vsAiResult = null;
+    }
+    if (!this.isTimeAttackMode) {
+      this.timeAttackResult = null;
+      this.timeAttackGhostFrames = [];
+      this.timeAttackRecordedFrames = [];
+    }
     this.cameraY = 0;
     this.onlyUpIsGameOver = false;
     this.levelIndex = Math.max(0, Math.min(LEVEL_CONFIGS.length - 1, index));
@@ -716,6 +747,99 @@ export class GameEngine {
     this.notifyState();
   }
 
+  public startVsAiMode(slotId: number, levelIndex: number, difficulty: string = 'normal') {
+    if (isBossLevel(levelIndex)) {
+      console.warn('Cannot start VS IA mode on a boss level!');
+      return;
+    }
+    this.isOnlyUpMode = false;
+    this.isTimeAttackMode = false;
+    this.isVsAiMode = true;
+    this.vsAiDifficulty = difficulty;
+    this.vsAiResult = null;
+    this.isMultiplayerMatch = false;
+
+    // Load selected level without lore dialogue interruption
+    this.loadLevel(levelIndex, false);
+
+    let spd = 1.0;
+    let botName = 'Krono-Bot Alfa';
+    if (difficulty === 'fast') {
+      spd = 1.15;
+      botName = 'Cyber-Specter Ω';
+    } else if (difficulty === 'expert') {
+      spd = 1.28;
+      botName = 'Titan-Runner Prime';
+    }
+
+    this.aiRunner = new AiRunner({
+      name: botName,
+      speedMultiplier: spd,
+      startX: this.player.x,
+      startY: this.player.y,
+    });
+    this.remotePlayer = this.aiRunner.getState();
+
+    this.levelIntroBanner = {
+      active: true,
+      timer: 160,
+      title: 'DUELO VS IA',
+      subtitle: `¡Cruza la meta antes que ${botName}!`,
+      act: LEVEL_CONFIGS[levelIndex]?.act || 1,
+      zoneName: LEVEL_CONFIGS[levelIndex]?.title || 'CARRERA DE VELOCIDAD',
+      themeColor: '#10b981',
+    };
+
+    sound.stopMusic();
+    this.syncMusic();
+    this.notifyState();
+  }
+
+  public startTimeAttackMode(slotId: number, levelIndex: number) {
+    if (isBossLevel(levelIndex)) {
+      console.warn('Cannot start Time Attack on a boss level!');
+      return;
+    }
+    this.isOnlyUpMode = false;
+    this.isVsAiMode = false;
+    this.isTimeAttackMode = true;
+    this.timeAttackActiveSlotId = slotId;
+    this.timeAttackResult = null;
+    this.isMultiplayerMatch = false;
+
+    // Load selected level
+    this.loadLevel(levelIndex, false);
+
+    this.timeAttackStartTime = performance.now();
+    this.timeAttackCurrentMs = 0;
+    this.timeAttackBestMs = getLevelBestTime(slotId, levelIndex);
+    this.timeAttackGhostFrames = loadGhostRecording(slotId, levelIndex) || [];
+    this.timeAttackRecordedFrames = [];
+    this.timeAttackLastSampleTime = 0;
+
+    if (this.timeAttackGhostFrames.length > 0) {
+      this.remotePlayer = sampleGhostAtTime(this.timeAttackGhostFrames, 0, this.goal.x);
+    } else {
+      this.remotePlayer = null;
+    }
+
+    this.levelIntroBanner = {
+      active: true,
+      timer: 160,
+      title: 'MODO CONTRARRELOJ',
+      subtitle: this.timeAttackGhostFrames.length > 0
+        ? '¡Compite contra tu mejor fantasma para superarlo!'
+        : '¡Establece tu primer récord personal en este circuito!',
+      act: LEVEL_CONFIGS[levelIndex]?.act || 1,
+      zoneName: LEVEL_CONFIGS[levelIndex]?.title || 'CONTRARRELOJ KRONOS',
+      themeColor: '#f59e0b',
+    };
+
+    sound.stopMusic();
+    this.syncMusic();
+    this.notifyState();
+  }
+
   public syncMusic() {
     if (this.inMainMenu || this.inCutscene || this.isPaused || this.isLevelWon) {
       sound.stopMusic();
@@ -842,7 +966,7 @@ export class GameEngine {
   }
 
   public update(inputs: GameInputState) {
-    if (this.isPaused || this.inCutscene || this.isLevelWon) {
+    if (this.isPaused || this.inCutscene || this.isLevelWon || this.vsAiResult) {
       return;
     }
 
@@ -869,6 +993,52 @@ export class GameEngine {
       if (this.onlyUpIsGameOver) {
         this.updateEffects();
         return;
+      }
+    }
+
+    // Carrera VS IA: Update AI competitor & simulate physics navigation
+    if (this.isVsAiMode && this.aiRunner) {
+      this.aiRunner.update(this.platforms, this.hazards, this.enemies, this.goal);
+      this.remotePlayer = this.aiRunner.getState();
+
+      // Check if AI crossed the finish line first
+      if (this.aiRunner.hasWon && !this.isLevelWon && !this.vsAiResult) {
+        this.vsAiResult = 'lost';
+        sound.playSfx('hurt');
+        this.notifyState();
+        if (this.onVsAiFinish) {
+          this.onVsAiFinish(false, this.stats.elapsedTime, this.stats.elapsedTime);
+        }
+      }
+    }
+
+    // Modo Contrarreloj: Update stopwatch, record frames and sample Ghost
+    if (this.isTimeAttackMode && !this.timeAttackResult) {
+      this.timeAttackCurrentMs = performance.now() - this.timeAttackStartTime;
+
+      // Sample recording every 80ms
+      if (this.timeAttackCurrentMs - this.timeAttackLastSampleTime >= 80) {
+        this.timeAttackLastSampleTime = this.timeAttackCurrentMs;
+        let anim: RemotePlayerState['animState'] = 'run';
+        if (this.player.isDashing) anim = 'dash';
+        else if (this.meleeEffects.length > 0) anim = 'attack';
+        else if (this.player.vy < -0.5) anim = 'jump';
+        else if (this.player.vy > 0.5) anim = 'fall';
+        else if (Math.abs(this.player.vx) < 0.2) anim = 'idle';
+
+        this.timeAttackRecordedFrames.push({
+          t: Math.round(this.timeAttackCurrentMs),
+          x: Math.round(this.player.x),
+          y: Math.round(this.player.y),
+          facing: this.player.facing,
+          animState: anim,
+          isDashing: this.player.isDashing,
+        });
+      }
+
+      // Replay recorded Ghost frames
+      if (this.timeAttackGhostFrames.length > 0) {
+        this.remotePlayer = sampleGhostAtTime(this.timeAttackGhostFrames, this.timeAttackCurrentMs, this.goal.x);
       }
     }
 
@@ -5153,6 +5323,41 @@ export class GameEngine {
     this.isLevelWon = true;
     sound.stopMusic();
     sound.playSfx('win');
+
+    // Handle VS IA outcome
+    if (this.isVsAiMode && !this.vsAiResult) {
+      this.vsAiResult = 'won';
+      if (this.onVsAiFinish) {
+        this.onVsAiFinish(true, this.stats.elapsedTime, this.stats.elapsedTime + 4);
+      }
+    }
+
+    // Handle Contrarreloj outcome and record persistence
+    if (this.isTimeAttackMode && !this.timeAttackResult) {
+      const finalMs = Math.round(this.timeAttackCurrentMs);
+      const prevBest = this.timeAttackBestMs;
+      const isNewBest = prevBest === null || finalMs < prevBest;
+      const delta = prevBest !== null ? finalMs - prevBest : 0;
+
+      if (isNewBest) {
+        saveLevelBestTime(this.timeAttackActiveSlotId, this.levelIndex, finalMs);
+        if (this.timeAttackRecordedFrames.length > 4) {
+          saveGhostRecording(this.timeAttackActiveSlotId, this.levelIndex, this.timeAttackRecordedFrames);
+        }
+        this.timeAttackBestMs = finalMs;
+      }
+
+      this.timeAttackResult = {
+        finalTimeMs: finalMs,
+        isNewBest,
+        deltaMs: delta,
+      };
+
+      if (this.onTimeAttackFinish) {
+        this.onTimeAttackFinish(finalMs, isNewBest, delta);
+      }
+    }
+
     this.notifyState();
     if (this.onGoalReachedMultiplayer) {
       this.onGoalReachedMultiplayer();

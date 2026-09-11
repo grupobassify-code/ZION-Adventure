@@ -19,8 +19,10 @@ import { ScreenTransition } from './components/ScreenTransition';
 import { LevelIntroBanner } from './components/LevelIntroBanner';
 import { TutorialPopup } from './components/TutorialPopup';
 import { OnlyUpResultsModal } from './components/OnlyUpResultsModal';
+import { VsAiResultModal } from './components/VsAiResultModal';
+import { TimeAttackResultModal } from './components/TimeAttackResultModal';
 import { LEVEL_CONFIGS } from './game/levelData';
-import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActiveSlotId } from './game/saveManager';
+import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActiveSlotId, getLevelBestTime } from './game/saveManager';
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
@@ -68,6 +70,23 @@ export default function App() {
   const [transitionActive, setTransitionActive] = useState(false);
   const [showLevelIntro, setShowLevelIntro] = useState(false);
   const [targetLevelIndex, setTargetLevelIndex] = useState<number>(0);
+
+  // VS IA & Contrarreloj Result State
+  const [vsAiResultData, setVsAiResultData] = useState<{
+    playerWon: boolean;
+    levelIndex: number;
+    playerTime: number;
+    aiName: string;
+    difficulty: string;
+  } | null>(null);
+
+  const [timeAttackResultData, setTimeAttackResultData] = useState<{
+    levelIndex: number;
+    finalTimeMs: number;
+    isNewBest: boolean;
+    deltaMs: number;
+    prevBestMs: number | null;
+  } | null>(null);
 
   // Online 1v1 Multiplayer State
   const [isMultiplayerModalOpen, setIsMultiplayerModalOpen] = useState(false);
@@ -232,6 +251,68 @@ export default function App() {
     setTimeout(() => {
       engine.startSpecialStageStandalone();
       setShowLevelIntro(false);
+    }, 280);
+    setTimeout(() => {
+      setTransitionActive(false);
+    }, 950);
+  };
+
+  const handleStartVsAiFromMenu = (slotId: number, levelIndex: number, difficulty: string) => {
+    unlockAudioAndLockLandscape();
+    engine.inMainMenu = false;
+    setActiveSlotId(slotId);
+    setActiveSlotIdState(slotId);
+    setInMainMenu(false);
+    setIsCreditsOpen(false);
+    setVsAiResultData(null);
+    setTimeAttackResultData(null);
+
+    setTransitionActive(true);
+    setTimeout(() => {
+      engine.startVsAiMode(slotId, levelIndex, difficulty);
+      engine.onVsAiFinish = (playerWon, playerTime, aiTime) => {
+        setVsAiResultData({
+          playerWon,
+          levelIndex,
+          playerTime,
+          aiName: engine.aiRunner?.name || 'Krono-Bot Alfa',
+          difficulty,
+        });
+        setRenderTick((t) => t + 1);
+      };
+      setShowLevelIntro(true);
+    }, 280);
+    setTimeout(() => {
+      setTransitionActive(false);
+    }, 950);
+  };
+
+  const handleStartTimeAttackFromMenu = (slotId: number, levelIndex: number) => {
+    unlockAudioAndLockLandscape();
+    engine.inMainMenu = false;
+    setActiveSlotId(slotId);
+    setActiveSlotIdState(slotId);
+    setInMainMenu(false);
+    setIsCreditsOpen(false);
+    setVsAiResultData(null);
+    setTimeAttackResultData(null);
+
+    const prevBest = getLevelBestTime(slotId, levelIndex);
+
+    setTransitionActive(true);
+    setTimeout(() => {
+      engine.startTimeAttackMode(slotId, levelIndex);
+      engine.onTimeAttackFinish = (finalTimeMs, isNewBest, deltaMs) => {
+        setTimeAttackResultData({
+          levelIndex,
+          finalTimeMs,
+          isNewBest,
+          deltaMs,
+          prevBestMs: prevBest,
+        });
+        setRenderTick((t) => t + 1);
+      };
+      setShowLevelIntro(true);
     }, 280);
     setTimeout(() => {
       setTransitionActive(false);
@@ -619,6 +700,8 @@ export default function App() {
           onStartGame={handleStartGameFromMenu}
           onStartOnlyUp={handleStartOnlyUpFromMenu}
           onStartSpecialStage={handleStartSpecialStageFromMenu}
+          onStartVsAi={handleStartVsAiFromMenu}
+          onStartTimeAttack={handleStartTimeAttackFromMenu}
           onOpenCredits={() => {
             unlockAudio();
             setIsCreditsOpen(true);
@@ -839,6 +922,61 @@ export default function App() {
             setRenderTick((t) => t + 1);
           }}
           onReturnToMenu={() => {
+            sound.stopMusic();
+            setMainMenuView('zones');
+            setInMainMenu(true);
+          }}
+        />
+      )}
+
+      {/* Carrera VS IA Results Modal */}
+      {!inMainMenu && engine.isVsAiMode && vsAiResultData && (
+        <VsAiResultModal
+          playerWon={vsAiResultData.playerWon}
+          levelIndex={vsAiResultData.levelIndex}
+          playerTime={vsAiResultData.playerTime}
+          aiName={vsAiResultData.aiName}
+          onReplay={() => {
+            const data = vsAiResultData;
+            setVsAiResultData(null);
+            handleStartVsAiFromMenu(activeSlotId, data.levelIndex, data.difficulty);
+          }}
+          onSelectOtherLevel={() => {
+            setVsAiResultData(null);
+            sound.stopMusic();
+            setMainMenuView('zones');
+            setInMainMenu(true);
+          }}
+          onReturnToMenu={() => {
+            setVsAiResultData(null);
+            sound.stopMusic();
+            setMainMenuView('zones');
+            setInMainMenu(true);
+          }}
+        />
+      )}
+
+      {/* Modo Contrarreloj (Time Attack) Results Modal */}
+      {!inMainMenu && engine.isTimeAttackMode && timeAttackResultData && (
+        <TimeAttackResultModal
+          levelIndex={timeAttackResultData.levelIndex}
+          finalTimeMs={timeAttackResultData.finalTimeMs}
+          isNewBest={timeAttackResultData.isNewBest}
+          deltaMs={timeAttackResultData.deltaMs}
+          prevBestMs={timeAttackResultData.prevBestMs}
+          onReplay={() => {
+            const data = timeAttackResultData;
+            setTimeAttackResultData(null);
+            handleStartTimeAttackFromMenu(activeSlotId, data.levelIndex);
+          }}
+          onSelectOtherLevel={() => {
+            setTimeAttackResultData(null);
+            sound.stopMusic();
+            setMainMenuView('zones');
+            setInMainMenu(true);
+          }}
+          onReturnToMenu={() => {
+            setTimeAttackResultData(null);
             sound.stopMusic();
             setMainMenuView('zones');
             setInMainMenu(true);

@@ -28,6 +28,9 @@ import {
   Trophy,
   ArrowUpRight,
   Shirt,
+  Bot,
+  Timer,
+  Ghost,
 } from 'lucide-react';
 import { PixelCharacter } from './PixelCharacter';
 import { LevelPixelThumbnail } from './LevelPixelThumbnail';
@@ -47,6 +50,8 @@ import {
   isOnlyUpUnlocked,
   getOnlyUpRecord,
   isSpecialStageUnlocked,
+  isVsAiUnlocked,
+  isTimeAttackUnlocked,
   KRONOS_PIECES,
   isKronosClockCompleted,
   isKronosLockerUnlocked,
@@ -56,12 +61,15 @@ import {
 import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
 import { SoundtrackModal } from './SoundtrackModal';
+import { ModeLevelSelectModal } from './ModeLevelSelectModal';
 import { Music } from 'lucide-react';
 
 interface MainMenuProps {
   onStartGame: (levelIndex: number, slotId: number) => void;
   onStartOnlyUp?: (slotId: number) => void;
   onStartSpecialStage?: (slotId: number) => void;
+  onStartVsAi?: (slotId: number, levelIndex: number, difficulty: string) => void;
+  onStartTimeAttack?: (slotId: number, levelIndex: number) => void;
   onOpenCredits: () => void;
   onOpenMultiplayer?: () => void;
   audioActive: boolean;
@@ -137,6 +145,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onStartGame,
   onStartOnlyUp,
   onStartSpecialStage,
+  onStartVsAi,
+  onStartTimeAttack,
   onOpenCredits,
   onOpenMultiplayer,
   audioActive,
@@ -149,6 +159,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [slots, setSlots] = useState<(SaveSlot | null)[]>(loadAllSaveSlots());
   const [activeSlotId, setActiveSlotState] = useState<number>(0);
   const [selectedZone, setSelectedZone] = useState<ZoneId | null>(initialZone);
+  const [modeModal, setModeModal] = useState<'vs_ai' | 'time_attack' | null>(null);
   const [newSlotModal, setNewSlotModal] = useState<{ open: boolean; slotId: number; name: string }>({
     open: false,
     slotId: 0,
@@ -1000,6 +1011,226 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   </div>
                 );
               })()}
+
+              {/* VS IA MODE CARD (Desbloqueable tras derrotar al jefe de Sakura) */}
+              {(() => {
+                const vsAiUnlocked = isVsAiUnlocked(activeSlot);
+
+                return (
+                  <div
+                    id="vs-ia-mode-card"
+                    onClick={() => {
+                      if (vsAiUnlocked) {
+                        sound.playSfx('menuSelect');
+                        setModeModal('vs_ai');
+                      } else {
+                        sound.playSfx('block');
+                      }
+                    }}
+                    className={`relative rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer flex flex-col justify-between group ${
+                      vsAiUnlocked
+                        ? 'bg-gradient-to-b from-emerald-950/70 via-slate-900/95 to-teal-950/80 border-emerald-500/80 hover:border-emerald-400 hover:shadow-[0_0_35px_rgba(16,185,129,0.4)] active:scale-98'
+                        : 'bg-slate-950/80 border-slate-800 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    {/* Emerald top glow */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 opacity-80" />
+
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-3.5 rounded-2xl border-2 shrink-0 ${
+                              vsAiUnlocked
+                                ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-400 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform'
+                                : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                            }`}
+                          >
+                            <Bot className={`w-7 h-7 ${vsAiUnlocked ? 'animate-pulse text-emerald-400' : ''}`} />
+                          </div>
+
+                          <div>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                                vsAiUnlocked
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}
+                            >
+                              DUELO 1v1
+                            </span>
+                            <h3 className="text-xl font-black text-white font-heading mt-0.5">
+                              CARRERA VS IA
+                            </h3>
+                          </div>
+                        </div>
+
+                        {vsAiUnlocked && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-emerald-300 bg-emerald-500/15 px-2.5 py-1 rounded-xl border border-emerald-500/40 shadow-sm shrink-0">
+                            <Swords className="w-3.5 h-3.5 text-emerald-400" />
+                            ACTIVO
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                        {vsAiUnlocked
+                          ? 'Compite en cualquier circuito contra una IA corredora que salta, esquiva y avanza hacia la meta a toda velocidad. Elige tu pista favorita (sin niveles con jefe) y demuestra quién es más rápido.'
+                          : 'Derrota al Jefe de Cerezo Espiritual (Acto 3: Emperatriz Kitsune) para desbloquear el duelo contra la IA.'}
+                      </p>
+
+                      {/* Feature Tags */}
+                      <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
+                          <Bot className="w-3 h-3" /> IA Autónoma
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-teal-950/60 border border-teal-500/30 text-teal-300 flex items-center gap-1">
+                          <Zap className="w-3 h-3" /> 3 Dificultades
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+                          <Swords className="w-3 h-3" /> Meta 1v1
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Strip */}
+                    <div className="p-4 pt-3 border-t border-slate-800/80 bg-slate-950/40 flex items-center justify-between">
+                      {vsAiUnlocked ? (
+                        <>
+                          <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1">
+                            <Play className="w-3.5 h-3.5 fill-emerald-400" /> MODO DESBLOQUEADO
+                          </span>
+                          <button
+                            id="play-vs-ia-btn"
+                            type="button"
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs font-heading flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all"
+                          >
+                            <span>¡DESAFIAR IA!</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full flex items-center justify-between text-xs text-slate-500 font-mono">
+                          <span className="flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5" /> Derrota al Jefe de Sakura
+                          </span>
+                          <span className="text-slate-600">Bloqueado</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* MODO CONTRARRELOJ (TIME ATTACK) CARD (Desbloqueable tras derrotar al jefe 3 de Lavacliff) */}
+              {(() => {
+                const timeAttackUnlocked = isTimeAttackUnlocked(activeSlot);
+
+                return (
+                  <div
+                    id="time-attack-mode-card"
+                    onClick={() => {
+                      if (timeAttackUnlocked) {
+                        sound.playSfx('menuSelect');
+                        setModeModal('time_attack');
+                      } else {
+                        sound.playSfx('block');
+                      }
+                    }}
+                    className={`relative rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer flex flex-col justify-between group ${
+                      timeAttackUnlocked
+                        ? 'bg-gradient-to-b from-amber-950/70 via-slate-900/95 to-yellow-950/80 border-amber-500/80 hover:border-amber-400 hover:shadow-[0_0_35px_rgba(245,158,11,0.4)] active:scale-98'
+                        : 'bg-slate-950/80 border-slate-800 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    {/* Amber top glow */}
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-500 opacity-80" />
+
+                    <div className="p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-3.5 rounded-2xl border-2 shrink-0 ${
+                              timeAttackUnlocked
+                                ? 'bg-amber-500/20 border-amber-500/60 text-amber-400 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform'
+                                : 'bg-slate-800/40 border-slate-700 text-slate-500'
+                            }`}
+                          >
+                            <Timer className={`w-7 h-7 ${timeAttackUnlocked ? 'animate-pulse text-amber-400' : ''}`} />
+                          </div>
+
+                          <div>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                                timeAttackUnlocked
+                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}
+                            >
+                              TIME ATTACK
+                            </span>
+                            <h3 className="text-xl font-black text-white font-heading mt-0.5">
+                              MODO CONTRARRELOJ
+                            </h3>
+                          </div>
+                        </div>
+
+                        {timeAttackUnlocked && (
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-xl border border-amber-500/40 shadow-sm shrink-0">
+                            <Ghost className="w-3.5 h-3.5 text-cyan-400" />
+                            FANTASMA
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                        {timeAttackUnlocked
+                          ? 'Corre a contra reloj para marcar tu mejor tiempo en cada circuito y compite cara a cara contra tu propio fantasma grabado para pulverizar tus marcas personales. (Sin niveles con jefe).'
+                          : 'Derrota al Jefe 3 de Acantilados de Lava (Acto 3: Coloso Ignis) para desbloquear el cronómetro y fantasma.'}
+                      </p>
+
+                      {/* Feature Tags */}
+                      <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/30 text-amber-300 flex items-center gap-1">
+                          <Ghost className="w-3 h-3" /> Fantasma Replay
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-yellow-950/60 border border-yellow-500/30 text-yellow-300 flex items-center gap-1">
+                          <Trophy className="w-3 h-3" /> Récord PB
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-orange-950/60 border border-orange-500/30 text-orange-300 flex items-center gap-1">
+                          <Timer className="w-3 h-3" /> Precisión ms
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Strip */}
+                    <div className="p-4 pt-3 border-t border-slate-800/80 bg-slate-950/40 flex items-center justify-between">
+                      {timeAttackUnlocked ? (
+                        <>
+                          <span className="text-xs font-mono font-bold text-amber-400 flex items-center gap-1">
+                            <Play className="w-3.5 h-3.5 fill-amber-400" /> MODO DESBLOQUEADO
+                          </span>
+                          <button
+                            id="play-time-attack-btn"
+                            type="button"
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs font-heading flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all"
+                          >
+                            <span>¡CORRER!</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full flex items-center justify-between text-xs text-slate-500 font-mono">
+                          <span className="flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5" /> Derrota al Jefe 3 de Lava
+                          </span>
+                          <span className="text-slate-600">Bloqueado</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
 
@@ -1351,6 +1582,23 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           </div>
         </div>
       )}
+
+      {/* MODAL: SELECCIÓN DE PISTA (VS IA & CONTRARRELOJ) */}
+      <ModeLevelSelectModal
+        isOpen={modeModal !== null}
+        mode={modeModal || 'vs_ai'}
+        activeSlot={activeSlot}
+        onClose={() => setModeModal(null)}
+        onStartLevel={(levelIndex, diff) => {
+          const currentMode = modeModal;
+          setModeModal(null);
+          if (currentMode === 'vs_ai') {
+            if (onStartVsAi) onStartVsAi(activeSlot?.id || 0, levelIndex, diff || 'normal');
+          } else if (currentMode === 'time_attack') {
+            if (onStartTimeAttack) onStartTimeAttack(activeSlot?.id || 0, levelIndex);
+          }
+        }}
+      />
 
       {/* MODAL: POLÍTICA DE PRIVACIDAD & SEGURIDAD */}
       {privacyModalOpen && <PrivacyModal onClose={() => setPrivacyModalOpen(false)} />}

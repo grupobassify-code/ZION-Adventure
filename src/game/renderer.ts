@@ -3329,6 +3329,9 @@ export class GameRenderer {
       return;
     }
 
+    const isGhost = remote.id === 'ghost_player';
+    const isAiBot = remote.id === 'ai_bot';
+
     // 2. Overhead Rival Name Tag & Trophies Badge
     const tagY = y - 12;
     ctx.save();
@@ -3337,21 +3340,26 @@ export class GameRenderer {
     
     // Background pill
     const displayName = remote.name || 'Rival';
-    const tagText = `⚔️ ${displayName}`;
+    const icon = isGhost ? '👻' : isAiBot ? '🤖' : '⚔️';
+    const tagText = `${icon} ${displayName}`;
     const textMetrics = ctx.measureText(tagText);
     const pillW = Math.max(34, textMetrics.width + 8);
     const pillH = 9;
 
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillStyle = isGhost ? 'rgba(8, 47, 73, 0.85)' : 'rgba(15, 23, 42, 0.85)';
     ctx.fillRect(x + 7 - pillW / 2, tagY - 7, pillW, pillH);
-    ctx.strokeStyle = '#f43f5e';
+    ctx.strokeStyle = isGhost ? '#38bdf8' : isAiBot ? '#10b981' : '#f43f5e';
     ctx.lineWidth = 0.8;
     ctx.strokeRect(x + 7 - pillW / 2, tagY - 7, pillW, pillH);
 
     // Text with glowing highlight
-    ctx.fillStyle = '#fecdd3';
+    ctx.fillStyle = isGhost ? '#bae6fd' : isAiBot ? '#a7f3d0' : '#fecdd3';
     ctx.fillText(tagText, x + 7, tagY);
     ctx.restore();
+
+    if (isGhost) {
+      ctx.globalAlpha = 0.55;
+    }
 
     // 3. Dash Ghost / Movement Afterimages
     if (remote.isDashing) {

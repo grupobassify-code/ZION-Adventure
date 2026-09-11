@@ -1,6 +1,6 @@
 {
   "name": "Zion — Aventura en los Bosques",
-  "description": "Videojuego de plataformas y acción 2D retro con Zion a través de 5 biomas épicos, el modo infinito Kronos Only Up y duelos multijugador online 1v1 con salas privadas, matchmaking en tiempo real y clasificación global de copas.",
+  "description": "Videojuego de plataformas y acción 2D retro con Zion a través de 5 biomas épicos, el modo infinito Kronos Only Up, Carrera VS IA desbloqueable, Modo Contrarreloj con repetición de fantasmas y multijugador online 1v1.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

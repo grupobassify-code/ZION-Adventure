@@ -218,6 +218,57 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 }
 
 /**
+ * Identifies if a level contains a major boss battle (boss levels cannot be selected in VS IA or Contrarreloj)
+ */
+export function isBossLevel(levelIndex: number): boolean {
+  const cfg = LEVEL_CONFIGS[levelIndex];
+  if (!cfg) return false;
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3'].includes(cfg.id);
+}
+
+/**
+ * VS IA mode is unlocked upon defeating the Sakura world boss (sakura-3 / Level 5)
+ */
+export function isVsAiUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  const sakuraBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'sakura-3');
+  const targetIdx = sakuraBossIdx !== -1 ? sakuraBossIdx : 5;
+  return slot.completedLevels.includes(targetIdx) || slot.unlockedLevels.some((lvl) => lvl > targetIdx);
+}
+
+/**
+ * Contrarreloj (Time Attack) mode is unlocked upon defeating Boss 3 of Lavacliff (lavacliff-3 / Level 8)
+ */
+export function isTimeAttackUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  const lavacliffBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'lavacliff-3');
+  const targetIdx = lavacliffBossIdx !== -1 ? lavacliffBossIdx : 8;
+  return slot.completedLevels.includes(targetIdx) || slot.unlockedLevels.some((lvl) => lvl > targetIdx);
+}
+
+export function getLevelBestTime(slotId: number, levelIndex: number): number | null {
+  try {
+    const raw = localStorage.getItem(`zion_time_attack_best_${slotId}_lvl_${levelIndex}`);
+    if (raw !== null) {
+      const val = parseFloat(raw);
+      return isNaN(val) ? null : val;
+    }
+  } catch {}
+  return null;
+}
+
+export function saveLevelBestTime(slotId: number, levelIndex: number, timeMs: number): boolean {
+  try {
+    const current = getLevelBestTime(slotId, levelIndex);
+    if (current === null || timeMs < current) {
+      localStorage.setItem(`zion_time_attack_best_${slotId}_lvl_${levelIndex}`, timeMs.toString());
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+/**
  * Kronos Only Up is unlocked as soon as Bosque Neón is conquered (neon-3 boss defeated)
  */
 export function isOnlyUpUnlocked(slot: SaveSlot | null): boolean {
