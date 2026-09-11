@@ -336,19 +336,20 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </button>
 
             {onOpenMultiplayer && (
-              <button
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  onOpenMultiplayer();
-                }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-500 to-orange-500 hover:from-rose-500 hover:to-amber-400 text-white font-black text-xs sm:text-sm tracking-wide shadow-[0_0_30px_rgba(244,63,94,0.5)] active:scale-95 transition-all cursor-pointer border border-amber-300/40"
-              >
-                <Swords className="w-4 h-4 text-amber-200" />
-                <span>MODO ONLINE 1v1</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-extrabold">
-                  +20 🏆
-                </span>
-              </button>
+              <div className="w-full sm:w-auto relative group">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3.5 sm:py-4 rounded-2xl bg-slate-900/80 border-2 border-slate-700/80 text-slate-400 font-bold text-xs sm:text-sm tracking-wide opacity-75 cursor-not-allowed select-none shadow-inner"
+                  title="Modo Online 1v1 en desarrollo"
+                >
+                  <Lock className="w-4 h-4 text-amber-400" />
+                  <span className="text-slate-300">MODO ONLINE 1v1</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 font-black tracking-wider uppercase">
+                    En desarrollo
+                  </span>
+                </button>
+              </div>
             )}
 
             <button
