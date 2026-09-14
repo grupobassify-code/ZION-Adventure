@@ -497,6 +497,7 @@ export class GameEngine {
       desert: 'SANTUARIO DEL DESIERTO',
       krono: 'KRONO CITY',
       travel: 'KRONOS TRAVEL',
+      jungle: 'JUNGLE RUN (SELVA MAYA)',
     };
 
     this.levelIntroBanner = {
@@ -1088,70 +1089,87 @@ export class GameEngine {
       const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
       const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
 
-      // Lock player inputs & lock movement
-      inputs.left = false;
-      inputs.right = false;
-      inputs.jump = false;
-      inputs.attack = false;
-      inputs.dash = false;
-      inputs.special = false;
-      this.player.vx = 0;
-      this.player.vy = 0;
-      this.player.x = 35;
-      this.player.y = startGroundY;
-      this.player.ground = true;
-
-      // Keep AI pinned at the exact same start position
-      if (this.aiRunner) {
-        this.aiRunner.x = 35;
-        this.aiRunner.y = startGroundY;
-        this.aiRunner.vx = 0;
-        this.aiRunner.vy = 0;
-        this.aiRunner.isGrounded = true;
-        this.remotePlayer = this.aiRunner.getState();
-      }
-
-      if (this.isTimeAttackMode) {
-        this.timeAttackCurrentMs = 0;
-      }
-
-      this.countdownFrames--;
-
-      let currentSec: number | null = null;
-      if (this.countdownFrames > 120) {
-        currentSec = 3;
-      } else if (this.countdownFrames > 60) {
-        currentSec = 2;
-      } else if (this.countdownFrames > 0) {
-        currentSec = 1;
-      } else if (this.countdownFrames > -35) {
-        // -35 frames = ~0.58s of "¡YA!"
-        currentSec = 0;
-      } else {
-        currentSec = null;
-        this.isCountdownActive = false;
-        this.countdownSeconds = null;
-        this.notifyState();
-      }
-
-      if (currentSec !== this.lastCountdownSec) {
-        this.lastCountdownSec = currentSec;
-        this.countdownSeconds = currentSec;
-        if (currentSec === 0) {
-          sound.playSfx('countdownGo');
-          if (this.isTimeAttackMode) {
-            this.timeAttackStartTime = performance.now();
-          }
-        } else if (currentSec !== null) {
-          sound.playSfx('countdownBeep');
-        }
-        this.notifyState();
-      }
-
-      // If still counting down (3, 2, 1), do NOT advance game loop/physics/enemies
       if (this.countdownFrames > 0) {
+        // Lock player inputs & lock movement during 3, 2, 1
+        inputs.left = false;
+        inputs.right = false;
+        inputs.jump = false;
+        inputs.attack = false;
+        inputs.dash = false;
+        inputs.special = false;
+        this.player.vx = 0;
+        this.player.vy = 0;
+        this.player.x = 35;
+        this.player.y = startGroundY;
+        this.player.ground = true;
+
+        // Keep AI pinned at the exact same start position with zero velocity
+        if (this.aiRunner) {
+          this.aiRunner.x = 35;
+          this.aiRunner.y = startGroundY;
+          this.aiRunner.vx = 0;
+          this.aiRunner.vy = 0;
+          this.aiRunner.isGrounded = true;
+          this.remotePlayer = this.aiRunner.getState();
+        }
+
+        if (this.isTimeAttackMode) {
+          this.timeAttackCurrentMs = 0;
+        }
+
+        this.countdownFrames--;
+
+        let currentSec: number | null = null;
+        if (this.countdownFrames > 120) {
+          currentSec = 3;
+        } else if (this.countdownFrames > 60) {
+          currentSec = 2;
+        } else {
+          currentSec = 1;
+        }
+
+        if (currentSec !== this.lastCountdownSec) {
+          this.lastCountdownSec = currentSec;
+          this.countdownSeconds = currentSec;
+          sound.playSfx('countdownBeep');
+          this.notifyState();
+        }
+
+        // Freeze physics & return early so neither player nor AI advances
         this.updateEffects();
         return;
+      }
+
+      // Reached 0 (The exact GO! / "¡YA!" moment)
+      if (this.countdownFrames === 0) {
+        // Ensure starting line synchronization at exact frame 0
+        this.player.x = 35;
+        this.player.vx = 0;
+        this.player.ground = true;
+        if (this.aiRunner) {
+          this.aiRunner.x = 35;
+          this.aiRunner.vx = 0;
+          this.aiRunner.isGrounded = true;
+          this.remotePlayer = this.aiRunner.getState();
+        }
+        if (this.isTimeAttackMode) {
+          this.timeAttackStartTime = performance.now();
+          this.timeAttackCurrentMs = 0;
+        }
+        sound.playSfx('countdownGo');
+        this.countdownSeconds = 0;
+        this.lastCountdownSec = 0;
+        this.notifyState();
+      }
+
+      // During frames 0 down to -30, keep "¡YA!" banner visible on screen while player & AI run freely
+      this.countdownFrames--;
+
+      if (this.countdownFrames <= -30) {
+        this.isCountdownActive = false;
+        this.countdownSeconds = null;
+        this.lastCountdownSec = null;
+        this.notifyState();
       }
     }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Skull, RotateCcw, Menu, ChevronRight, Bot, Swords, Sparkles } from 'lucide-react';
+import { Trophy, RotateCcw, Menu, Bot, Swords } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { sound } from '../audio/soundEngine';
 
@@ -26,27 +26,27 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
 
   const formatSeconds = (sec: number) => {
     const mins = Math.floor(sec / 60);
-    const s = sec % 60;
+    const s = Math.floor(sec % 60);
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md select-none animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-gradient-to-b from-slate-900/95 via-slate-950 to-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl p-6 sm:p-8 flex flex-col items-center text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md select-none animate-fadeIn overflow-y-auto">
+      <div className="relative w-full max-w-md bg-gradient-to-b from-slate-900/98 via-slate-950 to-slate-900 border border-slate-700/80 rounded-2xl sm:rounded-3xl shadow-2xl p-3.5 sm:p-6 flex flex-col items-center text-center my-auto max-h-[94vh] overflow-y-auto">
         {/* Result Icon */}
         <div
-          className={`w-18 h-18 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center shadow-2xl border mb-4 animate-bounce ${
+          className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-lg border mb-2 shrink-0 ${
             playerWon
               ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-emerald-950/60'
               : 'bg-rose-500/20 border-rose-400 text-rose-300 shadow-rose-950/60'
           }`}
         >
-          {playerWon ? <Trophy className="w-10 h-10" /> : <Bot className="w-10 h-10" />}
+          {playerWon ? <Trophy className="w-7 h-7 sm:w-9 sm:h-9" /> : <Bot className="w-7 h-7 sm:w-9 sm:h-9" />}
         </div>
 
-        {/* Title */}
+        {/* Title Badge */}
         <span
-          className={`text-xs font-mono font-black uppercase tracking-widest px-3 py-1 rounded-full border mb-2 ${
+          className={`text-[10px] sm:text-xs font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border mb-1.5 shrink-0 ${
             playerWon
               ? 'bg-emerald-900/60 border-emerald-500/40 text-emerald-300'
               : 'bg-rose-900/60 border-rose-500/40 text-rose-300'
@@ -55,43 +55,43 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
           {playerWon ? '¡VICTORIA EN LA CARRERA!' : '¡DERROTA EN LA META!'}
         </span>
 
-        <h2 className="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight">
+        <h2 className="text-lg sm:text-2xl font-black font-mono text-white tracking-tight shrink-0">
           {playerWon ? '¡SUPERASTE A LA IA!' : `¡${aiName} LLEGÓ PRIMERO!`}
         </h2>
 
-        <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-sm">
+        <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-sm line-clamp-2 shrink-0">
           {playerWon
             ? 'Tus reflejos cuánticos y precisión de salto fueron superiores al algoritmo.'
-            : 'La inteligencia artificial optimizó su ruta a la meta. ¡Intenta de nuevo para vencerla!'}
+            : 'La IA optimizó su ruta a la meta. ¡Intenta de nuevo para vencerla!'}
         </p>
 
         {/* Stats Panel */}
-        <div className="w-full bg-slate-950/70 border border-slate-800 rounded-2xl p-4 my-5 grid grid-cols-2 gap-3 text-left">
-          <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 block uppercase">Pista Superada</span>
-            <span className="text-xs font-mono font-bold text-white truncate block mt-0.5">
+        <div className="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-2 sm:p-3 my-2.5 sm:my-3.5 grid grid-cols-2 gap-2 text-left shrink-0">
+          <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
+            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">Pista Superada</span>
+            <span className="text-xs sm:text-sm font-mono font-bold text-white truncate block mt-0.5">
               {currentConfig.title}
             </span>
           </div>
 
-          <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-400 block uppercase">Tiempo del Jugador</span>
-            <span className="text-xs font-mono font-bold text-cyan-300 block mt-0.5">
+          <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
+            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">Tiempo</span>
+            <span className="text-xs sm:text-sm font-mono font-bold text-cyan-300 block mt-0.5">
               ⏱️ {formatSeconds(playerTime)}
             </span>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="w-full flex flex-col gap-2.5">
+        {/* Action Buttons — Touch Friendly min-h-[44px] */}
+        <div className="w-full flex flex-col gap-2 shrink-0">
           <button
             onClick={() => {
               sound.playSfx('click');
               onReplay();
             }}
-            className="w-full py-3.5 px-4 rounded-2xl font-mono font-black text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all cursor-pointer"
+            className="w-full min-h-[44px] py-2.5 px-3 rounded-xl font-mono font-black text-xs sm:text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 shrink-0" />
             <span>{playerWon ? 'CORRER DE NUEVO' : 'REINTENTAR REVANCHA'}</span>
           </button>
 
@@ -101,9 +101,9 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
                 sound.playSfx('menuSelect');
                 onSelectOtherLevel();
               }}
-              className="py-3 px-3 rounded-xl font-mono text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
-              <Swords className="w-3.5 h-3.5" />
+              <Swords className="w-3.5 h-3.5 shrink-0" />
               <span>OTRA PISTA</span>
             </button>
 
@@ -112,10 +112,10 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
                 sound.playSfx('menuBack');
                 onReturnToMenu();
               }}
-              className="py-3 px-3 rounded-xl font-mono text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
-              <Menu className="w-3.5 h-3.5" />
-              <span>MENÚ PRINCIPAL</span>
+              <Menu className="w-3.5 h-3.5 shrink-0" />
+              <span>MENÚ</span>
             </button>
           </div>
         </div>

@@ -327,29 +327,29 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             onPointerMove={handlePointerMoveJoystick}
             onPointerUp={handlePointerUpJoystick}
             onPointerCancel={handlePointerUpJoystick}
-            className="relative w-24 h-24 sm:w-26 sm:h-26 md:w-28 md:h-28 rounded-full bg-slate-950/80 backdrop-blur-md border-2 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center cursor-grab active:cursor-grabbing"
+            className="relative w-28 h-28 sm:w-30 sm:h-30 md:w-32 md:h-32 rounded-full bg-slate-950/80 backdrop-blur-md border-2 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center cursor-grab active:cursor-grabbing"
           >
             <div className="absolute w-full h-[1px] bg-cyan-500/20" />
             <div className="absolute h-full w-[1px] bg-cyan-500/20" />
-            <div className="absolute w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-cyan-500/30" />
+            <div className="absolute w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-cyan-500/30" />
 
             <div
               style={{
                 transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
                 transition: isDraggingJoystick ? 'none' : 'transform 0.15s ease-out',
               }}
-              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shadow-lg border-2 ${
+              className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full flex items-center justify-center shadow-lg border-2 ${
                 isDraggingJoystick
                   ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-200 text-slate-950 shadow-[0_0_12px_rgba(34,211,238,0.8)]'
                   : 'bg-slate-800/90 border-cyan-500/60 text-cyan-300'
               }`}
             >
-              <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-cyan-200/80" />
+              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-cyan-200/80" />
             </div>
           </div>
         ) : (
           /* D-Pad Buttons */
-          <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/70 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-slate-800 shadow-xl">
+          <div className="flex items-center gap-2 bg-slate-950/70 backdrop-blur-md p-2 rounded-2xl border border-slate-800 shadow-xl">
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -357,7 +357,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('left', false)}
               onPointerCancel={() => onUpdateInput('left', false)}
-              className={`w-12 h-12 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg border-2 ${
+              className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl border-2 ${
                 inputs.left
                   ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                   : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
@@ -372,7 +372,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('right', false)}
               onPointerCancel={() => onUpdateInput('right', false)}
-              className={`w-12 h-12 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg border-2 ${
+              className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl border-2 ${
                 inputs.right
                   ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                   : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
@@ -395,14 +395,14 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dash', false)}
             onPointerCancel={() => onUpdateInput('dash', false)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
               inputs.dash
                 ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.8)]'
                 : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
             }`}
             title="Dash (Shift)"
           >
-            <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Wind className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">DASH</span>
           </button>
 
@@ -413,14 +413,14 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('block', false)}
             onPointerCancel={() => onUpdateInput('block', false)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
               inputs.block
                 ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
                 : 'bg-slate-900/90 text-amber-300 border-amber-500/40'
             }`}
             title="Escudo (E)"
           >
-            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Shield className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">ESC</span>
           </button>
 
@@ -432,7 +432,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('special', false)}
             onPointerCancel={() => onUpdateInput('special', false)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
               inputs.special
                 ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
                 : canUseSpecial
@@ -441,13 +441,13 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }`}
             title="Especial (Q)"
           >
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Zap className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">SP {energy}</span>
           </button>
         </div>
 
         {/* Primary Row: Daggers, Sword Attack, Jump */}
-        <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/80 backdrop-blur-md p-1.5 rounded-3xl border border-slate-800 shadow-2xl">
+        <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md p-1.5 rounded-3xl border border-slate-800 shadow-2xl">
           {/* Dagger Throw with Live Recharge Visualizer */}
           <button
             onPointerDown={(e) => {
@@ -456,7 +456,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dagger', false)}
             onPointerCancel={() => onUpdateInput('dagger', false)}
-            className={`relative overflow-hidden w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`relative overflow-hidden w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
               inputs.dagger
                 ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.9)]'
                 : daggersAvailable > 0
@@ -465,7 +465,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }`}
           >
             {/* Pixel Kunai Icon */}
-            <svg viewBox="0 0 10 18" className="w-4 h-4 sm:w-4.5 sm:h-4.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
+            <svg viewBox="0 0 10 18" className="w-4.5 h-4.5 sm:w-5 sm:h-5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
               <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
               <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
               <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
@@ -492,13 +492,13 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('attack', false)}
             onPointerCancel={() => onUpdateInput('attack', false)}
-            className={`w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
               inputs.attack
                 ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.9)]'
                 : 'bg-gradient-to-br from-cyan-900/90 to-blue-950/90 text-cyan-200 border-cyan-400/60 shadow-md'
             }`}
           >
-            <Swords className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+            <Swords className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
             <span className="text-[8px] sm:text-[9px] font-mono font-black">ATACAR</span>
           </button>
 
@@ -511,7 +511,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('jump', false)}
             onPointerCancel={() => onUpdateInput('jump', false)}
-            className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
+            className={`w-16 h-16 sm:w-17 sm:h-17 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
               inputs.jump
                 ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.9)]'
                 : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/70 shadow-lg'

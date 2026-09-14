@@ -146,42 +146,42 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
       )}
 
       {/* Header Bar */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-3 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md">
-        <div className="flex items-center gap-3">
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-5 pb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 sm:gap-3 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <button
             id="kronos-clock-back-btn"
             onClick={() => {
               sound.playSfx('menuSelect');
               onBack();
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80 text-slate-200 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-md"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80 text-slate-200 text-xs sm:text-sm font-bold transition-all active:scale-95 shadow-md min-h-[40px]"
           >
             <ArrowLeft className="w-4 h-4 text-cyan-400" />
             <span>Volver a Zonas</span>
           </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className={`p-2 rounded-xl border ${
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className={`p-1.5 sm:p-2 rounded-xl border ${
               isCompleted
                 ? 'bg-amber-500/20 border-amber-500/60 text-amber-400 shadow-lg shadow-amber-500/20 animate-pulse'
                 : 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400'
             }`}>
-              <Clock className="w-5 h-5" />
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
-                  MECANISMO CUÁNTICO ANCESTRAL
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
+                  MECANISMO CUÁNTICO
                 </span>
-                <span className={`px-2 py-0.2 rounded font-mono text-[10px] font-bold border ${
+                <span className={`px-1.5 py-0.2 rounded font-mono text-[9px] sm:text-[10px] font-bold border ${
                   isCompleted
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                     : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                 }`}>
-                  {isCompleted ? '✓ 100% RECONSTRUIDO' : `FRACTURADO [${placedPieces.length}/${KRONOS_PIECES.length} PIEZAS]`}
+                  {isCompleted ? '✓ 100% RECONSTRUIDO' : `FRACTURADO [${placedPieces.length}/${KRONOS_PIECES.length}]`}
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black text-white font-heading tracking-wide">
+              <h1 className="text-base sm:text-2xl font-black text-white font-heading tracking-wide">
                 EL GRAN RELOJ DE KRONOS
               </h1>
             </div>
@@ -189,7 +189,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
         </div>
 
         {/* Action Header Links */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           {isLockerUnlocked ? (
             <button
               id="open-locker-from-clock-btn"
@@ -197,13 +197,13 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 sound.playSfx('menuSelect');
                 onOpenLocker();
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm font-heading shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+              className="flex items-center gap-2 px-3.5 py-2 sm:px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm font-heading shadow-lg shadow-orange-500/20 active:scale-95 transition-all min-h-[40px]"
             >
               <Shirt className="w-4 h-4 fill-slate-950" />
-              <span>CASILLERO DE PERSONAJES</span>
+              <span>CASILLERO DE SKINS</span>
             </button>
           ) : (
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] sm:text-[11px] font-mono text-slate-400">
               <Lock className="w-3.5 h-3.5 text-amber-400" />
               <span>Casillero bloqueado (Arma el reloj)</span>
             </div>
@@ -366,170 +366,280 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
               {/* ENERGY CONDUIT CHANNELS (Connecting placed outer nodes to central core) */}
               <g>
                 {placedPieces.includes('neon') && (
-                  <line x1="200" y1="80" x2="200" y2="150" stroke="#22d3ee" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                  <g>
+                    <line x1="200" y1="80" x2="200" y2="150" stroke="#22d3ee" strokeWidth="3" opacity="0.9" />
+                    <circle cx="200" cy="115" r="2.5" fill="#a5f3fc" />
+                  </g>
                 )}
                 {placedPieces.includes('sakura') && (
-                  <line x1="315" y1="165" x2="245" y2="190" stroke="#f472b6" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                  <g>
+                    <line x1="315" y1="165" x2="245" y2="190" stroke="#f472b6" strokeWidth="3" opacity="0.9" />
+                    <circle cx="280" cy="177" r="2.5" fill="#fbcfe8" />
+                  </g>
                 )}
                 {placedPieces.includes('lavacliff') && (
-                  <line x1="268" y1="295" x2="230" y2="235" stroke="#f97316" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                  <g>
+                    <line x1="268" y1="295" x2="230" y2="235" stroke="#f97316" strokeWidth="3" opacity="0.9" />
+                    <circle cx="249" cy="265" r="2.5" fill="#fed7aa" />
+                  </g>
                 )}
                 {placedPieces.includes('desert') && (
-                  <line x1="132" y1="295" x2="170" y2="235" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                  <g>
+                    <line x1="132" y1="295" x2="170" y2="235" stroke="#f59e0b" strokeWidth="3" opacity="0.9" />
+                    <circle cx="151" cy="265" r="2.5" fill="#fde68a" />
+                  </g>
                 )}
                 {placedPieces.includes('jungle') && (
-                  <line x1="85" y1="165" x2="155" y2="190" stroke="#10b981" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                  <g>
+                    <line x1="85" y1="165" x2="155" y2="190" stroke="#10b981" strokeWidth="3" opacity="0.9" />
+                    <circle cx="120" cy="177" r="2.5" fill="#6ee7b7" />
+                  </g>
                 )}
               </g>
 
               {/* 6 ANCESTRAL PIECES & SECTORS */}
 
               {/* 1. NEON PIECE (Top, 12 o'clock - x:200, y:65) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('neon') ? 1 : 0.25}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'neon');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <path
-                  d="M 200 200 L 160 48 A 160 160 0 0 1 240 48 Z"
-                  fill="rgba(34, 211, 238, 0.12)"
-                />
-                <circle
-                  cx="200"
-                  cy="65"
-                  r={selectedPieceInfo?.id === 'neon' ? '18' : '15'}
-                  fill={placedPieces.includes('neon') ? '#0891b2' : '#1e293b'}
-                  stroke={selectedPieceInfo?.id === 'neon' ? '#facc15' : '#22d3ee'}
-                  strokeWidth={selectedPieceInfo?.id === 'neon' ? '3' : '2'}
-                />
-                <Sun x="192" y="57" width="16" height="16" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'neon');
+                const isPlaced = placedPieces.includes('neon');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-110"
+                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('neon');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'neon');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    <path
+                      d="M 200 200 L 160 48 A 160 160 0 0 1 240 48 Z"
+                      fill={isPlaced ? 'rgba(34, 211, 238, 0.18)' : 'rgba(34, 211, 238, 0.05)'}
+                    />
+                    {isReadyToPlace && (
+                      <circle cx="200" cy="65" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '200px 65px' }} />
+                    )}
+                    <circle
+                      cx="200"
+                      cy="65"
+                      r={selectedPieceInfo?.id === 'neon' ? '18' : '15'}
+                      fill={isPlaced ? '#0891b2' : isOwned ? '#164e63' : '#1e293b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'neon' ? '#38bdf8' : isPlaced ? '#22d3ee' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'neon' ? '3' : '2'}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Sun x="192" y="57" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* 2. SAKURA PIECE (Top-Right, 72° - x:328, y:158) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('sakura') ? 1 : 0.25}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'sakura');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <path
-                  d="M 200 200 L 330 115 A 160 160 0 0 1 350 200 Z"
-                  fill="rgba(244, 114, 182, 0.12)"
-                />
-                <circle
-                  cx="328"
-                  cy="158"
-                  r={selectedPieceInfo?.id === 'sakura' ? '18' : '15'}
-                  fill={placedPieces.includes('sakura') ? '#db2777' : '#1e293b'}
-                  stroke={selectedPieceInfo?.id === 'sakura' ? '#facc15' : '#f472b6'}
-                  strokeWidth={selectedPieceInfo?.id === 'sakura' ? '3' : '2'}
-                />
-                <Sparkles x="320" y="150" width="16" height="16" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'sakura');
+                const isPlaced = placedPieces.includes('sakura');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-110"
+                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('sakura');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'sakura');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    <path
+                      d="M 200 200 L 330 115 A 160 160 0 0 1 350 200 Z"
+                      fill={isPlaced ? 'rgba(244, 114, 182, 0.18)' : 'rgba(244, 114, 182, 0.05)'}
+                    />
+                    {isReadyToPlace && (
+                      <circle cx="328" cy="158" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '328px 158px' }} />
+                    )}
+                    <circle
+                      cx="328"
+                      cy="158"
+                      r={selectedPieceInfo?.id === 'sakura' ? '18' : '15'}
+                      fill={isPlaced ? '#db2777' : isOwned ? '#831843' : '#1e293b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'sakura' ? '#f472b6' : isPlaced ? '#f472b6' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'sakura' ? '3' : '2'}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Sparkles x="320" y="150" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* 3. LAVACLIFF PIECE (Bottom-Right, 144° - x:279, y:309) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('lavacliff') ? 1 : 0.25}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'lavacliff');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <path
-                  d="M 200 200 L 330 250 A 160 160 0 0 1 225 358 Z"
-                  fill="rgba(249, 115, 22, 0.12)"
-                />
-                <circle
-                  cx="279"
-                  cy="309"
-                  r={selectedPieceInfo?.id === 'lavacliff' ? '18' : '15'}
-                  fill={placedPieces.includes('lavacliff') ? '#c2410c' : '#1e293b'}
-                  stroke={selectedPieceInfo?.id === 'lavacliff' ? '#facc15' : '#f97316'}
-                  strokeWidth={selectedPieceInfo?.id === 'lavacliff' ? '3' : '2'}
-                />
-                <Flame x="271" y="301" width="16" height="16" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'lavacliff');
+                const isPlaced = placedPieces.includes('lavacliff');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-110"
+                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('lavacliff');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'lavacliff');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    <path
+                      d="M 200 200 L 330 250 A 160 160 0 0 1 225 358 Z"
+                      fill={isPlaced ? 'rgba(249, 115, 22, 0.18)' : 'rgba(249, 115, 22, 0.05)'}
+                    />
+                    {isReadyToPlace && (
+                      <circle cx="279" cy="309" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '279px 309px' }} />
+                    )}
+                    <circle
+                      cx="279"
+                      cy="309"
+                      r={selectedPieceInfo?.id === 'lavacliff' ? '18' : '15'}
+                      fill={isPlaced ? '#c2410c' : isOwned ? '#7c2d12' : '#1e293b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'lavacliff' ? '#fb923c' : isPlaced ? '#f97316' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'lavacliff' ? '3' : '2'}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Flame x="271" y="301" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* 4. DESERT PIECE (Bottom-Left, 216° - x:121, y:309) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('desert') ? 1 : 0.25}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'desert');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <path
-                  d="M 200 200 L 175 358 A 160 160 0 0 1 70 250 Z"
-                  fill="rgba(245, 158, 11, 0.12)"
-                />
-                <circle
-                  cx="121"
-                  cy="309"
-                  r={selectedPieceInfo?.id === 'desert' ? '18' : '15'}
-                  fill={placedPieces.includes('desert') ? '#b45309' : '#1e293b'}
-                  stroke={selectedPieceInfo?.id === 'desert' ? '#facc15' : '#f59e0b'}
-                  strokeWidth={selectedPieceInfo?.id === 'desert' ? '3' : '2'}
-                />
-                <Clock x="113" y="301" width="16" height="16" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'desert');
+                const isPlaced = placedPieces.includes('desert');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-110"
+                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('desert');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'desert');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    <path
+                      d="M 200 200 L 175 358 A 160 160 0 0 1 70 250 Z"
+                      fill={isPlaced ? 'rgba(245, 158, 11, 0.18)' : 'rgba(245, 158, 11, 0.05)'}
+                    />
+                    {isReadyToPlace && (
+                      <circle cx="121" cy="309" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '121px 309px' }} />
+                    )}
+                    <circle
+                      cx="121"
+                      cy="309"
+                      r={selectedPieceInfo?.id === 'desert' ? '18' : '15'}
+                      fill={isPlaced ? '#b45309' : isOwned ? '#78350f' : '#1e293b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'desert' ? '#fbbf24' : isPlaced ? '#f59e0b' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'desert' ? '3' : '2'}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Clock x="113" y="301" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* 5. JUNGLE RUN MAYA PIECE (Top-Left, 288° - x:72, y:158) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('jungle') ? 1 : 0.25}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'jungle');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <path
-                  d="M 200 200 L 50 200 A 160 160 0 0 1 70 115 Z"
-                  fill="rgba(16, 185, 129, 0.12)"
-                />
-                <circle
-                  cx="72"
-                  cy="158"
-                  r={selectedPieceInfo?.id === 'jungle' ? '18' : '15'}
-                  fill={placedPieces.includes('jungle') ? '#059669' : '#1e293b'}
-                  stroke={selectedPieceInfo?.id === 'jungle' ? '#facc15' : '#10b981'}
-                  strokeWidth={selectedPieceInfo?.id === 'jungle' ? '3' : '2'}
-                />
-                <Gem x="64" y="150" width="16" height="16" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'jungle');
+                const isPlaced = placedPieces.includes('jungle');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-110"
+                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('jungle');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'jungle');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    <path
+                      d="M 200 200 L 50 200 A 160 160 0 0 1 70 115 Z"
+                      fill={isPlaced ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.05)'}
+                    />
+                    {isReadyToPlace && (
+                      <circle cx="72" cy="158" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '72px 158px' }} />
+                    )}
+                    <circle
+                      cx="72"
+                      cy="158"
+                      r={selectedPieceInfo?.id === 'jungle' ? '18' : '15'}
+                      fill={isPlaced ? '#059669' : isOwned ? '#064e3b' : '#1e293b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'jungle' ? '#34d399' : isPlaced ? '#10b981' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'jungle' ? '3' : '2'}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Gem x="64" y="150" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* 6. KRONO CITY PIECE (Center Quantum Core - x:200, y:200) */}
-              <g
-                className="cursor-pointer transition-transform hover:scale-105"
-                opacity={placedPieces.includes('krono') ? 1 : 0.3}
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  const p = KRONOS_PIECES.find((item) => item.id === 'krono');
-                  if (p) setSelectedPieceInfo(p);
-                }}
-              >
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="52"
-                  fill={placedPieces.includes('krono') ? 'url(#coreVortex)' : '#1e1b4b'}
-                  stroke={selectedPieceInfo?.id === 'krono' ? '#facc15' : '#a855f7'}
-                  strokeWidth={selectedPieceInfo?.id === 'krono' ? '4' : '3'}
-                  className={placedPieces.includes('krono') ? 'animate-pulse' : ''}
-                />
-                <Zap x="188" y="188" width="24" height="24" color="#ffffff" />
-              </g>
+              {(() => {
+                const isOwned = hasKronosPiece(slot, 'krono');
+                const isPlaced = placedPieces.includes('krono');
+                const isReadyToPlace = isOwned && !isPlaced;
+
+                return (
+                  <g
+                    className="cursor-pointer transition-transform hover:scale-105"
+                    opacity={isPlaced ? 1 : isOwned ? 0.95 : 0.35}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece('krono');
+                      } else {
+                        sound.playSfx('menuSelect');
+                        const p = KRONOS_PIECES.find((item) => item.id === 'krono');
+                        if (p) setSelectedPieceInfo(p);
+                      }
+                    }}
+                  >
+                    {isReadyToPlace && (
+                      <circle cx="200" cy="200" r="58" fill="none" stroke="#facc15" strokeWidth="2.5" strokeDasharray="5 5" className="animate-spin" style={{ transformOrigin: '200px 200px' }} />
+                    )}
+                    <circle
+                      cx="200"
+                      cy="200"
+                      r="52"
+                      fill={isPlaced ? 'url(#coreVortex)' : '#1e1b4b'}
+                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'krono' ? '#c084fc' : isPlaced ? '#a855f7' : '#475569'}
+                      strokeWidth={isReadyToPlace ? '4' : selectedPieceInfo?.id === 'krono' ? '4' : '3'}
+                      className={isPlaced ? 'animate-pulse' : isReadyToPlace ? 'animate-pulse' : ''}
+                    />
+                    <Zap x="188" y="188" width="24" height="24" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
+                  </g>
+                );
+              })()}
 
               {/* FRACTURE CRACKS OVERLAY (Disappears or heals when all 6 pieces are placed) */}
               {!isCompleted && (
@@ -626,29 +736,79 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
           </div>
 
           {/* Assembly Status Text */}
-          <div className="text-center mt-2 z-10">
-            <h3 className="text-lg font-black text-white font-heading">
+          <div className="text-center mt-2 z-10 w-full">
+            <h3 className="text-base sm:text-lg font-black text-white font-heading">
               {isCompleted
                 ? '¡EL ENGRANAJE DE KRONOS GIRA EN ARMONÍA!'
                 : 'MECANISMO DAÑADO — REQUIERE PIEZAS ANCESTRALES'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-lg leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-lg mx-auto leading-relaxed">
               {isCompleted
-                ? `Todas las ${KRONOS_PIECES.length} piezas sagradas han sido ensambladas. Las manecillas temporales han vuelto a la vida.`
-                : `Derrota al jefe del Acto Final de cada una de las ${KRONOS_PIECES.length} zonas para conseguir las piezas del reloj ancestral y colocarlas en el mecanismo.`}
+                ? `Todas las ${KRONOS_PIECES.length} piezas sagradas (incluyendo la Gema Maya de Jungle Run) han sido ensambladas. El continuo temporal está a salvo.`
+                : `Derrota al jefe del Acto Final de cada una de las ${KRONOS_PIECES.length} zonas para conseguir las piezas sagradas (¡incluyendo a Balam en Jungle Run!).`}
             </p>
 
             {/* Quick action: Place all available pieces */}
             {unplacedAvailable.length > 0 && (
-              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-2">
                 <button
                   id="place-all-kronos-pieces-btn"
                   onClick={handlePlaceAll}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center gap-2 shadow-lg shadow-cyan-500/25 active:scale-95 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center gap-2 shadow-lg shadow-orange-500/25 active:scale-95 transition-all min-h-[44px]"
                 >
                   <Sparkles className="w-4 h-4 fill-slate-950" />
-                  <span>COLOCAR TODAS LAS PIEZAS ({unplacedAvailable.length})</span>
+                  <span>COLOCAR TODAS LAS PIEZAS DISPONIBLES ({unplacedAvailable.length})</span>
                 </button>
+              </div>
+            )}
+
+            {/* Selected Piece Interactive Card on Mobile/Desktop */}
+            {selectedPieceInfo && (
+              <div className="w-full mt-4 p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border-2 border-cyan-500/50 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div
+                    className="p-2.5 rounded-xl border shrink-0 flex items-center justify-center"
+                    style={{
+                      backgroundColor: `${selectedPieceInfo.color}25`,
+                      borderColor: selectedPieceInfo.color,
+                      color: selectedPieceInfo.color,
+                    }}
+                  >
+                    {selectedPieceInfo.id === 'neon' && <Sun className="w-5 h-5" />}
+                    {selectedPieceInfo.id === 'sakura' && <Sparkles className="w-5 h-5" />}
+                    {selectedPieceInfo.id === 'lavacliff' && <Flame className="w-5 h-5" />}
+                    {selectedPieceInfo.id === 'desert' && <Clock className="w-5 h-5" />}
+                    {selectedPieceInfo.id === 'jungle' && <Gem className="w-5 h-5" />}
+                    {selectedPieceInfo.id === 'krono' && <Zap className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono font-bold uppercase" style={{ color: selectedPieceInfo.color }}>
+                      {selectedPieceInfo.zoneName} · {selectedPieceInfo.bossName}
+                    </div>
+                    <h4 className="text-sm font-black text-white">{selectedPieceInfo.name}</h4>
+                    <p className="text-[11px] text-slate-300 italic">{selectedPieceInfo.lore}</p>
+                  </div>
+                </div>
+
+                <div className="shrink-0 w-full sm:w-auto flex justify-end">
+                  {placedPieces.includes(selectedPieceInfo.id) ? (
+                    <span className="flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">
+                      <CheckCircle2 className="w-4 h-4" /> ENSAMBLADA EN EL RELOJ
+                    </span>
+                  ) : hasKronosPiece(slot, selectedPieceInfo.id) ? (
+                    <button
+                      onClick={() => handlePlacePiece(selectedPieceInfo.id)}
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs font-heading flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/25 active:scale-95 transition-all min-h-[44px]"
+                    >
+                      <Sparkles className="w-4 h-4 fill-slate-950" />
+                      <span>ENCAJAR EN EL RELOJ</span>
+                    </button>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+                      <Lock className="w-3.5 h-3.5 text-slate-500" /> Derrota a {selectedPieceInfo.bossName}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>

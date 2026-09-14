@@ -1,7 +1,8 @@
 import React from 'react';
-import { Trophy, ArrowRight, RotateCcw, Sparkles, Clock, Skull, Zap } from 'lucide-react';
+import { Trophy, ArrowRight, RotateCcw, Sparkles, Clock, Skull, Zap, Gem } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameStats } from '../game/gameEngine';
+import { KRONOS_PIECES } from '../game/saveManager';
 
 interface VictoryModalProps {
   levelIndex: number;
@@ -127,6 +128,44 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
         </div>
 
+        {/* Special Unlock Notification for Jungle Run upon completing Kronos Travel */}
+        {LEVEL_CONFIGS[levelIndex]?.id === 'krono-travel' && (
+          <div className="w-full bg-emerald-950/80 border-2 border-emerald-500/60 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-pulse">
+            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono font-black uppercase tracking-wider text-emerald-400">
+                ¡NUEVA ZONA DESBLOQUEADA!
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white">
+                Zona 6: Jungle Run (Selva Maya) ya está disponible
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Special Notification when defeating a Boss and obtaining a Kronos Clock Piece (including Jungle Run) */}
+        {(() => {
+          const bossPiece = KRONOS_PIECES.find((p) => p.levelIndex === levelIndex);
+          if (!bossPiece) return null;
+          return (
+            <div className="w-full bg-amber-950/80 border-2 border-amber-500/60 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_25px_rgba(245,158,11,0.35)] animate-pulse">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">
+                <Gem className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono font-black uppercase tracking-wider text-amber-400">
+                  ¡PIEZA ANCESTRAL DE KRONOS OBTENIDA!
+                </div>
+                <div className="text-xs sm:text-sm font-bold text-white">
+                  {bossPiece.name} ({bossPiece.bossName}) · ¡Encasíllala en el Gran Reloj!
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Action Buttons — Mobile-Optimized with at least 44px touch targets */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 shrink-0">
           <div className="flex items-center gap-2 flex-1 sm:flex-initial">
@@ -151,9 +190,13 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             {!isFinalLevel && !isSpecialStage ? (
               <button
                 onClick={onNextLevel}
-                className="w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-cyan-900/50 active:scale-95 transition-all"
+                className={`w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl font-black text-xs sm:text-sm active:scale-95 transition-all ${
+                  currentConfig.id === 'krono-travel'
+                    ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse'
+                    : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-900/50'
+                }`}
               >
-                <span>SIGUIENTE ACTO</span>
+                <span>{currentConfig.id === 'krono-travel' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : 'SIGUIENTE ACTO'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (

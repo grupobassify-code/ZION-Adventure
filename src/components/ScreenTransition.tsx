@@ -81,6 +81,7 @@ export const ScreenTransition: React.FC<ScreenTransitionProps> = ({
     desert: { name: 'SANTUARIO DEL DESIERTO', icon: '🏛️' },
     krono: { name: 'KRONO CITY METRÓPOLIS', icon: '🏙️' },
     travel: { name: 'DIMENSIÓN KRONOS TRAVEL', icon: '🌌' },
+    jungle: { name: 'JUNGLE RUN (SELVA MAYA)', icon: '🌴' },
   };
 
   const zoneInfo = zoneNames[config.zone] || { name: config.zone.toUpperCase(), icon: '⚔️' };

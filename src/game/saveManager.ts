@@ -57,8 +57,38 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       const slots: (SaveSlot | null)[] = [null, null, null];
+      const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+      const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+      let hasMigrationChanges = false;
+
       for (let i = 0; i < MAX_SAVE_SLOTS; i++) {
-        slots[i] = parsed[i] || null;
+        const slot = parsed[i] || null;
+        if (slot) {
+          if (!slot.completedLevels) slot.completedLevels = [];
+          if (!slot.unlockedLevels) slot.unlockedLevels = [0];
+
+          // Check if player has beaten Kronos Travel or reached it
+          const isTravelDone =
+            (travelIdx !== -1 && (slot.completedLevels.includes(travelIdx) || slot.completedLevels.includes('krono-travel' as any))) ||
+            (travelIdx !== -1 && slot.unlockedLevels.some((lvl) => typeof lvl === 'number' && lvl > travelIdx)) ||
+            (jungle1Idx !== -1 && (slot.unlockedLevels.includes(jungle1Idx) || slot.completedLevels.includes(jungle1Idx))) ||
+            slot.completedLevels.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
+
+          if (isTravelDone) {
+            if (travelIdx !== -1 && !slot.completedLevels.includes(travelIdx)) {
+              slot.completedLevels.push(travelIdx);
+              hasMigrationChanges = true;
+            }
+            if (jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
+              slot.unlockedLevels.push(jungle1Idx);
+              hasMigrationChanges = true;
+            }
+          }
+        }
+        slots[i] = slot;
+      }
+      if (hasMigrationChanges) {
+        saveAllSlots(slots);
       }
       return slots;
     }
@@ -231,9 +261,24 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (cfg && cfg.zone === 'jungle') {
     const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
-    if (travelIdx !== -1 && !slot.completedLevels.includes(travelIdx)) {
+    const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isTravelCompleted =
+      (travelIdx !== -1 && (completedList.includes(travelIdx) || completedList.includes('krono-travel' as any))) ||
+      (jungle1Idx !== -1 && (unlockedList.includes(jungle1Idx) || completedList.includes(jungle1Idx))) ||
+      unlockedList.includes(levelIndex) ||
+      completedList.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
+
+    if (!isTravelCompleted && !unlockedList.includes(levelIndex)) {
       return false; // Jungle Run is locked until Kronos Travel is beaten!
     }
+    if (levelIndex === jungle1Idx) {
+      return true; // Jungle Run Act 1 is unlocked as soon as Kronos Travel is completed or jungle-1 is unlocked
+    }
+    // Acts 2 and 3 unlock if previously reached or previous act beaten
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
   }
   return slot.unlockedLevels.includes(levelIndex);
 }
@@ -332,10 +377,24 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
   // Jungle Run requires completing Kronos Travel first
   if (zone === 'jungle') {
     const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
-    const isTravelCompleted = travelIdx !== -1 && slot.completedLevels.includes(travelIdx);
+    const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isTravelCompleted =
+      (travelIdx !== -1 && (completedList.includes(travelIdx) || completedList.includes('krono-travel' as any))) ||
+      (jungle1Idx !== -1 && (unlockedList.includes(jungle1Idx) || completedList.includes(jungle1Idx))) ||
+      zoneLevels.some((item) => unlockedList.includes(item.idx) || completedList.includes(item.idx)) ||
+      completedList.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
+
     if (!isTravelCompleted) {
       return { completed: 0, total, unlocked: false };
     }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
   }
 
   let completed = 0;
@@ -516,7 +575,7 @@ export function placeKronosPiece(slotId: number, pieceId: string): SaveSlot | nu
     slot.kronosPiecesPlaced.push(pieceId);
   }
 
-  // If all 5 pieces are placed, unlock character locker
+  // If all 6 pieces are placed, unlock character locker
   if (slot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
     slot.kronosLockerUnlocked = true;
   }
@@ -556,7 +615,7 @@ export function placeAllAvailableKronosPieces(slotId: number): { slot: SaveSlot 
 }
 
 /**
- * Checks whether the entire Kronos Clock is fully repaired (all 5 pieces placed)
+ * Checks whether the entire Kronos Clock is fully repaired (all 6 pieces placed)
  */
 export function isKronosClockCompleted(slot: SaveSlot | null): boolean {
   if (!slot || !slot.kronosPiecesPlaced) return false;
@@ -572,7 +631,7 @@ export function isKronosLockerUnlocked(slot: SaveSlot | null): boolean {
 }
 
 /**
- * For testing/demo purposes: grants all 5 boss completions to test the clock assembly & cinematic
+ * For testing/demo purposes: grants all 6 boss completions to test the clock assembly & cinematic
  */
 export function unlockAllKronosBossesForDemo(slotId: number): SaveSlot | null {
   const slots = loadAllSaveSlots();

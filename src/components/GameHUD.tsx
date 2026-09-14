@@ -325,10 +325,8 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           <span className="text-purple-300 font-bold animate-pulse">✦ SPECIAL STAGE: DIMENSIÓN CUÁNTICA</span>
         ) : engine.isOnlyUpMode ? (
           <span className="text-orange-400 font-bold">▲ ONLY UP: {engine.onlyUpAltitude}m</span>
-        ) : engine.isVsAiMode ? (
-          <span className="text-emerald-400 font-bold">⚔️ VS IA: {engine.aiRunner?.name || 'Krono-Bot'}</span>
-        ) : engine.isTimeAttackMode ? (
-          <span className="text-amber-400 font-bold">⏱️ CONTRARRELOJ: {formatTimeMs(engine.timeAttackCurrentMs)}</span>
+        ) : engine.isVsAiMode || engine.isTimeAttackMode ? (
+          null // Don't duplicate text here on mobile: the compact bar below already shows everything!
         ) : (
           <span className="text-slate-400 truncate max-w-[220px]">
             {currentLevelConfig.title} · Acto {currentLevelConfig.act}
@@ -336,64 +334,56 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         )}
       </div>
 
-      {/* VS IA Duel Header Bar - Strictly in VS AI mode only */}
+      {/* VS IA Duel Header Bar - Strictly in VS AI mode only, ultra-compact on mobile */}
       {engine.isVsAiMode && !engine.isOnlyUpMode && !engine.isTimeAttackMode && engine.aiRunner && (
-        <div className="w-auto max-w-[280px] sm:max-w-md mx-auto bg-slate-950/90 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl sm:rounded-2xl border border-emerald-500/40 shadow-xl pointer-events-auto">
-          <div className="flex items-center justify-between text-[9px] sm:text-xs font-mono mb-0.5 sm:mb-1">
+        <div className="w-auto max-w-[220px] sm:max-w-md mx-auto bg-slate-950/80 backdrop-blur-sm px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-emerald-500/40 shadow-lg pointer-events-auto">
+          <div className="flex items-center justify-between text-[8px] sm:text-xs font-mono mb-0.5">
             <div className="flex items-center gap-1 text-cyan-300 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
               <span>Tú ({Math.min(100, Math.round((engine.player.x / Math.max(1, engine.goal.x)) * 100))}%)</span>
             </div>
-            <div className="flex items-center gap-1 text-[8px] sm:text-[10px] font-mono font-black text-amber-300 px-1.5 py-0.5 rounded-full bg-slate-900 border border-amber-500/30">
-              <Swords className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
+            <div className="flex items-center gap-0.5 text-[7px] sm:text-[9px] font-mono font-black text-amber-300 px-1 py-0.2 rounded-full bg-slate-900 border border-amber-500/30">
+              <Swords className="w-2 h-2 text-amber-400" />
               <span>{engine.player.x >= engine.aiRunner.x ? '1º' : '2º'}</span>
             </div>
             <div className="flex items-center gap-1 text-emerald-300 font-bold">
-              <span>{engine.aiRunner.name} ({Math.min(100, Math.round((engine.aiRunner.x / Math.max(1, engine.goal.x)) * 100))}%)</span>
-              <Bot className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
+              <span className="truncate max-w-[60px] sm:max-w-none">{engine.aiRunner.name}</span>
+              <span>({Math.min(100, Math.round((engine.aiRunner.x / Math.max(1, engine.goal.x)) * 100))}%)</span>
             </div>
           </div>
           {/* Dual Progress Track */}
-          <div className="relative w-full h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+          <div className="relative w-full h-1 sm:h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
             {/* Player bar */}
             <div
-              className="absolute left-0 top-0 h-0.5 sm:h-1 bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-100"
+              className="absolute left-0 top-0 h-0.5 sm:h-0.5 bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-100"
               style={{ width: `${Math.min(100, (engine.player.x / Math.max(1, engine.goal.x)) * 100)}%` }}
             />
             {/* AI bar */}
             <div
-              className="absolute left-0 bottom-0 h-0.5 sm:h-1 bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-100"
+              className="absolute left-0 bottom-0 h-0.5 sm:h-0.5 bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-100"
               style={{ width: `${Math.min(100, (engine.aiRunner.x / Math.max(1, engine.goal.x)) * 100)}%` }}
             />
           </div>
         </div>
       )}
 
-      {/* Contrarreloj (Time Attack) Header Bar - Strictly in Time Attack mode only */}
+      {/* Contrarreloj (Time Attack) Header Bar - Ultra-compact minimal pill on mobile */}
       {engine.isTimeAttackMode && !engine.isVsAiMode && !engine.isOnlyUpMode && (
-        <div className="w-auto max-w-[240px] sm:max-w-md mx-auto bg-slate-950/90 backdrop-blur-md px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl sm:rounded-2xl border border-amber-500/40 shadow-xl pointer-events-auto flex items-center justify-between font-mono">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
-            <div>
-              <span className="text-[8px] sm:text-[9px] text-slate-400 uppercase block leading-none">Cronómetro</span>
-              <span className="text-xs sm:text-base font-black text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">
-                {formatTimeMs(engine.timeAttackCurrentMs)}
-              </span>
-            </div>
+        <div className="w-auto max-w-[190px] sm:max-w-xs mx-auto bg-slate-950/85 backdrop-blur-sm px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full border border-amber-500/40 shadow-lg pointer-events-auto flex items-center justify-between gap-2 font-mono">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <Timer className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
+            <span className="text-[11px] sm:text-sm font-black text-amber-300 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">
+              {formatTimeMs(engine.timeAttackCurrentMs)}
+            </span>
           </div>
 
-          <div className="text-right">
-            <div className="flex items-center gap-1 sm:gap-1.5 justify-end">
-              <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
-              <span className="text-[8px] sm:text-[9px] text-slate-400 uppercase hidden xs:inline">PB:</span>
-              <span className="text-[10px] sm:text-xs font-bold text-white">
-                {engine.timeAttackBestMs !== null ? formatTimeMs(engine.timeAttackBestMs) : 'Sin récord'}
-              </span>
-            </div>
+          <div className="flex items-center gap-1 text-[9px] sm:text-xs">
+            <Trophy className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+            <span className="font-bold text-slate-200">
+              {engine.timeAttackBestMs !== null ? formatTimeMs(engine.timeAttackBestMs) : '--:--'}
+            </span>
             {engine.timeAttackGhostFrames.length > 0 && (
-              <span className="text-[8px] sm:text-[9px] text-cyan-300 font-bold flex items-center gap-1 justify-end">
-                <Ghost className="w-2 h-2 sm:w-2.5 sm:h-2.5" /> <span className="hidden xs:inline">Fantasma</span>
-              </span>
+              <Ghost className="w-2.5 h-2.5 text-cyan-300 ml-0.5" />
             )}
           </div>
         </div>

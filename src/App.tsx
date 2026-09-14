@@ -23,7 +23,7 @@ import { OnlyUpResultsModal } from './components/OnlyUpResultsModal';
 import { VsAiResultModal } from './components/VsAiResultModal';
 import { TimeAttackResultModal } from './components/TimeAttackResultModal';
 import { LEVEL_CONFIGS } from './game/levelData';
-import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, setActiveSlotId, getLevelBestTime } from './game/saveManager';
+import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, getActiveSlotId, setActiveSlotId, getLevelBestTime } from './game/saveManager';
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
@@ -61,7 +61,7 @@ export default function App() {
   const [inMainMenu, setInMainMenu] = useState(true);
   const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker'>('title');
   const [mainMenuZone, setMainMenuZone] = useState<ZoneId | null>(null);
-  const [activeSlotId, setActiveSlotIdState] = useState<number>(0);
+  const [activeSlotId, setActiveSlotIdState] = useState<number>(() => getActiveSlotId());
   const [isPortrait, setIsPortrait] = useState<boolean>(() => {
     return typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
   });
@@ -264,7 +264,9 @@ export default function App() {
   const handleStartVsAiFromMenu = (slotId: number, levelIndex: number, difficulty: string) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.isVsAiMode = true;
     engine.inMainMenu = false;
+    setShowLevelIntro(false);
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -296,7 +298,9 @@ export default function App() {
   const handleStartTimeAttackFromMenu = (slotId: number, levelIndex: number) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.isTimeAttackMode = true;
     engine.inMainMenu = false;
+    setShowLevelIntro(false);
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -903,9 +907,16 @@ export default function App() {
           }}
           onReturnToMenu={() => {
             sound.stopMusic();
-            const currZone = LEVEL_CONFIGS[engine.levelIndex]?.zone || null;
-            setMainMenuView(currZone ? 'acts' : 'zones');
-            setMainMenuZone(currZone);
+            const currLvl = LEVEL_CONFIGS[engine.levelIndex];
+            if (currLvl?.id === 'krono-travel') {
+              // Direct player straight to newly unlocked Jungle Run acts!
+              setMainMenuView('acts');
+              setMainMenuZone('jungle');
+            } else {
+              const currZone = currLvl?.zone || null;
+              setMainMenuView(currZone ? 'acts' : 'zones');
+              setMainMenuZone(currZone);
+            }
             setInMainMenu(true);
           }}
         />
