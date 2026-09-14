@@ -18,6 +18,7 @@ import { MainMenu } from './components/MainMenu';
 import { ScreenTransition } from './components/ScreenTransition';
 import { LevelIntroBanner } from './components/LevelIntroBanner';
 import { TutorialPopup } from './components/TutorialPopup';
+import { CountdownOverlay } from './components/CountdownOverlay';
 import { OnlyUpResultsModal } from './components/OnlyUpResultsModal';
 import { VsAiResultModal } from './components/VsAiResultModal';
 import { TimeAttackResultModal } from './components/TimeAttackResultModal';
@@ -215,6 +216,7 @@ export default function App() {
 
   const handleStartGameFromMenu = (levelIndex: number, slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -225,6 +227,7 @@ export default function App() {
 
   const handleStartOnlyUpFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -242,6 +245,7 @@ export default function App() {
 
   const handleStartSpecialStageFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -259,6 +263,7 @@ export default function App() {
 
   const handleStartVsAiFromMenu = (slotId: number, levelIndex: number, difficulty: string) => {
     unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -280,15 +285,17 @@ export default function App() {
         });
         setRenderTick((t) => t + 1);
       };
-      setShowLevelIntro(true);
+      setShowLevelIntro(false);
     }, 280);
     setTimeout(() => {
       setTransitionActive(false);
+      engine.startCountdown();
     }, 950);
   };
 
   const handleStartTimeAttackFromMenu = (slotId: number, levelIndex: number) => {
     unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -312,10 +319,11 @@ export default function App() {
         });
         setRenderTick((t) => t + 1);
       };
-      setShowLevelIntro(true);
+      setShowLevelIntro(false);
     }, 280);
     setTimeout(() => {
       setTransitionActive(false);
+      engine.startCountdown();
     }, 950);
   };
 
@@ -493,7 +501,15 @@ export default function App() {
 
       // Quick Restart with Key R
       if (e.code === 'KeyR' && !engine.inCutscene) {
-        triggerLevelTransition(engine.levelIndex, false);
+        if (engine.isOnlyUpMode) {
+          engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
+        } else if (engine.isVsAiMode) {
+          handleStartVsAiFromMenu(activeSlotId, engine.levelIndex, engine.vsAiDifficulty);
+        } else if (engine.isTimeAttackMode) {
+          handleStartTimeAttackFromMenu(activeSlotId, engine.levelIndex);
+        } else {
+          triggerLevelTransition(engine.levelIndex, false);
+        }
       }
     };
 
@@ -801,11 +817,21 @@ export default function App() {
         />
       )}
 
-      {/* Non-Intrusive Level 1 Controls Tutorial Popup (Never in Only Up mode) */}
-      {!inMainMenu && !engine.isPaused && !engine.isLevelWon && !engine.isOnlyUpMode && (
+      {/* 3-Second Countdown Overlay for VS IA & Contrarreloj */}
+      {!inMainMenu && !engine.isPaused && (engine.isVsAiMode || engine.isTimeAttackMode) && engine.countdownSeconds !== null && (
+        <CountdownOverlay
+          countdown={engine.countdownSeconds}
+          mode={engine.isVsAiMode ? 'vsAi' : 'timeAttack'}
+          aiName={engine.aiRunner?.name}
+        />
+      )}
+
+      {/* Non-Intrusive Level 1 Controls Tutorial Popup (Never in Only Up, VS AI, or Contrarreloj modes) */}
+      {!inMainMenu && !engine.isPaused && !engine.isLevelWon && !engine.isOnlyUpMode && !engine.isVsAiMode && !engine.isTimeAttackMode && (
         <TutorialPopup
           levelIndex={engine.levelIndex}
           inCutscene={engine.inCutscene}
+          isCompetitiveMode={engine.isOnlyUpMode || engine.isVsAiMode || engine.isTimeAttackMode}
         />
       )}
 
@@ -943,12 +969,14 @@ export default function App() {
           }}
           onSelectOtherLevel={() => {
             setVsAiResultData(null);
+            engine.resetSpecialModes();
             sound.stopMusic();
             setMainMenuView('zones');
             setInMainMenu(true);
           }}
           onReturnToMenu={() => {
             setVsAiResultData(null);
+            engine.resetSpecialModes();
             sound.stopMusic();
             setMainMenuView('zones');
             setInMainMenu(true);
@@ -971,12 +999,14 @@ export default function App() {
           }}
           onSelectOtherLevel={() => {
             setTimeAttackResultData(null);
+            engine.resetSpecialModes();
             sound.stopMusic();
             setMainMenuView('zones');
             setInMainMenu(true);
           }}
           onReturnToMenu={() => {
             setTimeAttackResultData(null);
+            engine.resetSpecialModes();
             sound.stopMusic();
             setMainMenuView('zones');
             setInMainMenu(true);
@@ -995,12 +1025,17 @@ export default function App() {
             if (engine.isOnlyUpMode) {
               engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
               setRenderTick((t) => t + 1);
+            } else if (engine.isVsAiMode) {
+              handleStartVsAiFromMenu(activeSlotId, engine.levelIndex, engine.vsAiDifficulty);
+            } else if (engine.isTimeAttackMode) {
+              handleStartTimeAttackFromMenu(activeSlotId, engine.levelIndex);
             } else {
               triggerLevelTransition(engine.levelIndex, false);
             }
           }}
           onQuitToTitle={() => {
             engine.togglePause();
+            engine.resetSpecialModes();
             sound.stopMusic();
             const currZone = LEVEL_CONFIGS[engine.levelIndex]?.zone || null;
             setMainMenuView(currZone ? 'acts' : 'zones');

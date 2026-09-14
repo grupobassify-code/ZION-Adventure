@@ -4,12 +4,13 @@ import { Sparkles, X, Swords, ArrowRight, ArrowLeft, ArrowUp, MoveHorizontal, Ke
 interface TutorialPopupProps {
   levelIndex: number;
   inCutscene?: boolean;
+  isCompetitiveMode?: boolean;
   onDismiss?: () => void;
 }
 
 const TUTORIAL_DISMISSED_KEY = 'zion_tutorial_dismissed_v1';
 
-export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCutscene, onDismiss }) => {
+export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCutscene, isCompetitiveMode, onDismiss }) => {
   const [visible, setVisible] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [activeTab, setActiveTab] = useState<'keyboard' | 'touch'>(() => {
@@ -21,8 +22,8 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCuts
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    // Only show on Level 1 (index 0) and when cutscene is not blocking
-    if (levelIndex !== 0 || inCutscene) {
+    // Only show on Level 1 (index 0) and when cutscene is not blocking and NOT in competitive modes (VS IA, Contrarreloj, Only Up)
+    if (levelIndex !== 0 || inCutscene || isCompetitiveMode) {
       setVisible(false);
       return;
     }
@@ -35,7 +36,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCuts
       }, 1200);
       return () => clearTimeout(startTimer);
     }
-  }, [levelIndex, inCutscene]);
+  }, [levelIndex, inCutscene, isCompetitiveMode]);
 
   // Countdown timer for automatic non-intrusive fadeout
   useEffect(() => {
@@ -69,7 +70,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ levelIndex, inCuts
     setTimeLeft(12);
   };
 
-  if (!visible && levelIndex === 0 && !inCutscene) {
+  if (!visible && levelIndex === 0 && !inCutscene && !isCompetitiveMode) {
     // Floating Help Trigger Button in corner for quick access anytime on level 1
     return (
       <button

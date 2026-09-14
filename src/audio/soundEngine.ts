@@ -304,6 +304,16 @@ class SoundEngine {
       case 'showdownReady':
         [1046, 1318, 1568, 2093].forEach((f, i) => this.tone(f, 0.18, 'sine', 0.05, i * 0.06));
         break;
+      case 'countdownBeep':
+        this.tone(523.25, 0.14, 'square', 0.05, 0);
+        this.tone(1046.5, 0.12, 'sine', 0.04, 0.01);
+        break;
+      case 'countdownGo':
+        [659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => {
+          this.tone(f, 0.22, 'triangle', 0.06, i * 0.04);
+        });
+        this.tone(2093, 0.35, 'square', 0.08, 0.16);
+        break;
       case 'special':
         [330, 494, 659, 988, 1318].forEach((freq, idx) => {
           this.tone(freq, 0.16, 'sawtooth', 0.045, idx * 0.04, freq * 1.5);

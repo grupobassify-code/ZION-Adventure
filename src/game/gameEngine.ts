@@ -190,6 +190,70 @@ export class GameEngine {
 
   // Special Stage Portal & Dimension System
   public specialStagePortal: { x: number; y: number; w: number; h: number } | null = null;
+
+  // 3-Second Countdown System for VS IA & Contrarreloj
+  public countdownFrames: number = 0;
+  public countdownSeconds: number | null = null; // 3, 2, 1, 0 ('¡YA!') or null
+  public isCountdownActive: boolean = false;
+  private lastCountdownSec: number | null = null;
+
+  public resetSpecialModes() {
+    this.isVsAiMode = false;
+    this.isTimeAttackMode = false;
+    this.aiRunner = null;
+    this.vsAiResult = null;
+    this.timeAttackResult = null;
+    this.timeAttackGhostFrames = [];
+    this.timeAttackRecordedFrames = [];
+    this.isCountdownActive = false;
+    this.countdownFrames = 0;
+    this.countdownSeconds = null;
+    this.lastCountdownSec = null;
+    this.remotePlayer = null;
+  }
+
+  public startCountdown() {
+    if (!this.isVsAiMode && !this.isTimeAttackMode) return;
+    this.isCountdownActive = true;
+    this.countdownFrames = 180; // Exactly 3.0 seconds at 60 FPS
+    this.countdownSeconds = 3;
+    this.lastCountdownSec = 3;
+
+    // Place player firmly on the starting ground platform
+    const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+    const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+    this.player.x = 35;
+    this.player.y = startGroundY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.ground = true;
+    this.player.animState = 'idle';
+    this.player.facing = 1;
+    this.levelStartPoint = { x: 35, y: startGroundY };
+    this.spawnPoint = { x: 35, y: startGroundY };
+    this.lastSafeGround = { x: 35, y: startGroundY };
+
+    // Place AI at the EXACT same start coordinates
+    if (this.aiRunner) {
+      this.aiRunner.reset(35, startGroundY);
+      this.aiRunner.vx = 0;
+      this.aiRunner.vy = 0;
+      this.aiRunner.isGrounded = true;
+      this.aiRunner.facing = 1;
+      this.remotePlayer = this.aiRunner.getState();
+    }
+
+    if (this.isTimeAttackMode) {
+      this.timeAttackCurrentMs = 0;
+      this.timeAttackStartTime = 0;
+      if (this.timeAttackGhostFrames.length > 0) {
+        this.remotePlayer = sampleGhostAtTime(this.timeAttackGhostFrames, 0, this.goal.x);
+      }
+    }
+
+    sound.playSfx('countdownBeep');
+    this.notifyState();
+  }
   public specialStageCompleted: boolean = false;
   public isInSpecialStage: boolean = false;
   public specialStageExitPortal: { x: number; y: number; w: number; h: number } | null = null;
@@ -296,16 +360,10 @@ export class GameEngine {
     this.loadLevel(initialLevel, true);
   }
 
-  public loadLevel(index: number, showLore = true, fromCheckpoint = false) {
+  public loadLevel(index: number, showLore = true, fromCheckpoint = false, keepSpecialModes = false) {
     this.isOnlyUpMode = false;
-    if (!this.isVsAiMode) {
-      this.aiRunner = null;
-      this.vsAiResult = null;
-    }
-    if (!this.isTimeAttackMode) {
-      this.timeAttackResult = null;
-      this.timeAttackGhostFrames = [];
-      this.timeAttackRecordedFrames = [];
+    if (!keepSpecialModes) {
+      this.resetSpecialModes();
     }
     this.cameraY = 0;
     this.onlyUpIsGameOver = false;
@@ -353,11 +411,13 @@ export class GameEngine {
       this.cpSavedEnemies.clear();
 
       this.hasActiveCheckpoint = false;
-      this.levelStartPoint = { x: 35, y: 100 };
-      this.spawnPoint = { x: 35, y: 100 };
-      this.lastSafeGround = { x: 35, y: 100 };
+      const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+      const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+      this.levelStartPoint = { x: 35, y: startGroundY };
+      this.spawnPoint = { x: 35, y: startGroundY };
+      this.lastSafeGround = { x: 35, y: startGroundY };
       this.player.x = 35;
-      this.player.y = 100;
+      this.player.y = startGroundY;
     } else {
       this.hasActiveCheckpoint = true;
       this.levelStartPoint = { x: 35, y: 100 };
@@ -759,6 +819,7 @@ export class GameEngine {
       console.warn('Cannot start VS IA mode on a boss level!');
       return;
     }
+    this.resetSpecialModes();
     this.isOnlyUpMode = false;
     this.isTimeAttackMode = false;
     this.isVsAiMode = true;
@@ -767,7 +828,7 @@ export class GameEngine {
     this.isMultiplayerMatch = false;
 
     // Load selected level without lore dialogue interruption
-    this.loadLevel(levelIndex, false);
+    this.loadLevel(levelIndex, false, false, true);
 
     let spd = 1.0;
     let botName = 'Krono-Bot Alfa';
@@ -779,17 +840,33 @@ export class GameEngine {
       botName = 'Titan-Runner Prime';
     }
 
+    const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+    const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+    this.player.x = 35;
+    this.player.y = startGroundY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.ground = true;
+    this.player.animState = 'idle';
+    this.player.facing = 1;
+    this.levelStartPoint = { x: 35, y: startGroundY };
+    this.spawnPoint = { x: 35, y: startGroundY };
+    this.lastSafeGround = { x: 35, y: startGroundY };
+
     this.aiRunner = new AiRunner({
       name: botName,
       speedMultiplier: spd,
-      startX: this.player.x,
-      startY: this.player.y,
+      startX: 35,
+      startY: startGroundY,
     });
     this.remotePlayer = this.aiRunner.getState();
 
+    // Start 3-second countdown
+    this.startCountdown();
+
     this.levelIntroBanner = {
-      active: true,
-      timer: 160,
+      active: false,
+      timer: 0,
       title: 'DUELO VS IA',
       subtitle: `¡Cruza la meta antes que ${botName}!`,
       act: LEVEL_CONFIGS[levelIndex]?.act || 1,
@@ -807,6 +884,7 @@ export class GameEngine {
       console.warn('Cannot start Time Attack on a boss level!');
       return;
     }
+    this.resetSpecialModes();
     this.isOnlyUpMode = false;
     this.isVsAiMode = false;
     this.isTimeAttackMode = true;
@@ -815,9 +893,22 @@ export class GameEngine {
     this.isMultiplayerMatch = false;
 
     // Load selected level
-    this.loadLevel(levelIndex, false);
+    this.loadLevel(levelIndex, false, false, true);
 
-    this.timeAttackStartTime = performance.now();
+    const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+    const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+    this.player.x = 35;
+    this.player.y = startGroundY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.ground = true;
+    this.player.animState = 'idle';
+    this.player.facing = 1;
+    this.levelStartPoint = { x: 35, y: startGroundY };
+    this.spawnPoint = { x: 35, y: startGroundY };
+    this.lastSafeGround = { x: 35, y: startGroundY };
+
+    this.timeAttackStartTime = 0;
     this.timeAttackCurrentMs = 0;
     this.timeAttackBestMs = getLevelBestTime(slotId, levelIndex);
     this.timeAttackGhostFrames = loadGhostRecording(slotId, levelIndex) || [];
@@ -830,9 +921,12 @@ export class GameEngine {
       this.remotePlayer = null;
     }
 
+    // Start 3-second countdown
+    this.startCountdown();
+
     this.levelIntroBanner = {
-      active: true,
-      timer: 160,
+      active: false,
+      timer: 0,
       title: 'MODO CONTRARRELOJ',
       subtitle: this.timeAttackGhostFrames.length > 0
         ? '¡Compite contra tu mejor fantasma para superarlo!'
@@ -987,6 +1081,78 @@ export class GameEngine {
     if (this.isOnlyUpMode && this.onlyUpIsGameOver) {
       this.updateEffects();
       return;
+    }
+
+    // 0. Handle 3-second countdown for VS IA & Contrarreloj
+    if (this.isCountdownActive) {
+      const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+      const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+
+      // Lock player inputs & lock movement
+      inputs.left = false;
+      inputs.right = false;
+      inputs.jump = false;
+      inputs.attack = false;
+      inputs.dash = false;
+      inputs.special = false;
+      this.player.vx = 0;
+      this.player.vy = 0;
+      this.player.x = 35;
+      this.player.y = startGroundY;
+      this.player.ground = true;
+
+      // Keep AI pinned at the exact same start position
+      if (this.aiRunner) {
+        this.aiRunner.x = 35;
+        this.aiRunner.y = startGroundY;
+        this.aiRunner.vx = 0;
+        this.aiRunner.vy = 0;
+        this.aiRunner.isGrounded = true;
+        this.remotePlayer = this.aiRunner.getState();
+      }
+
+      if (this.isTimeAttackMode) {
+        this.timeAttackCurrentMs = 0;
+      }
+
+      this.countdownFrames--;
+
+      let currentSec: number | null = null;
+      if (this.countdownFrames > 120) {
+        currentSec = 3;
+      } else if (this.countdownFrames > 60) {
+        currentSec = 2;
+      } else if (this.countdownFrames > 0) {
+        currentSec = 1;
+      } else if (this.countdownFrames > -35) {
+        // -35 frames = ~0.58s of "¡YA!"
+        currentSec = 0;
+      } else {
+        currentSec = null;
+        this.isCountdownActive = false;
+        this.countdownSeconds = null;
+        this.notifyState();
+      }
+
+      if (currentSec !== this.lastCountdownSec) {
+        this.lastCountdownSec = currentSec;
+        this.countdownSeconds = currentSec;
+        if (currentSec === 0) {
+          sound.playSfx('countdownGo');
+          if (this.isTimeAttackMode) {
+            this.timeAttackStartTime = performance.now();
+          }
+        } else if (currentSec !== null) {
+          sound.playSfx('countdownBeep');
+        }
+        this.notifyState();
+      }
+
+      // If still counting down (3, 2, 1), do NOT advance game loop/physics/enemies
+      if (this.countdownFrames > 0) {
+        this.updateEffects();
+        return;
+      }
     }
 
     this.time++;

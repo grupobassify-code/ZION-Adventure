@@ -336,8 +336,8 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         )}
       </div>
 
-      {/* VS IA Duel Header Bar */}
-      {engine.isVsAiMode && engine.aiRunner && (
+      {/* VS IA Duel Header Bar - Strictly in VS AI mode only */}
+      {engine.isVsAiMode && !engine.isOnlyUpMode && !engine.isTimeAttackMode && engine.aiRunner && (
         <div className="w-full max-w-md mx-auto bg-slate-950/90 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-emerald-500/40 shadow-xl pointer-events-auto">
           <div className="flex items-center justify-between text-[10px] sm:text-xs font-mono mb-1">
             <div className="flex items-center gap-1.5 text-cyan-300 font-bold">
@@ -369,8 +369,8 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         </div>
       )}
 
-      {/* Contrarreloj (Time Attack) Header Bar */}
-      {engine.isTimeAttackMode && (
+      {/* Contrarreloj (Time Attack) Header Bar - Strictly in Time Attack mode only */}
+      {engine.isTimeAttackMode && !engine.isVsAiMode && !engine.isOnlyUpMode && (
         <div className="w-full max-w-sm sm:max-w-md mx-auto bg-slate-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-amber-500/40 shadow-xl pointer-events-auto flex items-center justify-between font-mono">
           <div className="flex items-center gap-2">
             <Timer className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
