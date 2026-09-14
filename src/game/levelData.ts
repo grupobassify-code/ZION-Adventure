@@ -1,4 +1,4 @@
-import { Boss, Checkpoint, Collectible, Enemy, Hazard, Landmark, LevelConfig, NodePillar, Platform, SecretItem, Trampoline } from '../types';
+import { Boss, Checkpoint, Collectible, Enemy, Hazard, Landmark, LevelConfig, Liana, NodePillar, Platform, SecretItem, Trampoline, Waterfall } from '../types';
 
 export const LEVEL_CONFIGS: LevelConfig[] = [
   {
@@ -381,6 +381,72 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     worldWidth: 9600,
     themeColor: '#38bdf8',
     accentColor: '#f43f5e'
+  },
+  {
+    id: 'jungle-1',
+    zone: 'jungle',
+    act: 1,
+    title: 'Zona 6 · Acto 1 — Jungle Run',
+    subtitle: 'La Pirámide Maya y la Selva Esmeralda',
+    lore: [
+      {
+        title: '🌴 JUNGLE RUN — LA ENTRADA A LA SELVA MAYA',
+        lines: [
+          'Más allá de los rifts del tiempo se oculta la legendaria Selva Maya, un paraíso salvaje y milenario de día resplandeciente.',
+          'Entre cascadas cristalinas y lianas colgantes, Zion vislumbra imponentes pirámides mayas ancestrales en el horizonte.',
+          'Nuevos peligros acechan: serpientes esmeralda veloces, monos tiradores de cocos y avispones gigantes zumbantes.',
+          '¡Balancéate en las lianas y cruza las cascadas para descubrir los secretos de los templos ancestrales!'
+        ],
+        author: 'Códice Maya de Jade'
+      }
+    ],
+    worldWidth: 7200,
+    themeColor: '#10b981',
+    accentColor: '#eab308'
+  },
+  {
+    id: 'jungle-2',
+    zone: 'jungle',
+    act: 2,
+    title: 'Zona 6 · Acto 2 — Jungle Run',
+    subtitle: 'El Templo Secreto y las Altas Copas',
+    lore: [
+      {
+        title: '☀️ EL GRAN TRAMPOLÍN SOLAR Y EL DOSEL',
+        lines: [
+          'La primera mitad transcurre dentro de la monumental Pirámide Maya, sorteando reliquias y trampas de piedra ancestrales.',
+          'A la mitad exacta del templo, un potente trampolín propulsa a Zion hacia el pozo de luz solar rumbo a las altas copas.',
+          'La segunda mitad se vive en las alturas del dosel arbóreo de día, sobre ramas gigantescas y puentes de lianas.',
+          '¡Domina el salto y las alturas selváticas para alcanzar el Altar Mayor de Balam!'
+        ],
+        author: 'Inscripción del Trampolín Sagrado'
+      }
+    ],
+    worldWidth: 7600,
+    themeColor: '#059669',
+    accentColor: '#facc15'
+  },
+  {
+    id: 'jungle-3',
+    zone: 'jungle',
+    act: 3,
+    title: 'Zona 6 · Acto 3 — Jungle Run (Jefe)',
+    subtitle: 'Balam, el Jaguar Gigante Ancestral',
+    lore: [
+      {
+        title: '🐆 EL DESPERTAR DE BALAM',
+        lines: [
+          'En la cúspide del Gran Altar Solar Maya, custodiado por cascadas rugientes, aguarda el señor de la selva.',
+          'Balam, el legendario Jaguar Gigante Ancestral engalanado con jade ceremonial y oro puro.',
+          'Con zarpazos de energía esmeralda, saltos feroces y rugidos sísmicos, desafiará a Zion con furia indomable.',
+          '¡Vence a la bestia sagrada para reclamar la joya del Sol Maya y dominar la jungla!'
+        ],
+        author: 'Profecía de Balam'
+      }
+    ],
+    worldWidth: 2600,
+    themeColor: '#047857',
+    accentColor: '#ef4444'
   }
 ];
 
@@ -436,6 +502,12 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 6, xp: 95, score: 420 };
     case 'gravity_orb':
       return { hp: 3, xp: 50, score: 220 };
+    case 'jungle_serpent':
+      return { hp: 3, xp: 50, score: 220 };
+    case 'jungle_monkey':
+      return { hp: 3, xp: 55, score: 240 };
+    case 'giant_hornet':
+      return { hp: 2, xp: 45, score: 190 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -453,6 +525,9 @@ export function buildLevel(levelIndex: number) {
   const heals: Collectible[] = [];
   const checkpoints: Checkpoint[] = [];
   const landmarks: Landmark[] = [];
+  const lianas: Liana[] = [];
+  const waterfalls: Waterfall[] = [];
+  const trampolines: Trampoline[] = [];
   let nodes: NodePillar[] = [];
   let boss: Boss | null = null;
   let goal = { x: LW - 240, y: 92, w: 28, h: 56 };
@@ -3272,6 +3347,503 @@ export function buildLevel(levelIndex: number) {
     heals.push({ x: 9380, y: 126, w: 10, h: 10, taken: false });
 
     goal = { x: 9450, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'jungle-1') {
+    // -------------------------------------------------------------
+    // ZONA 6 · ACTO 1 — JUNGLE RUN: LA PIRÁMIDE MAYA Y LA SELVA
+    // -------------------------------------------------------------
+    // Fondo: Pirámides Mayas bajo el sol diurno, exuberante selva tropical
+    landmarks.push(
+      { type: 'mayan_pyramid', x: 500, y: 60, scale: 1.4, label: 'GRAN PIRÁMIDE DEL SOL MAYA' },
+      { type: 'jungle_waterfall', x: 1350, y: 40, w: 60, scale: 1.2 },
+      { type: 'giant_ceiba', x: 900, y: 45, scale: 1.3, label: 'YAXCHÉ · ÁRBOL SAGRADO' },
+      { type: 'tribal_totem', x: 1750, y: 80, scale: 1.2 },
+      { type: 'mayan_pyramid', x: 2700, y: 55, scale: 1.6, label: 'TEMPLO DE LAS INSCRIPCIONES' },
+      { type: 'jungle_waterfall', x: 3350, y: 40, w: 70, scale: 1.3 },
+      { type: 'giant_ceiba', x: 3900, y: 40, scale: 1.4 },
+      { type: 'jungle_ruins', x: 4400, y: 85, scale: 1.2 },
+      { type: 'tribal_totem', x: 5100, y: 80, scale: 1.2 },
+      { type: 'mayan_pyramid', x: 5800, y: 50, scale: 1.8, label: 'PIRÁMIDE MAYA ANCESTRAL' },
+      { type: 'jungle_waterfall', x: 6300, y: 40, w: 65, scale: 1.2 }
+    );
+
+    // Cascadas interactivas en el mundo
+    waterfalls.push(
+      { id: 1, x: 1360, y: 20, w: 42, h: 140, flowSpeed: 1.2, mistParticles: true },
+      { id: 2, x: 3360, y: 15, w: 48, h: 145, flowSpeed: 1.4, mistParticles: true },
+      { id: 3, x: 5320, y: 20, w: 44, h: 140, flowSpeed: 1.3, mistParticles: true },
+      { id: 4, x: 6310, y: 15, w: 46, h: 145, flowSpeed: 1.2, mistParticles: true }
+    );
+
+    // Lianas mecánicas para balanceo
+    lianas.push(
+      { id: 1, x: 1120, y: 25, length: 72, maxAngle: 0.48 },
+      { id: 2, x: 1980, y: 20, length: 78, maxAngle: 0.52 },
+      { id: 3, x: 2850, y: 22, length: 75, maxAngle: 0.45 },
+      { id: 4, x: 3820, y: 18, length: 82, maxAngle: 0.50 },
+      { id: 5, x: 4750, y: 22, length: 76, maxAngle: 0.48 },
+      { id: 6, x: 5650, y: 20, length: 80, maxAngle: 0.52 },
+      { id: 7, x: 6550, y: 25, length: 74, maxAngle: 0.46 }
+    );
+
+    // Plataformas del Suelo (Suelo selvático de piedra maya con abismos sobre agua cristalina)
+    const groundSegments = [
+      { x: 0, w: 1050 },
+      { x: 1190, w: 720 },
+      { x: 2050, w: 730 },
+      { x: 2920, w: 830 },
+      { x: 3900, w: 780 },
+      { x: 4820, w: 760 },
+      { x: 5720, w: 760 },
+      { x: 6620, w: 600 }
+    ];
+    for (const g of groundSegments) {
+      platforms.push({ x: g.x, y: 148, w: g.w, h: 32, kind: 'jungle_stone' });
+    }
+
+    // Abismos con espinas / trampas de estacas en el fondo
+    const hazardGaps = [
+      { x: 1050, w: 140 },
+      { x: 1910, w: 140 },
+      { x: 2780, w: 140 },
+      { x: 3750, w: 150 },
+      { x: 4680, w: 140 },
+      { x: 5580, w: 140 },
+      { x: 6480, w: 140 }
+    ];
+    for (const h of hazardGaps) {
+      hazards.push({ x: h.x, y: 156, w: h.w, h: 16, type: 'spike' });
+    }
+
+    // Plataformas Elevadas: Bloques de piedra maya, ramas de ceiba y puentes colgantes
+    const jungleLedges: { x: number; y: number; w: number; h: number; kind: Platform['kind'] }[] = [
+      // Tramo 1 (0 - 1800)
+      { x: 240, y: 118, w: 80, h: 10, kind: 'jungle_stone' },
+      { x: 380, y: 92, w: 75, h: 10, kind: 'treetop' },
+      { x: 520, y: 72, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 680, y: 95, w: 85, h: 10, kind: 'jungle_stone' },
+      { x: 840, y: 116, w: 95, h: 10, kind: 'treetop' },
+      { x: 1020, y: 90, w: 70, h: 10, kind: 'treetop' },
+      { x: 1220, y: 110, w: 80, h: 10, kind: 'vine_bridge' },
+      { x: 1370, y: 82, w: 85, h: 10, kind: 'jungle_stone' },
+      { x: 1520, y: 106, w: 75, h: 10, kind: 'treetop' },
+      { x: 1680, y: 86, w: 90, h: 10, kind: 'jungle_stone' },
+
+      // Tramo 2 (1800 - 3600)
+      { x: 1940, y: 92, w: 70, h: 10, kind: 'treetop' },
+      { x: 2120, y: 114, w: 85, h: 10, kind: 'jungle_stone' },
+      { x: 2280, y: 88, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 2450, y: 68, w: 80, h: 10, kind: 'treetop' },
+      { x: 2600, y: 92, w: 95, h: 10, kind: 'jungle_stone' },
+      { x: 2800, y: 86, w: 75, h: 10, kind: 'treetop' },
+      { x: 3000, y: 112, w: 80, h: 10, kind: 'vine_bridge' },
+      { x: 3160, y: 85, w: 90, h: 10, kind: 'jungle_stone' },
+      { x: 3340, y: 68, w: 85, h: 10, kind: 'treetop' },
+      { x: 3520, y: 96, w: 95, h: 10, kind: 'jungle_stone' },
+
+      // Tramo 3 (3600 - 5400)
+      { x: 3780, y: 88, w: 70, h: 10, kind: 'treetop' },
+      { x: 3960, y: 114, w: 85, h: 10, kind: 'jungle_stone' },
+      { x: 4120, y: 85, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 4300, y: 66, w: 80, h: 10, kind: 'treetop' },
+      { x: 4460, y: 92, w: 95, h: 10, kind: 'jungle_stone' },
+      { x: 4700, y: 86, w: 75, h: 10, kind: 'treetop' },
+      { x: 4900, y: 110, w: 80, h: 10, kind: 'vine_bridge' },
+      { x: 5080, y: 84, w: 90, h: 10, kind: 'jungle_stone' },
+      { x: 5260, y: 66, w: 85, h: 10, kind: 'treetop' },
+
+      // Tramo 4 (5400 - 7200)
+      { x: 5600, y: 90, w: 70, h: 10, kind: 'treetop' },
+      { x: 5780, y: 112, w: 85, h: 10, kind: 'jungle_stone' },
+      { x: 5960, y: 84, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 6140, y: 65, w: 80, h: 10, kind: 'treetop' },
+      { x: 6320, y: 88, w: 95, h: 10, kind: 'jungle_stone' },
+      { x: 6520, y: 86, w: 75, h: 10, kind: 'treetop' },
+      { x: 6720, y: 110, w: 90, h: 10, kind: 'jungle_stone' }
+    ];
+    for (const p of jungleLedges) {
+      platforms.push({ x: p.x, y: p.y, w: p.w, h: p.h, kind: p.kind });
+    }
+
+    // Enemigos de Jungle Run: Serpientes selváticas, monos con cocos y avispones gigantes
+    const jungleEnemies: { type: Enemy['type']; x: number; y: number; min: number; max: number; vx: number }[] = [
+      { type: 'jungle_serpent', x: 420, y: 136, min: 280, max: 620, vx: 0.9 },
+      { type: 'giant_hornet', x: 640, y: 78, min: 540, max: 760, vx: 0.8 },
+      { type: 'jungle_monkey', x: 860, y: 102, min: 840, max: 920, vx: 0 },
+      { type: 'jungle_serpent', x: 1300, y: 136, min: 1220, max: 1540, vx: 1.0 },
+      { type: 'giant_hornet', x: 1600, y: 70, min: 1480, max: 1720, vx: 0.9 },
+      { type: 'jungle_monkey', x: 1700, y: 72, min: 1680, max: 1760, vx: 0 },
+      { type: 'jungle_serpent', x: 2200, y: 136, min: 2100, max: 2450, vx: 1.1 },
+      { type: 'giant_hornet', x: 2500, y: 55, min: 2380, max: 2620, vx: 0.8 },
+      { type: 'jungle_monkey', x: 2620, y: 78, min: 2600, max: 2680, vx: 0 },
+      { type: 'jungle_serpent', x: 3100, y: 136, min: 2980, max: 3300, vx: 1.0 },
+      { type: 'giant_hornet', x: 3400, y: 56, min: 3280, max: 3520, vx: 0.9 },
+      { type: 'jungle_monkey', x: 3540, y: 82, min: 3520, max: 3600, vx: 0 },
+      { type: 'jungle_serpent', x: 4100, y: 136, min: 3980, max: 4300, vx: 1.1 },
+      { type: 'giant_hornet', x: 4350, y: 52, min: 4220, max: 4480, vx: 0.8 },
+      { type: 'jungle_monkey', x: 4480, y: 78, min: 4460, max: 4540, vx: 0 },
+      { type: 'jungle_serpent', x: 5000, y: 136, min: 4880, max: 5200, vx: 1.0 },
+      { type: 'giant_hornet', x: 5300, y: 54, min: 5180, max: 5420, vx: 0.9 },
+      { type: 'jungle_monkey', x: 5980, y: 70, min: 5960, max: 6040, vx: 0 },
+      { type: 'jungle_serpent', x: 6100, y: 136, min: 5980, max: 6300, vx: 1.2 },
+      { type: 'giant_hornet', x: 6400, y: 65, min: 6280, max: 6520, vx: 0.9 }
+    ];
+    for (const e of jungleEnemies) {
+      const stats = getEnemyStats(e.type);
+      enemies.push({
+        id: enemyId++,
+        type: e.type,
+        x: e.x,
+        y: e.y,
+        w: e.type === 'jungle_serpent' ? 18 : e.type === 'jungle_monkey' ? 14 : 14,
+        h: e.type === 'jungle_serpent' ? 12 : e.type === 'jungle_monkey' ? 14 : 12,
+        vx: e.vx,
+        vy: 0,
+        min: e.min,
+        max: e.max,
+        alive: true,
+        hp: stats.hp,
+        maxHp: stats.hp,
+        home: e.x
+      });
+    }
+
+    // Checkpoints seguros
+    checkpoints.push(
+      { x: 2300, y: 116, w: 20, h: 32, active: false, spawn: { x: 2320, y: 125 } },
+      { x: 4600, y: 116, w: 20, h: 32, active: false, spawn: { x: 4620, y: 125 } }
+    );
+
+    // Cristales de Jade y Esmeralda
+    for (let cx = 160; cx < 6900; cx += 95) {
+      crystals.push({ x: cx, y: 124 - (cx % 3) * 22, w: 8, h: 8, taken: false });
+    }
+
+    // Corazones de Curación
+    heals.push(
+      { x: 1260, y: 92, w: 10, h: 10, taken: false },
+      { x: 2480, y: 50, w: 10, h: 10, taken: false },
+      { x: 4340, y: 48, w: 10, h: 10, taken: false },
+      { x: 6180, y: 46, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto Legendario
+    secrets.push({
+      x: 3360,
+      y: 42,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Disco Solar Maya de Kukulcán: Reliquia del Jaguar'
+    });
+
+    goal = { x: 7050, y: 92, w: 32, h: 56 };
+  } else if (config.id === 'jungle-2') {
+    // -------------------------------------------------------------
+    // ZONA 6 · ACTO 2 — JUNGLE RUN: INTERIOR DE PIRÁMIDE & COPAS
+    // -------------------------------------------------------------
+    // Primera Mitad (0 - 3800): Interior sagrado de la Pirámide Maya
+    // Mitad Exacta (3800 - 3900): ¡Gran Trampolín que catapulta a Zion hacia las copas!
+    // Segunda Mitad (3900 - 7600): Altas copas de los árboles bajo el sol diurno
+
+    // Techo de piedra sagrada para la primera mitad (interior de pirámide)
+    for (let cx = 0; cx < 3760; cx += 160) {
+      platforms.push({ x: cx, y: 0, w: 160, h: 18, kind: 'temple_stone' });
+    }
+
+    // Landmarks interiores y del dosel
+    landmarks.push(
+      { type: 'mayan_temple', x: 200, y: 60, scale: 1.3, label: 'CÁMARA REAL DE LA PIRÁMIDE' },
+      { type: 'tribal_totem', x: 900, y: 80, scale: 1.2 },
+      { type: 'jungle_ruins', x: 1700, y: 80, scale: 1.2 },
+      { type: 'tribal_totem', x: 2500, y: 80, scale: 1.2 },
+      { type: 'mayan_temple', x: 3300, y: 60, scale: 1.4, label: 'POZO SOLAR DE PROPULSIÓN' },
+      // Shaft de luz solar en el centro
+      { type: 'giant_ceiba', x: 4200, y: 35, scale: 1.6, label: 'EL GRAN DOSEL SELVÁTICO' },
+      { type: 'jungle_waterfall', x: 5000, y: 35, w: 65, scale: 1.3 },
+      { type: 'giant_ceiba', x: 5800, y: 35, scale: 1.5 },
+      { type: 'jungle_waterfall', x: 6700, y: 35, w: 70, scale: 1.4 }
+    );
+
+    // Suelo de la Pirámide (0 a 3800)
+    for (let gx = 0; gx < 3800; gx += 300) {
+      platforms.push({ x: gx, y: 148, w: 280, h: 32, kind: 'temple_stone' });
+    }
+    // Trampas de estacas en el templo
+    for (let hx = 280; hx < 3700; hx += 300) {
+      hazards.push({ x: hx, y: 154, w: 20, h: 18, type: 'spike' });
+    }
+
+    // Plataformas dentro de la Pirámide (0 - 3750)
+    const templePlatforms: { x: number; y: number; w: number; h: number }[] = [
+      { x: 220, y: 118, w: 80, h: 10 },
+      { x: 380, y: 92, w: 85, h: 10 },
+      { x: 560, y: 72, w: 90, h: 10 },
+      { x: 740, y: 102, w: 80, h: 10 },
+      { x: 920, y: 82, w: 85, h: 10 },
+      { x: 1120, y: 110, w: 90, h: 10 },
+      { x: 1320, y: 88, w: 80, h: 10 },
+      { x: 1520, y: 68, w: 85, h: 10 },
+      { x: 1720, y: 100, w: 90, h: 10 },
+      { x: 1940, y: 80, w: 80, h: 10 },
+      { x: 2160, y: 112, w: 85, h: 10 },
+      { x: 2380, y: 86, w: 90, h: 10 },
+      { x: 2600, y: 66, w: 80, h: 10 },
+      { x: 2820, y: 96, w: 85, h: 10 },
+      { x: 3040, y: 118, w: 90, h: 10 },
+      { x: 3260, y: 90, w: 80, h: 10 },
+      { x: 3480, y: 115, w: 100, h: 10 }
+    ];
+    for (const tp of templePlatforms) {
+      platforms.push({ x: tp.x, y: tp.y, w: tp.w, h: tp.h, kind: 'temple_stone' });
+    }
+
+    // -------------------------------------------------------------
+    // EL GRAN TRAMPOLÍN SOLAR EN LA MITAD DEL NIVEL (x: 3800)
+    // -------------------------------------------------------------
+    // Plataforma especial con el trampolín que lanza a Zion a las copas
+    platforms.push({ x: 3750, y: 148, w: 120, h: 32, kind: 'temple_stone' });
+    trampolines.push({
+      x: 3790,
+      y: 138,
+      w: 42,
+      h: 10,
+      bounceForce: -26, // Potente impulso que lanza hacia arriba y afuera del pozo
+      springAnim: 0,
+      type: 'mega'
+    });
+
+    // -------------------------------------------------------------
+    // SEGUNDA MITAD: LAS ALTAS COPAS DE LOS ÁRBOLES (3900 a 7600)
+    // -------------------------------------------------------------
+    // El suelo de abajo es un abismo selvático peligroso
+    for (let gx = 3900; gx < 7600; gx += 400) {
+      platforms.push({ x: gx, y: 154, w: 160, h: 26, kind: 'jungle_stone' });
+      hazards.push({ x: gx + 160, y: 158, w: 240, h: 16, type: 'spike' });
+    }
+
+    // Copas de árboles gigantes y ramas aéreas en el dosel superior
+    const canopyLedges: { x: number; y: number; w: number; h: number; kind: Platform['kind'] }[] = [
+      { x: 3950, y: 55, w: 90, h: 12, kind: 'treetop' },
+      { x: 4100, y: 80, w: 95, h: 10, kind: 'vine_bridge' },
+      { x: 4280, y: 60, w: 85, h: 12, kind: 'treetop' },
+      { x: 4440, y: 88, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 4620, y: 65, w: 100, h: 12, kind: 'treetop' },
+      { x: 4800, y: 92, w: 85, h: 10, kind: 'vine_bridge' },
+      { x: 4980, y: 58, w: 95, h: 12, kind: 'treetop' },
+      { x: 5160, y: 82, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 5340, y: 62, w: 100, h: 12, kind: 'treetop' },
+      { x: 5520, y: 90, w: 85, h: 10, kind: 'vine_bridge' },
+      { x: 5700, y: 56, w: 95, h: 12, kind: 'treetop' },
+      { x: 5880, y: 85, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 6060, y: 64, w: 100, h: 12, kind: 'treetop' },
+      { x: 6240, y: 90, w: 85, h: 10, kind: 'vine_bridge' },
+      { x: 6420, y: 58, w: 95, h: 12, kind: 'treetop' },
+      { x: 6600, y: 82, w: 90, h: 10, kind: 'vine_bridge' },
+      { x: 6780, y: 60, w: 100, h: 12, kind: 'treetop' },
+      { x: 6960, y: 88, w: 95, h: 10, kind: 'vine_bridge' },
+      { x: 7140, y: 110, w: 120, h: 14, kind: 'jungle_stone' },
+      { x: 7320, y: 148, w: 280, h: 32, kind: 'jungle_stone' }
+    ];
+    for (const c of canopyLedges) {
+      platforms.push({ x: c.x, y: c.y, w: c.w, h: c.h, kind: c.kind });
+    }
+
+    // Lianas en las altas copas
+    lianas.push(
+      { id: 10, x: 4200, y: 15, length: 75, maxAngle: 0.50 },
+      { id: 11, x: 4720, y: 18, length: 78, maxAngle: 0.48 },
+      { id: 12, x: 5260, y: 16, length: 76, maxAngle: 0.52 },
+      { id: 13, x: 5800, y: 15, length: 80, maxAngle: 0.46 },
+      { id: 14, x: 6340, y: 18, length: 78, maxAngle: 0.50 },
+      { id: 15, x: 6880, y: 16, length: 76, maxAngle: 0.48 }
+    );
+
+    // Cascadas en las alturas
+    waterfalls.push(
+      { id: 10, x: 5010, y: 20, w: 46, h: 140, flowSpeed: 1.4, mistParticles: true },
+      { id: 11, x: 6710, y: 20, w: 48, h: 140, flowSpeed: 1.3, mistParticles: true }
+    );
+
+    // Trampolín secundario en las copas
+    trampolines.push({
+      x: 6080,
+      y: 54,
+      w: 30,
+      h: 10,
+      bounceForce: -20,
+      springAnim: 0,
+      type: 'super'
+    });
+
+    // Enemigos de Acto 2: Serpientes en el templo, Monos francotiradores y Avispones en las copas
+    const act2Enemies: { type: Enemy['type']; x: number; y: number; min: number; max: number; vx: number }[] = [
+      // En la pirámide
+      { type: 'jungle_serpent', x: 400, y: 136, min: 260, max: 620, vx: 1.0 },
+      { type: 'jungle_serpent', x: 1000, y: 136, min: 860, max: 1200, vx: 1.1 },
+      { type: 'jungle_monkey', x: 1330, y: 74, min: 1320, max: 1380, vx: 0 },
+      { type: 'jungle_serpent', x: 1800, y: 136, min: 1650, max: 2000, vx: 1.0 },
+      { type: 'jungle_serpent', x: 2400, y: 136, min: 2250, max: 2600, vx: 1.2 },
+      { type: 'jungle_monkey', x: 2830, y: 82, min: 2820, max: 2880, vx: 0 },
+      { type: 'jungle_serpent', x: 3200, y: 136, min: 3050, max: 3400, vx: 1.1 },
+
+      // En las altas copas
+      { type: 'giant_hornet', x: 4050, y: 45, min: 3960, max: 4180, vx: 0.9 },
+      { type: 'jungle_monkey', x: 4300, y: 46, min: 4280, max: 4340, vx: 0 },
+      { type: 'giant_hornet', x: 4550, y: 55, min: 4460, max: 4680, vx: 0.9 },
+      { type: 'jungle_serpent', x: 4640, y: 53, min: 4620, max: 4700, vx: 0.8 },
+      { type: 'jungle_monkey', x: 5000, y: 44, min: 4980, max: 5040, vx: 0 },
+      { type: 'giant_hornet', x: 5250, y: 50, min: 5160, max: 5380, vx: 0.9 },
+      { type: 'jungle_serpent', x: 5720, y: 44, min: 5700, max: 5780, vx: 0.8 },
+      { type: 'jungle_monkey', x: 6080, y: 50, min: 6060, max: 6120, vx: 0 },
+      { type: 'giant_hornet', x: 6350, y: 48, min: 6260, max: 6480, vx: 1.0 },
+      { type: 'jungle_monkey', x: 6800, y: 46, min: 6780, max: 6840, vx: 0 }
+    ];
+    for (const e of act2Enemies) {
+      const stats = getEnemyStats(e.type);
+      enemies.push({
+        id: enemyId++,
+        type: e.type,
+        x: e.x,
+        y: e.y,
+        w: e.type === 'jungle_serpent' ? 18 : e.type === 'jungle_monkey' ? 14 : 14,
+        h: e.type === 'jungle_serpent' ? 12 : e.type === 'jungle_monkey' ? 14 : 12,
+        vx: e.vx,
+        vy: 0,
+        min: e.min,
+        max: e.max,
+        alive: true,
+        hp: stats.hp,
+        maxHp: stats.hp,
+        home: e.x
+      });
+    }
+
+    // Checkpoints: Uno en el templo, otro al aterrizar en las copas tras el trampolín
+    checkpoints.push(
+      { x: 1900, y: 116, w: 20, h: 32, active: false, spawn: { x: 1920, y: 125 } },
+      { x: 3960, y: 25, w: 20, h: 30, active: false, spawn: { x: 3970, y: 35 } },
+      { x: 5720, y: 26, w: 20, h: 30, active: false, spawn: { x: 5730, y: 36 } }
+    );
+
+    // Cristales
+    for (let cx = 180; cx < 7300; cx += 105) {
+      crystals.push({ x: cx, y: cx < 3800 ? 122 - (cx % 3) * 18 : 50 + (cx % 3) * 16, w: 8, h: 8, taken: false });
+    }
+
+    // Corazones de Curación
+    heals.push(
+      { x: 1540, y: 54, w: 10, h: 10, taken: false },
+      { x: 3770, y: 126, w: 10, h: 10, taken: false },
+      { x: 4640, y: 48, w: 10, h: 10, taken: false },
+      { x: 6440, y: 42, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto de las Altas Copas
+    secrets.push({
+      x: 6800,
+      y: 38,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Jade Imperial del Jaguar Sagrado'
+    });
+
+    goal = { x: 7450, y: 92, w: 32, h: 56 };
+  } else if (config.id === 'jungle-3') {
+    // -------------------------------------------------------------
+    // ZONA 6 · ACTO 3 — JUNGLE RUN: JEFE BALAM (JAGUAR GIGANTE)
+    // -------------------------------------------------------------
+    // El Gran Altar Solar Maya bajo el cielo diurno
+    landmarks.push(
+      { type: 'mayan_pyramid', x: 600, y: 40, scale: 2.0, label: 'ALTAR SUPREMO DE BALAM' },
+      { type: 'jungle_waterfall', x: 1100, y: 30, w: 75, scale: 1.4 },
+      { type: 'tribal_totem', x: 1350, y: 70, scale: 1.4 },
+      { type: 'tribal_totem', x: 2150, y: 70, scale: 1.4 },
+      { type: 'jungle_waterfall', x: 2300, y: 30, w: 75, scale: 1.4 }
+    );
+
+    waterfalls.push(
+      { id: 20, x: 1110, y: 15, w: 52, h: 145, flowSpeed: 1.5, mistParticles: true },
+      { id: 21, x: 2310, y: 15, w: 52, h: 145, flowSpeed: 1.5, mistParticles: true }
+    );
+
+    // Arena firme de piedra ceremonial maya
+    platforms.push({ x: 0, y: 148, w: 2600, h: 32, kind: 'jungle_stone' });
+
+    // Plataformas elevadas para esquivar zarpazos y saltos
+    platforms.push(
+      { x: 1500, y: 105, w: 70, h: 10, kind: 'jungle_stone' },
+      { x: 1720, y: 82, w: 80, h: 10, kind: 'treetop' },
+      { x: 1950, y: 105, w: 70, h: 10, kind: 'jungle_stone' }
+    );
+
+    // Lianas en la arena para maniobras aéreas
+    lianas.push(
+      { id: 30, x: 1620, y: 18, length: 65, maxAngle: 0.42 },
+      { id: 31, x: 1870, y: 18, length: 65, maxAngle: 0.42 }
+    );
+
+    // Checkpoint justo antes de la arena
+    checkpoints.push({
+      x: 1380,
+      y: 116,
+      w: 20,
+      h: 32,
+      active: false,
+      spawn: { x: 1400, y: 125 },
+      arena: true
+    });
+
+    // BOSS: BALAM, EL JAGUAR GIGANTE ANCESTRAL
+    boss = {
+      x: 1820,
+      y: 110,
+      w: 56,
+      h: 38,
+      vx: 0,
+      vy: 0,
+      hp: 55,
+      maxHp: 55,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 60,
+      shotTimer: 65,
+      stateTimer: 60,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 40,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'Balam, Jaguar Gigante Ancestral',
+      title: 'BALAM · JAGUAR GIGANTE ANCESTRAL',
+      subtitle: 'Guardián Sagrado del Altar Solar Maya',
+      state: 'idle'
+    };
+
+    crystals.push(
+      { x: 1520, y: 85, w: 8, h: 8, taken: false },
+      { x: 1740, y: 62, w: 8, h: 8, taken: false },
+      { x: 1970, y: 85, w: 8, h: 8, taken: false }
+    );
+
+    heals.push(
+      { x: 1420, y: 126, w: 10, h: 10, taken: false },
+      { x: 2080, y: 126, w: 10, h: 10, taken: false }
+    );
+
+    secrets.push({
+      x: 1750,
+      y: 40,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Ojo de Jade Sagrado de Balam'
+    });
+
+    goal = { x: 2420, y: 88, w: 36, h: 62 };
   }
 
   return {
@@ -3286,6 +3858,9 @@ export function buildLevel(levelIndex: number) {
     landmarks,
     nodes,
     boss,
-    goal
+    goal,
+    lianas,
+    waterfalls,
+    trampolines
   };
 }

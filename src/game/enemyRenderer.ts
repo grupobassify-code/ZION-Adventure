@@ -132,6 +132,17 @@ export class EnemyRenderer {
         this.renderGravityOrb(anim, time, e);
         break;
 
+      // --- ZONA 6: JUNGLE RUN ---
+      case 'jungle_serpent':
+        this.renderJungleSerpent(anim, time, e);
+        break;
+      case 'jungle_monkey':
+        this.renderJungleMonkey(anim, time, e);
+        break;
+      case 'giant_hornet':
+        this.renderGiantHornet(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -1414,6 +1425,300 @@ export class EnemyRenderer {
       ctx.lineTo(Math.cos(a) * 8, Math.sin(a) * 8);
       ctx.stroke();
     }
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // JUNGLE RUN: JUNGLE SERPENT (Vipera Esmeralda de la Selva Maya)
+  // ---------------------------------------------------------------------------
+  private renderJungleSerpent(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isAlert = (e.alertTimer || 0) > 0;
+    const wave = Math.sin(time * 0.18) * 2;
+
+    ctx.save();
+    // 1. Serpentine S-Curve Body Segments
+    const segments = 5;
+    for (let i = segments; i >= 0; i--) {
+      const segX = -i * 3.5 + 4;
+      const segY = Math.sin(time * 0.2 + i * 0.9) * 2.5 + (isAlert ? -1 : 0);
+      const rad = i === 0 ? 4 : Math.max(2, 4 - i * 0.5);
+
+      // Dark emerald underbelly shadow
+      ctx.fillStyle = '#064e3b';
+      ctx.beginPath();
+      ctx.arc(segX, segY + 1, rad + 0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Jade green scales
+      ctx.fillStyle = i % 2 === 0 ? '#10b981' : '#059669';
+      ctx.beginPath();
+      ctx.arc(segX, segY, rad, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Golden diamond pattern along serpent spine
+      if (i > 0 && i < segments) {
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(segX - 1, segY - 1, 2, 2);
+      }
+    }
+
+    // 2. Serpent Head & Hood
+    const headX = 6;
+    const headY = wave * 0.5;
+
+    // Flared cobra hood
+    ctx.fillStyle = '#047857';
+    ctx.beginPath();
+    ctx.ellipse(headX - 1, headY, 3, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(headX - 2, headY - 3, 2, 6);
+
+    // Head crown
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.ellipse(headX + 2, headY, 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glowing Ruby Eyes
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(headX + 2, headY - 2, 2, 1.5);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(headX + 2.5, headY - 1.5, 1, 1);
+
+    // Sharp white venom fangs
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(headX + 4, headY + 1, 1, 2);
+    ctx.fillRect(headX + 5, headY + 1, 1, 1);
+
+    // Flickering bifurcated red tongue
+    if (Math.sin(time * 0.35) > 0.2) {
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(headX + 5, headY);
+      ctx.lineTo(headX + 9, headY);
+      ctx.lineTo(headX + 11, headY - 1.5);
+      ctx.moveTo(headX + 9, headY);
+      ctx.lineTo(headX + 11, headY + 1.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // JUNGLE RUN: JUNGLE MONKEY (Mono Aullador Tirador de Cocos)
+  // ---------------------------------------------------------------------------
+  private renderJungleMonkey(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const breath = Math.sin(time * 0.12) * 1;
+    const hasCoconut = (e.cool || 0) > 20;
+
+    ctx.save();
+    // 1. Curled Prehensile Tail
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-4, 2);
+    const tailCurl = Math.sin(time * 0.15) * 3;
+    ctx.quadraticCurveTo(-11, -3 + tailCurl, -13, 3 + tailCurl);
+    ctx.quadraticCurveTo(-15, 8, -12, 10);
+    ctx.stroke();
+
+    // 2. Monkey Body & Arms
+    // Torso
+    ctx.fillStyle = '#92400e';
+    ctx.beginPath();
+    ctx.ellipse(0, 2 + breath * 0.5, 5, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Lighter belly patch
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.ellipse(1, 3 + breath * 0.5, 3, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Legs gripping branch
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-4, 6, 3, 5);
+    ctx.fillRect(1, 6, 3, 5);
+    // Paws
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-5, 10, 4, 2);
+    ctx.fillRect(1, 10, 4, 2);
+
+    // Arms
+    ctx.fillStyle = '#92400e';
+    ctx.fillRect(-5, -1, 3, 5); // back arm
+    ctx.fillRect(3, 0, 4, 3);   // throwing arm
+
+    // Coconut in hand
+    if (hasCoconut) {
+      const cocoY = Math.sin(time * 0.2) * 1.5;
+      ctx.fillStyle = '#451a03';
+      ctx.beginPath();
+      ctx.arc(7, 0 + cocoY, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(6, -1 + cocoY, 1.5, 1.5);
+      // Three coconut eyes
+      ctx.fillStyle = '#1c0d02';
+      ctx.fillRect(8, -1 + cocoY, 1, 1);
+      ctx.fillRect(8, 1 + cocoY, 1, 1);
+    }
+
+    // 3. Monkey Head & Face
+    const headY = -4 + breath * 0.5;
+    // Head fur
+    ctx.fillStyle = '#92400e';
+    ctx.beginPath();
+    ctx.arc(1, headY, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ears
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-4, headY - 2, 2, 3);
+    ctx.fillRect(4, headY - 2, 2, 3);
+
+    // Muzzle / Face
+    ctx.fillStyle = '#fed7aa';
+    ctx.beginPath();
+    ctx.ellipse(3, headY + 1, 3.5, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Expressive Eyes
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fillRect(2, headY - 1, 1.5, 1.5);
+    ctx.fillRect(4.5, headY - 1, 1.5, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, headY - 1, 1, 1);
+    ctx.fillRect(4.5, headY - 1, 1, 1);
+
+    // Nose & Mouth
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(4, headY + 1, 1, 1);
+    ctx.fillRect(3, headY + 2, 2, 1);
+
+    // Mayan Tribal Feather on Head
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.moveTo(0, headY - 4);
+    ctx.lineTo(2, headY - 9);
+    ctx.lineTo(4, headY - 4);
+    ctx.fill();
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(1.5, headY - 8, 1.5, 2);
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // JUNGLE RUN: GIANT HORNET (Avispón Gigante Selvático)
+  // ---------------------------------------------------------------------------
+  private renderGiantHornet(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const wingFlap = Math.sin(time * 0.7) * 4;
+    const hoverBob = Math.sin(time * 0.16) * 2;
+
+    ctx.save();
+    ctx.translate(0, hoverBob);
+
+    // 1. High-frequency Translucent Wings
+    ctx.fillStyle = 'rgba(224, 242, 254, 0.65)';
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+    ctx.lineWidth = 1;
+
+    // Left Wing
+    ctx.beginPath();
+    ctx.ellipse(-2, -6 + wingFlap, 8, 3, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Right Wing
+    ctx.beginPath();
+    ctx.ellipse(3, -6 - wingFlap, 8, 3, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 2. Thorax & Head
+    // Thorax (Dark chitinous shield)
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 4.5, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(-2, -1, 4, 2);
+
+    // Head
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.ellipse(5, 0, 3, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Large Red Faceted Eyes
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(4.5, -2, 2, 2);
+    ctx.fillStyle = '#f87171';
+    ctx.fillRect(5.5, -1.5, 1, 1);
+
+    // Mandibles
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(7, -0.5, 2, 1);
+    ctx.fillRect(7, 1, 2, 1);
+
+    // Antennae
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(6, -2);
+    ctx.lineTo(9, -5);
+    ctx.moveTo(6, 0);
+    ctx.lineTo(8, -4);
+    ctx.stroke();
+
+    // 3. Striped Abdomen & Venom Stinger
+    const abdX = -4;
+    const abdY = 1;
+
+    // Alternating Black & Golden Amber Chitin Bands
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath();
+    ctx.ellipse(abdX - 2, abdY, 5, 3.5, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dark bands
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(abdX - 6, abdY - 2, 2, 4);
+    ctx.fillRect(abdX - 2, abdY - 3, 2, 6);
+
+    // Sharp Razor Stinger
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(abdX - 7, abdY - 0.5);
+    ctx.lineTo(abdX - 11, abdY);
+    ctx.lineTo(abdX - 7, abdY + 0.5);
+    ctx.fill();
+
+    // Pulsing Neon Venom Drop
+    const venomGlow = 0.5 + Math.sin(time * 0.25) * 0.4;
+    ctx.fillStyle = `rgba(34, 197, 94, ${venomGlow.toFixed(2)})`;
+    ctx.beginPath();
+    ctx.arc(abdX - 11, abdY, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4. Curved Chitin Legs
+    ctx.strokeStyle = '#44403c';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-1, 3);
+    ctx.lineTo(-2, 7);
+    ctx.lineTo(0, 9);
+    ctx.moveTo(2, 3);
+    ctx.lineTo(3, 7);
+    ctx.lineTo(5, 9);
+    ctx.stroke();
+
     ctx.restore();
   }
 }

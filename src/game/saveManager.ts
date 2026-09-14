@@ -223,7 +223,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3'].includes(cfg.id);
 }
 
 /**

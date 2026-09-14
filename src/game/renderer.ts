@@ -19,6 +19,8 @@ import {
   SecretItem,
   SpecialBurstEffect,
   Trampoline,
+  Liana,
+  Waterfall,
   ZoneId,
 } from '../types';
 import { EnemyRenderer } from './enemyRenderer';
@@ -63,8 +65,17 @@ export class GameRenderer {
     // 3. World landmarks and shrines
     this.renderLandmarks(engine.landmarks, engine.cameraX, engine.time);
 
+    // 3b. Cascading Waterfalls (Jungle Run)
+    this.renderWaterfalls(engine.waterfalls, engine.cameraX, engine.time);
+
     // 4. Platforms & solid terrain
     this.renderPlatforms(engine.platforms, config.zone, config.act, engine.cameraX, engine.time);
+
+    // 4b. Dynamic Trampolines (including Mayan Solar Trampoline)
+    this.renderTrampolines(engine.trampolines, engine.time, engine.cameraX);
+
+    // 4c. Jungle Lianas (Swinging Vines)
+    this.renderLianas(engine.lianas, engine.cameraX, engine.time);
 
     // 5. Hazards & traps
     this.renderHazards(engine.hazards, engine.cameraX, engine.time);
@@ -390,42 +401,207 @@ export class GameRenderer {
     ctx.restore();
   }
 
-  public renderTrampolines(trampolines: Trampoline[], time: number) {
+  public renderWaterfalls(waterfalls: Waterfall[], cameraX: number, time: number) {
+    if (!waterfalls || waterfalls.length === 0) return;
+    const ctx = this.ctx;
+
+    for (const wf of waterfalls) {
+      const rx = Math.round(wf.x - cameraX);
+      if (rx + wf.w < -20 || rx > GAME_WIDTH + 20) continue;
+
+      // Mossy Rock Overhang at top
+      ctx.fillStyle = '#14532d';
+      ctx.fillRect(rx - 2, wf.y - 3, wf.w + 4, 4);
+      ctx.fillStyle = '#166534';
+      ctx.fillRect(rx - 1, wf.y - 2, wf.w + 2, 2);
+
+      // Translucent cascading waterfall body
+      ctx.save();
+      ctx.globalAlpha = 0.82;
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(rx, wf.y, wf.w, wf.h);
+
+      // Deep cyan inner flow
+      ctx.fillStyle = '#0ea5e9';
+      ctx.fillRect(rx + 2, wf.y, wf.w - 4, wf.h);
+
+      // Rapidly flowing white water foam and highlight streaks
+      const flowOffset = (time * (wf.flowSpeed || 2.4)) % 14;
+      ctx.fillStyle = '#e0f2fe';
+      for (let y = wf.y + flowOffset; y < wf.y + wf.h; y += 14) {
+        ctx.fillRect(rx + 2, y, 2, 6);
+        ctx.fillRect(rx + Math.floor(wf.w / 2) - 1, (y + 7) % (wf.y + wf.h), 3, 5);
+        ctx.fillRect(rx + wf.w - 4, (y + 3) % (wf.y + wf.h), 2, 7);
+      }
+
+      // Foamy bubbling splash pool at base
+      const splashPulse = Math.sin(time * 0.2 + wf.id) * 1.5;
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = '#bae6fd';
+      ctx.fillRect(rx - 3, wf.y + wf.h - 3 + splashPulse, wf.w + 6, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(rx - 1, wf.y + wf.h - 2, wf.w + 2, 2);
+      ctx.restore();
+    }
+  }
+
+  public renderLianas(lianas: Liana[], cameraX: number, time: number) {
+    if (!lianas || lianas.length === 0) return;
+    const ctx = this.ctx;
+
+    for (const liana of lianas) {
+      const rx = Math.round(liana.x - cameraX);
+      if (rx < -60 || rx > GAME_WIDTH + 60) continue;
+
+      const angle = liana.angle || 0;
+      const tipX = rx + Math.sin(angle) * liana.length;
+      const tipY = liana.y + Math.cos(angle) * liana.length;
+
+      // Anchor branch/stone ring at top
+      ctx.fillStyle = '#1e3a1e';
+      ctx.fillRect(rx - 3, liana.y - 3, 6, 4);
+      ctx.fillStyle = '#166534';
+      ctx.fillRect(rx - 2, liana.y - 2, 4, 2);
+
+      // Braided natural rope vine
+      ctx.strokeStyle = '#15803d';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(rx, liana.y);
+      ctx.lineTo(tipX, tipY);
+      ctx.stroke();
+
+      // Inner lighter vine fiber
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(rx, liana.y);
+      ctx.lineTo(tipX, tipY);
+      ctx.stroke();
+
+      // Hanging foliage leaves along vine length
+      const segments = 4;
+      for (let i = 1; i <= segments; i++) {
+        const segT = i / (segments + 1);
+        const segX = rx + Math.sin(angle) * liana.length * segT;
+        const segY = liana.y + Math.cos(angle) * liana.length * segT;
+        const leafSide = i % 2 === 0 ? 1 : -1;
+
+        ctx.fillStyle = '#16a34a';
+        ctx.beginPath();
+        ctx.arc(segX + leafSide * 2, segY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#86efac';
+        ctx.fillRect(segX + leafSide * 1.5, segY - 1, 1.5, 1.5);
+      }
+
+      // Grab loop / orchid blossom at the hanging tip
+      ctx.fillStyle = '#15803d';
+      ctx.beginPath();
+      ctx.arc(tipX, tipY, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Golden solar blossom knot indicator for Zion to grasp
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(tipX, tipY, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(tipX - 0.5, tipY - 0.5, 1, 1);
+    }
+  }
+
+  public renderTrampolines(trampolines: Trampoline[], time: number, cameraX = 0) {
+    if (!trampolines || trampolines.length === 0) return;
     const ctx = this.ctx;
     for (const t of trampolines) {
+      const rx = Math.round(t.x - cameraX);
+      if (rx + t.w < -20 || rx > GAME_WIDTH + 20) continue;
+
+      const isMega = t.type === 'mega';
       const isSuper = t.type === 'super';
       const compression = t.springAnim > 0 ? (t.springAnim / 16) * 3 : 0;
       const padY = t.y + compression;
       const padH = Math.max(3, t.h - compression);
 
+      if (isMega) {
+        // Ancient Mayan Solar Super Launch Trampoline
+        // Base: Heavy stepped stone altar with golden Aztec glyphs
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(rx - 2, t.y + t.h - 3, t.w + 4, 4);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(rx, t.y + t.h - 2, t.w, 3);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(rx + 2, t.y + t.h - 1, 3, 2);
+        ctx.fillRect(rx + t.w - 5, t.y + t.h - 1, 3, 2);
+
+        // Mayan Solar Central Core Pillar
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(rx + t.w / 2 - 3, padY + 3, 6, Math.max(1, padH - 2));
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(rx + t.w / 2 - 1, padY + 3, 2, Math.max(1, padH - 2));
+
+        // Golden Solar Plate
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(rx, padY, t.w, 5);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(rx, padY, t.w, 3);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(rx + 2, padY, t.w - 4, 1.5);
+
+        // Aztec Sun Disk Emblem in center
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        const mcx = rx + t.w / 2;
+        ctx.arc(mcx, padY + 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pulsing Solar Rays
+        const pulse = 0.5 + Math.sin(time * 0.15) * 0.4;
+        ctx.strokeStyle = `rgba(250, 204, 21, ${pulse.toFixed(2)})`;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(rx - 2, padY - 2, t.w + 4, 8);
+
+        // Triple Gold Launch Chevrons
+        const arrowBob = t.springAnim > 0 ? 0 : Math.sin(time * 0.2) * 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(mcx, padY - 4 + arrowBob);
+        ctx.lineTo(mcx - 4, padY + arrowBob);
+        ctx.lineTo(mcx + 4, padY + arrowBob);
+        ctx.closePath();
+        ctx.fill();
+        continue;
+      }
+
       // Base mount anchored securely to platform
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(t.x, t.y + t.h - 2, t.w, 3);
+      ctx.fillRect(rx, t.y + t.h - 2, t.w, 3);
       ctx.fillStyle = isSuper ? '#fbbf24' : '#475569';
-      ctx.fillRect(t.x + 2, t.y + t.h - 1, 2, 2);
-      ctx.fillRect(t.x + t.w - 4, t.y + t.h - 1, 2, 2);
+      ctx.fillRect(rx + 2, t.y + t.h - 1, 2, 2);
+      ctx.fillRect(rx + t.w - 4, t.y + t.h - 1, 2, 2);
 
       // Central Hydraulic Spring Piston
       ctx.fillStyle = isSuper ? '#e879f9' : '#38bdf8';
-      ctx.fillRect(t.x + t.w / 2 - 2, padY + 3, 4, Math.max(1, padH - 2));
+      ctx.fillRect(rx + t.w / 2 - 2, padY + 3, 4, Math.max(1, padH - 2));
 
       // Bouncy Launch Pad Body
       ctx.fillStyle = isSuper ? '#db2777' : '#0284c7';
-      ctx.fillRect(t.x, padY, t.w, 4);
+      ctx.fillRect(rx, padY, t.w, 4);
 
       // High-Energy Elastic Surface
       ctx.fillStyle = isSuper ? '#f472b6' : '#38bdf8';
-      ctx.fillRect(t.x, padY, t.w, 2);
+      ctx.fillRect(rx, padY, t.w, 2);
 
       // Bright Impulse Glow Line
       ctx.fillStyle = isSuper ? '#fde047' : '#67e8f9';
-      ctx.fillRect(t.x + 3, padY, t.w - 6, 1);
+      ctx.fillRect(rx + 3, padY, t.w - 6, 1);
 
       // Upward Arrow Icon indicating instant impulse! (▲)
       const arrowBob = t.springAnim > 0 ? 0 : Math.sin(time * 0.16) * 1.5;
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      const cx = t.x + t.w / 2;
+      const cx = rx + t.w / 2;
       ctx.moveTo(cx, padY - 2 + arrowBob);
       ctx.lineTo(cx - 3, padY + 1 + arrowBob);
       ctx.lineTo(cx + 3, padY + 1 + arrowBob);
@@ -437,7 +613,7 @@ export class GameRenderer {
         const pulse = 0.35 + Math.sin(time * 0.12) * 0.25;
         ctx.strokeStyle = `rgba(232, 121, 249, ${pulse.toFixed(2)})`;
         ctx.lineWidth = 1;
-        ctx.strokeRect(t.x - 1, padY - 1, t.w + 2, 6);
+        ctx.strokeRect(rx - 1, padY - 1, t.w + 2, 6);
       }
     }
   }
@@ -2903,6 +3079,57 @@ export class GameRenderer {
         ctx.fillRect(x, p.y, p.w, p.h);
         ctx.fillStyle = '#fef08a';
         ctx.fillRect(x + 1, p.y + 1, p.w - 2, p.h - 2);
+      } else if (p.kind === 'coconut') {
+        // Jungle Coconut Projectile
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate(p.angle || 0);
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(-1.5, -1, 1, 0, Math.PI * 2);
+        ctx.arc(1.5, -1, 1, 0, Math.PI * 2);
+        ctx.arc(0, 1.5, 1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else if (p.kind === 'stinger') {
+        // Giant Hornet Toxic Stinger
+        ctx.fillStyle = '#15803d';
+        ctx.fillRect(x, p.y, p.w, p.h);
+        ctx.fillStyle = '#86efac';
+        ctx.fillRect(x + (p.vx > 0 ? p.w - 3 : 0), p.y + 1, 3, p.h - 2);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(x + (p.vx > 0 ? p.w - 1 : 0), p.y + 1.5, 1.5, 1);
+      } else if (p.kind === 'jaguarClawSlash') {
+        // Balam Emerald Claw Crescent
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        if (p.vx > 0) {
+          ctx.arc(x + 2, p.y + p.h / 2, p.h / 2, -Math.PI / 2, Math.PI / 2, false);
+          ctx.lineTo(x + p.w, p.y + p.h / 2);
+        } else {
+          ctx.arc(x + p.w - 2, p.y + p.h / 2, p.h / 2, Math.PI / 2, -Math.PI / 2, false);
+          ctx.lineTo(x, p.y + p.h / 2);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#6ee7b7';
+        ctx.fillRect(x + 2, p.y + 3, p.w - 4, p.h - 6);
+      } else if (p.kind === 'jaguarRoarWave') {
+        // Ancient Solar Roar Wave Ring
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(x + p.w / 2, p.y + p.h / 2, p.w / 2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x + p.w / 2, p.y + p.h / 2, Math.max(1, p.w / 2 - 3), 0, Math.PI * 2);
+        ctx.stroke();
       } else {
         ctx.fillStyle = '#f43f5e';
         ctx.fillRect(x, p.y, p.w, p.h);

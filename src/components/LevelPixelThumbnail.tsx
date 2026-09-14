@@ -104,6 +104,11 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         skyGrad.addColorStop(0.4, '#0f172a');
         skyGrad.addColorStop(0.8, '#1e1b4b');
         skyGrad.addColorStop(1, '#3b0764');
+      } else if (zone === 'jungle') {
+        skyGrad.addColorStop(0, '#0284c7');
+        skyGrad.addColorStop(0.4, '#38bdf8');
+        skyGrad.addColorStop(0.8, '#34d399');
+        skyGrad.addColorStop(1, '#059669');
       } else {
         // Kronos Travel
         skyGrad.addColorStop(0, '#030712');
@@ -175,6 +180,16 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.beginPath();
         ctx.arc(w / 2, 35, 18 - s, 0, Math.PI * 2);
         ctx.stroke();
+      } else if (zone === 'jungle') {
+        // Bright Tropical Golden Sun
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(w - 45, 28, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef9c366';
+        ctx.beginPath();
+        ctx.arc(w - 45, 28, 20, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       // 3. BACKGROUND SILHOUETTES & LANDMARKS
@@ -309,22 +324,39 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillRect(px, h - 55, 30, 5);
           ctx.fillRect(px + 8, h - 70, 14, 15);
         }
+      } else if (zone === 'jungle') {
+        // Mayan Stepped Pyramid & Tropical Rainforest Silhouettes
+        ctx.fillStyle = '#064e3b';
+        for (let ix = -10; ix < w + 30; ix += 35) {
+          ctx.beginPath();
+          ctx.arc(ix, h - 28, 26, Math.PI, 0);
+          ctx.fill();
+        }
+        // Mayan Stepped Pyramid
+        const pyrX = Math.round(w * 0.45);
+        ctx.fillStyle = '#065f46';
+        ctx.fillRect(pyrX - 35, h - 45, 70, 16);
+        ctx.fillRect(pyrX - 25, h - 60, 50, 16);
+        ctx.fillRect(pyrX - 16, h - 75, 32, 16);
+        ctx.fillRect(pyrX - 8, h - 85, 16, 11);
+        ctx.fillStyle = '#047857';
+        ctx.fillRect(pyrX - 3, h - 85, 6, 56);
       }
 
       // 4. FOREGROUND PLATFORM & GROUND TERRAIN
       const groundY = h - 28;
-      ctx.fillStyle = zone === 'neon' ? '#081726' : zone === 'sakura' ? '#1c081e' : zone === 'lavacliff' ? '#1c0606' : zone === 'desert' ? '#451a03' : zone === 'krono' ? '#080d1e' : '#0a0d1f';
+      ctx.fillStyle = zone === 'neon' ? '#081726' : zone === 'sakura' ? '#1c081e' : zone === 'lavacliff' ? '#1c0606' : zone === 'desert' ? '#451a03' : zone === 'krono' ? '#080d1e' : zone === 'jungle' ? '#064e3b' : '#0a0d1f';
       ctx.fillRect(0, groundY, w, 28);
 
       // Top Trim
-      const trimColor = zone === 'neon' ? '#22d3ee' : zone === 'sakura' ? '#f472b6' : zone === 'lavacliff' ? '#ea580c' : zone === 'desert' ? '#f59e0b' : zone === 'krono' ? '#06b6d4' : '#38bdf8';
+      const trimColor = zone === 'neon' ? '#22d3ee' : zone === 'sakura' ? '#f472b6' : zone === 'lavacliff' ? '#ea580c' : zone === 'desert' ? '#f59e0b' : zone === 'krono' ? '#06b6d4' : zone === 'jungle' ? '#10b981' : '#38bdf8';
       ctx.fillStyle = trimColor;
       ctx.fillRect(0, groundY, w, 3);
       ctx.fillStyle = '#ffffff88';
       ctx.fillRect(0, groundY, w, 1);
 
       // Floating Ledges in foreground
-      ctx.fillStyle = zone === 'neon' ? '#0e7490' : zone === 'sakura' ? '#db2777' : zone === 'lavacliff' ? '#b91c1c' : zone === 'desert' ? '#d97706' : zone === 'krono' ? '#4f46e5' : '#0284c7';
+      ctx.fillStyle = zone === 'neon' ? '#0e7490' : zone === 'sakura' ? '#db2777' : zone === 'lavacliff' ? '#b91c1c' : zone === 'desert' ? '#d97706' : zone === 'krono' ? '#4f46e5' : zone === 'jungle' ? '#047857' : '#0284c7';
       ctx.fillRect(40, groundY - 32, 45, 6);
       ctx.fillRect(w - 90, groundY - 26, 50, 6);
 

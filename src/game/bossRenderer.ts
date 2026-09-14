@@ -71,6 +71,8 @@ export class BossRenderer {
       this.renderAkhenRa(boss, x, y, time);
     } else if (boss.name.includes('Kronos')) {
       this.renderKronosOmega(boss, x, y, time);
+    } else if (boss.name.includes('Balam') || boss.name.includes('Jaguar')) {
+      this.renderBalamJaguar(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -948,6 +950,228 @@ export class BossRenderer {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#f8fafc';
     ctx.fillText(`${boss.title || boss.name} [FASE ${boss.phase}]`, GAME_WIDTH / 2, hpY - 4);
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // BOSS 6: BALAM, JAGUAR GIGANTE ANCESTRAL (Jungle Run Boss)
+  // ---------------------------------------------------------------------------
+  private renderBalamJaguar(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const facing = boss.facing || 1;
+    const isAttacking = boss.state === 'charging' || boss.state === 'slamming' || (boss.state as string) === 'roaring';
+    const isPhase3 = boss.phase === 3;
+    const breathe = Math.sin(time * 0.12) * 1.5;
+
+    ctx.save();
+    ctx.translate(x + boss.w / 2, y + boss.h / 2);
+    if (facing < 0) {
+      ctx.scale(-1, 1);
+    }
+
+    // 1. Phase 3 Spiritual Emerald Aura & Energy Flames
+    if (isPhase3 || isAttacking) {
+      const auraPulse = 0.35 + Math.sin(time * 0.2) * 0.25;
+      ctx.fillStyle = `rgba(16, 185, 129, ${auraPulse.toFixed(2)})`;
+      ctx.beginPath();
+      ctx.ellipse(0, 2, boss.w * 0.55, boss.h * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Spectral spirit embers
+      for (let i = 0; i < 6; i++) {
+        const px = Math.sin(time * 0.15 + i * 1.1) * (boss.w * 0.4);
+        const py = -boss.h * 0.35 + Math.sin(time * 0.25 + i * 1.7) * 8 - (time * 0.8 + i * 5) % 16;
+        ctx.fillStyle = i % 2 === 0 ? '#34d399' : '#facc15';
+        ctx.fillRect(px, py, 2, 2);
+      }
+    }
+
+    // 2. Long Predatory Tail with Mayan Jade Ring
+    ctx.save();
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-18, 2);
+    const tailWhip = Math.sin(time * 0.16) * 7;
+    ctx.quadraticCurveTo(-26, -10 + tailWhip, -30, 2 + tailWhip * 0.5);
+    ctx.quadraticCurveTo(-34, 14, -28, 16 + tailWhip * 0.2);
+    ctx.stroke();
+
+    // Dark spots on tail
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-22, -3 + tailWhip * 0.4, 2, 2);
+    ctx.fillRect(-27, 4 + tailWhip * 0.5, 2, 2);
+
+    // Ancient Jade Bead Ring near tail tip
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(-29, 15 + tailWhip * 0.2, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-30, 14 + tailWhip * 0.2, 2, 2);
+    ctx.restore();
+
+    // 3. Powerful Hind Legs & Haunches
+    ctx.fillStyle = '#b45309';
+    // Back left haunch
+    ctx.beginPath();
+    ctx.ellipse(-14, 4, 7, 10, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    // Back paw
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-17, 13, 8, 5);
+    // Sharp claws
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-12, 16, 2, 2);
+    ctx.fillRect(-15, 16, 2, 2);
+
+    // 4. Heavy Muscular Torso & Amber Coat
+    // Lower body
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.ellipse(-4, 2 + breathe * 0.5, 18, 11, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Upper Tawny Amber Coat
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.ellipse(-3, 0 + breathe * 0.5, 17, 9.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Golden Sunlight Highlights along muscular spine
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.ellipse(-2, -6 + breathe * 0.5, 12, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Authentic Jaguar Rosette Patterns (Black rings with amber center)
+    const rosettes = [
+      { x: -12, y: -2 },
+      { x: -6, y: -4 },
+      { x: 0, y: -1 },
+      { x: -8, y: 3 },
+      { x: 4, y: -3 },
+      { x: -14, y: 5 },
+    ];
+    for (const r of rosettes) {
+      ctx.fillStyle = '#1c1917';
+      ctx.fillRect(r.x - 1.5, r.y - 1.5 + breathe * 0.4, 4, 4);
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(r.x - 0.5, r.y - 0.5 + breathe * 0.4, 2, 2);
+    }
+
+    // 5. Forelegs & Front Massive Claws
+    // Front shoulder
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.ellipse(8, 3, 7, 9, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Front paw planted firmly
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(7, 12, 10, 6);
+
+    // Glowing Razor Talons
+    ctx.fillStyle = isAttacking || isPhase3 ? '#34d399' : '#ffffff';
+    ctx.fillRect(14, 15, 3, 3);
+    ctx.fillRect(11, 16, 2, 2);
+    ctx.fillRect(8, 16, 2, 2);
+
+    // 6. Sacred Mayan Jade Ceremonial Collar & Sun Medallion
+    ctx.fillStyle = '#047857';
+    ctx.fillRect(5, -4 + breathe * 0.5, 5, 12);
+    ctx.fillStyle = '#10b981';
+    ctx.fillRect(6, -3 + breathe * 0.5, 3, 10);
+    // Beaten Gold Solar Disc Medallion
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(8, 3 + breathe * 0.5, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(7.5, 2.5 + breathe * 0.5, 1.5, 1.5);
+
+    // 7. Jaguar Head, Snarl & Headdress
+    const headX = 16;
+    const headY = -5 + breathe * 0.5;
+
+    // Muscular neck & jowls
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.ellipse(headX - 2, headY + 3, 7, 6, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cranium
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.arc(headX + 2, headY, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.arc(headX + 2, headY, 5.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Feline Rounded Ears with dark trim
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(headX - 1, headY - 8, 3, 3);
+    ctx.fillRect(headX + 4, headY - 8, 3, 3);
+    ctx.fillStyle = '#fed7aa';
+    ctx.fillRect(headX, headY - 7, 1.5, 2);
+    ctx.fillRect(headX + 5, headY - 7, 1.5, 2);
+
+    // Mayan Jade Ceremonial Headdress Plume
+    ctx.fillStyle = '#059669';
+    ctx.beginPath();
+    ctx.moveTo(headX, headY - 6);
+    ctx.lineTo(headX + 2, headY - 14);
+    ctx.lineTo(headX + 5, headY - 6);
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(headX + 1, headY - 11, 2, 3);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(headX + 1.5, headY - 13, 1.5, 2);
+
+    // Muzzle & Whiskers
+    ctx.fillStyle = '#fed7aa';
+    ctx.beginPath();
+    ctx.ellipse(headX + 7, headY + 2, 4.5, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Black feline nose
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(headX + 9, headY, 2, 2);
+
+    // Glowing Spiritual Emerald Eyes
+    ctx.fillStyle = '#065f46';
+    ctx.fillRect(headX + 3, headY - 2, 3, 3);
+    ctx.fillStyle = '#34d399';
+    ctx.fillRect(headX + 4, headY - 1.5, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(headX + 5, headY - 1.5, 1, 1);
+
+    // Open Roaring Snarl with Razor Fangs
+    if (isAttacking || (boss.state as string) === 'roaring') {
+      // Open mouth interior
+      ctx.fillStyle = '#991b1b';
+      ctx.fillRect(headX + 6, headY + 3, 5, 4);
+      // Long sharp upper and lower fangs
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(headX + 7, headY + 2, 1.5, 3);
+      ctx.fillRect(headX + 10, headY + 2, 1.5, 2);
+      ctx.fillRect(headX + 8, headY + 5, 1.5, 2);
+    } else {
+      // Closed predatory snarl
+      ctx.strokeStyle = '#1c1917';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(headX + 6, headY + 3);
+      ctx.lineTo(headX + 10, headY + 3);
+      ctx.stroke();
+      // Peeking fangs
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(headX + 8, headY + 3, 1, 2);
+    }
+
     ctx.restore();
   }
 }

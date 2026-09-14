@@ -869,6 +869,70 @@ class SoundEngine {
       ],
     },
 
+    // JUNGLE RUN: TEMPLO MAYA & SELVA TROPICAL (Adventure Tribal Chiptune)
+    jungleAct1: {
+      tempo: 122,
+      leadWave: 'triangle',
+      harmonyWave: 'sine',
+      bassWave: 'triangle',
+      leadNotes: [
+        N.A4, N.C5, N.D5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.A4, N.A4, N.C5, N.D5, N.E5, N.G5, N.E5, N.D5,
+        N.G4, N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.E4, N.G4, N.A4, N.C5, N.A4, N.G4, N.E4, N.D4,
+        N.A4, N.C5, N.E5, N.A5, N.G5, N.E5, N.D5, N.C5,  N.D5, N.D5, N.E5, N.G5, N.A5, N.C6, N.A5, N.G5,
+        N.E5, N.D5, N.C5, N.A4, N.G4, N.A4, N.C5, N.D5,  N.E5, N.D5, N.C5, N.A4, N.A4, N.REST, N.REST, N.REST
+      ],
+      harmonyNotes: [
+        N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST,
+        N.D5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST,
+        N.E5, N.REST, N.A5, N.REST, N.C6, N.REST, N.A5, N.REST, N.G5, N.REST, N.G5, N.REST, N.A5, N.REST, N.C6, N.REST,
+        N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.E5, N.REST, N.C5, N.REST, N.A4, N.REST, N.A4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.A1, N.A2, N.C2, N.E2, N.A1, N.A2, N.G1, N.E2,  N.A1, N.A2, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,
+        N.G1, N.G2, N.B1, N.D2, N.G1, N.G2, N.F1, N.D2,  N.E1, N.E2, N.G1, N.A1, N.A1, N.A2, N.G1, N.E1,
+        N.A1, N.A2, N.C2, N.E2, N.A1, N.A2, N.C3, N.A2,  N.D2, N.D3, N.F2, N.A2, N.D2, N.D3, N.C2, N.A1,
+        N.E2, N.E3, N.G2, N.B2, N.E2, N.D2, N.C2, N.B1,  N.A1, N.A2, N.C2, N.D2, N.A1, N.A1, N.E1, N.A1
+      ],
+      drumPattern: [
+        2, 1, 3, 2, 2, 4, 3, 1, 2, 1, 3, 2, 4, 1, 5, 2,
+        2, 2, 3, 1, 2, 4, 3, 2, 2, 1, 3, 1, 4, 2, 5, 1,
+        2, 1, 3, 2, 2, 1, 5, 2, 4, 1, 3, 2, 2, 4, 5, 1,
+        2, 2, 3, 1, 4, 1, 3, 2, 4, 4, 5, 5, 2, 2, 5, 1
+      ],
+    },
+
+    // JUNGLE RUN: BALAM · JAGUAR ANCESTRAL BOSS (Fast Savage Primal Combat)
+    jungleBoss: {
+      tempo: 138,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      leadNotes: [
+        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.A4, N.C5, N.D5, N.Ds5, N.E5, N.Ds5, N.D5, N.C5,
+        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.G4, N.Gs4, N.A4, N.C5, N.A4, N.G4, N.E4, N.Ds4,
+        N.A5, N.REST, N.A5, N.G5, N.Ds5, N.D5, N.C5, N.A4, N.C5, N.D5, N.Ds5, N.E5, N.G5, N.E5, N.Ds5, N.D5,
+        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.A4, N.C5, N.A4, N.G4, N.A4, N.REST, N.A4, N.REST
+      ],
+      harmonyNotes: [
+        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST,
+        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.B4, N.REST, N.C5, N.REST, N.C5, N.REST, N.G4, N.REST,
+        N.C6, N.REST, N.C6, N.B5, N.Fs5, N.F5, N.E5, N.C5, N.E5, N.F5, N.Fs5, N.G5, N.B5, N.G5, N.Fs5, N.F5,
+        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.C5, N.REST, N.C5, N.REST, N.C5, N.REST, N.C5, N.REST
+      ],
+      bassNotes: [
+        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.A1, N.A1, N.A2, N.A1, N.E2, N.A1, N.D2, N.C2,
+        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.G1, N.G1, N.A1, N.A1, N.A2, N.G1, N.E1, N.D1,
+        N.A1, N.A2, N.A1, N.G1, N.Ds2, N.D2, N.C2, N.A1,  N.C2, N.D2, N.Ds2, N.E2, N.G2, N.E2, N.Ds2, N.D2,
+        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.A1, N.C2, N.A1, N.G1, N.A1, N.A1, N.E1, N.A1
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
+      ],
+    },
+
     // CREDITS & EPILOGUE: ZION VICTORY HYMN (Upbeat Ending Pop Theme, 64 steps)
     creditsTune: {
       tempo: 126,

@@ -48,6 +48,7 @@ import {
   GameSettings,
   Hazard,
   Landmark,
+  Liana,
   MeleeSlashEffect,
   NodePillar,
   Particle,
@@ -57,6 +58,7 @@ import {
   SecretItem,
   SpecialBurstEffect,
   Trampoline,
+  Waterfall,
 } from '../types';
 import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
 import { AiRunner } from './aiRunner';
@@ -110,6 +112,8 @@ export class GameEngine {
   public heals: Collectible[] = [];
   public checkpoints: Checkpoint[] = [];
   public landmarks: Landmark[] = [];
+  public lianas: Liana[] = [];
+  public waterfalls: Waterfall[] = [];
   public nodes: NodePillar[] = [];
   public boss: Boss | null = null;
   public goal: { x: number; y: number; w: number; h: number } | null = null;
@@ -316,6 +320,9 @@ export class GameEngine {
     this.heals = lvl.heals;
     this.checkpoints = lvl.checkpoints;
     this.landmarks = lvl.landmarks;
+    this.lianas = lvl.lianas || [];
+    this.waterfalls = lvl.waterfalls || [];
+    this.trampolines = lvl.trampolines || [];
     this.nodes = lvl.nodes;
     this.boss = lvl.boss;
     this.goal = lvl.goal;
@@ -894,6 +901,13 @@ export class GameEngine {
     } else if (currentConfig.zone === 'travel') {
       // Kronos Travel: Grand Dimensional Fusion Medley
       sound.setMusicTrack('kronosTravel');
+    } else if (currentConfig.zone === 'jungle') {
+      // Jungle Run Zone
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('jungleBoss');
+      } else {
+        sound.setMusicTrack('jungleAct1');
+      }
     }
   }
 
@@ -1302,6 +1316,111 @@ export class GameEngine {
           } else if (p.vy < 0) {
             p.y = plat.y + plat.h;
             p.vy = 0;
+          }
+        }
+      }
+
+      // Dynamic Trampolines (Bounce Pads in Campaign / Jungle Run)
+      for (const t of this.trampolines) {
+        if (t.springAnim > 0) {
+          t.springAnim--;
+        }
+        if (this.checkAABB(p, t)) {
+          if (p.vy >= -2.0) {
+            p.y = t.y - p.h;
+            p.vy = t.bounceForce; // Launches Zion high up into the air!
+            if (t.type === 'mega') {
+              p.vx = 4.2; // Extra forward launch towards the tree canopies
+            }
+            t.springAnim = 20;
+            p.ground = false;
+            p.coyoteTimer = 0;
+            sound.playSfx('jump');
+            this.screenShake = t.type === 'mega' ? 12 : t.type === 'super' ? 8 : 4;
+            const isMega = t.type === 'mega';
+            const isSuper = t.type === 'super';
+            this.createBurst(t.x + t.w / 2, t.y, isMega ? 25 : isSuper ? 18 : 12, isMega ? '#facc15' : isSuper ? '#e879f9' : '#38bdf8');
+            this.addFloatingText(
+              p.x,
+              p.y - 14,
+              isMega ? '☀️ ¡SUPER TRAMPOLÍN SOLAR MAYA!' : isSuper ? '🚀 ¡MEGA IMPULSO!' : '⏫ ¡TRAMPOLÍN!',
+              isMega ? '#facc15' : isSuper ? '#f472b6' : '#38bdf8'
+            );
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Jungle Run: Lianas Swinging Mechanics
+    // -------------------------------------------------------------
+    if (this.lianas && this.lianas.length > 0) {
+      for (const liana of this.lianas) {
+        const maxAngle = liana.maxAngle || 0.48;
+        // Swing angle oscillates with time
+        liana.angle = Math.sin(this.time * 0.055 + liana.id * 1.5) * maxAngle;
+        const tipX = liana.x + Math.sin(liana.angle) * liana.length;
+        const tipY = liana.y + Math.cos(liana.angle) * liana.length;
+
+        if (p.onVine && p.vineId === liana.id) {
+          // Zion is currently swinging on this liana!
+          p.x = tipX - p.w / 2;
+          p.y = tipY - p.h * 0.7;
+          p.vx = 0;
+          p.vy = 0;
+          p.ground = false;
+          p.animState = 'jump';
+
+          // Jump to dismount with forward momentum
+          if (inputs.jump) {
+            p.jumpHeld = true;
+            p.onVine = false;
+            p.vineId = undefined;
+            const angularVel = Math.cos(this.time * 0.055 + liana.id * 1.5) * 0.055 * maxAngle;
+            p.vx = Math.sign(angularVel || 1) * (5.2 + Math.abs(angularVel) * 75);
+            p.vy = -5.8;
+            sound.playSfx('jump');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 12, '#10b981');
+            this.addFloatingText(p.x, p.y - 16, '🌿 ¡IMPULSO SELVÁTICO!', '#34d399');
+          }
+        } else if (!p.onVine && !p.ground && p.vy >= -1.0) {
+          // Check if Zion can grab this liana
+          const distToTip = Math.hypot(p.x + p.w / 2 - tipX, p.y + p.h / 2 - tipY);
+          if (distToTip < 22) {
+            p.onVine = true;
+            p.vineId = liana.id;
+            sound.playSfx('hit');
+            this.createBurst(tipX, tipY, 8, '#22c55e');
+            this.addFloatingText(p.x, p.y - 14, '🌿 ¡LIANA AGARRADA!', '#10b981');
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Jungle Run: Waterfalls Ambient Spray and Healing Mist
+    // -------------------------------------------------------------
+    if (this.waterfalls && this.waterfalls.length > 0) {
+      for (const wf of this.waterfalls) {
+        if (wf.mistParticles && Math.random() < 0.25) {
+          this.particles.push({
+            x: wf.x + Math.random() * wf.w,
+            y: wf.y + wf.h - 6 + Math.random() * 8,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -Math.random() * 2.0 - 0.5,
+            life: 20,
+            maxLife: 20,
+            color: '#67e8f9',
+            size: 2
+          });
+        }
+        // If Zion runs through the waterfall
+        if (p.x + p.w > wf.x && p.x < wf.x + wf.w && p.y + p.h > wf.y && p.y < wf.y + wf.h) {
+          if (Math.random() < 0.15) {
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 4, '#38bdf8');
+            if (p.energy < p.maxEnergy) {
+              p.energy = Math.min(p.maxEnergy, p.energy + 0.1);
+            }
           }
         }
       }
@@ -2958,6 +3077,74 @@ export class GameEngine {
             });
           }
         }
+      } else if (e.type === 'jungle_serpent') {
+        // Jungle Serpent: Slithers along ground/branches, lunges with rapid striking speed
+        if (absDist < 90 && absYDist < 35) {
+          e.x += Math.sign(dist) * 1.4;
+          if (absDist < 40 && (e.cool || 0) <= 0) {
+            e.alertTimer = 18;
+            e.cool = 60;
+            this.playEnemySfx(e, 'enemyAlert');
+          }
+        } else {
+          e.x += e.vx;
+          if (e.x < e.min || e.x > e.max) {
+            e.vx *= -1;
+          }
+        }
+        if (e.cool && e.cool > 0) e.cool--;
+      } else if (e.type === 'jungle_monkey') {
+        // Jungle Monkey: High ledge sniper that hurls coconuts in an arced trajectory
+        e.cool = (e.cool || 75) - 1;
+        if (absDist < 160 && absYDist < 110) {
+          if (e.cool === 20) {
+            e.alertTimer = 20;
+          }
+          if (e.cool <= 0) {
+            e.cool = 85;
+            this.projectiles.push({
+              x: e.x + (dist > 0 ? e.w + 2 : -6),
+              y: e.y + 2,
+              w: 7,
+              h: 7,
+              vx: Math.sign(dist) * (2.0 + Math.min(absDist * 0.008, 1.8)),
+              vy: -3.4,
+              life: 120,
+              isHero: false,
+              kind: 'coconut'
+            });
+            this.playEnemySfx(e, 'bossShot');
+          }
+        }
+      } else if (e.type === 'giant_hornet') {
+        // Giant Hornet: Sine-wave flight and poisonous stinger dart
+        e.t = (e.t || 0) + 0.08;
+        e.y = (e.home ? e.home : e.y) + Math.sin(e.t) * 10;
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) {
+          e.vx *= -1;
+        }
+        e.cool = (e.cool || 90) - 1;
+        if (absDist < 140 && absYDist < 75) {
+          if (e.cool === 20) {
+            e.alertTimer = 20;
+          }
+          if (e.cool <= 0) {
+            e.cool = 90;
+            this.projectiles.push({
+              x: e.x + (dist > 0 ? e.w + 2 : -6),
+              y: e.y + 4,
+              w: 6,
+              h: 4,
+              vx: Math.sign(dist) * 2.8,
+              vy: (p.y - e.y) * 0.02,
+              life: 100,
+              isHero: false,
+              kind: 'stinger'
+            });
+            this.playEnemySfx(e, 'laserFire');
+          }
+        }
       }
 
       // Gravity for ground enemies
@@ -2969,6 +3156,7 @@ export class GameEngine {
         e.type !== 'desert_vulture' &&
         e.type !== 'cyber_drone' &&
         e.type !== 'gravity_orb' &&
+        e.type !== 'giant_hornet' &&
         e.type !== 'cyberturret'
       ) {
         e.vy = Math.min(e.vy + GRAVITY, 6);
@@ -3991,6 +4179,184 @@ export class GameEngine {
         b.y = 148 - b.h;
         b.vy = 0;
       }
+    } else if (b.name.includes('Balam') || b.name.includes('Jaguar')) {
+      // -------------------------------------------------------------
+      // BALAM · JAGUAR GIGANTE ANCESTRAL (JUNGLE RUN BOSS)
+      // -------------------------------------------------------------
+      const p = this.player;
+      const dist = p.x - b.x;
+      const absDist = Math.abs(dist);
+      b.facing = dist >= 0 ? 1 : -1;
+
+      // Phase transitions based on HP (Max 55)
+      if (b.hp <= 18 && b.phase < 3) {
+        b.phase = 3;
+        sound.playSfx('special');
+        this.screenShake = 14;
+        this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 45, '#10b981');
+        this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚡ ¡ESPÍRITU DEL JAGUAR DESATADO! FASE 3', '#34d399');
+      } else if (b.hp <= 37 && b.phase < 2) {
+        b.phase = 2;
+        sound.playSfx('special');
+        this.screenShake = 10;
+        this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 35, '#eab308');
+        this.addFloatingText(b.x + b.w / 2, b.y - 25, '🔥 ¡FURIA SOLAR MAYA! FASE 2', '#facc15');
+      }
+
+      // State Machine
+      if (b.state === 'idle') {
+        b.stateTimer--;
+        // Prowl towards Zion
+        b.vx = Math.sign(dist) * (b.phase === 3 ? 1.6 : b.phase === 2 ? 1.2 : 0.8);
+        b.x += b.vx;
+        b.x = Math.max(1420, Math.min(2180, b.x));
+
+        if (b.stateTimer <= 0) {
+          const rand = Math.random();
+          if (absDist < 80) {
+            // Close range: rapid slash combo
+            b.state = 'slash';
+            b.stateTimer = 40;
+            sound.playSfx('bossWarning');
+          } else if (absDist > 170 || (b.phase >= 2 && rand < 0.35)) {
+            // Long range or Phase 2+: Solar Jaguar Roar
+            b.state = 'roar';
+            b.stateTimer = 55;
+            sound.playSfx('bossWarning');
+          } else if (b.phase === 3 && rand < 0.4) {
+            // Phase 3: Celestial Slam
+            b.state = 'slamming';
+            b.stateTimer = 70;
+            b.vy = -9.5;
+            b.vx = Math.sign(dist) * 3.5;
+            sound.playSfx('jump');
+          } else {
+            // Mid-range: leaping pounce
+            b.state = 'pounce';
+            b.stateTimer = 50;
+            b.vy = -6.8;
+            b.vx = Math.sign(dist) * (b.phase === 3 ? 5.2 : 4.2);
+            sound.playSfx('jump');
+          }
+        }
+      } else if (b.state === 'pounce') {
+        b.stateTimer--;
+        b.x += b.vx;
+        b.x = Math.max(1420, Math.min(2180, b.x));
+        if (Math.random() < 0.3) {
+          this.particles.push({
+            x: b.x + Math.random() * b.w,
+            y: b.y + Math.random() * b.h,
+            vx: -b.vx * 0.2,
+            vy: (Math.random() - 0.5) * 1.5,
+            life: 10,
+            maxLife: 10,
+            color: '#10b981',
+            size: 2
+          });
+        }
+      } else if (b.state === 'slash') {
+        b.stateTimer--;
+        b.vx = b.facing * (b.phase === 3 ? 4.5 : 3.6);
+        b.x += b.vx;
+        b.x = Math.max(1420, Math.min(2180, b.x));
+
+        // Fire emerald claw slashes at frame 30 and 15
+        if (b.stateTimer === 30 || b.stateTimer === 15) {
+          sound.playSfx('sword');
+          this.createBurst(b.x + (b.facing > 0 ? b.w : 0), b.y + b.h / 2, 10, '#10b981');
+          this.projectiles.push({
+            x: b.x + (b.facing > 0 ? b.w + 4 : -14),
+            y: b.y + 12,
+            w: 12,
+            h: 18,
+            vx: b.facing * 4.2,
+            vy: 0,
+            life: 80,
+            isHero: false,
+            kind: 'jaguarClawSlash'
+          });
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+        }
+      } else if (b.state === 'roar') {
+        b.stateTimer--;
+        b.vx = 0;
+        // Periodic roar sound and expanding rings
+        if (b.stateTimer === 35 || b.stateTimer === 20) {
+          sound.playSfx('special');
+          this.screenShake = 8;
+          this.createBurst(b.x + b.w / 2, b.y + 10, 20, '#facc15');
+          this.addFloatingText(b.x + b.w / 2, b.y - 16, '🐆 ¡RUGIDO ANCESTRAL!', '#eab308');
+
+          // Launch sonic roar waves both ways
+          this.projectiles.push(
+            {
+              x: b.x + b.w + 2,
+              y: b.y + 14,
+              w: 14,
+              h: 14,
+              vx: 3.5,
+              vy: 0,
+              life: 90,
+              isHero: false,
+              kind: 'jaguarRoarWave'
+            },
+            {
+              x: b.x - 16,
+              y: b.y + 14,
+              w: 14,
+              h: 14,
+              vx: -3.5,
+              vy: 0,
+              life: 90,
+              isHero: false,
+              kind: 'jaguarRoarWave'
+            }
+          );
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 18 : 28;
+        }
+      } else if (b.state === 'slamming') {
+        b.x += b.vx;
+        b.x = Math.max(1420, Math.min(2180, b.x));
+        if (b.vy > 0) {
+          b.vy += 0.45;
+        }
+      }
+
+      // Gravity & Ground Impact
+      b.vy = Math.min(b.vy + GRAVITY, 9);
+      b.y += b.vy;
+      if (b.y + b.h >= 148) {
+        if ((b.state === 'pounce' || b.state === 'slamming') && b.vy > 2.5) {
+          sound.playSfx('bossSlam');
+          this.screenShake = b.state === 'slamming' ? 12 : 8;
+          this.createBurst(b.x + b.w / 2, 148, b.state === 'slamming' ? 30 : 20, '#10b981');
+
+          // Emerald Jade shockwaves
+          b.shockwaves.push(
+            { x: b.x - 12, y: 138, vx: -3.8, w: 16, h: 10, life: 75, maxLife: 75, color: '#10b981' },
+            { x: b.x + b.w, y: 138, vx: 3.8, w: 16, h: 10, life: 75, maxLife: 75, color: '#10b981' }
+          );
+
+          if (b.phase >= 2) {
+            b.shockwaves.push(
+              { x: b.x - 12, y: 138, vx: -5.0, w: 18, h: 12, life: 90, maxLife: 90, color: '#eab308' },
+              { x: b.x + b.w, y: 138, vx: 5.0, w: 18, h: 12, life: 90, maxLife: 90, color: '#eab308' }
+            );
+          }
+
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 16 : 26;
+        }
+        b.y = 148 - b.h;
+        b.vy = 0;
+      }
     }
 
     // Universal Relentless Boss Watchdog: Ensures the boss NEVER goes passive or stops attacking
@@ -4074,6 +4440,58 @@ export class GameEngine {
             life: 10,
             maxLife: 10,
             color: '#f97316',
+            size: 2,
+          });
+        }
+      }
+      if (p.kind === 'coconut') {
+        p.vy = Math.min(p.vy + 0.14, 4.5);
+        p.angle = ((p.angle || 0) + 0.15) % (Math.PI * 2);
+        if (p.y > 146) {
+          p.y = 146;
+          p.vy = -p.vy * 0.45;
+        }
+      }
+      if (p.kind === 'stinger') {
+        if (Math.random() < 0.25 && this.particles.length < maxParticles) {
+          this.particles.push({
+            x: p.x + p.w / 2,
+            y: p.y + p.h / 2,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            life: 8,
+            maxLife: 8,
+            color: '#22c55e',
+            size: 2,
+          });
+        }
+      }
+      if (p.kind === 'jaguarClawSlash') {
+        if (Math.random() < 0.4 && this.particles.length < maxParticles) {
+          this.particles.push({
+            x: p.x + (p.vx > 0 ? 0 : p.w),
+            y: p.y + Math.random() * p.h,
+            vx: -p.vx * 0.2,
+            vy: (Math.random() - 0.5) * 1.2,
+            life: 10,
+            maxLife: 10,
+            color: '#10b981',
+            size: 2,
+          });
+        }
+      }
+      if (p.kind === 'jaguarRoarWave') {
+        p.w += 0.4;
+        p.h += 0.3;
+        if (Math.random() < 0.3 && this.particles.length < maxParticles) {
+          this.particles.push({
+            x: p.x + p.w / 2,
+            y: p.y + p.h / 2,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5,
+            life: 10,
+            maxLife: 10,
+            color: '#facc15',
             size: 2,
           });
         }
@@ -5015,10 +5433,12 @@ export class GameEngine {
     this.heals = lvl.heals;
     this.checkpoints = lvl.checkpoints;
     this.landmarks = lvl.landmarks;
+    this.lianas = lvl.lianas || [];
+    this.waterfalls = lvl.waterfalls || [];
     this.nodes = lvl.nodes;
     this.boss = lvl.boss;
     this.goal = lvl.goal;
-    this.trampolines = [];
+    this.trampolines = lvl.trampolines || [];
 
     this.sanitizeCheckpointsAndHazards();
     this.sanitizeAllHazards();
@@ -5124,10 +5544,12 @@ export class GameEngine {
     this.heals = lvl.heals;
     this.checkpoints = lvl.checkpoints;
     this.landmarks = lvl.landmarks;
+    this.lianas = lvl.lianas || [];
+    this.waterfalls = lvl.waterfalls || [];
     this.nodes = lvl.nodes;
     this.boss = lvl.boss;
     this.goal = lvl.goal;
-    this.trampolines = [];
+    this.trampolines = lvl.trampolines || [];
 
     this.sanitizeCheckpointsAndHazards();
     this.sanitizeAllHazards();

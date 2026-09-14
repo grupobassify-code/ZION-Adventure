@@ -25,6 +25,7 @@ const ZONES: { id: ZoneId; name: string }[] = [
   { id: 'lavacliff', name: 'Acantilados de Lava' },
   { id: 'desert', name: 'Dunas de Arena' },
   { id: 'krono', name: 'Templo de Kronos' },
+  { id: 'jungle', name: 'Jungle Run' },
 ];
 
 const ZONE_NAMES: Record<ZoneId, string> = {
@@ -34,6 +35,7 @@ const ZONE_NAMES: Record<ZoneId, string> = {
   desert: 'Dunas de Arena',
   krono: 'Templo de Kronos',
   travel: 'Viaje Cuántico',
+  jungle: 'Jungle Run',
 };
 
 interface ModeLevelSelectModalProps {

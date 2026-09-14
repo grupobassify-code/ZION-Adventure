@@ -308,7 +308,7 @@ export interface Boss {
   name: string;
   title: string;
   subtitle?: string;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage';
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;

@@ -139,6 +139,14 @@ const ZONES_DATA: ZoneMeta[] = [
     accentColor: '#f43f5e',
     actsCount: 1,
   },
+  {
+    id: 'jungle',
+    name: 'Jungle Run',
+    subtitle: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam',
+    themeColor: '#10b981',
+    accentColor: '#eab308',
+    actsCount: 3,
+  },
 ];
 
 export const MainMenu: React.FC<MainMenuProps> = ({
