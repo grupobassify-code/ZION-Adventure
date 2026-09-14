@@ -196,15 +196,29 @@ export function recordLevelCompletion(
 
   // Unlock next level sequentially
   const nextLevel = levelIndex + 1;
+  const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+  const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+
+  // If nextLevel is jungle-1, only unlock it if Kronos Travel is beaten
   if (nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
-    slot.unlockedLevels.push(nextLevel);
+    if (nextLevel === jungle1Idx) {
+      if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else {
+      slot.unlockedLevels.push(nextLevel);
+    }
   }
 
   // If final boss of Krono City is beaten, unlock Kronos Travel
   const kronoFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-3');
-  const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'travel-1');
   if (levelIndex === kronoFinalBossIdx && travelIdx !== -1 && !slot.unlockedLevels.includes(travelIdx)) {
     slot.unlockedLevels.push(travelIdx);
+  }
+
+  // When Kronos Travel is beaten, unlock Jungle Run (jungle-1)
+  if (levelIndex === travelIdx && jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
+    slot.unlockedLevels.push(jungle1Idx);
   }
 
   slots[slotId] = slot;
@@ -214,6 +228,13 @@ export function recordLevelCompletion(
 
 export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number): boolean {
   if (!slot) return levelIndex === 0;
+  const cfg = LEVEL_CONFIGS[levelIndex];
+  if (cfg && cfg.zone === 'jungle') {
+    const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+    if (travelIdx !== -1 && !slot.completedLevels.includes(travelIdx)) {
+      return false; // Jungle Run is locked until Kronos Travel is beaten!
+    }
+  }
   return slot.unlockedLevels.includes(levelIndex);
 }
 
@@ -308,6 +329,15 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
     return { completed: 0, total, unlocked: isFirstZone };
   }
 
+  // Jungle Run requires completing Kronos Travel first
+  if (zone === 'jungle') {
+    const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+    const isTravelCompleted = travelIdx !== -1 && slot.completedLevels.includes(travelIdx);
+    if (!isTravelCompleted) {
+      return { completed: 0, total, unlocked: false };
+    }
+  }
+
   let completed = 0;
   let hasAnyUnlocked = false;
 
@@ -347,7 +377,7 @@ export function recordSpecialStageCompleted(slotId: number): void {
 }
 
 export interface KronosPieceInfo {
-  id: 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono';
+  id: 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono' | 'jungle';
   name: string;
   subtitle: string;
   bossName: string;
@@ -356,7 +386,7 @@ export interface KronosPieceInfo {
   levelIndex: number;
   color: string;
   accentColor: string;
-  position: 'top' | 'right' | 'bottomRight' | 'bottomLeft' | 'center';
+  position: 'top' | 'right' | 'bottomRight' | 'bottomLeft' | 'center' | 'topLeft';
   angle: number;
   iconName: string;
   lore: string;
@@ -437,6 +467,21 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     angle: 288,
     iconName: 'Zap',
     lore: 'El epicentro gravitatorio que unifica todas las épocas pasadas, presentes y futuras.',
+  },
+  {
+    id: 'jungle',
+    name: 'Gema Sagrada del Sol Maya',
+    subtitle: 'Corona de Jade del Jaguar Balam',
+    bossName: 'Balam, el Jaguar Gigante Ancestral',
+    zoneName: 'Jungle Run (Acto 3)',
+    levelId: 'jungle-3',
+    levelIndex: 18,
+    color: '#10b981',
+    accentColor: '#eab308',
+    position: 'topLeft',
+    angle: 300,
+    iconName: 'Gem',
+    lore: 'Canaliza el poder del Sol cenital maya y la sabiduría de la selva ancestral para sincronizar los ciclos naturales del tiempo.',
   },
 ];
 

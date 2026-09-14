@@ -19,6 +19,7 @@ import {
   VolumeX,
   AlertCircle,
   HelpCircle,
+  Gem,
 } from 'lucide-react';
 import {
   SaveSlot,
@@ -177,7 +178,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                     : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                 }`}>
-                  {isCompleted ? '✓ 100% RECONSTRUIDO' : `FRACTURADO [${placedPieces.length}/5 PIEZAS]`}
+                  {isCompleted ? '✓ 100% RECONSTRUIDO' : `FRACTURADO [${placedPieces.length}/${KRONOS_PIECES.length} PIEZAS]`}
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-white font-heading tracking-wide">
@@ -362,69 +363,182 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 }
               )}
 
-              {/* 5 Ancestral Quadrant Glows / Sectors */}
+              {/* ENERGY CONDUIT CHANNELS (Connecting placed outer nodes to central core) */}
+              <g>
+                {placedPieces.includes('neon') && (
+                  <line x1="200" y1="80" x2="200" y2="150" stroke="#22d3ee" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                )}
+                {placedPieces.includes('sakura') && (
+                  <line x1="315" y1="165" x2="245" y2="190" stroke="#f472b6" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                )}
+                {placedPieces.includes('lavacliff') && (
+                  <line x1="268" y1="295" x2="230" y2="235" stroke="#f97316" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                )}
+                {placedPieces.includes('desert') && (
+                  <line x1="132" y1="295" x2="170" y2="235" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                )}
+                {placedPieces.includes('jungle') && (
+                  <line x1="85" y1="165" x2="155" y2="190" stroke="#10b981" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.85" />
+                )}
+              </g>
 
-              {/* 1. NEON PIECE (Top, 12 o'clock) */}
-              <g opacity={placedPieces.includes('neon') ? 1 : 0.15}>
+              {/* 6 ANCESTRAL PIECES & SECTORS */}
+
+              {/* 1. NEON PIECE (Top, 12 o'clock - x:200, y:65) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('neon') ? 1 : 0.25}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'neon');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
                 <path
-                  d="M 200 200 L 150 48 A 160 160 0 0 1 250 48 Z"
+                  d="M 200 200 L 160 48 A 160 160 0 0 1 240 48 Z"
                   fill="rgba(34, 211, 238, 0.12)"
                 />
-                <circle cx="200" cy="65" r="14" fill="#0891b2" stroke="#22d3ee" strokeWidth="2" />
+                <circle
+                  cx="200"
+                  cy="65"
+                  r={selectedPieceInfo?.id === 'neon' ? '18' : '15'}
+                  fill={placedPieces.includes('neon') ? '#0891b2' : '#1e293b'}
+                  stroke={selectedPieceInfo?.id === 'neon' ? '#facc15' : '#22d3ee'}
+                  strokeWidth={selectedPieceInfo?.id === 'neon' ? '3' : '2'}
+                />
                 <Sun x="192" y="57" width="16" height="16" color="#ffffff" />
               </g>
 
-              {/* 2. SAKURA PIECE (Right, 2-4 o'clock) */}
-              <g opacity={placedPieces.includes('sakura') ? 1 : 0.15}>
+              {/* 2. SAKURA PIECE (Top-Right, 72° - x:328, y:158) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('sakura') ? 1 : 0.25}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'sakura');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
                 <path
-                  d="M 200 200 L 340 130 A 160 160 0 0 1 340 270 Z"
+                  d="M 200 200 L 330 115 A 160 160 0 0 1 350 200 Z"
                   fill="rgba(244, 114, 182, 0.12)"
                 />
-                <circle cx="330" cy="200" r="14" fill="#db2777" stroke="#f472b6" strokeWidth="2" />
-                <Sparkles x="322" y="192" width="16" height="16" color="#ffffff" />
+                <circle
+                  cx="328"
+                  cy="158"
+                  r={selectedPieceInfo?.id === 'sakura' ? '18' : '15'}
+                  fill={placedPieces.includes('sakura') ? '#db2777' : '#1e293b'}
+                  stroke={selectedPieceInfo?.id === 'sakura' ? '#facc15' : '#f472b6'}
+                  strokeWidth={selectedPieceInfo?.id === 'sakura' ? '3' : '2'}
+                />
+                <Sparkles x="320" y="150" width="16" height="16" color="#ffffff" />
               </g>
 
-              {/* 3. LAVACLIFF PIECE (Bottom Right, 5-6 o'clock) */}
-              <g opacity={placedPieces.includes('lavacliff') ? 1 : 0.15}>
+              {/* 3. LAVACLIFF PIECE (Bottom-Right, 144° - x:279, y:309) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('lavacliff') ? 1 : 0.25}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'lavacliff');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
                 <path
-                  d="M 200 200 L 320 290 A 160 160 0 0 1 210 358 Z"
+                  d="M 200 200 L 330 250 A 160 160 0 0 1 225 358 Z"
                   fill="rgba(249, 115, 22, 0.12)"
                 />
-                <circle cx="270" cy="315" r="14" fill="#c2410c" stroke="#f97316" strokeWidth="2" />
-                <Flame x="262" y="307" width="16" height="16" color="#ffffff" />
+                <circle
+                  cx="279"
+                  cy="309"
+                  r={selectedPieceInfo?.id === 'lavacliff' ? '18' : '15'}
+                  fill={placedPieces.includes('lavacliff') ? '#c2410c' : '#1e293b'}
+                  stroke={selectedPieceInfo?.id === 'lavacliff' ? '#facc15' : '#f97316'}
+                  strokeWidth={selectedPieceInfo?.id === 'lavacliff' ? '3' : '2'}
+                />
+                <Flame x="271" y="301" width="16" height="16" color="#ffffff" />
               </g>
 
-              {/* 4. DESERT PIECE (Bottom Left, 7-8 o'clock) */}
-              <g opacity={placedPieces.includes('desert') ? 1 : 0.15}>
+              {/* 4. DESERT PIECE (Bottom-Left, 216° - x:121, y:309) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('desert') ? 1 : 0.25}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'desert');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
                 <path
-                  d="M 200 200 L 190 358 A 160 160 0 0 1 80 290 Z"
+                  d="M 200 200 L 175 358 A 160 160 0 0 1 70 250 Z"
                   fill="rgba(245, 158, 11, 0.12)"
                 />
-                <circle cx="130" cy="315" r="14" fill="#b45309" stroke="#f59e0b" strokeWidth="2" />
-                <Clock x="122" y="307" width="16" height="16" color="#ffffff" />
+                <circle
+                  cx="121"
+                  cy="309"
+                  r={selectedPieceInfo?.id === 'desert' ? '18' : '15'}
+                  fill={placedPieces.includes('desert') ? '#b45309' : '#1e293b'}
+                  stroke={selectedPieceInfo?.id === 'desert' ? '#facc15' : '#f59e0b'}
+                  strokeWidth={selectedPieceInfo?.id === 'desert' ? '3' : '2'}
+                />
+                <Clock x="113" y="301" width="16" height="16" color="#ffffff" />
               </g>
 
-              {/* 5. KRONO CITY PIECE (Center Quantum Core) */}
-              <g opacity={placedPieces.includes('krono') ? 1 : 0.2}>
+              {/* 5. JUNGLE RUN MAYA PIECE (Top-Left, 288° - x:72, y:158) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('jungle') ? 1 : 0.25}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'jungle');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
+                <path
+                  d="M 200 200 L 50 200 A 160 160 0 0 1 70 115 Z"
+                  fill="rgba(16, 185, 129, 0.12)"
+                />
+                <circle
+                  cx="72"
+                  cy="158"
+                  r={selectedPieceInfo?.id === 'jungle' ? '18' : '15'}
+                  fill={placedPieces.includes('jungle') ? '#059669' : '#1e293b'}
+                  stroke={selectedPieceInfo?.id === 'jungle' ? '#facc15' : '#10b981'}
+                  strokeWidth={selectedPieceInfo?.id === 'jungle' ? '3' : '2'}
+                />
+                <Gem x="64" y="150" width="16" height="16" color="#ffffff" />
+              </g>
+
+              {/* 6. KRONO CITY PIECE (Center Quantum Core - x:200, y:200) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                opacity={placedPieces.includes('krono') ? 1 : 0.3}
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'krono');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
                 <circle
                   cx="200"
                   cy="200"
-                  r="56"
+                  r="52"
                   fill={placedPieces.includes('krono') ? 'url(#coreVortex)' : '#1e1b4b'}
-                  stroke="#a855f7"
-                  strokeWidth="3"
+                  stroke={selectedPieceInfo?.id === 'krono' ? '#facc15' : '#a855f7'}
+                  strokeWidth={selectedPieceInfo?.id === 'krono' ? '4' : '3'}
                   className={placedPieces.includes('krono') ? 'animate-pulse' : ''}
                 />
                 <Zap x="188" y="188" width="24" height="24" color="#ffffff" />
               </g>
 
-              {/* FRACTURE CRACKS OVERLAY (Disappears or heals when all 5 pieces are placed) */}
+              {/* FRACTURE CRACKS OVERLAY (Disappears or heals when all 6 pieces are placed) */}
               {!isCompleted && (
                 <g stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" opacity="0.85">
                   <path d="M 200 200 L 170 140 L 140 120 L 120 70" />
                   <path d="M 200 200 L 230 250 L 280 270 L 320 330" />
                   <path d="M 200 200 L 240 160 L 290 150" />
                   <path d="M 200 200 L 160 260 L 110 280" />
+                  <path d="M 200 200 L 130 180 L 80 180" />
                 </g>
               )}
 
@@ -463,6 +577,21 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                       transform: `rotate(${clockRotationAngle * 1.8}deg)`,
                     }}
                     filter="drop-shadow(0 0 6px rgba(245,158,11,0.8))"
+                  />
+                  {/* Second Hand */}
+                  <line
+                    x1="200"
+                    y1="200"
+                    x2="200"
+                    y2="52"
+                    stroke="#10b981"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    style={{
+                      transformOrigin: '200px 200px',
+                      transform: `rotate(${clockRotationAngle * 5}deg)`,
+                    }}
+                    filter="drop-shadow(0 0 5px rgba(16,185,129,0.9))"
                   />
                   {/* Pivot Pin */}
                   <circle cx="200" cy="200" r="8" fill="#ffffff" stroke="#f59e0b" strokeWidth="3" />
@@ -505,8 +634,8 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-lg leading-relaxed">
               {isCompleted
-                ? 'Todas las 5 piezas sagradas han sido ensambladas. Las manecillas temporales han vuelto a la vida.'
-                : 'Derrota al jefe del Acto Final de cada una de las 5 zonas para conseguir las piezas del reloj ancestral y colocarlas en el mecanismo.'}
+                ? `Todas las ${KRONOS_PIECES.length} piezas sagradas han sido ensambladas. Las manecillas temporales han vuelto a la vida.`
+                : `Derrota al jefe del Acto Final de cada una de las ${KRONOS_PIECES.length} zonas para conseguir las piezas del reloj ancestral y colocarlas en el mecanismo.`}
             </p>
 
             {/* Quick action: Place all available pieces */}
@@ -525,7 +654,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
           </div>
         </div>
 
-        {/* Right Panel: The 5 Pieces Workbench / Inventory (Cols 8-12) */}
+        {/* Right Panel: The 6 Pieces Workbench / Inventory (Cols 8-12) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-black text-white font-heading tracking-wide flex items-center gap-2">
@@ -533,7 +662,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
               <span>PIEZAS ANCESTRALES DE KRONOS</span>
             </h3>
             <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
-              {placedPieces.length} / 5 Ensambladas
+              {placedPieces.length} / {KRONOS_PIECES.length} Ensambladas
             </span>
           </div>
 
@@ -578,6 +707,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                         {piece.id === 'sakura' && <Sparkles className="w-5 h-5" />}
                         {piece.id === 'lavacliff' && <Flame className="w-5 h-5" />}
                         {piece.id === 'desert' && <Clock className="w-5 h-5" />}
+                        {piece.id === 'jungle' && <Gem className="w-5 h-5" />}
                         {piece.id === 'krono' && <Zap className="w-5 h-5" />}
                       </div>
 
@@ -659,7 +789,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
               ¡FELICIDADES, MISIÓN COMPLETADA!
             </h2>
             <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed">
-              El Gran Reloj de Kronos ha vuelto a girar. Con las 5 piezas sagradas restauradas, el flujo del tiempo ancestral vuelve a fluir en sincronía perfecta.
+              El Gran Reloj de Kronos ha vuelto a girar. Con las 6 piezas sagradas restauradas, el flujo del tiempo ancestral vuelve a fluir en sincronía perfecta.
             </p>
 
             {/* Reward Box */}
