@@ -95,10 +95,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
     return (
       <div 
         id="touch-controls-portrait"
-        className="relative w-full flex-1 min-h-[185px] max-h-[42vh] p-1.5 sm:p-2.5 flex flex-col justify-between z-20 select-none touch-control-surface bg-gradient-to-b from-[#050711] via-[#090e24] to-[#040610] border-t border-cyan-900/40 overflow-hidden"
+        className="relative w-full flex-1 min-h-[220px] max-h-[46vh] p-2 sm:p-3 pb-3 flex flex-col justify-between z-20 select-none touch-control-surface bg-gradient-to-b from-[#050711] via-[#090e24] to-[#040610] border-t border-cyan-900/40 overflow-hidden"
       >
-        {/* Secondary Row / Utilities: Dash, Block, Special */}
-        <div className="flex items-center justify-end gap-2 px-1">
+        {/* Secondary Row / Utilities: Dash, Block, Special - Large Ergonomic Touch Buttons */}
+        <div className="flex items-center justify-end gap-2.5 sm:gap-3 px-1 pt-0.5">
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -106,15 +106,15 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dash', false)}
             onPointerCancel={() => onUpdateInput('dash', false)}
-            className={`px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+            className={`min-h-[46px] px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl flex items-center gap-2 text-xs sm:text-sm font-black border-2 transition-transform active:scale-95 shadow-md ${
               inputs.dash
-                ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.8)]'
-                : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
+                ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_15px_rgba(56,189,248,0.8)]'
+                : 'bg-slate-900/90 text-sky-300 border-sky-500/50'
             }`}
             title="Dash"
           >
-            <Wind className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[11px] sm:text-xs font-mono font-bold">DASH</span>
+            <Wind className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="font-mono font-black tracking-wider">DASH</span>
           </button>
 
           <button
@@ -124,15 +124,15 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('block', false)}
             onPointerCancel={() => onUpdateInput('block', false)}
-            className={`px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+            className={`min-h-[46px] px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl flex items-center gap-2 text-xs sm:text-sm font-black border-2 transition-transform active:scale-95 shadow-md ${
               inputs.block
-                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
-                : 'bg-slate-900/90 text-amber-300 border-amber-500/40'
+                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_15px_rgba(251,191,36,0.8)]'
+                : 'bg-slate-900/90 text-amber-300 border-amber-500/50'
             }`}
             title="Escudo"
           >
-            <Shield className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[11px] sm:text-xs font-mono font-bold">ESCUDO</span>
+            <Shield className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="font-mono font-black tracking-wider">ESCUDO</span>
           </button>
 
           <button
@@ -143,23 +143,23 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('special', false)}
             onPointerCancel={() => onUpdateInput('special', false)}
-            className={`px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold border transition-transform active:scale-95 ${
+            className={`min-h-[46px] px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl flex items-center gap-2 text-xs sm:text-sm font-black border-2 transition-transform active:scale-95 shadow-md ${
               inputs.special
-                ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
+                ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.9)]'
                 : canUseSpecial
                 ? 'bg-gradient-to-tr from-rose-600 to-amber-500 text-white border-rose-400 animate-pulse'
                 : 'bg-slate-900/50 text-slate-600 border-slate-800'
             }`}
             title="Especial SP"
           >
-            <Zap className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[11px] sm:text-xs font-mono font-bold">SP {energy}</span>
+            <Zap className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="font-mono font-black tracking-wider">SP {energy}</span>
           </button>
         </div>
 
         {/* Main Dual Thumb Area */}
-        <div className="flex items-center justify-between px-1.5 sm:px-3 pt-1 pb-1">
-          {/* Left: Joystick or D-Pad */}
+        <div className="flex items-center justify-between px-2 sm:px-4 pt-1 pb-1">
+          {/* Left: Extra Large Joystick or D-Pad */}
           <div className="flex flex-col items-center">
             {controlMode === 'joystick' ? (
               <div
@@ -168,27 +168,27 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                 onPointerMove={handlePointerMoveJoystick}
                 onPointerUp={handlePointerUpJoystick}
                 onPointerCancel={handlePointerUpJoystick}
-                className="relative w-24 h-24 sm:w-26 sm:h-26 md:w-28 md:h-28 rounded-full bg-slate-950/80 backdrop-blur-md border-2 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center cursor-grab active:cursor-grabbing touch-control-surface"
+                className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full bg-slate-950/85 backdrop-blur-md border-2 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center cursor-grab active:cursor-grabbing touch-control-surface"
               >
-                <div className="absolute w-full h-[1px] bg-cyan-500/20" />
-                <div className="absolute h-full w-[1px] bg-cyan-500/20" />
-                <div className="absolute w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-cyan-500/30" />
+                <div className="absolute w-full h-[1px] bg-cyan-500/25" />
+                <div className="absolute h-full w-[1px] bg-cyan-500/25" />
+                <div className="absolute w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-cyan-500/35" />
                 <div
                   style={{
                     transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
                     transition: isDraggingJoystick ? 'none' : 'transform 0.15s ease-out',
                   }}
-                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center shadow-lg border-2 ${
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 ${
                     isDraggingJoystick
-                      ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-200 text-slate-950 shadow-[0_0_12px_rgba(34,211,238,0.8)]'
+                      ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-200 text-slate-950 shadow-[0_0_15px_rgba(34,211,238,0.9)]'
                       : 'bg-slate-800/90 border-cyan-500/60 text-cyan-300'
                   }`}
                 >
-                  <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-cyan-200/80" />
+                  <div className="w-4 h-4 sm:w-4.5 sm:h-4.5 rounded-full bg-cyan-200/90" />
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/70 p-1.5 rounded-2xl border border-slate-800 shadow-xl touch-control-surface">
+              <div className="flex items-center gap-2 sm:gap-3 bg-slate-950/80 p-2 rounded-2xl border-2 border-slate-800 shadow-xl touch-control-surface">
                 <button
                   onPointerDown={(e) => {
                     e.preventDefault();
@@ -196,10 +196,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                   }}
                   onPointerUp={() => onUpdateInput('left', false)}
                   onPointerCancel={() => onUpdateInput('left', false)}
-                  className={`w-12 h-12 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg border-2 ${
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl border-2 transition-transform active:scale-95 ${
                     inputs.left
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                      : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_15px_rgba(6,182,212,0.8)]'
+                      : 'bg-slate-900/90 text-cyan-300 border-cyan-500/50'
                   }`}
                 >
                   ◀
@@ -211,10 +211,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                   }}
                   onPointerUp={() => onUpdateInput('right', false)}
                   onPointerCancel={() => onUpdateInput('right', false)}
-                  className={`w-12 h-12 sm:w-13 sm:h-13 rounded-xl flex items-center justify-center font-bold text-base sm:text-lg border-2 ${
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center font-black text-xl sm:text-2xl border-2 transition-transform active:scale-95 ${
                     inputs.right
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                      : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_15px_rgba(6,182,212,0.8)]'
+                      : 'bg-slate-900/90 text-cyan-300 border-cyan-500/50'
                   }`}
                 >
                   ▶
@@ -223,8 +223,8 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             )}
           </div>
 
-          {/* Right: Primary Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-2.5 touch-control-surface">
+          {/* Right: Primary Action Buttons - Significantly Enlarged for Mobile */}
+          <div className="flex items-center gap-2 sm:gap-3 touch-control-surface">
             {/* Dagger Throw with Live Recharge Visualizer */}
             <button
               onPointerDown={(e) => {
@@ -233,27 +233,27 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('dagger', false)}
               onPointerCancel={() => onUpdateInput('dagger', false)}
-              className={`relative overflow-hidden w-12 h-12 sm:w-13 sm:h-13 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
+              className={`relative overflow-hidden w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
                 inputs.dagger
-                  ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.9)]'
+                  ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_18px_rgba(168,85,247,0.9)]'
                   : daggersAvailable > 0
-                  ? 'bg-gradient-to-b from-purple-900/90 to-slate-950/90 text-purple-200 border-purple-500/60 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                  ? 'bg-gradient-to-b from-purple-900/95 to-slate-950/95 text-purple-200 border-purple-500/70 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
                   : 'bg-slate-900/90 text-slate-500 border-purple-950/60'
               }`}
             >
               {/* Pixel Kunai Icon */}
-              <svg viewBox="0 0 10 18" className="w-4 h-4 sm:w-4.5 sm:h-4.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
+              <svg viewBox="0 0 10 18" className="w-5 h-5 sm:w-5.5 sm:h-5.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
                 <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
                 <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
                 <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
                 <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
               </svg>
-              <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">
+              <span className="text-[9px] sm:text-[10px] font-mono leading-none font-black">
                 {daggersAvailable < 3 ? `${daggersAvailable}/3` : '3/3'}
               </span>
               {/* Active Fill Bottom Gauge */}
               {daggersAvailable < 3 && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-950/90 overflow-hidden">
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-950/90 overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-cyan-300 transition-all duration-75"
                     style={{ width: `${daggerRechargePercent}%` }}
@@ -262,7 +262,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               )}
             </button>
 
-            {/* Sword Attack Combo */}
+            {/* Sword Attack Combo - Large Easy Touch Target */}
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -270,17 +270,17 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('attack', false)}
               onPointerCancel={() => onUpdateInput('attack', false)}
-              className={`w-13 h-13 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
+              className={`w-15 h-15 sm:w-17 sm:h-17 md:w-18 md:h-18 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 ${
                 inputs.attack
-                  ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.9)]'
-                  : 'bg-gradient-to-br from-cyan-900/90 to-blue-950/90 text-cyan-200 border-cyan-400/60 shadow-md'
+                  ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.95)]'
+                  : 'bg-gradient-to-br from-cyan-900/95 to-blue-950/95 text-cyan-200 border-cyan-400/70 shadow-lg'
               }`}
             >
-              <Swords className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
-              <span className="text-[9px] sm:text-[10px] font-mono font-black">ATACAR</span>
+              <Swords className="w-6 h-6 sm:w-6.5 sm:h-6.5" />
+              <span className="text-[10px] sm:text-[11px] font-mono font-black">ATACAR</span>
             </button>
 
-            {/* Jump Button - Contained cleanly inside frame */}
+            {/* Jump Button - Extra Large Hero Action Button */}
             <button
               id="portrait-btn-jump"
               onPointerDown={(e) => {
@@ -289,14 +289,14 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('jump', false)}
               onPointerCancel={() => onUpdateInput('jump', false)}
-              className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
+              className={`w-17 h-17 sm:w-19 sm:h-19 md:w-20 md:h-20 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 shadow-xl ${
                 inputs.jump
-                  ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
-                  : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/70 shadow-lg'
+                  ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_22px_rgba(244,63,94,0.95)]'
+                  : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/80 shadow-lg'
               }`}
             >
-              <ArrowUp className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[3] shrink-0" />
-              <span className="text-[10px] sm:text-[11px] font-black tracking-wide leading-none truncate max-w-full">
+              <ArrowUp className="w-6 h-6 sm:w-7 sm:h-7 stroke-[3] shrink-0" />
+              <span className="text-[11px] sm:text-xs font-black tracking-wider leading-none truncate max-w-full">
                 SALTAR
               </span>
             </button>
@@ -306,19 +306,19 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
     );
   }
 
-  // Landscape Mode Layout (Widescreen Floating Controls)
+  // Landscape Mode Layout (Widescreen Floating Controls with Extra Large Easy-Touch Buttons)
   return (
     <div 
       id="touch-controls-landscape"
       style={{
-        paddingLeft: 'max(0.5rem, env(safe-area-inset-left))',
-        paddingRight: 'max(0.5rem, env(safe-area-inset-right))',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+        paddingLeft: 'max(0.75rem, env(safe-area-inset-left))',
+        paddingRight: 'max(0.75rem, env(safe-area-inset-right))',
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
       }}
       className="absolute inset-x-0 bottom-0 pointer-events-none flex items-end justify-between z-20 select-none touch-control-surface"
     >
-      {/* LEFT SIDE: Clean Virtual Joystick or D-Pad (Without clutter) */}
-      <div className="flex flex-col items-start pointer-events-auto p-2 sm:p-2.5 md:p-3">
+      {/* LEFT SIDE: Extra Large Virtual Joystick or D-Pad */}
+      <div className="flex flex-col items-start pointer-events-auto p-2 sm:p-3">
         {controlMode === 'joystick' ? (
           /* Virtual Analog Joystick */
           <div
@@ -327,29 +327,29 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             onPointerMove={handlePointerMoveJoystick}
             onPointerUp={handlePointerUpJoystick}
             onPointerCancel={handlePointerUpJoystick}
-            className="relative w-28 h-28 sm:w-30 sm:h-30 md:w-32 md:h-32 rounded-full bg-slate-950/80 backdrop-blur-md border-2 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.25)] flex items-center justify-center cursor-grab active:cursor-grabbing"
+            className="relative w-34 h-34 sm:w-38 sm:h-38 md:w-42 md:h-42 rounded-full bg-slate-950/85 backdrop-blur-md border-2 border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center cursor-grab active:cursor-grabbing"
           >
-            <div className="absolute w-full h-[1px] bg-cyan-500/20" />
-            <div className="absolute h-full w-[1px] bg-cyan-500/20" />
-            <div className="absolute w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-cyan-500/30" />
+            <div className="absolute w-full h-[1px] bg-cyan-500/25" />
+            <div className="absolute h-full w-[1px] bg-cyan-500/25" />
+            <div className="absolute w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-cyan-500/35" />
 
             <div
               style={{
                 transform: `translate(${knobPos.x}px, ${knobPos.y}px)`,
                 transition: isDraggingJoystick ? 'none' : 'transform 0.15s ease-out',
               }}
-              className={`w-12 h-12 sm:w-13 sm:h-13 rounded-full flex items-center justify-center shadow-lg border-2 ${
+              className={`w-15 h-15 sm:w-17 sm:h-17 rounded-full flex items-center justify-center shadow-xl border-2 ${
                 isDraggingJoystick
-                  ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-200 text-slate-950 shadow-[0_0_12px_rgba(34,211,238,0.8)]'
+                  ? 'bg-gradient-to-br from-cyan-400 to-blue-600 border-cyan-200 text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.9)]'
                   : 'bg-slate-800/90 border-cyan-500/60 text-cyan-300'
               }`}
             >
-              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-cyan-200/80" />
+              <div className="w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full bg-cyan-200/90" />
             </div>
           </div>
         ) : (
-          /* D-Pad Buttons */
-          <div className="flex items-center gap-2 bg-slate-950/70 backdrop-blur-md p-2 rounded-2xl border border-slate-800 shadow-xl">
+          /* D-Pad Buttons - Extra Large for Easy Finger Pressing */
+          <div className="flex items-center gap-3 bg-slate-950/80 backdrop-blur-md p-2.5 rounded-3xl border-2 border-slate-800 shadow-2xl">
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -357,10 +357,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('left', false)}
               onPointerCancel={() => onUpdateInput('left', false)}
-              className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl border-2 ${
+              className={`w-17 h-17 sm:w-19 sm:h-19 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-transform active:scale-95 ${
                 inputs.left
-                  ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                  : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_18px_rgba(6,182,212,0.8)]'
+                  : 'bg-slate-900/90 text-cyan-300 border-cyan-500/50'
               }`}
             >
               ◀
@@ -372,10 +372,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               }}
               onPointerUp={() => onUpdateInput('right', false)}
               onPointerCancel={() => onUpdateInput('right', false)}
-              className={`w-14 h-14 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center font-bold text-lg sm:text-xl border-2 ${
+              className={`w-17 h-17 sm:w-19 sm:h-19 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-transform active:scale-95 ${
                 inputs.right
-                  ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                  : 'bg-slate-900/80 text-cyan-300 border-cyan-500/40'
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-200 shadow-[0_0_18px_rgba(6,182,212,0.8)]'
+                  : 'bg-slate-900/90 text-cyan-300 border-cyan-500/50'
               }`}
             >
               ▶
@@ -384,10 +384,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
         )}
       </div>
 
-      {/* RIGHT SIDE: Action Buttons Array */}
-      <div className="flex flex-col items-end gap-1.5 sm:gap-2 pointer-events-auto p-2 sm:p-2.5 md:p-3">
+      {/* RIGHT SIDE: Action Buttons Array with Super Generous Touch Hitboxes */}
+      <div className="flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-auto p-2 sm:p-3">
         {/* Secondary Row: Dash, Block, Special */}
-        <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/70 backdrop-blur-md p-1 sm:p-1.5 rounded-2xl border border-slate-800 shadow-lg">
+        <div className="flex items-center gap-2 sm:gap-2.5 bg-slate-950/80 backdrop-blur-md p-1.5 sm:p-2 rounded-2xl border border-slate-800 shadow-xl">
           <button
             onPointerDown={(e) => {
               e.preventDefault();
@@ -395,15 +395,15 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dash', false)}
             onPointerCancel={() => onUpdateInput('dash', false)}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl flex flex-col items-center justify-center font-black border-2 transition-transform active:scale-95 ${
               inputs.dash
-                ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_12px_rgba(56,189,248,0.8)]'
-                : 'bg-slate-900/90 text-sky-300 border-sky-500/40'
+                ? 'bg-sky-400 text-slate-950 border-sky-200 shadow-[0_0_15px_rgba(56,189,248,0.85)]'
+                : 'bg-slate-900/90 text-sky-300 border-sky-500/50'
             }`}
             title="Dash (Shift)"
           >
-            <Wind className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">DASH</span>
+            <Wind className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="text-[9px] sm:text-[10px] font-mono leading-none font-black">DASH</span>
           </button>
 
           <button
@@ -413,15 +413,15 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('block', false)}
             onPointerCancel={() => onUpdateInput('block', false)}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl flex flex-col items-center justify-center font-black border-2 transition-transform active:scale-95 ${
               inputs.block
-                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
-                : 'bg-slate-900/90 text-amber-300 border-amber-500/40'
+                ? 'bg-amber-400 text-slate-950 border-amber-200 shadow-[0_0_15px_rgba(251,191,36,0.85)]'
+                : 'bg-slate-900/90 text-amber-300 border-amber-500/50'
             }`}
             title="Escudo (E)"
           >
-            <Shield className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">ESC</span>
+            <Shield className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="text-[9px] sm:text-[10px] font-mono leading-none font-black">ESC</span>
           </button>
 
           <button
@@ -432,22 +432,22 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('special', false)}
             onPointerCancel={() => onUpdateInput('special', false)}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold border transition-transform active:scale-95 ${
+            className={`w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl flex flex-col items-center justify-center font-black border-2 transition-transform active:scale-95 ${
               inputs.special
-                ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.9)]'
+                ? 'bg-rose-500 text-white border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.95)]'
                 : canUseSpecial
                 ? 'bg-gradient-to-tr from-rose-600 to-amber-500 text-white border-rose-400 animate-pulse'
                 : 'bg-slate-900/50 text-slate-600 border-slate-800'
             }`}
             title="Especial (Q)"
           >
-            <Zap className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">SP {energy}</span>
+            <Zap className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            <span className="text-[9px] sm:text-[10px] font-mono leading-none font-black">SP {energy}</span>
           </button>
         </div>
 
-        {/* Primary Row: Daggers, Sword Attack, Jump */}
-        <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md p-1.5 rounded-3xl border border-slate-800 shadow-2xl">
+        {/* Primary Row: Daggers, Sword Attack, Jump - Extra Large Mobile Hitboxes */}
+        <div className="flex items-center gap-2.5 sm:gap-3 bg-slate-950/85 backdrop-blur-md p-2 rounded-3xl border-2 border-slate-800 shadow-2xl">
           {/* Dagger Throw with Live Recharge Visualizer */}
           <button
             onPointerDown={(e) => {
@@ -456,27 +456,27 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('dagger', false)}
             onPointerCancel={() => onUpdateInput('dagger', false)}
-            className={`relative overflow-hidden w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`relative overflow-hidden w-15 h-15 sm:w-17 sm:h-17 md:w-18 md:h-18 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
               inputs.dagger
-                ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.9)]'
+                ? 'bg-purple-600 text-white border-purple-200 shadow-[0_0_18px_rgba(168,85,247,0.95)]'
                 : daggersAvailable > 0
-                ? 'bg-gradient-to-b from-purple-900/90 to-slate-950/90 text-purple-200 border-purple-500/60 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+                ? 'bg-gradient-to-b from-purple-900/95 to-slate-950/95 text-purple-200 border-purple-500/70 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
                 : 'bg-slate-900/90 text-slate-500 border-purple-950/60'
             }`}
           >
             {/* Pixel Kunai Icon */}
-            <svg viewBox="0 0 10 18" className="w-4.5 h-4.5 sm:w-5 sm:h-5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
+            <svg viewBox="0 0 10 18" className="w-5 h-5 sm:w-5.5 sm:h-5.5 mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.6)]">
               <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
               <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
               <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
               <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
             </svg>
-            <span className="text-[8px] sm:text-[9px] font-mono leading-none font-bold">
+            <span className="text-[9px] sm:text-[10px] font-mono leading-none font-black">
               {daggersAvailable < 3 ? `${daggersAvailable}/3` : '3/3'}
             </span>
             {/* Active Fill Bottom Gauge */}
             {daggersAvailable < 3 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-950/90 overflow-hidden">
+              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-950/90 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-purple-500 via-fuchsia-400 to-cyan-300 transition-all duration-75"
                   style={{ width: `${daggerRechargePercent}%` }}
@@ -492,17 +492,17 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('attack', false)}
             onPointerCancel={() => onUpdateInput('attack', false)}
-            className={`w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
+            className={`w-17 h-17 sm:w-19 sm:h-19 md:w-21 md:h-21 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 ${
               inputs.attack
-                ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.9)]'
-                : 'bg-gradient-to-br from-cyan-900/90 to-blue-950/90 text-cyan-200 border-cyan-400/60 shadow-md'
+                ? 'bg-cyan-400 text-slate-950 border-cyan-100 shadow-[0_0_22px_rgba(34,211,238,0.95)]'
+                : 'bg-gradient-to-br from-cyan-900/95 to-blue-950/95 text-cyan-200 border-cyan-400/70 shadow-lg'
             }`}
           >
-            <Swords className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
-            <span className="text-[8px] sm:text-[9px] font-mono font-black">ATACAR</span>
+            <Swords className="w-6 h-6 sm:w-7 sm:h-7" />
+            <span className="text-[9px] sm:text-[10px] font-mono font-black">ATACAR</span>
           </button>
 
-          {/* Jump Button - Strictly Contained Inside Button Frame */}
+          {/* Jump Button - Massive, Easy-to-hit Primary Jump Button */}
           <button
             id="landscape-btn-jump"
             onPointerDown={(e) => {
@@ -511,14 +511,14 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             }}
             onPointerUp={() => onUpdateInput('jump', false)}
             onPointerCancel={() => onUpdateInput('jump', false)}
-            className={`w-16 h-16 sm:w-17 sm:h-17 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
+            className={`w-19 h-19 sm:w-22 sm:h-22 md:w-24 md:h-24 rounded-2xl flex flex-col items-center justify-center font-bold border-2 transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1.5 shadow-2xl ${
               inputs.jump
-                ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_18px_rgba(244,63,94,0.9)]'
-                : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/70 shadow-lg'
+                ? 'bg-rose-500 text-slate-950 border-rose-200 shadow-[0_0_24px_rgba(244,63,94,0.95)]'
+                : 'bg-gradient-to-br from-rose-700 to-pink-700 text-rose-100 border-rose-300/80 shadow-xl'
             }`}
           >
-            <ArrowUp className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[3] shrink-0" />
-            <span className="text-[9px] sm:text-[10px] font-black tracking-wide leading-none truncate max-w-full">
+            <ArrowUp className="w-7 h-7 sm:w-8 sm:h-8 stroke-[3] shrink-0" />
+            <span className="text-[11px] sm:text-xs font-black tracking-wider leading-none truncate max-w-full">
               SALTAR
             </span>
           </button>

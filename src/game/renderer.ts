@@ -758,6 +758,29 @@ export class GameRenderer {
       grad.addColorStop(0.6, '#312e81');
       grad.addColorStop(0.85, '#4338ca');
       grad.addColorStop(1, '#0284c7');
+    } else if (zone === 'jungle') {
+      // Jungle Run: Lush Tropical Rainforest with Ancient Mayan Pyramids
+      if (act === 1) {
+        // Vibrant Rainforest Canopy at Golden Dawn
+        grad.addColorStop(0, '#022c22');
+        grad.addColorStop(0.32, '#064e3b');
+        grad.addColorStop(0.62, '#047857');
+        grad.addColorStop(0.85, '#10b981');
+        grad.addColorStop(1, '#a7f3d0');
+      } else if (act === 2) {
+        // Deep Cenote Twilight & Humid Jungle Mist
+        grad.addColorStop(0, '#021815');
+        grad.addColorStop(0.35, '#06392c');
+        grad.addColorStop(0.7, '#0f5132');
+        grad.addColorStop(0.9, '#15803d');
+        grad.addColorStop(1, '#6ee7b7');
+      } else {
+        // Mystical Jaguar Temple Night
+        grad.addColorStop(0, '#01120f');
+        grad.addColorStop(0.35, '#04221b');
+        grad.addColorStop(0.7, '#064e3b');
+        grad.addColorStop(1, '#0f766e');
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -777,7 +800,7 @@ export class GameRenderer {
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    // Distant Celestial Body / Cyber Matrix Ring / Volcano Crater / Desert Sun & Moon
+    // Distant Celestial Body / Cyber Matrix Ring / Volcano Crater / Desert Sun & Moon / Tropical Mayan Sun
     if (zone === 'neon') {
       ctx.strokeStyle = act === 1 ? '#06b6d433' : '#a855f733';
       ctx.lineWidth = 3;
@@ -918,6 +941,86 @@ export class GameRenderer {
           ctx.fillRect(carX - 18, carY, 16, 4);
         }
       }
+    } else if (zone === 'jungle') {
+      // Jungle Run: Golden Sol Maya & Distant Tropical Quetzal Birds
+      if (act === 1) {
+        // Warm Radiant Solar Disc with Tropical Crepuscular Sunbeams
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+        ctx.beginPath();
+        ctx.arc(245, 36, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.45)';
+        ctx.beginPath();
+        ctx.arc(245, 36, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(245, 36, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(245, 36, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Atmospheric Jungle Sunbeams streaming through the canopy
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(245, 36);
+        ctx.lineTo(150, GAME_HEIGHT);
+        ctx.lineTo(205, GAME_HEIGHT);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(245, 36);
+        ctx.lineTo(260, GAME_HEIGHT);
+        ctx.lineTo(315, GAME_HEIGHT);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Mystical Jade Cenote Moon in Twilight Sky
+        ctx.fillStyle = '#a7f3d0';
+        ctx.beginPath();
+        ctx.arc(245, 34, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#064e3b';
+        ctx.beginPath();
+        ctx.arc(239, 32, 16, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Emerald firefly stars in upper sky
+        ctx.fillStyle = '#6ee7b7';
+        for (let s = 0; s < 10; s++) {
+          const sx = (s * 33 + 15) % GAME_WIDTH;
+          const sy = (s * 17 + 8) % 65;
+          ctx.fillRect(sx, sy, 1.5, 1.5);
+        }
+      }
+
+      // Distant Tropical Quetzal Birds Gliding over the Canopy
+      for (let b = 0; b < 3; b++) {
+        const bSpeed = 0.7 + b * 0.35;
+        const bx = ((time * bSpeed * 22 + b * 115) % (GAME_WIDTH + 80)) - 30;
+        const flap = Math.sin(time * 0.18 + b * 1.8) * 3;
+        const by = 18 + b * 14 + Math.cos(time * 0.06 + b) * 3;
+
+        ctx.fillStyle = b % 2 === 0 ? '#10b981' : '#f43f5e';
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx + 4, by - 3 + flap);
+        ctx.lineTo(bx + 8, by);
+        ctx.lineTo(bx + 4, by + 1);
+        ctx.closePath();
+        ctx.fill();
+
+        // Long emerald/golden tail streamer feather
+        ctx.strokeStyle = b % 2 === 0 ? '#34d399' : '#facc15';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(bx, by);
+        ctx.lineTo(bx - 7, by + 2 - flap * 0.5);
+        ctx.stroke();
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -958,7 +1061,7 @@ export class GameRenderer {
       }
     }
 
-    // Parallax Layer 1: Distant Mountains / Cyber Skyscraper Skylines / Basalt Spires / Golden Pyramids
+    // Parallax Layer 1: Distant Mountains / Cyber Skyscraper Skylines / Basalt Spires / Golden Pyramids / Jungle Canopy Ridges
     const p1Offset = (cameraX * 0.08) % 140;
     ctx.fillStyle = zone === 'neon'
       ? (act === 1 ? '#0f2b35' : '#11172e')
@@ -968,6 +1071,8 @@ export class GameRenderer {
       ? (act === 1 ? '#330a0a' : '#220505')
       : zone === 'krono'
       ? (act === 1 ? '#091024' : '#120b29')
+      : zone === 'jungle'
+      ? (act === 1 ? '#06382a' : '#032018')
       : (act === 1 ? '#78350f' : '#2e1065');
 
     ctx.beginPath();
@@ -980,7 +1085,20 @@ export class GameRenderer {
     ctx.lineTo(0, GAME_HEIGHT);
     ctx.fill();
 
-    // Parallax Layer 2: Midground Silhouettes (Cyber Towers / Pillars / Torii / Basalt Ridges / Ancient Ruins)
+    // In Jungle Run, draw distant silhouettes of temple cresterías on mountain ridges
+    if (zone === 'jungle') {
+      ctx.fillStyle = act === 1 ? '#084835' : '#04281f';
+      for (let rx = -p1Offset - 140; rx <= GAME_WIDTH + 140; rx += 90) {
+        const crestX = rx + 30;
+        const crestY = 74 + Math.sin(crestX * 0.04 + cameraX * 0.001) * 18;
+        // Distant temple crown peeking over mountain ridge
+        ctx.fillRect(crestX - 8, crestY - 14, 16, 14);
+        ctx.fillRect(crestX - 4, crestY - 20, 8, 6);
+        ctx.fillRect(crestX - 1, crestY - 24, 2, 4);
+      }
+    }
+
+    // Parallax Layer 2: Midground Silhouettes (Cyber Towers / Pillars / Torii / Basalt Ridges / Ancient Ruins / JUNGLE WITH PYRAMIDS BELOW)
     const p2Offset = (cameraX * 0.22) % 100;
     ctx.fillStyle = zone === 'neon'
       ? (act === 1 ? '#15414d' : '#192247')
@@ -990,6 +1108,8 @@ export class GameRenderer {
       ? (act === 1 ? '#450e0e' : '#330808')
       : zone === 'krono'
       ? (act === 1 ? '#0f1a3a' : '#1d1242')
+      : zone === 'jungle'
+      ? (act === 1 ? '#0d4030' : '#05291e')
       : (act === 1 ? '#92400e' : '#3b0764');
 
     for (let x = -p2Offset - 100; x < GAME_WIDTH + 100; x += 85) {
@@ -1030,6 +1150,80 @@ export class GameRenderer {
           ctx.fillRect(x + 36, wy, 6, 6);
         }
         ctx.fillStyle = act === 1 ? '#0f1a3a' : '#1d1242';
+      } else if (zone === 'jungle') {
+        // JUNGLE WITH PYRAMIDS BELOW:
+        // Authentic Stepped Mayan Pyramids located below in the jungle landscape!
+        const pyrX = x + 12;
+        const pyrBaseY = GAME_HEIGHT; // At the bottom of the screen (abajo)
+
+        // Tier 4 (Bottom-most widest limestone foundation)
+        ctx.fillStyle = act === 1 ? '#0f3b2a' : '#06281e';
+        ctx.fillRect(pyrX - 24, pyrBaseY - 18, 66, 18);
+
+        // Tier 3
+        ctx.fillStyle = act === 1 ? '#134e38' : '#083327';
+        ctx.fillRect(pyrX - 18, pyrBaseY - 32, 54, 14);
+
+        // Tier 2
+        ctx.fillStyle = act === 1 ? '#186246' : '#0a3d2f';
+        ctx.fillRect(pyrX - 12, pyrBaseY - 44, 42, 12);
+
+        // Tier 1 (Upper platform)
+        ctx.fillStyle = act === 1 ? '#1e7554' : '#0d4a39';
+        ctx.fillRect(pyrX - 6, pyrBaseY - 54, 30, 10);
+
+        // Summit Temple Sanctuary with dark entrance doorway
+        ctx.fillStyle = act === 1 ? '#14532d' : '#052e16';
+        ctx.fillRect(pyrX + 1, pyrBaseY - 64, 16, 10);
+        // Roof comb / Crestería
+        ctx.fillStyle = act === 1 ? '#166534' : '#064e3b';
+        ctx.fillRect(pyrX + 3, pyrBaseY - 69, 12, 5);
+        ctx.fillRect(pyrX + 6, pyrBaseY - 73, 6, 4);
+        // Sanctuary doorway (mysterious dark inner shrine)
+        ctx.fillStyle = '#02180e';
+        ctx.fillRect(pyrX + 6, pyrBaseY - 60, 6, 6);
+
+        // Grand Central Staircase leading all the way up the pyramid steps
+        ctx.fillStyle = act === 1 ? '#226f54' : '#0f4f3c';
+        ctx.fillRect(pyrX + 3, pyrBaseY - 54, 12, 54);
+        // Stone stairs highlights
+        ctx.fillStyle = act === 1 ? '#2dd4bf55' : '#34d39944';
+        for (let st = pyrBaseY - 52; st < pyrBaseY; st += 4) {
+          ctx.fillRect(pyrX + 4, st, 10, 1);
+        }
+
+        // Lush jungle vines and moss clinging to the ancient pyramid blocks
+        ctx.fillStyle = '#22c55e88';
+        ctx.fillRect(pyrX - 20, pyrBaseY - 26, 4, 8);
+        ctx.fillRect(pyrX + 30, pyrBaseY - 28, 5, 10);
+        ctx.fillRect(pyrX - 8, pyrBaseY - 40, 3, 6);
+
+        // Dense Tropical Ceiba & Jungle Palm Trees framing the pyramids below
+        ctx.fillStyle = '#03261a';
+        ctx.fillRect(pyrX + 48, pyrBaseY - 75, 7, 75);
+        ctx.fillStyle = act === 1 ? '#15803d' : '#064e3b';
+        ctx.beginPath();
+        ctx.arc(pyrX + 51, pyrBaseY - 78, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = act === 1 ? '#16a34a' : '#047857';
+        ctx.beginPath();
+        ctx.arc(pyrX + 46, pyrBaseY - 84, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(pyrX + 57, pyrBaseY - 82, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hanging lianas / tropical vines
+        ctx.strokeStyle = '#22c55e99';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pyrX + 42, pyrBaseY - 72);
+        ctx.lineTo(pyrX + 42, pyrBaseY - 48);
+        ctx.moveTo(pyrX + 58, pyrBaseY - 74);
+        ctx.lineTo(pyrX + 60, pyrBaseY - 52);
+        ctx.stroke();
+
+        ctx.fillStyle = act === 1 ? '#0d4030' : '#05291e';
       } else {
         // Ancient Sandstone Obelisks & Ruined Temples
         ctx.fillRect(x + 22, 60, 16, 90);
@@ -1043,10 +1237,10 @@ export class GameRenderer {
       }
     }
 
-    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust)
-    const count = zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : isNight ? 26 : 18;
+    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies)
+    const count = zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
-      const px = ((i * 47 - cameraX * (zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : 0.15) + (time * (zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : 0.65))) % (GAME_WIDTH + 40)) - 20;
+      const px = ((i * 47 - cameraX * (zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : 0.15) + (time * (zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : 0.65))) % (GAME_WIDTH + 40)) - 20;
       const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
 
       if (zone === 'neon') {
@@ -1071,6 +1265,22 @@ export class GameRenderer {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(px + 0.5, digitY + 0.5, 1, 1);
         }
+      } else if (zone === 'jungle') {
+        // Glowing bioluminescent fireflies (luciérnagas) and drifting jungle spores
+        const fireflyPulse = 0.4 + Math.sin(time * 0.12 + i * 1.4) * 0.45;
+        if (i % 2 === 0) {
+          // Firefly glowing halo
+          ctx.fillStyle = `rgba(74, 222, 128, ${fireflyPulse * 0.35})`;
+          ctx.beginPath();
+          ctx.arc(px + 1, py + 1, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = i % 3 === 0
+          ? `rgba(250, 204, 21, ${fireflyPulse})`
+          : i % 2 === 0
+          ? `rgba(74, 222, 128, ${fireflyPulse})`
+          : '#34d399cc';
+        ctx.fillRect(px, py, i % 2 === 0 ? 2.5 : 1.5, i % 2 === 0 ? 2.5 : 1.5);
       } else {
         // Golden swirling sand dust & hieroglyphic sparkle specks
         ctx.fillStyle = i % 3 === 0 ? '#fde68acc' : i % 2 === 0 ? '#f59e0bcc' : '#fbbf24cc';
@@ -1501,6 +1711,197 @@ export class GameRenderer {
         ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 2;
         ctx.strokeRect(x + 8, 75, Math.round(44 * sc), 4);
+      } else if (lm.type === 'mayan_pyramid') {
+        // Grand Mayan Stepped Pyramid Landmark
+        const sc = lm.scale || 1.5;
+        const baseY = 148;
+        const pyrW = Math.round(130 * sc);
+        const halfW = Math.round(pyrW / 2);
+        const cx = x + halfW;
+
+        // Tier 4 (Bottom-most platform)
+        ctx.fillStyle = '#062d20';
+        ctx.fillRect(cx - Math.round(62 * sc), baseY - Math.round(20 * sc), Math.round(124 * sc), Math.round(20 * sc));
+        // Tier 3
+        ctx.fillStyle = '#083c2b';
+        ctx.fillRect(cx - Math.round(50 * sc), baseY - Math.round(38 * sc), Math.round(100 * sc), Math.round(18 * sc));
+        // Tier 2
+        ctx.fillStyle = '#0a4a35';
+        ctx.fillRect(cx - Math.round(38 * sc), baseY - Math.round(54 * sc), Math.round(76 * sc), Math.round(16 * sc));
+        // Tier 1 (Upper platform)
+        ctx.fillStyle = '#0f5c42';
+        ctx.fillRect(cx - Math.round(26 * sc), baseY - Math.round(68 * sc), Math.round(52 * sc), Math.round(14 * sc));
+
+        // Summit Temple Sanctuary
+        ctx.fillStyle = '#093a2a';
+        ctx.fillRect(cx - Math.round(16 * sc), baseY - Math.round(84 * sc), Math.round(32 * sc), Math.round(16 * sc));
+        // Temple Roof Crestería (Carved Stone Comb)
+        ctx.fillStyle = '#0f5c42';
+        ctx.fillRect(cx - Math.round(14 * sc), baseY - Math.round(92 * sc), Math.round(28 * sc), Math.round(8 * sc));
+        ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(98 * sc), Math.round(16 * sc), Math.round(6 * sc));
+        // Temple Doorways
+        ctx.fillStyle = '#021810';
+        ctx.fillRect(cx - Math.round(11 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
+        ctx.fillRect(cx - Math.round(3 * sc), baseY - Math.round(80 * sc), Math.round(6 * sc), Math.round(12 * sc));
+        ctx.fillRect(cx + Math.round(5 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
+
+        // Grand Central Stairway with stone step highlights
+        ctx.fillStyle = '#11684c';
+        ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(68 * sc), Math.round(16 * sc), Math.round(68 * sc));
+        ctx.fillStyle = '#34d39966';
+        for (let st = baseY - Math.round(66 * sc); st < baseY; st += 4) {
+          ctx.fillRect(cx - Math.round(7 * sc), st, Math.round(14 * sc), 1);
+        }
+
+        // Feathered Serpent / Kukulcán Balustrades at base of stairs
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - Math.round(10 * sc), baseY - 4, 3, 4);
+        ctx.fillRect(cx + Math.round(7 * sc), baseY - 4, 3, 4);
+
+        // Hanging jungle vines & moss on limestone blocks
+        ctx.fillStyle = '#22c55e99';
+        ctx.fillRect(cx - Math.round(45 * sc), baseY - Math.round(34 * sc), 4, 12);
+        ctx.fillRect(cx + Math.round(38 * sc), baseY - Math.round(32 * sc), 5, 14);
+        ctx.fillRect(cx - Math.round(22 * sc), baseY - Math.round(50 * sc), 3, 10);
+      } else if (lm.type === 'jungle_waterfall') {
+        // Cascading Rainforest Waterfall Landmark
+        const sc = lm.scale || 1.2;
+        const wfW = lm.w || 60;
+        // Rocky mountain cliff frame
+        ctx.fillStyle = '#062d20';
+        ctx.fillRect(x - 10, 30, Math.round(wfW + 20), 118);
+        ctx.fillStyle = '#0b4a35';
+        ctx.fillRect(x - 5, 30, 8, 118);
+        ctx.fillRect(x + wfW - 3, 30, 8, 118);
+
+        // Rushing cascading water stream
+        const flowShift = (time * 1.8) % 12;
+        ctx.fillStyle = '#06b6d4cc';
+        ctx.fillRect(x + 3, 35, wfW - 6, 110);
+        ctx.fillStyle = '#38bdf8ee';
+        ctx.fillRect(x + 8, 35, wfW - 16, 110);
+        ctx.fillStyle = '#ffffffdd';
+        // Foaming water streaks
+        for (let fy = 35 + flowShift; fy < 145; fy += 12) {
+          ctx.fillRect(x + 12, fy, wfW - 24, 2);
+        }
+
+        // Frothing splash mist at pool base
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        ctx.arc(x + Math.round(wfW / 2), 145, Math.round(wfW * 0.45), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#a7f3d0bb';
+        ctx.beginPath();
+        ctx.arc(x + Math.round(wfW / 2), 146, Math.round(wfW * 0.3), 0, Math.PI * 2);
+        ctx.fill();
+      } else if (lm.type === 'giant_ceiba') {
+        // Sacred Mayan Ceiba Tree (Yaxché)
+        const sc = lm.scale || 1.3;
+        const trunkW = Math.round(24 * sc);
+        const trunkH = Math.round(90 * sc);
+        const treeBaseY = 148;
+        const treeTopY = Math.max(10, treeBaseY - trunkH);
+
+        // Buttress Roots (Raíces tabulares)
+        ctx.fillStyle = '#042217';
+        ctx.beginPath();
+        ctx.moveTo(x + Math.round(12 * sc), treeBaseY - Math.round(30 * sc));
+        ctx.lineTo(x - Math.round(14 * sc), treeBaseY);
+        ctx.lineTo(x + trunkW + Math.round(14 * sc), treeBaseY);
+        ctx.lineTo(x + trunkW - Math.round(4 * sc), treeBaseY - Math.round(30 * sc));
+        ctx.closePath();
+        ctx.fill();
+
+        // Massive Trunk
+        ctx.fillStyle = '#083827';
+        ctx.fillRect(x + 2, treeTopY + Math.round(20 * sc), trunkW, trunkH - Math.round(20 * sc));
+        // Bark texture
+        ctx.fillStyle = '#0d4a35';
+        for (let by = treeTopY + Math.round(25 * sc); by < treeBaseY - 5; by += 10) {
+          ctx.fillRect(x + 4, by, trunkW - 8, 2);
+        }
+
+        // Expansive Layered Jungle Canopy
+        const canX = x + Math.round(trunkW / 2);
+        const canY = treeTopY + Math.round(15 * sc);
+        ctx.fillStyle = '#064e3b';
+        ctx.beginPath();
+        ctx.arc(canX, canY, Math.round(48 * sc), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath();
+        ctx.arc(canX - Math.round(20 * sc), canY - Math.round(10 * sc), Math.round(32 * sc), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(canX + Math.round(22 * sc), canY - Math.round(8 * sc), Math.round(34 * sc), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.arc(canX, canY - Math.round(16 * sc), Math.round(26 * sc), 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hanging lianas / epiphytes
+        ctx.strokeStyle = '#86efac99';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(canX - Math.round(30 * sc), canY);
+        ctx.lineTo(canX - Math.round(28 * sc), canY + Math.round(45 * sc));
+        ctx.moveTo(canX + Math.round(32 * sc), canY);
+        ctx.lineTo(canX + Math.round(34 * sc), canY + Math.round(50 * sc));
+        ctx.stroke();
+      } else if (lm.type === 'tribal_totem') {
+        // Carved Stone Mayan Stela / Feathered Totem
+        const sc = lm.scale || 1.2;
+        const totW = Math.round(20 * sc);
+        const totH = Math.round(70 * sc);
+        const totBaseY = 148;
+
+        // Base altar pedestal
+        ctx.fillStyle = '#062d20';
+        ctx.fillRect(x - Math.round(4 * sc), totBaseY - 10, totW + Math.round(8 * sc), 10);
+
+        // Stone pillar
+        ctx.fillStyle = '#0a4a35';
+        ctx.fillRect(x, totBaseY - totH, totW, totH - 10);
+
+        // Carved hieroglyphic glyph panels
+        ctx.fillStyle = '#10b981';
+        for (let gy = totBaseY - totH + 10; gy < totBaseY - 14; gy += 12) {
+          ctx.fillRect(x + 3, gy, totW - 6, 2);
+          ctx.fillRect(x + Math.round(totW / 2) - 1, gy + 3, 2, 4);
+        }
+
+        // Totem Face / Mask with Glowing Jade Eyes
+        ctx.fillStyle = '#052e16';
+        ctx.fillRect(x + 2, totBaseY - totH + 4, totW - 4, 14);
+        const eyeGlow = 0.6 + Math.sin(time * 0.1) * 0.35;
+        ctx.fillStyle = `rgba(52, 211, 153, ${eyeGlow})`;
+        ctx.fillRect(x + 4, totBaseY - totH + 8, 3, 3);
+        ctx.fillRect(x + totW - 7, totBaseY - totH + 8, 3, 3);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(x + 5, totBaseY - totH + 9, 1, 1);
+        ctx.fillRect(x + totW - 6, totBaseY - totH + 9, 1, 1);
+      } else if (lm.type === 'jungle_ruins') {
+        // Overgrown Mayan Arch & Megalithic Ruins
+        const sc = lm.scale || 1.2;
+        ctx.fillStyle = '#062d20';
+        // Left pillar
+        ctx.fillRect(x, 70, Math.round(16 * sc), 78);
+        // Right pillar
+        ctx.fillRect(x + Math.round(38 * sc), 70, Math.round(16 * sc), 78);
+        // Mayan Corbelled Arch Cap
+        ctx.fillStyle = '#0a4a35';
+        ctx.fillRect(x - 4, 60, Math.round(62 * sc), 12);
+        ctx.fillRect(x + 4, 52, Math.round(46 * sc), 8);
+        ctx.fillRect(x + 12, 46, Math.round(30 * sc), 6);
+
+        // Overgrown vines
+        ctx.fillStyle = '#22c55e99';
+        ctx.fillRect(x + 2, 65, 3, 22);
+        ctx.fillRect(x + Math.round(44 * sc), 64, 4, 28);
       }
     }
   }
@@ -1513,6 +1914,7 @@ export class GameRenderer {
     const isLava = zone === 'lavacliff';
     const isKrono = zone === 'krono';
     const isTravel = zone === 'travel';
+    const isJungle = zone === 'jungle';
 
     for (const p of platforms) {
       if (p.hidden) continue;
@@ -1520,7 +1922,7 @@ export class GameRenderer {
       const y = Math.round(p.y);
       if (x + p.w < -10 || x > GAME_WIDTH + 10) continue;
 
-      if (p.kind === 'ground' || p.kind === 'arena') {
+      if (p.kind === 'ground' || p.kind === 'arena' || p.kind === 'jungle_stone') {
         // Base foundation
         ctx.fillStyle = isNeon
           ? '#091520'
@@ -1532,6 +1934,8 @@ export class GameRenderer {
           ? '#090e1f'
           : isTravel
           ? '#0c0a1f'
+          : isJungle
+          ? '#052e16'
           : (act === 1 ? '#451a03' : '#1e0a2b');
         ctx.fillRect(x, y, p.w, p.h);
 
@@ -1558,6 +1962,14 @@ export class GameRenderer {
             ctx.fillRect(kx + 10, y + 8, 4, 2);
             ctx.fillStyle = isTravel ? '#f43f5e33' : '#06b6d433';
           }
+        } else if (zone === 'jungle') {
+          // Lush ancient Mayan stone carved glyphs and moss veins
+          ctx.fillStyle = '#22c55e33';
+          for (let jx = x + 10; jx < x + p.w - 10; jx += 26) {
+            ctx.fillRect(jx, y + 4, 12, 2);
+            ctx.fillRect(jx + 4, y + 6, 4, 6);
+            ctx.fillRect(jx + 2, y + 9, 8, 1);
+          }
         } else if (zone === 'desert') {
           ctx.fillStyle = '#f59e0b33';
           for (let dx = x + 12; dx < x + p.w - 12; dx += 30) {
@@ -1577,6 +1989,8 @@ export class GameRenderer {
           ? '#06b6d4'
           : isTravel
           ? '#38bdf8'
+          : isJungle
+          ? '#16a34a'
           : '#f59e0b';
         ctx.fillRect(x, y, p.w, 3);
         ctx.fillStyle = isNeon
@@ -1589,6 +2003,8 @@ export class GameRenderer {
           ? '#67e8f9'
           : isTravel
           ? '#f43f5e'
+          : isJungle
+          ? '#86efac'
           : '#fde68a';
         ctx.fillRect(x, y, p.w, 1);
       } else if (p.kind === 'conveyor') {
@@ -1683,6 +2099,8 @@ export class GameRenderer {
           ? '#2d0c0c'
           : isKrono
           ? '#0f172a'
+          : isJungle
+          ? '#064e3b'
           : (act === 1 ? '#78350f' : '#3b0764');
         ctx.fillRect(x, y, p.w, p.h);
 
@@ -1695,6 +2113,8 @@ export class GameRenderer {
           ? '#ef444433'
           : isKrono
           ? '#38bdf833'
+          : isJungle
+          ? '#22c55e33'
           : '#f59e0b33';
         ctx.fillRect(x + 4, y + 3, p.w - 8, p.h - 5);
 
@@ -1707,6 +2127,8 @@ export class GameRenderer {
           ? '#f97316'
           : isKrono
           ? '#06b6d4'
+          : isJungle
+          ? '#22c55e'
           : '#f59e0b';
         ctx.fillRect(x, y, p.w, 2);
 
