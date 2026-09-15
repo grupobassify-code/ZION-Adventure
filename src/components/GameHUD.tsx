@@ -28,6 +28,32 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   const isBossActive = boss && engine.arenaActive && !engine.bossDefeated;
   const rechargePercent = Math.min(100, Math.round((engine.daggerRechargeTimer / DAGGER_RECHARGE_TIME) * 100));
 
+  // Real-time animation ticker for Contrarreloj (Time Attack) so the stopwatch updates smoothly every frame
+  const [, setHudTick] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!engine.isTimeAttackMode && !engine.isVsAiMode) return;
+    let animId: number;
+    let lastTime = 0;
+    const tick = (now: number) => {
+      // 30 FPS update interval gives ultra-smooth centisecond precision with zero lag
+      if (now - lastTime >= 33) {
+        lastTime = now;
+        setHudTick((t) => (t + 1) % 100000);
+      }
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [engine.isTimeAttackMode, engine.isVsAiMode]);
+
+  // Live calculated Time Attack elapsed milliseconds (guarantees continuous display, even on respawn)
+  const liveTimeAttackMs = engine.timeAttackResult
+    ? engine.timeAttackResult.finalTimeMs
+    : engine.timeAttackStartTime > 0 && !engine.isCountdownActive
+    ? Math.max(0, performance.now() - engine.timeAttackStartTime)
+    : engine.timeAttackCurrentMs;
+
   const p = engine.player;
   const xpPercent = Math.min(100, Math.round((p.xp / Math.max(1, p.xpNeeded)) * 100));
   const energyPercent = Math.min(100, Math.round((p.energy / Math.max(1, p.maxEnergy)) * 100));
@@ -373,7 +399,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           <div className="flex items-center gap-1 sm:gap-1.5">
             <Timer className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '4s' }} />
             <span className="text-[11px] sm:text-sm font-black text-amber-300 drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]">
-              {formatTimeMs(engine.timeAttackCurrentMs)}
+              {formatTimeMs(liveTimeAttackMs)}
             </span>
           </div>
 

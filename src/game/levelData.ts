@@ -2827,11 +2827,8 @@ export function buildLevel(levelIndex: number) {
     platforms.push({ x: 1370, y: 114, w: 115, h: 10, kind: 'cyber' });
     platforms.push({ x: 1500, y: 130, w: 60, h: 10, kind: 'cyber' }); // Smooth entry step from arena floor
 
-    // 2 Overclock Power Relays on high platforms to disable the Mech's Overdrive Shield in phase 1 & 3
-    nodes.push(
-      { x: 530, y: 48, w: 18, h: 34, taken: false, id: 'core1' },
-      { x: 1260, y: 48, w: 18, h: 34, taken: false, id: 'core2' }
-    );
+    // Platforms provide dynamic arena verticality for fighting Titán Mecánico Kronos-Ω directly
+    // (Shield nodes removed so player can attack boss freely without relays)
 
     for (let x = 100; x < 2000; x += 120) {
       crystals.push({ x, y: 110 - (x % 40), w: 8, h: 8, taken: false });
@@ -2887,7 +2884,7 @@ export function buildLevel(levelIndex: number) {
       shockwaves: [],
       introTimer: 0,
       overheatTimer: 0,
-      shieldCores: 2
+      shield: false
     };
 
     goal = { x: 1080, y: 88, w: 34, h: 62 };

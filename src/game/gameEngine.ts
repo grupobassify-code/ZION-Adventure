@@ -1025,8 +1025,19 @@ export class GameEngine {
     this.notifyState();
   }
 
+  private pauseStartTime: number = 0;
+
   public togglePause() {
     this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.pauseStartTime = performance.now();
+    } else if (this.pauseStartTime > 0) {
+      const pauseDuration = performance.now() - this.pauseStartTime;
+      if (this.isTimeAttackMode && this.timeAttackStartTime > 0) {
+        this.timeAttackStartTime += pauseDuration;
+      }
+      this.pauseStartTime = 0;
+    }
     this.syncMusic();
     this.notifyState();
   }
@@ -5868,21 +5879,24 @@ export class GameEngine {
       this.boss.shockwaves = [];
       this.boss.inv = 0;
       if (this.boss.clones) this.boss.clones = [];
-      // Restore shield nodes for Guardián Neón (Boss 1)
+      // Restore shield nodes ONLY for Guardián Neón (Boss 1)
       if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
-      }
-      // Restore shield nodes for Kronos-Ω (Boss 5)
-      if (this.boss.name.includes('Kronos')) {
-        this.boss.shield = true;
-        this.nodes.forEach((n) => (n.taken = false));
+      } else if (this.boss.name.includes('Kronos')) {
+        // Kronos-Ω has no shield nodes - boss can be damaged directly
+        this.boss.shield = false;
       }
       this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '⚡ ¡Zion Reaparece en la Arena del Jefe! (3/3 ❤)', '#38bdf8');
     } else if (hasCheckpoint) {
       this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '✦ REGRESASTE AL ÚLTIMO CHECKPOINT (3/3 ❤) ✦', '#4ade80');
     } else {
       this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '✦ REGRESASTE AL INICIO DEL NIVEL (3/3 ❤) ✦', '#38bdf8');
+    }
+
+    // In Contrarreloj (Time Attack), ensure stopwatch remains continuous across death & respawn
+    if (this.isTimeAttackMode && this.timeAttackStartTime > 0 && !this.timeAttackResult) {
+      this.timeAttackCurrentMs = performance.now() - this.timeAttackStartTime;
     }
 
     // Repulsion wave: push any nearby enemies away from the sanctuary spawn point

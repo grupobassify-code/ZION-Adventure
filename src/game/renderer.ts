@@ -1062,178 +1062,334 @@ export class GameRenderer {
     }
 
     // Parallax Layer 1: Distant Mountains / Cyber Skyscraper Skylines / Basalt Spires / Golden Pyramids / Jungle Canopy Ridges
-    const p1Offset = (cameraX * 0.08) % 140;
-    ctx.fillStyle = zone === 'neon'
-      ? (act === 1 ? '#0f2b35' : '#11172e')
-      : zone === 'sakura'
-      ? (isNight ? '#1b1232' : '#6b274e')
-      : zone === 'lavacliff'
-      ? (act === 1 ? '#330a0a' : '#220505')
-      : zone === 'krono'
-      ? (act === 1 ? '#091024' : '#120b29')
-      : zone === 'jungle'
-      ? (act === 1 ? '#06382a' : '#032018')
-      : (act === 1 ? '#78350f' : '#2e1065');
-
-    ctx.beginPath();
-    ctx.moveTo(0, 115);
-    for (let x = -p1Offset - 140; x <= GAME_WIDTH + 140; x += 35) {
-      const h = Math.sin(x * 0.04 + cameraX * 0.001) * 18;
-      ctx.lineTo(x, 80 + h);
-    }
-    ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-    ctx.lineTo(0, GAME_HEIGHT);
-    ctx.fill();
-
-    // In Jungle Run, draw distant silhouettes of temple cresterías on mountain ridges
     if (zone === 'jungle') {
-      ctx.fillStyle = act === 1 ? '#084835' : '#04281f';
-      for (let rx = -p1Offset - 140; rx <= GAME_WIDTH + 140; rx += 90) {
-        const crestX = rx + 30;
-        const crestY = 74 + Math.sin(crestX * 0.04 + cameraX * 0.001) * 18;
-        // Distant temple crown peeking over mountain ridge
-        ctx.fillRect(crestX - 8, crestY - 14, 16, 14);
-        ctx.fillRect(crestX - 4, crestY - 20, 8, 6);
-        ctx.fillRect(crestX - 1, crestY - 24, 2, 4);
+      const p1Offset = (cameraX * 0.08) % 180;
+      // Distant rolling emerald mountain ridges covered in lush rainforest canopy
+      ctx.fillStyle = act === 1 ? '#042e22' : '#021c15';
+      ctx.beginPath();
+      ctx.moveTo(0, 115);
+      for (let x = -p1Offset - 180; x <= GAME_WIDTH + 180; x += 25) {
+        const h = Math.sin(x * 0.03 + cameraX * 0.0008) * 16 + Math.cos(x * 0.05) * 8;
+        ctx.lineTo(x, 68 + h);
       }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Distant cascading jungle waterfalls pouring from high cliff ravines
+      for (let wx = -p1Offset - 180; wx <= GAME_WIDTH + 180; wx += 160) {
+        const fallX = wx + 85;
+        const fallTopY = 64 + Math.sin(fallX * 0.03 + cameraX * 0.0008) * 16;
+        ctx.fillStyle = '#38bdf8aa';
+        ctx.fillRect(fallX, fallTopY, 3, 40);
+        ctx.fillStyle = '#ffffffcc';
+        ctx.fillRect(fallX + 1, fallTopY, 1, 38);
+        // Foaming mist at the base
+        ctx.fillStyle = 'rgba(167, 243, 208, 0.4)';
+        ctx.beginPath();
+        ctx.arc(fallX + 1.5, fallTopY + 40, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Distant Mayan temple cresterías & stelae on mountain peaks
+      ctx.fillStyle = act === 1 ? '#063f2f' : '#03261d';
+      for (let rx = -p1Offset - 180; rx <= GAME_WIDTH + 180; rx += 140) {
+        const crestX = rx + 30;
+        const crestY = 62 + Math.sin(crestX * 0.03 + cameraX * 0.0008) * 16;
+        // Distant stone temple sanctuary with crown
+        ctx.fillRect(crestX - 10, crestY - 14, 20, 14);
+        ctx.fillRect(crestX - 6, crestY - 22, 12, 8);
+        ctx.fillRect(crestX - 2, crestY - 28, 4, 6);
+        ctx.fillStyle = '#facc15aa';
+        ctx.fillRect(crestX - 1, crestY - 26, 2, 2);
+        ctx.fillStyle = act === 1 ? '#063f2f' : '#03261d';
+      }
+    } else {
+      const p1Offset = (cameraX * 0.08) % 140;
+      ctx.fillStyle = zone === 'neon'
+        ? (act === 1 ? '#0f2b35' : '#11172e')
+        : zone === 'sakura'
+        ? (isNight ? '#1b1232' : '#6b274e')
+        : zone === 'lavacliff'
+        ? (act === 1 ? '#330a0a' : '#220505')
+        : zone === 'krono'
+        ? (act === 1 ? '#091024' : '#120b29')
+        : (act === 1 ? '#78350f' : '#2e1065');
+
+      ctx.beginPath();
+      ctx.moveTo(0, 115);
+      for (let x = -p1Offset - 140; x <= GAME_WIDTH + 140; x += 35) {
+        const h = Math.sin(x * 0.04 + cameraX * 0.001) * 18;
+        ctx.lineTo(x, 80 + h);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
     }
 
-    // Parallax Layer 2: Midground Silhouettes (Cyber Towers / Pillars / Torii / Basalt Ridges / Ancient Ruins / JUNGLE WITH PYRAMIDS BELOW)
-    const p2Offset = (cameraX * 0.22) % 100;
-    ctx.fillStyle = zone === 'neon'
-      ? (act === 1 ? '#15414d' : '#192247')
-      : zone === 'sakura'
-      ? (isNight ? '#281541' : '#7d335c')
-      : zone === 'lavacliff'
-      ? (act === 1 ? '#450e0e' : '#330808')
-      : zone === 'krono'
-      ? (act === 1 ? '#0f1a3a' : '#1d1242')
-      : zone === 'jungle'
-      ? (act === 1 ? '#0d4030' : '#05291e')
-      : (act === 1 ? '#92400e' : '#3b0764');
+    // Parallax Layer 2: Midground Silhouettes & Ancient Architecture
+    if (zone === 'jungle') {
+      // JUNGLE RUN: LUSH TROPICAL RAINFOREST WITH MAYAN PYRAMIDS DOWN BELOW ("pirámides abajo")
+      const p2Offset = (cameraX * 0.22) % 180;
+      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 170) {
+        const pyrX = x + 40;
+        const pyrBaseY = 146; // Base of the pyramid sits right above the lower horizon line
 
-    for (let x = -p2Offset - 100; x < GAME_WIDTH + 100; x += 85) {
-      if (zone === 'neon') {
-        ctx.fillRect(x + 20, 65, 16, 85);
-        ctx.fillRect(x + 8, 45, 40, 24);
-        ctx.fillStyle = act === 1 ? '#22d3ee55' : '#a855f755';
-        ctx.fillRect(x + 24, 72, 4, 6);
-        ctx.fillRect(x + 24, 86, 4, 6);
-        ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
-      } else if (zone === 'sakura') {
-        ctx.fillRect(x + 28, 68, 8, 80);
-        ctx.beginPath();
-        ctx.arc(x + 32, 58, 26, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (zone === 'lavacliff') {
-        // Jagged volcanic columns with glowing cracks
-        ctx.fillRect(x + 18, 55, 24, 95);
-        ctx.fillStyle = '#ef444455';
-        ctx.fillRect(x + 28, 65, 3, 25);
-        ctx.fillRect(x + 24, 95, 12, 2);
-        ctx.fillStyle = act === 1 ? '#450e0e' : '#330808';
-      } else if (zone === 'krono') {
-        // Towering Cyber Megastructure Silhouettes with Glowing Windows
-        ctx.fillRect(x + 12, 48, 38, 100);
-        ctx.fillRect(x + 20, 32, 22, 16);
-        // High-tech spire antenna
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(x + 30, 22, 2, 10);
-        ctx.fillStyle = '#f43f5e';
-        ctx.fillRect(x + 29, 20, 4, 2);
-
-        // Illuminated Windows Matrix (Cyan / Amber / Magenta / White)
-        for (let wy = 56; wy < 125; wy += 14) {
-          ctx.fillStyle = (wy + x) % 3 === 0 ? '#38bdf899' : (wy + x) % 3 === 1 ? '#fbbf2499' : '#f43f5e99';
-          ctx.fillRect(x + 16, wy, 6, 6);
-          ctx.fillRect(x + 26, wy, 6, 6);
-          ctx.fillRect(x + 36, wy, 6, 6);
+        // 1. EXTENDED STONE FOUNDATION IN GAPS/CHASMS (descends all the way to bottom of abyss)
+        ctx.fillStyle = act === 1 ? '#05291d' : '#031a12';
+        ctx.fillRect(pyrX - 44, pyrBaseY, 88, GAME_HEIGHT - pyrBaseY);
+        // Mayan carved stone blocks in foundation
+        ctx.fillStyle = act === 1 ? '#042217' : '#02140d';
+        for (let fy = pyrBaseY + 6; fy < GAME_HEIGHT; fy += 8) {
+          ctx.fillRect(pyrX - 42, fy, 84, 1);
         }
-        ctx.fillStyle = act === 1 ? '#0f1a3a' : '#1d1242';
-      } else if (zone === 'jungle') {
-        // JUNGLE WITH PYRAMIDS BELOW:
-        // Authentic Stepped Mayan Pyramids located below in the jungle landscape!
-        const pyrX = x + 12;
-        const pyrBaseY = GAME_HEIGHT; // At the bottom of the screen (abajo)
 
-        // Tier 4 (Bottom-most widest limestone foundation)
-        ctx.fillStyle = act === 1 ? '#0f3b2a' : '#06281e';
-        ctx.fillRect(pyrX - 24, pyrBaseY - 18, 66, 18);
+        // 2. PRIMARY STEPPED MAYAN PYRAMID ("PIRÁMIDE MAYA ABAJO")
+        // Tier 5 (Base platform with ancient hieroglyphic carved border)
+        ctx.fillStyle = act === 1 ? '#083a29' : '#04241a';
+        ctx.fillRect(pyrX - 40, pyrBaseY - 14, 80, 14);
+        ctx.fillStyle = act === 1 ? '#0b4a35' : '#063022';
+        ctx.fillRect(pyrX - 38, pyrBaseY - 14, 76, 3);
+
+        // Tier 4
+        ctx.fillStyle = act === 1 ? '#0d4a34' : '#063022';
+        ctx.fillRect(pyrX - 32, pyrBaseY - 26, 64, 12);
+        ctx.fillStyle = act === 1 ? '#105a40' : '#083c2b';
+        ctx.fillRect(pyrX - 30, pyrBaseY - 26, 60, 2.5);
 
         // Tier 3
-        ctx.fillStyle = act === 1 ? '#134e38' : '#083327';
-        ctx.fillRect(pyrX - 18, pyrBaseY - 32, 54, 14);
+        ctx.fillStyle = act === 1 ? '#125a3f' : '#093d2b';
+        ctx.fillRect(pyrX - 25, pyrBaseY - 38, 50, 12);
+        ctx.fillStyle = act === 1 ? '#166c4c' : '#0c4a35';
+        ctx.fillRect(pyrX - 23, pyrBaseY - 38, 46, 2.5);
 
         // Tier 2
-        ctx.fillStyle = act === 1 ? '#186246' : '#0a3d2f';
-        ctx.fillRect(pyrX - 12, pyrBaseY - 44, 42, 12);
+        ctx.fillStyle = act === 1 ? '#176c4c' : '#0d4a35';
+        ctx.fillRect(pyrX - 18, pyrBaseY - 50, 36, 12);
+        ctx.fillStyle = act === 1 ? '#1d825c' : '#105a40';
+        ctx.fillRect(pyrX - 16, pyrBaseY - 50, 32, 2.5);
 
-        // Tier 1 (Upper platform)
-        ctx.fillStyle = act === 1 ? '#1e7554' : '#0d4a39';
-        ctx.fillRect(pyrX - 6, pyrBaseY - 54, 30, 10);
+        // Tier 1 (Upper temple terrace)
+        ctx.fillStyle = act === 1 ? '#1c7e59' : '#10563d';
+        ctx.fillRect(pyrX - 12, pyrBaseY - 60, 24, 10);
+        ctx.fillStyle = act === 1 ? '#22976b' : '#14684a';
+        ctx.fillRect(pyrX - 11, pyrBaseY - 60, 22, 2);
 
-        // Summit Temple Sanctuary with dark entrance doorway
-        ctx.fillStyle = act === 1 ? '#14532d' : '#052e16';
-        ctx.fillRect(pyrX + 1, pyrBaseY - 64, 16, 10);
-        // Roof comb / Crestería
-        ctx.fillStyle = act === 1 ? '#166534' : '#064e3b';
-        ctx.fillRect(pyrX + 3, pyrBaseY - 69, 12, 5);
-        ctx.fillRect(pyrX + 6, pyrBaseY - 73, 6, 4);
-        // Sanctuary doorway (mysterious dark inner shrine)
-        ctx.fillStyle = '#02180e';
-        ctx.fillRect(pyrX + 6, pyrBaseY - 60, 6, 6);
+        // Summit Temple Sanctuary (Templo Mayor)
+        ctx.fillStyle = act === 1 ? '#135c41' : '#0a3c2a';
+        ctx.fillRect(pyrX - 9, pyrBaseY - 72, 18, 12);
+        // Roof cornice
+        ctx.fillStyle = act === 1 ? '#187050' : '#0e4a34';
+        ctx.fillRect(pyrX - 10, pyrBaseY - 73, 20, 3);
+        // Mayan Crestería / Roof Comb
+        ctx.fillStyle = act === 1 ? '#1c7e59' : '#10563d';
+        ctx.fillRect(pyrX - 7, pyrBaseY - 80, 14, 7);
+        ctx.fillRect(pyrX - 4, pyrBaseY - 84, 8, 4);
+        ctx.fillRect(pyrX - 2, pyrBaseY - 87, 4, 3);
+        // Inner Sanctuary Dark Portal
+        ctx.fillStyle = '#01150c';
+        ctx.fillRect(pyrX - 3, pyrBaseY - 69, 6, 9);
+        // Lintel stone over doorway
+        ctx.fillStyle = '#22c55e99';
+        ctx.fillRect(pyrX - 4, pyrBaseY - 70, 8, 1.5);
 
-        // Grand Central Staircase leading all the way up the pyramid steps
-        ctx.fillStyle = act === 1 ? '#226f54' : '#0f4f3c';
-        ctx.fillRect(pyrX + 3, pyrBaseY - 54, 12, 54);
-        // Stone stairs highlights
-        ctx.fillStyle = act === 1 ? '#2dd4bf55' : '#34d39944';
-        for (let st = pyrBaseY - 52; st < pyrBaseY; st += 4) {
-          ctx.fillRect(pyrX + 4, st, 10, 1);
+        // Golden / Jade Solar Relic atop Crestería
+        const relicPulse = Math.sin(time * 0.1 + x) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(250, 204, 21, ${relicPulse})`;
+        ctx.fillRect(pyrX - 2, pyrBaseY - 88, 4, 2);
+        ctx.fillStyle = `rgba(52, 211, 153, ${relicPulse * 0.8})`;
+        ctx.fillRect(pyrX - 1, pyrBaseY - 87, 2, 1);
+
+        // Grand Central Staircase (Escalinata Maya) running all the way down
+        ctx.fillStyle = act === 1 ? '#207857' : '#11543d';
+        ctx.fillRect(pyrX - 5, pyrBaseY - 60, 10, 60);
+        // Individual stone steps
+        ctx.fillStyle = act === 1 ? '#34d39966' : '#2dd4bf55';
+        for (let st = pyrBaseY - 58; st < pyrBaseY; st += 3.5) {
+          ctx.fillRect(pyrX - 4, st, 8, 1);
         }
+        // Kukulcán Feathered Serpent Head Balustrades at base
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(pyrX - 7, pyrBaseY - 5, 2.5, 5);
+        ctx.fillRect(pyrX + 4.5, pyrBaseY - 5, 2.5, 5);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(pyrX - 6.5, pyrBaseY - 4, 1.5, 1.5);
+        ctx.fillRect(pyrX + 5, pyrBaseY - 4, 1.5, 1.5);
 
-        // Lush jungle vines and moss clinging to the ancient pyramid blocks
-        ctx.fillStyle = '#22c55e88';
-        ctx.fillRect(pyrX - 20, pyrBaseY - 26, 4, 8);
-        ctx.fillRect(pyrX + 30, pyrBaseY - 28, 5, 10);
-        ctx.fillRect(pyrX - 8, pyrBaseY - 40, 3, 6);
+        // Ancient Jungle Vines & Epiphytes Clinging to Stone Tiers
+        ctx.fillStyle = '#22c55e99';
+        ctx.fillRect(pyrX - 28, pyrBaseY - 24, 3, 10);
+        ctx.fillRect(pyrX - 26, pyrBaseY - 18, 5, 2);
+        ctx.fillRect(pyrX + 22, pyrBaseY - 34, 3, 12);
+        ctx.fillRect(pyrX + 24, pyrBaseY - 26, 4, 2);
+        ctx.fillRect(pyrX - 15, pyrBaseY - 46, 2, 8);
+        ctx.fillRect(pyrX + 11, pyrBaseY - 56, 2, 7);
 
-        // Dense Tropical Ceiba & Jungle Palm Trees framing the pyramids below
-        ctx.fillStyle = '#03261a';
-        ctx.fillRect(pyrX + 48, pyrBaseY - 75, 7, 75);
+        // 3. SECONDARY STEPPED PYRAMID IN THE VALLEY DEPTH (Adds majestic ancient city scale)
+        const twinX = x + 112;
+        const twinBaseY = 142;
+        ctx.fillStyle = act === 1 ? '#063324' : '#032017';
+        ctx.fillRect(twinX - 20, twinBaseY - 8, 40, 8);
+        ctx.fillStyle = act === 1 ? '#083e2c' : '#04281d';
+        ctx.fillRect(twinX - 16, twinBaseY - 16, 32, 8);
+        ctx.fillStyle = act === 1 ? '#0b4a35' : '#063022';
+        ctx.fillRect(twinX - 12, twinBaseY - 24, 24, 8);
+        ctx.fillStyle = act === 1 ? '#0e563e' : '#083827';
+        ctx.fillRect(twinX - 8, twinBaseY - 30, 16, 6);
+        // Small sanctuary
+        ctx.fillStyle = act === 1 ? '#0a4230' : '#052a1e';
+        ctx.fillRect(twinX - 5, twinBaseY - 38, 10, 8);
+        ctx.fillRect(twinX - 3, twinBaseY - 43, 6, 5);
+        // Doorway
+        ctx.fillStyle = '#01120a';
+        ctx.fillRect(twinX - 1.5, twinBaseY - 36, 3, 6);
+        // Mini stairs
+        ctx.fillStyle = act === 1 ? '#146046' : '#0a3d2c';
+        ctx.fillRect(twinX - 2.5, twinBaseY - 30, 5, 30);
+
+        // 4. LUSH TROPICAL TREES FRAMING THE PYRAMIDS BELOW
+        // Sacred Giant Ceiba Tree (Yaxché)
+        const ceibaX = pyrX + 54;
+        ctx.fillStyle = '#032116';
+        ctx.fillRect(ceibaX - 3, pyrBaseY - 68, 6, 68);
+        // Flared buttress roots at base
+        ctx.beginPath();
+        ctx.moveTo(ceibaX - 7, pyrBaseY);
+        ctx.lineTo(ceibaX - 3, pyrBaseY - 16);
+        ctx.lineTo(ceibaX + 3, pyrBaseY - 16);
+        ctx.lineTo(ceibaX + 7, pyrBaseY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Expansive Ceiba Canopy Layers
         ctx.fillStyle = act === 1 ? '#15803d' : '#064e3b';
         ctx.beginPath();
-        ctx.arc(pyrX + 51, pyrBaseY - 78, 18, 0, Math.PI * 2);
+        ctx.arc(ceibaX, pyrBaseY - 70, 18, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = act === 1 ? '#16a34a' : '#047857';
         ctx.beginPath();
-        ctx.arc(pyrX + 46, pyrBaseY - 84, 13, 0, Math.PI * 2);
+        ctx.arc(ceibaX - 10, pyrBaseY - 74, 12, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(pyrX + 57, pyrBaseY - 82, 12, 0, Math.PI * 2);
+        ctx.arc(ceibaX + 10, pyrBaseY - 72, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = act === 1 ? '#22c55e' : '#10b981';
+        ctx.beginPath();
+        ctx.arc(ceibaX, pyrBaseY - 79, 11, 0, Math.PI * 2);
         ctx.fill();
 
-        // Hanging lianas / tropical vines
-        ctx.strokeStyle = '#22c55e99';
+        // Hanging lianas / tropical jungle vines
+        ctx.strokeStyle = '#22c55e88';
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(pyrX + 42, pyrBaseY - 72);
-        ctx.lineTo(pyrX + 42, pyrBaseY - 48);
-        ctx.moveTo(pyrX + 58, pyrBaseY - 74);
-        ctx.lineTo(pyrX + 60, pyrBaseY - 52);
+        ctx.moveTo(ceibaX - 8, pyrBaseY - 65);
+        ctx.lineTo(ceibaX - 8, pyrBaseY - 42);
+        ctx.moveTo(ceibaX + 11, pyrBaseY - 66);
+        ctx.lineTo(ceibaX + 12, pyrBaseY - 46);
         ctx.stroke();
 
-        ctx.fillStyle = act === 1 ? '#0d4030' : '#05291e';
-      } else {
-        // Ancient Sandstone Obelisks & Ruined Temples
-        ctx.fillRect(x + 22, 60, 16, 90);
-        ctx.fillStyle = '#f59e0b55';
-        ctx.fillRect(x + 26, 70, 8, 30);
-        ctx.fillStyle = act === 1 ? '#92400e' : '#3b0764';
-        // Stepped top
-        ctx.fillRect(x + 20, 56, 20, 4);
-        ctx.fillRect(x + 24, 50, 12, 6);
-        ctx.fillRect(x + 27, 44, 6, 6);
+        // Tropical Palm Tree on the left of the pyramid
+        const palmX = pyrX - 48;
+        ctx.strokeStyle = '#04271b';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(palmX, pyrBaseY);
+        ctx.quadraticCurveTo(palmX - 6, pyrBaseY - 26, palmX - 4, pyrBaseY - 50);
+        ctx.stroke();
+        // Radiating palm fronds
+        const palmTopX = palmX - 4;
+        const palmTopY = pyrBaseY - 50;
+        ctx.fillStyle = act === 1 ? '#15803d' : '#065f46';
+        for (let fa = 0; fa < 6; fa++) {
+          const fAngle = (fa * Math.PI) / 3.2 - Math.PI / 1.6;
+          const fx = palmTopX + Math.cos(fAngle) * 14;
+          const fy = palmTopY + Math.sin(fAngle) * 9;
+          ctx.beginPath();
+          ctx.moveTo(palmTopX, palmTopY);
+          ctx.lineTo(fx, fy);
+          ctx.lineTo(fx - 2, fy + 4);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // 5. JUNGLE CENOTE WATERFALL & BASIN DOWN BELOW
+        const cX = pyrX + 78;
+        // Waterfall streaming down into cenote
+        ctx.fillStyle = '#38bdf8cc';
+        ctx.fillRect(cX, pyrBaseY - 28, 5, 28);
+        ctx.fillStyle = '#a7f3d0dd';
+        ctx.fillRect(cX + 1.5, pyrBaseY - 28, 2, 27);
+        // Crystal Turquoise Cenote Pool
+        ctx.fillStyle = '#06b6d4ee';
+        ctx.fillRect(cX - 12, pyrBaseY - 3, 26, 4);
+        ctx.fillStyle = '#a7f3d0';
+        ctx.fillRect(cX - 1, pyrBaseY - 4, 5, 2);
+        // Floating water lily pads
+        ctx.fillStyle = '#22c55e';
+        ctx.fillRect(cX - 8, pyrBaseY - 4, 3, 1.5);
+        ctx.fillRect(cX + 8, pyrBaseY - 4, 3, 1.5);
+      }
+    } else {
+      const p2Offset = (cameraX * 0.22) % 100;
+      ctx.fillStyle = zone === 'neon'
+        ? (act === 1 ? '#15414d' : '#192247')
+        : zone === 'sakura'
+        ? (isNight ? '#281541' : '#7d335c')
+        : zone === 'lavacliff'
+        ? (act === 1 ? '#450e0e' : '#330808')
+        : zone === 'krono'
+        ? (act === 1 ? '#0f1a3a' : '#1d1242')
+        : (act === 1 ? '#92400e' : '#3b0764');
+
+      for (let x = -p2Offset - 100; x < GAME_WIDTH + 100; x += 85) {
+        if (zone === 'neon') {
+          ctx.fillRect(x + 20, 65, 16, 85);
+          ctx.fillRect(x + 8, 45, 40, 24);
+          ctx.fillStyle = act === 1 ? '#22d3ee55' : '#a855f755';
+          ctx.fillRect(x + 24, 72, 4, 6);
+          ctx.fillRect(x + 24, 86, 4, 6);
+          ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
+        } else if (zone === 'sakura') {
+          ctx.fillRect(x + 28, 68, 8, 80);
+          ctx.beginPath();
+          ctx.arc(x + 32, 58, 26, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (zone === 'lavacliff') {
+          // Jagged volcanic columns with glowing cracks
+          ctx.fillRect(x + 18, 55, 24, 95);
+          ctx.fillStyle = '#ef444455';
+          ctx.fillRect(x + 28, 65, 3, 25);
+          ctx.fillRect(x + 24, 95, 12, 2);
+          ctx.fillStyle = act === 1 ? '#450e0e' : '#330808';
+        } else if (zone === 'krono') {
+          // Towering Cyber Megastructure Silhouettes with Glowing Windows
+          ctx.fillRect(x + 12, 48, 38, 100);
+          ctx.fillRect(x + 20, 32, 22, 16);
+          // High-tech spire antenna
+          ctx.fillStyle = '#06b6d4';
+          ctx.fillRect(x + 30, 22, 2, 10);
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(x + 29, 20, 4, 2);
+
+          // Illuminated Windows Matrix (Cyan / Amber / Magenta / White)
+          for (let wy = 56; wy < 125; wy += 14) {
+            ctx.fillStyle = (wy + x) % 3 === 0 ? '#38bdf899' : (wy + x) % 3 === 1 ? '#fbbf2499' : '#f43f5e99';
+            ctx.fillRect(x + 16, wy, 6, 6);
+            ctx.fillRect(x + 26, wy, 6, 6);
+            ctx.fillRect(x + 36, wy, 6, 6);
+          }
+          ctx.fillStyle = act === 1 ? '#0f1a3a' : '#1d1242';
+        } else {
+          // Ancient Sandstone Obelisks & Ruined Temples (Desert)
+          ctx.fillRect(x + 22, 60, 16, 90);
+          ctx.fillStyle = '#f59e0b55';
+          ctx.fillRect(x + 26, 70, 8, 30);
+          ctx.fillStyle = act === 1 ? '#92400e' : '#3b0764';
+          // Stepped top
+          ctx.fillRect(x + 20, 56, 20, 4);
+          ctx.fillRect(x + 24, 50, 12, 6);
+          ctx.fillRect(x + 27, 44, 6, 6);
+        }
       }
     }
 
