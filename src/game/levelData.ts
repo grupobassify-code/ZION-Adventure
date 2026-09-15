@@ -3523,6 +3523,18 @@ export function buildLevel(levelIndex: number) {
       { x: 6180, y: 46, w: 10, h: 10, taken: false }
     );
 
+    // Trampolines de la Selva Maya (Impulsos sobre abismos y accesos a lianas y copas)
+    trampolines.push(
+      { x: 460, y: 138, w: 36, h: 10, bounceForce: -13, springAnim: 0, type: 'standard' },
+      { x: 990, y: 138, w: 38, h: 10, bounceForce: -15, springAnim: 0, type: 'super' },
+      { x: 1860, y: 138, w: 38, h: 10, bounceForce: -15, springAnim: 0, type: 'super' },
+      { x: 2720, y: 138, w: 42, h: 10, bounceForce: -19, springAnim: 0, type: 'mega' },
+      { x: 3680, y: 138, w: 38, h: 10, bounceForce: -16, springAnim: 0, type: 'super' },
+      { x: 4620, y: 138, w: 38, h: 10, bounceForce: -15, springAnim: 0, type: 'super' },
+      { x: 5520, y: 138, w: 42, h: 10, bounceForce: -18, springAnim: 0, type: 'mega' },
+      { x: 6420, y: 138, w: 40, h: 10, bounceForce: -16, springAnim: 0, type: 'super' }
+    );
+
     // Secreto Legendario
     secrets.push({
       x: 3360,
@@ -3594,6 +3606,13 @@ export function buildLevel(levelIndex: number) {
       platforms.push({ x: tp.x, y: tp.y, w: tp.w, h: tp.h, kind: 'temple_stone' });
     }
 
+    // Trampolines Interiores de la Pirámide Maya
+    trampolines.push(
+      { x: 620, y: 138, w: 36, h: 10, bounceForce: -13, springAnim: 0, type: 'standard' },
+      { x: 1540, y: 138, w: 38, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 2460, y: 138, w: 38, h: 10, bounceForce: -15, springAnim: 0, type: 'super' }
+    );
+
     // -------------------------------------------------------------
     // EL GRAN TRAMPOLÍN SOLAR EN LA MITAD DEL NIVEL (x: 3800)
     // -------------------------------------------------------------
@@ -3661,16 +3680,13 @@ export function buildLevel(levelIndex: number) {
       { id: 11, x: 6710, y: 20, w: 48, h: 140, flowSpeed: 1.3, mistParticles: true }
     );
 
-    // Trampolín secundario en las copas
-    trampolines.push({
-      x: 6080,
-      y: 54,
-      w: 30,
-      h: 10,
-      bounceForce: -20,
-      springAnim: 0,
-      type: 'super'
-    });
+    // Trampolines en el dosel y copas (impulso hacia las alturas y rescate del abismo inferior)
+    trampolines.push(
+      { x: 4400, y: 144, w: 38, h: 10, bounceForce: -16, springAnim: 0, type: 'super' },
+      { x: 5200, y: 144, w: 40, h: 10, bounceForce: -17, springAnim: 0, type: 'mega' },
+      { x: 6080, y: 54, w: 30, h: 10, bounceForce: -20, springAnim: 0, type: 'super' },
+      { x: 6800, y: 144, w: 42, h: 10, bounceForce: -19, springAnim: 0, type: 'mega' }
+    );
 
     // Enemigos de Acto 2: Serpientes en el templo, Monos francotiradores y Avispones en las copas
     const act2Enemies: { type: Enemy['type']; x: number; y: number; min: number; max: number; vx: number }[] = [
@@ -3790,6 +3806,12 @@ export function buildLevel(levelIndex: number) {
       spawn: { x: 1400, y: 125 },
       arena: true
     });
+
+    // Trampolines de Combate Ceremonial Maya (Permiten esquivar saltos y zarpazos de Balam)
+    trampolines.push(
+      { x: 1440, y: 138, w: 36, h: 10, bounceForce: -15, springAnim: 0, type: 'super' },
+      { x: 2080, y: 138, w: 36, h: 10, bounceForce: -15, springAnim: 0, type: 'super' }
+    );
 
     // BOSS: BALAM, EL JAGUAR GIGANTE ANCESTRAL
     boss = {

@@ -63,7 +63,12 @@ import {
 import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
 import { AiRunner } from './aiRunner';
 import { GhostFrame, loadGhostRecording, saveGhostRecording, sampleGhostAtTime } from './timeAttackGhost';
-import { getLevelBestTime, saveLevelBestTime, isBossLevel } from './saveManager';
+import { getLevelBestTime, saveLevelBestTime, isBossLevel, getSaveSlot } from './saveManager';
+import {
+  incrementAchievementProgress,
+  unlockAchievement,
+  checkLevelCompletionAchievements,
+} from './achievements';
 
 export interface GameInputState {
   left: boolean;
@@ -92,6 +97,8 @@ export class GameEngine {
   public levelIndex = 0;
   public cameraX = 0;
   public time = 0;
+  public hitsTakenInLevel = 0;
+  public activeSlotId = 0;
 
   public player: Player;
   public inMainMenu = true;
@@ -397,6 +404,7 @@ export class GameEngine {
     this.sanitizeAllHazards();
 
     if (!fromCheckpoint) {
+      this.hitsTakenInLevel = 0;
       this.stats.crystalsCollected = 0;
       this.collectedCrystalIndices.clear();
       this.collectedHealIndices.clear();

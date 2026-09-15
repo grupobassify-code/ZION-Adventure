@@ -478,5 +478,6 @@ export interface SaveSlot {
   kronosPiecesPlaced?: string[];
   kronosLockerUnlocked?: boolean;
   selectedSkin?: string;
+  achievements?: Record<string, { unlockedAt: number; progress: number }>;
 }
 
