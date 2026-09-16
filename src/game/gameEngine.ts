@@ -1489,6 +1489,7 @@ export class GameEngine {
             p.ground = false;
             p.coyoteTimer = 0;
             sound.playSfx('jump');
+            incrementAchievementProgress('bounce_acrobat', 1);
             this.screenShake = t.type === 'super' ? 8 : 4;
             const isSuper = t.type === 'super';
             this.createBurst(t.x + t.w / 2, t.y, isSuper ? 18 : 12, isSuper ? '#e879f9' : '#38bdf8');
@@ -1539,6 +1540,7 @@ export class GameEngine {
             p.ground = false;
             p.coyoteTimer = 0;
             sound.playSfx('jump');
+            incrementAchievementProgress('bounce_acrobat', 1);
             this.screenShake = t.type === 'mega' ? 12 : t.type === 'super' ? 8 : 4;
             const isMega = t.type === 'mega';
             const isSuper = t.type === 'super';
@@ -4747,7 +4749,11 @@ export class GameEngine {
       // Enemy hit
       for (const e of this.enemies) {
         if (e.alive && this.checkAABB(proj, e)) {
+          const wasAlive = e.alive;
           this.applyDamageToEnemy(e, proj.damage || 1, Math.sign(proj.vx));
+          if (wasAlive && !e.alive) {
+            incrementAchievementProgress('dagger_sniper', 1);
+          }
           proj.life = 0;
         }
       }
@@ -4893,6 +4899,7 @@ export class GameEngine {
         this.createBurst(s.x + s.w / 2, s.y + s.h / 2, 20, '#fbbf24');
         sound.playSfx('secret');
         this.addFloatingText(s.x, s.y - 12, `${s.name} (+1000 PTS)`, '#fbbf24');
+        incrementAchievementProgress('secret_archaeologist', 1);
       }
     }
 
@@ -5798,6 +5805,7 @@ export class GameEngine {
 
   private handlePlayerDamage(msg: string) {
     if (this.settings.godMode) return;
+    this.hitsTakenInLevel++;
     if (this.isInSpecialStage) {
       // In Special Stage: Strictly 1 single attempt! Any hit exits back to normal level
       this.exitSpecialStageOnDefeat();
@@ -5984,6 +5992,33 @@ export class GameEngine {
       if (this.onTimeAttackFinish) {
         this.onTimeAttackFinish(finalMs, isNewBest, delta);
       }
+    }
+
+    // Evaluate Achievements on Level Victory (No Damage, Boss Slayer, Crystals, Speed, etc.)
+    try {
+      const activeSlot = getSaveSlot(this.activeSlotId);
+      const totalCrystalsInLevel = this.crystals.length;
+      const isBoss = isBossLevel(this.levelIndex);
+      const isJungleFinal = this.levelIndex === 17;
+      const isBossBeaten = this.bossDefeated || (this.boss ? !this.boss.alive : false);
+
+      checkLevelCompletionAchievements({
+        levelIndex: this.levelIndex,
+        hitsTaken: this.hitsTakenInLevel,
+        deaths: this.stats.deaths,
+        crystalsCollected: this.stats.crystalsCollected,
+        totalCrystalsInLevel,
+        timeSeconds: this.stats.elapsedTime,
+        isBossLevel: isBoss,
+        isBossDefeated: isBossBeaten,
+        isSpecialStage: this.isInSpecialStage,
+        isJungleRunFinal: isJungleFinal,
+        totalSaveCrystals: (activeSlot?.totalCrystals || 0) + this.stats.crystalsCollected,
+        totalSaveSecrets: activeSlot?.totalSecrets || 0,
+        clockPiecesPlacedCount: activeSlot?.kronosPiecesPlaced?.length || 0,
+      });
+    } catch (err) {
+      console.error('Error checking achievements on win:', err);
     }
 
     this.notifyState();
@@ -6206,6 +6241,12 @@ export class GameEngine {
     const currentMeters = Math.max(0, Math.floor((140 - this.player.y) / 2));
     if (currentMeters > this.onlyUpAltitude) {
       this.onlyUpAltitude = currentMeters;
+      if (this.onlyUpAltitude >= 50) {
+        unlockAchievement('only_up_50m', this.onlyUpAltitude);
+      }
+      if (this.onlyUpAltitude >= 100) {
+        unlockAchievement('only_up_100m', this.onlyUpAltitude);
+      }
     }
     if (this.onlyUpAltitude > this.onlyUpMaxAltitude) {
       this.onlyUpMaxAltitude = this.onlyUpAltitude;

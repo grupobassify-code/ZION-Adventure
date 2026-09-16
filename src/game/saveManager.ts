@@ -131,6 +131,11 @@ export function getActiveSaveSlot(): SaveSlot | null {
   return slots[id] || null;
 }
 
+export function getSaveSlot(slotId: number): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  return slots[slotId] || null;
+}
+
 export function createNewSaveSlot(slotId: number, name: string): SaveSlot {
   const slots = loadAllSaveSlots();
   const newSlot: SaveSlot = {

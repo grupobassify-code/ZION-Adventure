@@ -32,13 +32,14 @@ import {
   getAchievementStats,
 } from '../game/achievements';
 import { useLanguage } from '../utils/i18n';
-import { sound } from '../game/sound';
+import { sound } from '../audio/soundEngine';
 
 interface AchievementsOverlayProps {
+  slotId?: number;
   onClose: () => void;
 }
 
-export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClose }) => {
+export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ slotId, onClose }) => {
   const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<'all' | AchievementCategory>('all');
   const [tierFilter, setTierFilter] = useState<'all' | AchievementTier>('all');

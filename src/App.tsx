@@ -34,6 +34,8 @@ import { OnlineMatchResultModal } from './components/OnlineMatchResultModal';
 import { multiplayerClient } from './multiplayer/socketClient';
 import type { RoomState } from './types/multiplayer';
 import { ZoneId } from './types';
+import { AchievementsOverlay } from './components/AchievementsOverlay';
+import { AchievementToast } from './components/AchievementToast';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -58,6 +60,7 @@ export default function App() {
   const [showIntroLoading, setShowIntroLoading] = useState<boolean>(true);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
   const [inMainMenu, setInMainMenu] = useState(true);
   const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker'>('title');
   const [mainMenuZone, setMainMenuZone] = useState<ZoneId | null>(null);
@@ -217,6 +220,7 @@ export default function App() {
   const handleStartGameFromMenu = (levelIndex: number, slotId: number) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -228,6 +232,7 @@ export default function App() {
   const handleStartOnlyUpFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -246,6 +251,7 @@ export default function App() {
   const handleStartSpecialStageFromMenu = (slotId: number) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
     engine.inMainMenu = false;
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
@@ -264,6 +270,7 @@ export default function App() {
   const handleStartVsAiFromMenu = (slotId: number, levelIndex: number, difficulty: string) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
     engine.isVsAiMode = true;
     engine.inMainMenu = false;
     setShowLevelIntro(false);
@@ -298,6 +305,7 @@ export default function App() {
   const handleStartTimeAttackFromMenu = (slotId: number, levelIndex: number) => {
     unlockAudioAndLockLandscape();
     engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
     engine.isTimeAttackMode = true;
     engine.inMainMenu = false;
     setShowLevelIntro(false);
@@ -726,6 +734,10 @@ export default function App() {
             unlockAudio();
             setIsCreditsOpen(true);
           }}
+          onOpenAchievements={() => {
+            unlockAudio();
+            setShowAchievements(true);
+          }}
           onOpenMultiplayer={() => {
             unlockAudio();
             setIsMultiplayerModalOpen(true);
@@ -1031,6 +1043,7 @@ export default function App() {
           levelIndex={engine.levelIndex}
           settings={engine.settings}
           onResume={() => engine.togglePause()}
+          onOpenAchievements={() => setShowAchievements(true)}
           onRestart={() => {
             engine.togglePause();
             if (engine.isOnlyUpMode) {
@@ -1063,6 +1076,17 @@ export default function App() {
             }
             setRenderTick((t) => t + 1);
           }}
+        />
+      )}
+
+      {/* Real-time Achievement Unlocked Toast Notification */}
+      <AchievementToast />
+
+      {/* Full-featured Achievements & Medals Overlay */}
+      {showAchievements && (
+        <AchievementsOverlay
+          slotId={activeSlotId}
+          onClose={() => setShowAchievements(false)}
         />
       )}
     </div>

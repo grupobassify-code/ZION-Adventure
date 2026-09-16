@@ -76,6 +76,7 @@ interface MainMenuProps {
   onStartTimeAttack?: (slotId: number, levelIndex: number) => void;
   onOpenCredits: () => void;
   onOpenMultiplayer?: () => void;
+  onOpenAchievements?: () => void;
   audioActive: boolean;
   onToggleAudio: () => void;
   onToggleFullscreen: () => void;
@@ -161,6 +162,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onStartTimeAttack,
   onOpenCredits,
   onOpenMultiplayer,
+  onOpenAchievements,
   audioActive,
   onToggleAudio,
   onToggleFullscreen,
@@ -370,15 +372,16 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
             {/* Secondary Buttons Row: 2-columns on mobile, flex on desktop */}
             <div className="grid grid-cols-2 gap-2 w-full">
-              {onOpenMultiplayer && (
+              {onOpenAchievements && (
                 <button
-                  type="button"
-                  disabled
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/80 border border-slate-700/80 text-slate-400 font-bold text-xs tracking-wide opacity-75 cursor-not-allowed select-none shadow-inner min-h-[42px]"
-                  title={t('onlineInDev')}
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenAchievements();
+                  }}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[42px] cursor-pointer"
                 >
-                  <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span className="text-slate-300 truncate">{t('online1v1')}</span>
+                  <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400/30" />
+                  <span>LOGROS</span>
                 </button>
               )}
 
@@ -387,7 +390,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   sound.playSfx('menuSelect');
                   onOpenCredits();
                 }}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[42px] ${!onOpenMultiplayer ? 'col-span-2' : ''}`}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[42px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
               >
                 <Award className="w-3.5 h-3.5 text-pink-400 shrink-0" />
                 <span>{t('credits')}</span>
@@ -597,9 +600,24 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               </h2>
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>{t('unlockedBadge', { unlocked: activeSlot?.unlockedLevels.length || 1, total: LEVEL_CONFIGS.length })}</span>
+            <div className="flex items-center gap-2">
+              {onOpenAchievements && (
+                <button
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenAchievements();
+                  }}
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 px-3 py-1.5 rounded-xl border border-amber-500/50 hover:border-amber-400 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                >
+                  <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+                  <span>LOGROS</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-300">
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{t('unlockedBadge', { unlocked: activeSlot?.unlockedLevels.length || 1, total: LEVEL_CONFIGS.length })}</span>
+              </div>
             </div>
           </div>
 

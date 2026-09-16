@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, RotateCcw, Volume2, VolumeX, Sparkles, X, LogOut, Smartphone, Swords, ShieldCheck, Music, Zap, Gauge } from 'lucide-react';
+import { Play, RotateCcw, Volume2, VolumeX, Sparkles, X, LogOut, Smartphone, Swords, ShieldCheck, Music, Zap, Gauge, Trophy } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameSettings } from '../types';
 import { PrivacyModal } from './PrivacyModal';
@@ -11,6 +11,7 @@ interface PauseModalProps {
   onResume: () => void;
   onRestart: () => void;
   onQuitToTitle?: () => void;
+  onOpenAchievements?: () => void;
   onUpdateSettings: (newSettings: Partial<GameSettings>) => void;
 }
 
@@ -20,6 +21,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
   onResume,
   onRestart,
   onQuitToTitle,
+  onOpenAchievements,
   onUpdateSettings,
 }) => {
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -238,6 +240,17 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               <Music className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
               <span className="hidden sm:inline">BSO</span>
             </button>
+
+            {onOpenAchievements && (
+              <button
+                onClick={onOpenAchievements}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 hover:text-amber-200 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer"
+                title="Ver Logros y Medallas"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+                <span className="hidden sm:inline">Logros</span>
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

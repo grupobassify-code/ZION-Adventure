@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Timer, Trophy, RotateCcw, Menu, Sparkles } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { formatTimeMs, formatDeltaMs } from '../game/timeAttackGhost';
 import { sound } from '../audio/soundEngine';
+import { unlockAchievement } from '../game/achievements';
 
 interface TimeAttackResultModalProps {
   levelIndex: number;
@@ -27,6 +28,12 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
 }) => {
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
   const delta = formatDeltaMs(deltaMs);
+
+  useEffect(() => {
+    if (finalTimeMs < 75000 || isNewBest) {
+      unlockAchievement('time_attack_record');
+    }
+  }, [finalTimeMs, isNewBest]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md select-none animate-fadeIn overflow-y-auto">

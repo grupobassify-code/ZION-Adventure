@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trophy, Sparkles, CheckCircle2, X } from 'lucide-react';
 import { AchievementDef, onAchievementUnlocked } from '../game/achievements';
 import { useLanguage } from '../utils/i18n';
-import { sound } from '../game/sound';
+import { sound } from '../audio/soundEngine';
 
 export const AchievementToast: React.FC = () => {
   const { language } = useLanguage();
