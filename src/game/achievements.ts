@@ -237,6 +237,39 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     iconName: 'Clock',
     points: 200,
   },
+  {
+    id: 'blizzard_skier',
+    titleEs: 'Descenso en la Ventisca',
+    titleEn: 'Blizzard Downhill Racer',
+    descriptionEs: 'Supera el descenso en esquís del Acto 1 de Blizzard Rush saltando rampas y esquivando ramas.',
+    descriptionEn: 'Conquer the ski downhill in Blizzard Rush Act 1 jumping ramps and dodging branches.',
+    category: 'speed',
+    tier: 'silver',
+    iconName: 'Wind',
+    points: 70,
+  },
+  {
+    id: 'blizzard_yeti_slayer',
+    titleEs: 'Conquistador del Yeti',
+    titleEn: 'Yeti Conqueror',
+    descriptionEs: 'Vence al temible Yeti Colosal en la cima helada del Acto 3 de Blizzard Rush.',
+    descriptionEn: 'Defeat the Colossal Yeti at the frozen peak of Blizzard Rush Act 3.',
+    category: 'combat',
+    tier: 'gold',
+    iconName: 'Skull',
+    points: 120,
+  },
+  {
+    id: 'blizzard_conqueror',
+    titleEs: 'Amo del Invierno',
+    titleEn: 'Master of Winter',
+    descriptionEs: 'Completa todos los actos de la Zona Blizzard Rush.',
+    descriptionEn: 'Complete all acts of the Blizzard Rush Zone.',
+    category: 'mastery',
+    tier: 'gold',
+    iconName: 'Award',
+    points: 100,
+  },
 ];
 
 const ACHIEVEMENTS_STORAGE_KEY = 'zion_achievements_v2';
@@ -391,6 +424,8 @@ export interface LevelCompletionContext {
   isBossDefeated: boolean;
   isSpecialStage: boolean;
   isJungleRunFinal: boolean;
+  isBlizzardDownhill?: boolean;
+  isBlizzardFinal?: boolean;
   totalSaveCrystals: number;
   totalSaveSecrets: number;
   clockPiecesPlacedCount: number;
@@ -479,6 +514,21 @@ export function checkLevelCompletionAchievements(ctx: LevelCompletionContext): s
   if (ctx.clockPiecesPlacedCount >= 5) {
     if (unlockAchievement('kronos_restored')) {
       newlyUnlocked.push('kronos_restored');
+    }
+  }
+
+  // 10. Blizzard Rush Achievements
+  if (ctx.isBlizzardDownhill) {
+    if (unlockAchievement('blizzard_skier')) {
+      newlyUnlocked.push('blizzard_skier');
+    }
+  }
+  if (ctx.isBlizzardFinal && ctx.isBossDefeated) {
+    if (unlockAchievement('blizzard_yeti_slayer')) {
+      newlyUnlocked.push('blizzard_yeti_slayer');
+    }
+    if (unlockAchievement('blizzard_conqueror')) {
+      newlyUnlocked.push('blizzard_conqueror');
     }
   }
 

@@ -285,6 +285,25 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     // Acts 2 and 3 unlock if previously reached or previous act beaten
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
   }
+  if (cfg && cfg.zone === 'blizzard') {
+    const jungle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
+    const blizzard1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isJungleCompleted =
+      (jungle3Idx !== -1 && (completedList.includes(jungle3Idx) || completedList.includes('jungle-3' as any))) ||
+      (blizzard1Idx !== -1 && (unlockedList.includes(blizzard1Idx) || completedList.includes(blizzard1Idx))) ||
+      unlockedList.includes(levelIndex);
+
+    if (!isJungleCompleted && !unlockedList.includes(levelIndex)) {
+      return false; // Blizzard Rush unlocks once Jungle Run is finished or unlocked
+    }
+    if (levelIndex === blizzard1Idx) {
+      return true;
+    }
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
+  }
   return slot.unlockedLevels.includes(levelIndex);
 }
 
@@ -294,7 +313,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3'].includes(cfg.id);
 }
 
 /**

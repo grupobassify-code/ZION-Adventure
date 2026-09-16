@@ -447,6 +447,72 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     worldWidth: 2600,
     themeColor: '#047857',
     accentColor: '#ef4444'
+  },
+  {
+    id: 'blizzard-1',
+    zone: 'blizzard',
+    act: 1,
+    title: 'Zona 7 · Acto 1 — Blizzard Rush',
+    subtitle: 'Descenso en Esquís por la Montaña Nevada',
+    lore: [
+      {
+        title: '🎿 ¡DESCENSO ALPINO EN ESQUÍS!',
+        lines: [
+          'Tras dominar la ancestral Selva Maya, Zion asciende al gélido Pico de las Ventiscas.',
+          'Para sortear el colosal desfiladero nevado, Zion se calza un par de esquís de alta velocidad.',
+          '¡Prepárate para un vertiginoso descenso montaña abajo! Tu misión es saltar rampas y esquivar ramas caídas y troncos.',
+          '¡Usa el salto para elevarte sobre las simas y agáchate para deslizarte a toda velocidad!'
+        ],
+        author: 'Guía de las Nieves Eternas'
+      }
+    ],
+    worldWidth: 7800,
+    themeColor: '#38bdf8',
+    accentColor: '#e0f2fe'
+  },
+  {
+    id: 'blizzard-2',
+    zone: 'blizzard',
+    act: 2,
+    title: 'Zona 7 · Acto 2 — Blizzard Rush',
+    subtitle: 'El Bosque Nevado y Cavernas de Escarcha',
+    lore: [
+      {
+        title: '❄️ EL BOSQUE GLACIAL BAJO LA AURORA',
+        lines: [
+          'Dejando los esquís tras el descenso, Zion se adentra en el corazón del milenario bosque nevado.',
+          'Bajo el resplandor místico de la Aurora Boreal, el frío hiela el aliento y la nieve cubre cada sendero.',
+          'Manadas de lobos árticos acechan entre los pinos escarchados, liebres de nieve saltan y murciélagos de hielo descienden.',
+          '¡Cuidado con las plataformas resbaladizas y las estalagmitas de hielo que caen del techo!'
+        ],
+        author: 'Códice del Viento Polar'
+      }
+    ],
+    worldWidth: 7500,
+    themeColor: '#0284c7',
+    accentColor: '#93c5fd'
+  },
+  {
+    id: 'blizzard-3',
+    zone: 'blizzard',
+    act: 3,
+    title: 'Zona 7 · Acto 3 — Blizzard Rush (Jefe)',
+    subtitle: 'Yeti Colosal, Señor de las Ventiscas',
+    lore: [
+      {
+        title: '🏔️ EL RUGIDO DEL YETI DE LAS CUMBRES',
+        lines: [
+          'En el pico más alto de la montaña, donde la tormenta de nieve es perpetua, mora el legendario Yeti Colosal.',
+          'Una bestia descomunal de pelaje blanco como la nieve virgen y cuernos esculpidos en hielo milenario.',
+          'Sus pisotones sísmicos resquebrajan el suelo, arroja gigantescas rocas de nieve y ruge con ráfagas congelantes.',
+          '¡Destruye los tres glifos rúnicos de hielo para romper su escudo y vence al titán de las nieves!'
+        ],
+        author: 'Leyenda del Coloso Polar'
+      }
+    ],
+    worldWidth: 2600,
+    themeColor: '#0369a1',
+    accentColor: '#ef4444'
   }
 ];
 
@@ -508,6 +574,14 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 3, xp: 55, score: 240 };
     case 'giant_hornet':
       return { hp: 2, xp: 45, score: 190 };
+    case 'arctic_wolf':
+      return { hp: 4, xp: 60, score: 250 };
+    case 'ice_golem':
+      return { hp: 7, xp: 100, score: 450 };
+    case 'frost_bat':
+      return { hp: 2, xp: 40, score: 180 };
+    case 'snow_hopper':
+      return { hp: 3, xp: 50, score: 200 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -3860,6 +3934,427 @@ export function buildLevel(levelIndex: number) {
       h: 14,
       taken: false,
       name: '⭐ Ojo de Jade Sagrado de Balam'
+    });
+
+    goal = { x: 2420, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'blizzard-1') {
+    // -------------------------------------------------------------
+    // ZONA 7 · ACTO 1 — BLIZZARD RUSH: DESCENSO EN ESQUÍS
+    // -------------------------------------------------------------
+    // Zion calza esquís y desciende a toda velocidad la ladera alpina.
+    // Mecánica central: Saltar rampas y esquivar ramas caídas, troncos y aludes.
+
+    // 1. Fondos y Puntos de Referencia Alpinos
+    landmarks.push(
+      { x: 100, y: 30, w: 140, h: 120, type: 'chalet', name: 'Refugio Inicial de la Cima' },
+      { x: 700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Telesilla Alpino' },
+      { x: 1500, y: 20, w: 90, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 2' },
+      { x: 2320, y: 35, w: 120, h: 115, type: 'chalet', name: 'Chalet Intermedio de la Cuesta' },
+      { x: 3200, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 3' },
+      { x: 4100, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 4' },
+      { x: 4820, y: 35, w: 120, h: 115, type: 'chalet', name: 'Refugio Glacial del Desfiladero' },
+      { x: 5700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 5' },
+      { x: 6700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 6' },
+      { x: 7520, y: 30, w: 160, h: 120, type: 'chalet', name: 'Gran Lodge Alpino de la Meta' }
+    );
+
+    // Banderas de Slalom a lo largo de la pista (rojas y azules)
+    for (let bx = 300; bx < 7400; bx += 380) {
+      landmarks.push({
+        x: bx,
+        y: 115,
+        w: 16,
+        h: 36,
+        type: 'slalom_flag',
+        name: bx % 760 === 0 ? 'Bandera Roja' : 'Bandera Azul'
+      });
+    }
+
+    // 2. Terreno del Descenso Alpino (Laderas, terrazas nevadas y saltos)
+    // Tramos de nieve continua con pendientes escalonadas y desfiladeros
+    platforms.push(
+      // Tramo 1: Salida de la cumbre y primera bajada
+      { x: 0, y: 148, w: 900, h: 32, kind: 'ski_slope' },
+      { x: 960, y: 148, w: 750, h: 32, kind: 'ski_slope' },
+      { x: 1780, y: 148, w: 600, h: 32, kind: 'ski_slope' },
+
+      // Tramo 2: Desfiladero del Telesilla
+      { x: 2420, y: 148, w: 850, h: 32, kind: 'ski_slope' },
+      { x: 3340, y: 148, w: 700, h: 32, kind: 'ski_slope' },
+      { x: 4100, y: 148, w: 750, h: 32, kind: 'ski_slope' },
+
+      // Tramo 3: El Gran Salto Glacial
+      { x: 4900, y: 148, w: 900, h: 32, kind: 'ski_slope' },
+      { x: 5860, y: 148, w: 800, h: 32, kind: 'ski_slope' },
+      { x: 6720, y: 148, w: 1080, h: 32, kind: 'ski_slope' }
+    );
+
+    // Rampas elevadas para saltos de esquí acrobáticos
+    platforms.push(
+      { x: 650, y: 122, w: 90, h: 10, kind: 'snow' },
+      { x: 1450, y: 115, w: 100, h: 10, kind: 'snow' },
+      { x: 2150, y: 110, w: 110, h: 10, kind: 'snow' },
+      { x: 3050, y: 115, w: 95, h: 10, kind: 'snow' },
+      { x: 3850, y: 110, w: 120, h: 10, kind: 'snow' },
+      { x: 4650, y: 118, w: 90, h: 10, kind: 'snow' },
+      { x: 5500, y: 112, w: 110, h: 10, kind: 'snow' },
+      { x: 6400, y: 115, w: 100, h: 10, kind: 'snow' }
+    );
+
+    // Trampolines de Salto de Esquí (Super Ski Jumps)
+    trampolines.push(
+      { x: 860, y: 138, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
+      { x: 1680, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 2340, y: 138, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
+      { x: 3260, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 4020, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 4820, y: 138, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
+      { x: 5780, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 6640, y: 138, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
+    );
+
+    // 3. Obstáculos Principales: Ramas Caídas y Troncos (Saltar para esquivar)
+    const branchPositions = [
+      420, 580, 1120, 1320, 1950, 2600, 2800, 3500, 3720, 4300, 4520, 5150, 5380, 6050, 6280, 6950, 7150
+    ];
+    for (const bx of branchPositions) {
+      hazards.push({
+        x: bx,
+        y: 126,
+        w: 28,
+        h: 22,
+        type: 'snow_branch'
+      });
+    }
+
+    const logPositions = [
+      780, 1220, 1600, 2250, 2950, 3620, 4420, 5260, 6150, 6800
+    ];
+    for (const lx of logPositions) {
+      hazards.push({
+        x: lx,
+        y: 124,
+        w: 34,
+        h: 24,
+        type: 'fallen_log'
+      });
+    }
+
+    // Bolas de nieve rodantes en pendientes pronunciadas
+    const snowballSpawns = [1500, 2750, 4250, 5600, 6500];
+    for (const sx of snowballSpawns) {
+      hazards.push({
+        x: sx,
+        y: 126,
+        w: 24,
+        h: 24,
+        type: 'rolling_snowball',
+        vx: -2.5
+      });
+    }
+
+    // 4. Checkpoints Seguros en los Chalets Alpinos
+    checkpoints.push(
+      {
+        x: 2360,
+        y: 116,
+        w: 20,
+        h: 32,
+        active: false,
+        spawn: { x: 2380, y: 125 }
+      },
+      {
+        x: 4860,
+        y: 116,
+        w: 20,
+        h: 32,
+        active: false,
+        spawn: { x: 4880, y: 125 }
+      }
+    );
+
+    // 5. Coleccionables: Cristales en arcos aéreos de salto
+    crystals.push(
+      { x: 1720, y: 70, w: 8, h: 8, taken: false },
+      { x: 4060, y: 65, w: 8, h: 8, taken: false },
+      { x: 6680, y: 65, w: 8, h: 8, taken: false }
+    );
+
+    heals.push(
+      { x: 2390, y: 126, w: 10, h: 10, taken: false },
+      { x: 4890, y: 126, w: 10, h: 10, taken: false }
+    );
+
+    secrets.push({
+      x: 3900,
+      y: 60,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Trofeo de Esquí de Oro Glacial'
+    });
+
+    goal = { x: 7580, y: 88, w: 40, h: 62 };
+  } else if (config.id === 'blizzard-2') {
+    // -------------------------------------------------------------
+    // ZONA 7 · ACTO 2 — BLIZZARD RUSH: EL BOSQUE NEVADO
+    // -------------------------------------------------------------
+    // Plataformeo clásico en bosque glacial con lobos árticos,
+    // estalagmitas que caen, plataformas de hielo resbaladizo y viento polar.
+
+    landmarks.push(
+      { x: 200, y: 10, w: 140, h: 140, type: 'giant_frosted_pine', name: 'Pino Glacial Milenario' },
+      { x: 1200, y: 15, w: 120, h: 135, type: 'giant_frosted_pine', name: 'Arboleda de Escarcha' },
+      { x: 2600, y: 10, w: 160, h: 140, type: 'ice_cave_entrance', name: 'Caverna Glacial Superior' },
+      { x: 4200, y: 15, w: 130, h: 135, type: 'giant_frosted_pine', name: 'Pino Centinela Nevado' },
+      { x: 5500, y: 10, w: 150, h: 140, type: 'ice_cave_entrance', name: 'Paso de los Murciélagos de Hielo' },
+      { x: 7100, y: 20, w: 150, h: 130, type: 'aurora_shrine', name: 'Santuario de la Aurora' }
+    );
+
+    // Plataformas principales de nieve
+    platforms.push(
+      { x: 0, y: 148, w: 850, h: 32, kind: 'snow' },
+      { x: 920, y: 148, w: 900, h: 32, kind: 'snow' },
+      { x: 1900, y: 148, w: 750, h: 32, kind: 'snow' },
+      { x: 2720, y: 148, w: 850, h: 32, kind: 'ice' }, // Pista resbaladiza en cueva
+      { x: 3650, y: 148, w: 800, h: 32, kind: 'snow' },
+      { x: 4520, y: 148, w: 850, h: 32, kind: 'snow' },
+      { x: 5450, y: 148, w: 780, h: 32, kind: 'ice' }, // Segundo tramo helado
+      { x: 6300, y: 148, w: 1200, h: 32, kind: 'snow' }
+    );
+
+    // Plataformas elevadas de ramas nevadas y cristales de hielo
+    platforms.push(
+      { x: 350, y: 110, w: 80, h: 10, kind: 'snow' },
+      { x: 520, y: 85, w: 70, h: 10, kind: 'glacier_ice' },
+      { x: 1100, y: 105, w: 85, h: 10, kind: 'snow' },
+      { x: 1350, y: 80, w: 80, h: 10, kind: 'glacier_ice' },
+      { x: 1550, y: 105, w: 80, h: 10, kind: 'snow' },
+      { x: 2100, y: 110, w: 85, h: 10, kind: 'snow' },
+      { x: 2320, y: 85, w: 75, h: 10, kind: 'glacier_ice' },
+      { x: 2950, y: 108, w: 90, h: 10, kind: 'glacier_ice' },
+      { x: 3200, y: 82, w: 80, h: 10, kind: 'glacier_ice' },
+      { x: 3850, y: 110, w: 80, h: 10, kind: 'snow' },
+      { x: 4100, y: 85, w: 85, h: 10, kind: 'glacier_ice' },
+      { x: 4750, y: 108, w: 80, h: 10, kind: 'snow' },
+      { x: 5020, y: 85, w: 80, h: 10, kind: 'glacier_ice' },
+      { x: 5650, y: 110, w: 85, h: 10, kind: 'glacier_ice' },
+      { x: 5900, y: 85, w: 80, h: 10, kind: 'glacier_ice' },
+      { x: 6550, y: 105, w: 90, h: 10, kind: 'snow' },
+      { x: 6800, y: 80, w: 85, h: 10, kind: 'glacier_ice' }
+    );
+
+    // Trampolines de geiser de vapor glacial
+    trampolines.push(
+      { x: 860, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
+      { x: 1830, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
+      { x: 3580, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
+      { x: 5380, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
+      { x: 6240, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' }
+    );
+
+    // Trampas: Estalactitas que caen y pinchos de hielo
+    const iciclePositions = [720, 1400, 2250, 3050, 3350, 4250, 4900, 5800, 6100, 6700];
+    for (const ix of iciclePositions) {
+      hazards.push({
+        x: ix,
+        y: 20,
+        w: 16,
+        h: 28,
+        type: 'icicle'
+      });
+    }
+
+    const spikePositions = [860, 1830, 2660, 3580, 4460, 5380, 6240];
+    for (const sx of spikePositions) {
+      hazards.push({
+        x: sx,
+        y: 138,
+        w: 48,
+        h: 16,
+        type: 'ice_spikes'
+      });
+    }
+
+    // Ráfagas de ventisca
+    hazards.push(
+      { x: 1700, y: 60, w: 100, h: 80, type: 'blizzard_gust' },
+      { x: 4400, y: 60, w: 100, h: 80, type: 'blizzard_gust' }
+    );
+
+    // Enemigos del Bosque Nevado
+    // 1. Lobos árticos (rápidos y fieros)
+    enemies.push(
+      createEnemy(650, 128, 'arctic_wolf', 550, 780),
+      createEnemy(1500, 128, 'arctic_wolf', 1400, 1680),
+      createEnemy(2300, 128, 'arctic_wolf', 2200, 2450),
+      createEnemy(3950, 128, 'arctic_wolf', 3800, 4150),
+      createEnemy(4900, 128, 'arctic_wolf', 4750, 5100),
+      createEnemy(6600, 128, 'arctic_wolf', 6450, 6800)
+    );
+
+    // 2. Liebres de nieve saltarinas (snow_hopper)
+    enemies.push(
+      createEnemy(400, 95, 'snow_hopper', 360, 440),
+      createEnemy(1150, 90, 'snow_hopper', 1110, 1200),
+      createEnemy(2140, 95, 'snow_hopper', 2110, 2190),
+      createEnemy(3900, 95, 'snow_hopper', 3860, 3940),
+      createEnemy(4800, 95, 'snow_hopper', 4760, 4840),
+      createEnemy(6600, 90, 'snow_hopper', 6560, 6650)
+    );
+
+    // 3. Murciélagos de hielo (frost_bat)
+    enemies.push(
+      createEnemy(1380, 50, 'frost_bat', 1300, 1460),
+      createEnemy(2350, 55, 'frost_bat', 2280, 2420),
+      createEnemy(3250, 50, 'frost_bat', 3180, 3320),
+      createEnemy(5050, 55, 'frost_bat', 4980, 5120),
+      createEnemy(5950, 50, 'frost_bat', 5880, 6020)
+    );
+
+    // 4. Golems de Hielo (ice_golem)
+    enemies.push(
+      createEnemy(1650, 120, 'ice_golem', 1580, 1750),
+      createEnemy(3400, 120, 'ice_golem', 3300, 3500),
+      createEnemy(5150, 120, 'ice_golem', 5050, 5280),
+      createEnemy(6900, 120, 'ice_golem', 6800, 7050)
+    );
+
+    // Checkpoints seguros
+    checkpoints.push(
+      {
+        x: 2420,
+        y: 116,
+        w: 20,
+        h: 32,
+        active: false,
+        spawn: { x: 2440, y: 125 }
+      },
+      {
+        x: 5040,
+        y: 116,
+        w: 20,
+        h: 32,
+        active: false,
+        spawn: { x: 5060, y: 125 }
+      }
+    );
+
+    // Cristales
+    crystals.push(
+      { x: 540, y: 65, w: 8, h: 8, taken: false },
+      { x: 3220, y: 62, w: 8, h: 8, taken: false },
+      { x: 5920, y: 65, w: 8, h: 8, taken: false }
+    );
+
+    heals.push(
+      { x: 2450, y: 126, w: 10, h: 10, taken: false },
+      { x: 5080, y: 126, w: 10, h: 10, taken: false }
+    );
+
+    secrets.push({
+      x: 3240,
+      y: 45,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Cristal del Glaciar Eterno'
+    });
+
+    goal = { x: 7320, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'blizzard-3') {
+    // -------------------------------------------------------------
+    // ZONA 7 · ACTO 3 — BLIZZARD RUSH: JEFE YETI COLOSAL
+    // -------------------------------------------------------------
+    // Cumbre de la montaña en medio de la ventisca polar.
+    // El Yeti Colosal embiste, arroja peñascos de nieve y ruge ráfagas de hielo.
+
+    landmarks.push(
+      { x: 1200, y: 10, w: 200, h: 140, type: 'frozen_pinnacle', name: 'Pico Glacial Sagrado' },
+      { x: 2200, y: 10, w: 180, h: 140, type: 'frozen_pinnacle', name: 'Pico de la Tormenta Polar' }
+    );
+
+    // Arena firme nevada
+    platforms.push({ x: 0, y: 148, w: 2600, h: 32, kind: 'snow' });
+
+    // Plataformas de hielo elevadas para maniobrar
+    platforms.push(
+      { x: 1520, y: 105, w: 75, h: 10, kind: 'glacier_ice' },
+      { x: 1740, y: 80, w: 85, h: 10, kind: 'glacier_ice' },
+      { x: 1960, y: 105, w: 75, h: 10, kind: 'glacier_ice' }
+    );
+
+    // Trampolines de Vapor Geiser para saltar sobre los pisotones sísmicos
+    trampolines.push(
+      { x: 1440, y: 138, w: 36, h: 10, bounceForce: -15, springAnim: 0, type: 'super' },
+      { x: 2080, y: 138, w: 36, h: 10, bounceForce: -15, springAnim: 0, type: 'super' }
+    );
+
+    // Checkpoint justo antes de la arena
+    checkpoints.push({
+      x: 1380,
+      y: 116,
+      w: 20,
+      h: 32,
+      active: false,
+      spawn: { x: 1400, y: 125 },
+      arena: true
+    });
+
+    // 3 Glifos Rúnicos de Hielo (Nodos protectores del escudo del Yeti)
+    nodes.push(
+      { id: 1, x: 1550, y: 95, w: 14, h: 14, hp: 6, maxHp: 6, active: true },
+      { id: 2, x: 1775, y: 70, w: 14, h: 14, hp: 6, maxHp: 6, active: true },
+      { id: 3, x: 1990, y: 95, w: 14, h: 14, hp: 6, maxHp: 6, active: true }
+    );
+
+    // JEFE: YETI COLOSAL, SEÑOR DE LAS VENTISCAS
+    boss = {
+      x: 1820,
+      y: 98,
+      w: 60,
+      h: 50,
+      vx: 0,
+      vy: 0,
+      hp: 60,
+      maxHp: 60,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 65,
+      shotTimer: 70,
+      stateTimer: 60,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 45,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'Yeti Colosal, Señor de las Ventiscas',
+      title: 'YETI COLOSAL · SEÑOR DE LAS VENTISCAS',
+      subtitle: 'Titán Inmortal del Pico Glacial',
+      state: 'idle'
+    };
+
+    crystals.push(
+      { x: 1540, y: 85, w: 8, h: 8, taken: false },
+      { x: 1760, y: 60, w: 8, h: 8, taken: false },
+      { x: 1980, y: 85, w: 8, h: 8, taken: false }
+    );
+
+    heals.push(
+      { x: 1420, y: 126, w: 10, h: 10, taken: false },
+      { x: 2080, y: 126, w: 10, h: 10, taken: false }
+    );
+
+    secrets.push({
+      x: 1770,
+      y: 35,
+      w: 12,
+      h: 14,
+      taken: false,
+      name: '⭐ Corona de Escarcha del Yeti'
     });
 
     goal = { x: 2420, y: 88, w: 36, h: 62 };

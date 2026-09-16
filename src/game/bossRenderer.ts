@@ -73,6 +73,8 @@ export class BossRenderer {
       this.renderKronosOmega(boss, x, y, time);
     } else if (boss.name.includes('Balam') || boss.name.includes('Jaguar')) {
       this.renderBalamJaguar(boss, x, y, time);
+    } else if (boss.name.includes('Yeti') || boss.name.includes('Blizzard') || boss.name.includes('Glacial')) {
+      this.renderYetiBoss(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -1170,6 +1172,257 @@ export class BossRenderer {
       // Peeking fangs
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(headX + 8, headY + 3, 1, 2);
+    }
+
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // YETI · COLOSO DE LAS CUMBRES GLACIALES (BLIZZARD RUSH FINAL BOSS)
+  // ---------------------------------------------------------------------------
+  private renderYetiBoss(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const facing = boss.facing ?? 1;
+    const phase = boss.phase || 1;
+    const isAttacking = boss.state === 'attack' || boss.state === 'slash' || boss.state === 'slam' || boss.state === 'roar';
+    const isEnraged = phase === 3;
+    const breathing = Math.sin(time * 0.08) * 2;
+
+    ctx.save();
+    ctx.translate(x + boss.w / 2, y + boss.h / 2);
+    if (facing < 0) {
+      ctx.scale(-1, 1);
+    }
+
+    // 1. Enraged Blizzard Aura in Phase 3
+    if (isEnraged) {
+      const auraPulse = 0.5 + Math.sin(time * 0.2) * 0.3;
+      ctx.save();
+      ctx.strokeStyle = `rgba(56, 189, 248, ${auraPulse.toFixed(2)})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, boss.w * 0.65 + Math.sin(time * 0.15) * 4, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Swirling snowflakes around Yeti
+      for (let i = 0; i < 6; i++) {
+        const angle = time * 0.12 + (i * Math.PI) / 3;
+        const dist = boss.w * 0.55 + Math.sin(time * 0.1 + i) * 6;
+        const fx = Math.cos(angle) * dist;
+        const fy = Math.sin(angle) * dist;
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillRect(fx - 1.5, fy - 1.5, 3, 3);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(fx - 0.5, fy - 0.5, 1.5, 1.5);
+      }
+      ctx.restore();
+    }
+
+    // 2. Colossal Muscular Legs & Claws
+    const legOffset = boss.state === 'run' ? Math.sin(time * 0.25) * 5 : 0;
+    
+    // Left / Back Leg
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-18 - legOffset, 12, 14, 18);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-18 - legOffset, 24, 16, 6);
+    // Dark claws
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-19 - legOffset, 28, 3, 3);
+    ctx.fillRect(-15 - legOffset, 28, 3, 3);
+    ctx.fillRect(-11 - legOffset, 28, 3, 3);
+
+    // Right / Front Leg
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(4 + legOffset, 12, 16, 18);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(4 + legOffset, 24, 18, 6);
+    // Dark claws
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(5 + legOffset, 28, 3, 3);
+    ctx.fillRect(10 + legOffset, 28, 3, 3);
+    ctx.fillRect(15 + legOffset, 28, 3, 3);
+
+    // 3. Massive Torso & Chest with Thick Fur Coat
+    // Base shadow fur
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.ellipse(0, breathing, 24, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dense snowy white coat
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.ellipse(0, breathing - 2, 22, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Muscular chest pecs (bluish tint skin peeking through)
+    ctx.fillStyle = '#93c5fd';
+    ctx.beginPath();
+    ctx.arc(-7, breathing - 3, 6.5, 0, Math.PI * 2);
+    ctx.arc(7, breathing - 3, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Abdominal fur tufts
+    ctx.fillStyle = '#e2e8f0';
+    for (let f = -12; f <= 12; f += 6) {
+      ctx.beginPath();
+      ctx.moveTo(f, breathing + 6);
+      ctx.lineTo(f + 3, breathing + 12);
+      ctx.lineTo(f + 6, breathing + 6);
+      ctx.fill();
+    }
+
+    // 4. Glacial Ice Crystals on Shoulders
+    ctx.fillStyle = '#38bdf8';
+    // Left shoulder crystal
+    ctx.beginPath();
+    ctx.moveTo(-22, breathing - 14);
+    ctx.lineTo(-18, breathing - 26);
+    ctx.lineTo(-14, breathing - 12);
+    ctx.closePath();
+    ctx.fill();
+    // Right shoulder crystal
+    ctx.fillStyle = '#7dd3fc';
+    ctx.beginPath();
+    ctx.moveTo(14, breathing - 12);
+    ctx.lineTo(19, breathing - 28);
+    ctx.lineTo(24, breathing - 14);
+    ctx.closePath();
+    ctx.fill();
+
+    // 5. Massive Yeti Arms & Hands
+    const slamPose = boss.state === 'slam' || (boss.state === 'attack' && (boss.stateTimer || 0) < 15);
+    const armY = slamPose ? breathing + 8 : breathing - 2;
+
+    // Left Arm (Raised or slamming)
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.ellipse(-24, armY, 9, 15, slamPose ? -0.3 : 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-27, armY + 10, 8, 8); // Heavy paw
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-28, armY + 16, 3, 3);
+    ctx.fillRect(-24, armY + 16, 3, 3);
+
+    // Right Arm (Forward / Clenched Boulder Fist)
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.ellipse(22, armY, 10, 16, slamPose ? 0.3 : -0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(18, armY + 10, 10, 9);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(19, armY + 17, 3, 4);
+    ctx.fillRect(23, armY + 17, 3, 4);
+    ctx.fillRect(27, armY + 17, 3, 4);
+
+    // 6. Colossal Yeti Head & Face
+    const headY = breathing - 16;
+    // Head fur base
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(0, headY, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fluffy cheek tufts
+    ctx.beginPath();
+    ctx.moveTo(-14, headY);
+    ctx.lineTo(-21, headY + 5);
+    ctx.lineTo(-12, headY + 8);
+    ctx.moveTo(14, headY);
+    ctx.lineTo(21, headY + 5);
+    ctx.lineTo(12, headY + 8);
+    ctx.fill();
+
+    // Glacial Ice Horns on Brow
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.moveTo(-11, headY - 10);
+    ctx.lineTo(-17, headY - 24);
+    ctx.lineTo(-6, headY - 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(6, headY - 12);
+    ctx.lineTo(17, headY - 24);
+    ctx.lineTo(11, headY - 10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dark Blue Face Plate / Muzzle
+    ctx.fillStyle = '#1e3a8a';
+    ctx.beginPath();
+    ctx.ellipse(2, headY + 2, 9, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Yeti Eyes (Cyan normal, Flaming Red when enraged!)
+    const eyeColor = isEnraged ? '#ef4444' : '#38bdf8';
+    const eyePupil = isEnraged ? '#fef08a' : '#ffffff';
+    // Left eye
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(-4, headY - 2, 4, 3);
+    ctx.fillStyle = eyePupil;
+    ctx.fillRect(-2, headY - 2, 2, 2);
+    // Right eye
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(4, headY - 2, 4, 3);
+    ctx.fillStyle = eyePupil;
+    ctx.fillRect(6, headY - 2, 2, 2);
+
+    // Broad black nose
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(0, headY + 1);
+    ctx.lineTo(4, headY + 1);
+    ctx.lineTo(2, headY + 3);
+    ctx.fill();
+
+    // Snarl / Roaring Jaw with Giant Fangs
+    if (isAttacking || boss.state === 'roar' || boss.state === 'slam') {
+      // Wide open roaring mouth
+      ctx.fillStyle = '#450a0a';
+      ctx.fillRect(-5, headY + 4, 12, 7);
+      // Top fangs
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-4, headY + 4);
+      ctx.lineTo(-2, headY + 8);
+      ctx.lineTo(0, headY + 4);
+      ctx.moveTo(2, headY + 4);
+      ctx.lineTo(4, headY + 8);
+      ctx.lineTo(6, headY + 4);
+      ctx.fill();
+      // Bottom fangs
+      ctx.beginPath();
+      ctx.moveTo(-3, headY + 11);
+      ctx.lineTo(-1, headY + 7);
+      ctx.lineTo(1, headY + 11);
+      ctx.moveTo(3, headY + 11);
+      ctx.lineTo(5, headY + 7);
+      ctx.lineTo(7, headY + 11);
+      ctx.fill();
+
+      // Frost breath vapor puff from mouth
+      const breathAlpha = 0.4 + Math.sin(time * 0.3) * 0.3;
+      ctx.fillStyle = `rgba(186, 230, 253, ${breathAlpha.toFixed(2)})`;
+      ctx.beginPath();
+      ctx.arc(8, headY + 8, 4 + Math.sin(time * 0.2) * 2, 0, Math.PI * 2);
+      ctx.arc(14, headY + 7, 6 + Math.cos(time * 0.25) * 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Stoic sneer with visible bottom fangs
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-4, headY + 5);
+      ctx.lineTo(6, headY + 5);
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-2, headY + 4, 2, 3);
+      ctx.fillRect(4, headY + 4, 2, 3);
     }
 
     ctx.restore();

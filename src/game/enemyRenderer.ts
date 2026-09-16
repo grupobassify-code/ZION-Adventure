@@ -143,6 +143,20 @@ export class EnemyRenderer {
         this.renderGiantHornet(anim, time, e);
         break;
 
+      // --- ZONA 7: BLIZZARD RUSH ---
+      case 'arctic_wolf':
+        this.renderArcticWolf(anim, time, e);
+        break;
+      case 'ice_golem':
+        this.renderIceGolem(anim, time, e);
+        break;
+      case 'frost_bat':
+        this.renderFrostBat(anim, time, e);
+        break;
+      case 'snow_hopper':
+        this.renderSnowHopper(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -1718,6 +1732,271 @@ export class EnemyRenderer {
     ctx.lineTo(3, 7);
     ctx.lineTo(5, 9);
     ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // ZONA 7: BLIZZARD RUSH ENEMIES
+  // ---------------------------------------------------------------------------
+
+  // 1. Lobo Ártico de las Cumbres (Arctic Wolf)
+  private renderArcticWolf(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isRunning = Math.abs(e.vx) > 0.1;
+    const legPhase = isRunning ? Math.sin(time * 0.35) * 4 : 0;
+    const tailWag = Math.sin(time * 0.2) * 3;
+
+    ctx.save();
+
+    // Fluffy Bushy Tail
+    ctx.fillStyle = '#e2e8f0';
+    ctx.beginPath();
+    ctx.moveTo(-10, -2);
+    ctx.quadraticCurveTo(-18, -6 + tailWag, -20, 2 + tailWag);
+    ctx.quadraticCurveTo(-14, 4, -8, 2);
+    ctx.fill();
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-17, -1 + tailWag, 4, 3);
+
+    // Back Legs
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-8 - legPhase, 4, 3, 7);
+    ctx.fillRect(-5 + legPhase, 4, 3, 7);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-9 - legPhase, 10, 3, 2);
+    ctx.fillRect(-6 + legPhase, 10, 3, 2);
+
+    // Muscular Wolf Body
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 11, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Silver/Ice Neck Ruff
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.moveTo(3, -5);
+    ctx.lineTo(8, -1);
+    ctx.lineTo(2, 4);
+    ctx.fill();
+
+    // Front Legs
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(4 + legPhase, 3, 3, 8);
+    ctx.fillRect(8 - legPhase, 3, 3, 8);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(4 + legPhase, 10, 3, 2);
+    ctx.fillRect(8 - legPhase, 10, 3, 2);
+
+    // Fierce Wolf Head & Ears
+    const headX = 9;
+    const headY = -3;
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.ellipse(headX, headY, 6, 5, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pointed Ears
+    ctx.fillStyle = '#e2e8f0';
+    ctx.beginPath();
+    ctx.moveTo(headX - 3, headY - 4);
+    ctx.lineTo(headX - 2, headY - 10);
+    ctx.lineTo(headX + 1, headY - 4);
+    ctx.moveTo(headX + 1, headY - 4);
+    ctx.lineTo(headX + 3, headY - 9);
+    ctx.lineTo(headX + 5, headY - 3);
+    ctx.fill();
+    // Inner ear pinkish-gray
+    ctx.fillStyle = '#fbcfe8';
+    ctx.fillRect(headX - 1.5, headY - 7, 1.5, 3);
+
+    // Muzzle & Black Nose
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(headX + 3, headY, 5, 3.5);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(headX + 7, headY, 2, 2);
+
+    // Glowing Ice Blue Eyes
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(headX + 1, headY - 2, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(headX + 2, headY - 2, 1, 1);
+
+    // Peeking Sharp Fangs
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(headX + 4, headY + 3, 1.5, 2);
+
+    ctx.restore();
+  }
+
+  // 2. Gólem de Hielo Cúbico (Ice Golem)
+  private renderIceGolem(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const stomp = Math.sin(time * 0.15) * 1.5;
+    const glow = 0.6 + Math.sin(time * 0.2) * 0.4;
+
+    ctx.save();
+
+    // Heavy Stumpy Ice Legs
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-7, 4 + stomp, 6, 8);
+    ctx.fillRect(3, 4 - stomp, 6, 8);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(-7, 10 + stomp, 6, 2);
+    ctx.fillRect(3, 10 - stomp, 6, 2);
+
+    // Chunky Glacial Rock Torso
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-9, -8, 20, 14);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-8, -7, 18, 12);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(-7, -6, 8, 4); // Frost glaze
+
+    // Crystalline Shoulder Spikes
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(-9, -8);
+    ctx.lineTo(-14, -14);
+    ctx.lineTo(-6, -8);
+    ctx.moveTo(9, -8);
+    ctx.lineTo(15, -15);
+    ctx.lineTo(11, -5);
+    ctx.fill();
+
+    // Heavy Boulder Fists
+    const fistY = -2 + Math.sin(time * 0.2) * 3;
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-14, fistY, 6, 9);
+    ctx.fillRect(10, fistY, 6, 9);
+    ctx.fillStyle = '#93c5fd';
+    ctx.fillRect(-13, fistY + 6, 4, 3);
+    ctx.fillRect(11, fistY + 6, 4, 3);
+
+    // Glowing Core / Visor Eye (Turquoise Cyan)
+    ctx.fillStyle = `rgba(6, 182, 212, ${glow.toFixed(2)})`;
+    ctx.fillRect(-4, -4, 10, 4);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1, -3, 4, 2);
+
+    ctx.restore();
+  }
+
+  // 3. Murciélago de Escarcha (Frost Bat)
+  private renderFrostBat(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const flap = Math.sin(time * 0.4) * 6;
+
+    ctx.save();
+
+    // Translucent Ice Wings
+    ctx.fillStyle = 'rgba(186, 230, 253, 0.75)';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+
+    // Left Wing
+    ctx.beginPath();
+    ctx.moveTo(-2, 0);
+    ctx.lineTo(-12, -7 + flap);
+    ctx.lineTo(-15, 3 + flap * 0.5);
+    ctx.lineTo(-8, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Right Wing
+    ctx.beginPath();
+    ctx.moveTo(2, 0);
+    ctx.lineTo(12, -7 + flap);
+    ctx.lineTo(15, 3 + flap * 0.5);
+    ctx.lineTo(8, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Furry Little Body
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.ellipse(0, 1, 4, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // White fur collar
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(-3, -2, 6, 2);
+
+    // Glowing Red Bead Eyes
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-2.5, -3, 2, 2);
+    ctx.fillRect(1, -3, 2, 2);
+
+    // Pointed crystal ears
+    ctx.fillStyle = '#7dd3fc';
+    ctx.beginPath();
+    ctx.moveTo(-3, -4);
+    ctx.lineTo(-3, -8);
+    ctx.lineTo(-1, -4);
+    ctx.moveTo(1, -4);
+    ctx.lineTo(3, -8);
+    ctx.lineTo(3, -4);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // 4. Liebre Saltarina Ártica (Snow Hopper)
+  private renderSnowHopper(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isAirborne = Math.abs(e.vy) > 0.2;
+    const squish = isAirborne ? 1.2 : 0.85 + Math.sin(time * 0.2) * 0.15;
+
+    ctx.save();
+    ctx.scale(1, squish);
+
+    // Fluffy Round Body
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 8, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(-6, 3, 12, 3);
+
+    // Big Fluffy Back Feet
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.ellipse(-4, 5, 4, 2.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(4, 5, 4, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Small Tail Pom-pom
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-7, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cute Face & Ice Blue Eyes
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(2, -3, 2, 2.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(3, -3, 1, 1);
+
+    // Pink twitching nose
+    ctx.fillStyle = '#f472b6';
+    ctx.fillRect(6, -1, 2, 1.5);
+
+    // Long Snowy Rabbit Ears
+    ctx.fillStyle = '#f1f5f9';
+    ctx.beginPath();
+    ctx.moveTo(-1, -5);
+    ctx.lineTo(-2, -13);
+    ctx.lineTo(2, -5);
+    ctx.moveTo(2, -5);
+    ctx.lineTo(5, -12);
+    ctx.lineTo(5, -5);
+    ctx.fill();
+    ctx.fillStyle = '#fbcfe8';
+    ctx.fillRect(0, -10, 1.5, 5);
+    ctx.fillRect(3.5, -9, 1.5, 4);
 
     ctx.restore();
   }

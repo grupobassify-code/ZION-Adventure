@@ -476,6 +476,12 @@ export class GameEngine {
     this.player.showdownReady = false;
     this.player.dashTrail = [];
 
+    const isBlizzardSki = lvl.config.id === 'blizzard-1';
+    this.player.isSkiing = isBlizzardSki;
+    this.player.skiSpeed = isBlizzardSki ? 4.2 : 0;
+    this.player.skiCrouch = false;
+    this.player.skiAirTimer = 0;
+
     this.lives = this.maxLives;
     this.daggers = DAGGER_MAX_AMMO;
     this.daggerRechargeTimer = 0;
@@ -506,6 +512,7 @@ export class GameEngine {
       krono: 'KRONO CITY',
       travel: 'KRONOS TRAVEL',
       jungle: 'JUNGLE RUN (SELVA MAYA)',
+      blizzard: 'BLIZZARD RUSH',
     };
 
     this.levelIntroBanner = {
@@ -1011,6 +1018,15 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('jungleAct1');
       }
+    } else if (currentConfig.zone === 'blizzard') {
+      // Blizzard Rush Zone
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('blizzardBoss');
+      } else if (currentConfig.act === 1) {
+        sound.setMusicTrack('blizzardSki');
+      } else {
+        sound.setMusicTrack('blizzardForest');
+      }
     }
   }
 
@@ -1276,105 +1292,70 @@ export class GameEngine {
     const p = this.player;
     p.time++;
 
-    // Dash / Dodge Execution
-    if (inputs.dash && !this.dashInputHeld && p.dashCooldown <= 0 && !p.isDashing) {
-      p.isDashing = true;
-      p.dashTimer = DASH_DURATION;
-      p.dashCooldown = DASH_COOLDOWN;
-      p.inv = Math.max(p.inv, DASH_DURATION + 4);
-      p.vx = p.facing * DASH_SPEED;
-      p.vy = 0; // suspend gravity momentarily
-      sound.playSfx('dash');
-      this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 10, '#38bdf8');
-      this.dashInputHeld = true;
-    }
-    if (!inputs.dash) {
-      this.dashInputHeld = false;
-    }
+    if (p.isSkiing) {
+      p.facing = 1; // Always facing downhill
+      p.skiCrouch = !!inputs.down;
 
-    if (p.dashCooldown > 0) {
-      p.dashCooldown--;
-    }
-
-    // Process Active Dash
-    if (p.isDashing) {
-      p.dashTimer--;
-      p.vx = p.facing * DASH_SPEED;
-      p.vy = 0;
-
-      // Add ghost trail for visual impact
-      if (p.time % 2 === 0) {
-        p.dashTrail.push({
-          x: p.x,
-          y: p.y,
-          facing: p.facing,
-          alpha: 0.65,
-        });
+      // Analog or digital steer:
+      let targetSpeed = 4.4;
+      if (inputs.right) {
+        targetSpeed = 5.8; // Aerodynamic tuck
+      } else if (inputs.left) {
+        targetSpeed = 2.7; // Snowplow / brake
+      }
+      if (p.skiCrouch) {
+        targetSpeed += 0.5; // Ducking lowers wind drag
       }
 
-      if (p.dashTimer <= 0) {
-        p.isDashing = false;
-        p.vx *= 0.5; // smooth decel transition
-      }
-    } else {
-      // Normal Horizontal Movement with Analog & Digital Smooth Accel/Decel
-      let targetDirection = 0;
-      if (inputs.analogX !== undefined && Math.abs(inputs.analogX) > 0.15) {
-        targetDirection = inputs.analogX;
-        p.facing = inputs.analogX > 0 ? 1 : -1;
-      } else if (inputs.left && !inputs.right) {
-        targetDirection = -1;
-        p.facing = -1;
-      } else if (inputs.right && !inputs.left) {
-        targetDirection = 1;
-        p.facing = 1;
-      }
+      p.skiSpeed = (p.skiSpeed || 4.2) + (targetSpeed - (p.skiSpeed || 4.2)) * 0.08;
+      p.vx = p.skiSpeed;
 
-      // Calculate dynamic Only Up agility parameters (scaled by altitude)
-      const agility = this.getOnlyUpAgility();
-      const currentAccel = this.isOnlyUpMode ? PLAYER_ACCEL * agility.speedMultiplier : PLAYER_ACCEL;
-      const currentDecel = this.isOnlyUpMode ? PLAYER_DECEL * agility.speedMultiplier : PLAYER_DECEL;
-      const maxSpd = this.isOnlyUpMode ? agility.maxSpeed : PLAYER_MAX_SPEED;
-
-      if (targetDirection !== 0) {
-        p.vx += targetDirection * currentAccel;
-      } else {
-        // Smooth Deceleration
-        if (Math.abs(p.vx) > 0.05) {
-          p.vx = p.vx > 0 ? Math.max(0, p.vx - currentDecel) : Math.min(0, p.vx + currentDecel);
-        } else {
-          p.vx = 0;
-        }
-      }
-
-      // Max Speed Clamping
-      p.vx = Math.max(-maxSpd, Math.min(maxSpd, p.vx));
-
-      // Speed streak particles when running at high speed in Only Up mode
-      if (this.isOnlyUpMode && Math.abs(p.vx) > 2.4 && Math.random() < 0.4) {
-        this.particles.push({
-          x: p.x + (p.vx > 0 ? 0 : p.w),
-          y: p.y + p.h / 2 + (Math.random() - 0.5) * 6,
-          vx: -p.vx * 0.32,
-          vy: (Math.random() - 0.5) * 0.6,
-          life: 8,
-          maxLife: 8,
-          color: agility.tierColor,
-          size: 1.5,
-        });
-      }
-
-      // Sakura Zone wind assist
-      const config = LEVEL_CONFIGS[this.levelIndex];
-      if (config.zone === 'sakura' && config.act === 1) {
-        p.vx += 0.04;
-      }
-
-      // Jump Buffering & Coyote Time
+      // Ski Jump & Coyote Time
       if (p.ground) {
         p.coyoteTimer = COYOTE_FRAMES;
-      } else if (p.coyoteTimer > 0) {
-        p.coyoteTimer--;
+        if ((p.skiAirTimer || 0) > 35) {
+          // Landing bonus from a big ski jump
+          sound.playSfx('skiSwish');
+          this.createBurst(p.x + p.w / 2, p.y + p.h, 12, '#ffffff');
+          this.stats.score += 75;
+          this.addFloatingText(p.x, p.y - 12, '⛷️ ¡ATERRIZAJE PERFECTO! +75', '#38bdf8');
+        }
+        p.skiAirTimer = 0;
+
+        // Swish audio effect periodically while sliding on snow
+        if (p.time % 26 === 0 && Math.abs(p.vx) > 1.5) {
+          sound.playSfx('skiSwish');
+        }
+
+        // Snow spray particles kicking back from skis
+        if (Math.random() < 0.6) {
+          this.particles.push({
+            x: p.x - 2,
+            y: p.y + p.h - 1,
+            vx: -(1.5 + Math.random() * 2.2),
+            vy: -(0.5 + Math.random() * 1.5),
+            life: 12,
+            maxLife: 12,
+            color: '#f8fafc',
+            size: 1.5,
+          });
+        }
+      } else {
+        if (p.coyoteTimer > 0) p.coyoteTimer--;
+        p.skiAirTimer = (p.skiAirTimer || 0) + 1;
+        // In-air ski trail particles
+        if (p.time % 4 === 0) {
+          this.particles.push({
+            x: p.x + p.w / 2,
+            y: p.y + p.h,
+            vx: -p.vx * 0.25,
+            vy: 0.4,
+            life: 8,
+            maxLife: 8,
+            color: '#bae6fd',
+            size: 1.2,
+          });
+        }
       }
 
       if (inputs.jump && !p.jumpHeld) {
@@ -1384,14 +1365,13 @@ export class GameEngine {
       }
       p.jumpHeld = inputs.jump;
 
-      // Execute Jump with Dynamic Altitude Boost in Only Up mode
       if (p.jumpBufferTimer > 0 && p.coyoteTimer > 0) {
-        p.vy = this.isOnlyUpMode ? agility.jumpForce : JUMP_FORCE;
+        p.vy = -6.8; // Agile ski launch jump
         p.ground = false;
         p.coyoteTimer = 0;
         p.jumpBufferTimer = 0;
-        sound.playSfx('jump');
-        this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : '#e2e8f0');
+        sound.playSfx('skiJump');
+        this.createBurst(p.x + p.w / 2, p.y + p.h, 10, '#bae6fd');
       }
 
       // Variable jump height release cut
@@ -1399,8 +1379,135 @@ export class GameEngine {
         p.vy += GRAVITY * VARIABLE_JUMP_FALL_MULTIPLIER;
       }
 
-      // Gravity
+      // Gravity on downhill ski slope
       p.vy = Math.min(p.vy + GRAVITY, MAX_FALL_SPEED);
+    } else {
+      // Dash / Dodge Execution
+      if (inputs.dash && !this.dashInputHeld && p.dashCooldown <= 0 && !p.isDashing) {
+        p.isDashing = true;
+        p.dashTimer = DASH_DURATION;
+        p.dashCooldown = DASH_COOLDOWN;
+        p.inv = Math.max(p.inv, DASH_DURATION + 4);
+        p.vx = p.facing * DASH_SPEED;
+        p.vy = 0; // suspend gravity momentarily
+        sound.playSfx('dash');
+        this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 10, '#38bdf8');
+        this.dashInputHeld = true;
+      }
+      if (!inputs.dash) {
+        this.dashInputHeld = false;
+      }
+
+      if (p.dashCooldown > 0) {
+        p.dashCooldown--;
+      }
+
+      // Process Active Dash
+      if (p.isDashing) {
+        p.dashTimer--;
+        p.vx = p.facing * DASH_SPEED;
+        p.vy = 0;
+
+        // Add ghost trail for visual impact
+        if (p.time % 2 === 0) {
+          p.dashTrail.push({
+            x: p.x,
+            y: p.y,
+            facing: p.facing,
+            alpha: 0.65,
+          });
+        }
+
+        if (p.dashTimer <= 0) {
+          p.isDashing = false;
+          p.vx *= 0.5; // smooth decel transition
+        }
+      } else {
+        // Normal Horizontal Movement with Analog & Digital Smooth Accel/Decel
+        let targetDirection = 0;
+        if (inputs.analogX !== undefined && Math.abs(inputs.analogX) > 0.15) {
+          targetDirection = inputs.analogX;
+          p.facing = inputs.analogX > 0 ? 1 : -1;
+        } else if (inputs.left && !inputs.right) {
+          targetDirection = -1;
+          p.facing = -1;
+        } else if (inputs.right && !inputs.left) {
+          targetDirection = 1;
+          p.facing = 1;
+        }
+
+        // Calculate dynamic Only Up agility parameters (scaled by altitude)
+        const agility = this.getOnlyUpAgility();
+        const currentAccel = this.isOnlyUpMode ? PLAYER_ACCEL * agility.speedMultiplier : PLAYER_ACCEL;
+        const currentDecel = this.isOnlyUpMode ? PLAYER_DECEL * agility.speedMultiplier : PLAYER_DECEL;
+        const maxSpd = this.isOnlyUpMode ? agility.maxSpeed : PLAYER_MAX_SPEED;
+
+        if (targetDirection !== 0) {
+          p.vx += targetDirection * currentAccel;
+        } else {
+          // Smooth Deceleration
+          if (Math.abs(p.vx) > 0.05) {
+            p.vx = p.vx > 0 ? Math.max(0, p.vx - currentDecel) : Math.min(0, p.vx + currentDecel);
+          } else {
+            p.vx = 0;
+          }
+        }
+
+        // Max Speed Clamping
+        p.vx = Math.max(-maxSpd, Math.min(maxSpd, p.vx));
+
+        // Speed streak particles when running at high speed in Only Up mode
+        if (this.isOnlyUpMode && Math.abs(p.vx) > 2.4 && Math.random() < 0.4) {
+          this.particles.push({
+            x: p.x + (p.vx > 0 ? 0 : p.w),
+            y: p.y + p.h / 2 + (Math.random() - 0.5) * 6,
+            vx: -p.vx * 0.32,
+            vy: (Math.random() - 0.5) * 0.6,
+            life: 8,
+            maxLife: 8,
+            color: agility.tierColor,
+            size: 1.5,
+          });
+        }
+
+        // Sakura Zone wind assist
+        const config = LEVEL_CONFIGS[this.levelIndex];
+        if (config.zone === 'sakura' && config.act === 1) {
+          p.vx += 0.04;
+        }
+
+        // Jump Buffering & Coyote Time
+        if (p.ground) {
+          p.coyoteTimer = COYOTE_FRAMES;
+        } else if (p.coyoteTimer > 0) {
+          p.coyoteTimer--;
+        }
+
+        if (inputs.jump && !p.jumpHeld) {
+          p.jumpBufferTimer = JUMP_BUFFER_FRAMES;
+        } else if (p.jumpBufferTimer > 0) {
+          p.jumpBufferTimer--;
+        }
+        p.jumpHeld = inputs.jump;
+
+        // Execute Jump with Dynamic Altitude Boost in Only Up mode
+        if (p.jumpBufferTimer > 0 && p.coyoteTimer > 0) {
+          p.vy = this.isOnlyUpMode ? agility.jumpForce : JUMP_FORCE;
+          p.ground = false;
+          p.coyoteTimer = 0;
+          p.jumpBufferTimer = 0;
+          sound.playSfx('jump');
+          this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : '#e2e8f0');
+        }
+
+        // Variable jump height release cut
+        if (!inputs.jump && p.vy < 0) {
+          p.vy += GRAVITY * VARIABLE_JUMP_FALL_MULTIPLIER;
+        }
+
+        // Gravity
+        p.vy = Math.min(p.vy + GRAVITY, MAX_FALL_SPEED);
+      }
     }
 
     // Resolve Horizontal Movement
@@ -2381,6 +2488,56 @@ export class GameEngine {
             this.createBurst(h.x + h.w / 2, stFloorY + 3, 10, '#ea580c');
           }
         }
+      } else if (h.type === 'icicle') {
+        // Fall when player walks underneath within proximity
+        if (!h.falling && Math.abs(p.x - (h.x + h.w / 2)) < 42 && p.y > h.y && (p.y - h.y) < 95) {
+          h.falling = true;
+          h.vy = 0;
+          this.createBurst(h.x + h.w / 2, h.y, 4, '#bae6fd');
+          this.playHazardSfx(h, 'bossWarning', 90);
+        }
+        if (h.falling) {
+          h.vy = Math.min((h.vy || 0) + 0.45, 8);
+          h.y += h.vy;
+          const iceFloorY = h.floorY ?? 144;
+          if (h.y >= iceFloorY) {
+            h.falling = false;
+            h.y = iceFloorY;
+            this.playHazardSfx(h, 'hit', 90);
+            this.createBurst(h.x + h.w / 2, iceFloorY + 2, 10, '#e0f2fe');
+          }
+        }
+      } else if (h.type === 'rolling_snowball') {
+        h.vx = h.vx || -2.4;
+        h.x += h.vx;
+        if (this.time % 4 === 0) {
+          this.particles.push({
+            x: h.x + h.w / 2,
+            y: h.y + h.h - 1,
+            vx: -h.vx * 0.3,
+            vy: -0.4,
+            life: 8,
+            maxLife: 8,
+            color: '#f8fafc',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'blizzard_gust') {
+        if (this.checkAABB(p, h)) {
+          p.x -= 0.6; // Gentle headwind gust
+          if (Math.random() < 0.35) {
+            this.particles.push({
+              x: h.x + h.w,
+              y: h.y + Math.random() * h.h,
+              vx: -3.6,
+              vy: (Math.random() - 0.5) * 0.4,
+              life: 14,
+              maxLife: 14,
+              color: '#e0f2fe',
+              size: 1.5,
+            });
+          }
+        }
       } else if (h.type === 'swingingBlade') {
         // Desert temple swinging pendulum blade
         const speed = h.bladeSpeed || 0.04;
@@ -3350,6 +3507,83 @@ export class GameEngine {
             this.playEnemySfx(e, 'laserFire');
           }
         }
+      } else if (e.type === 'arctic_wolf') {
+        // Arctic Wolf: Fast pack predator, lunges when player is near
+        if (absDist < 120 && absYDist < 50) {
+          e.x += Math.sign(dist) * 2.2;
+          if (absDist < 50 && (e.cool || 0) <= 0) {
+            e.alertTimer = 16;
+            e.cool = 55;
+            this.playEnemySfx(e, 'enemyAlert');
+          }
+        } else {
+          e.x += e.vx;
+          if (e.x < e.min || e.x > e.max) {
+            e.vx *= -1;
+          }
+        }
+        if (e.cool && e.cool > 0) e.cool--;
+      } else if (e.type === 'snow_hopper') {
+        // Snow Hopper: Hops along snowy terrain with periodic high jumps
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        if (e.vy === 0 && Math.random() < 0.035) {
+          e.vy = -4.8;
+          e.alertTimer = 18;
+          this.createBurst(e.x + e.w / 2, e.y + e.h, 4, '#e0f2fe');
+        }
+      } else if (e.type === 'frost_bat') {
+        // Frost Bat: Sine wave flight, swoops and fires frost needle shards
+        e.t = (e.t || 0) + 0.07;
+        e.y = (e.home ? e.home : e.y) + Math.sin(e.t) * 12;
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        e.cool = (e.cool || 80) - 1;
+        if (absDist < 130 && absYDist < 80) {
+          if (e.cool === 18) {
+            e.alertTimer = 18;
+          }
+          if (e.cool <= 0) {
+            e.cool = 85;
+            this.projectiles.push({
+              x: e.x + (dist > 0 ? e.w + 2 : -6),
+              y: e.y + 4,
+              w: 6,
+              h: 6,
+              vx: Math.sign(dist) * 2.6,
+              vy: 0.8,
+              life: 90,
+              isHero: false,
+              kind: 'ice_shard',
+              color: '#bae6fd',
+            });
+            this.playEnemySfx(e, 'laserFire');
+          }
+        }
+      } else if (e.type === 'ice_golem') {
+        // Ice Golem: Heavy armored construct, stomps ground sending ice bursts
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        e.cool = (e.cool || 100) - 1;
+        if (absDist < 110 && absYDist < 45 && e.cool <= 0) {
+          e.cool = 110;
+          e.alertTimer = 25;
+          sound.playSfx('explosion');
+          this.screenShake = 4;
+          this.createBurst(e.x + e.w / 2, e.y + e.h, 12, '#bae6fd');
+          this.projectiles.push({
+            x: e.x + (dist > 0 ? e.w : -12),
+            y: e.y + e.h - 10,
+            w: 12,
+            h: 12,
+            vx: Math.sign(dist) * 3.2,
+            vy: 0,
+            life: 60,
+            isHero: false,
+            kind: 'ice_shard',
+            color: '#38bdf8',
+          });
+        }
       }
 
       // Gravity for ground enemies
@@ -3362,6 +3596,7 @@ export class GameEngine {
         e.type !== 'cyber_drone' &&
         e.type !== 'gravity_orb' &&
         e.type !== 'giant_hornet' &&
+        e.type !== 'frost_bat' &&
         e.type !== 'cyberturret'
       ) {
         e.vy = Math.min(e.vy + GRAVITY, 6);
@@ -4561,6 +4796,131 @@ export class GameEngine {
         }
         b.y = 148 - b.h;
         b.vy = 0;
+      }
+    } else if (b.name.includes('Yeti')) {
+      // -------------------------------------------------------------
+      // YETI COLOSAL · SEÑOR DE LAS VENTISCAS (BLIZZARD RUSH ACT 3 BOSS)
+      // -------------------------------------------------------------
+      const p = this.player;
+      const dist = p.x - b.x;
+      const speed = b.phase === 1 ? 1.0 : b.phase === 2 ? 1.5 : 2.1;
+
+      // Shield active while nodes exist
+      const activeNodes = this.nodes.filter((n) => !n.taken);
+      b.shield = activeNodes.length > 0;
+
+      if (b.state === 'idle') {
+        b.vx += Math.sign(dist) * 0.04;
+        b.vx = Math.max(-speed, Math.min(speed, b.vx));
+        b.stateTimer--;
+
+        b.shotTimer--;
+        b.jumpTimer--;
+
+        // Attack 1: Ground Stomp & Giant Snowball projectile
+        if (b.shotTimer <= 0) {
+          b.shotTimer = b.phase === 1 ? 90 : b.phase === 2 ? 70 : 50;
+          sound.playSfx('yetiRoar');
+          this.screenShake = 6;
+          const dir = Math.sign(dist) || -1;
+          this.projectiles.push({
+            x: b.x + (dir > 0 ? b.w + 2 : -18),
+            y: 130,
+            w: 18,
+            h: 18,
+            vx: dir * (3.4 + b.phase * 0.5),
+            vy: 0,
+            life: 130,
+            isHero: false,
+            kind: 'snowball',
+          });
+          b.shockwaves.push({
+            x: b.x + (dir > 0 ? b.w : -12),
+            y: 138,
+            vx: dir * (3.6 + b.phase * 0.4),
+            w: 16,
+            h: 12,
+            life: 75,
+            maxLife: 75,
+            color: '#bae6fd',
+          });
+          this.addFloatingText(b.x + b.w / 2, b.y - 15, '❄️ ¡PISOTÓN SÍSMICO!', '#38bdf8');
+        }
+
+        // Attack 2: Colossal Jump Slam & Falling Icicles (Phase >= 2 or timer)
+        if (b.jumpTimer <= 0 && b.y >= 148 - b.h) {
+          b.jumpTimer = b.phase === 1 ? 130 : 95;
+          b.state = 'jumping';
+          b.vy = -7.4;
+          b.vx = Math.sign(dist) * (2.6 + b.phase * 0.6);
+          sound.playSfx('jump');
+          this.addFloatingText(b.x + b.w / 2, b.y - 20, '🏔️ ¡SALTO COLOSAL!', '#93c5fd');
+        }
+
+        // Phase 3 Enraged: Glacial Ice Shard Barrage & Roar
+        if (b.phase === 3 && (this.time % 70 === 0)) {
+          sound.playSfx('frostBreath');
+          this.screenShake = 8;
+          const dir = Math.sign(dist) || -1;
+          for (let angle = -0.3; angle <= 0.3; angle += 0.2) {
+            this.projectiles.push({
+              x: b.x + b.w / 2,
+              y: b.y + 14,
+              w: 8,
+              h: 8,
+              vx: dir * Math.cos(angle) * 4.2,
+              vy: Math.sin(angle) * 3.2,
+              life: 85,
+              isHero: false,
+              kind: 'iceShard',
+            });
+          }
+          this.addFloatingText(b.x + b.w / 2, b.y - 25, '❄️ ¡VENTISCA GLACIAL!', '#06b6d4');
+        }
+      } else if (b.state === 'jumping') {
+        b.vy = Math.min(b.vy + GRAVITY * 0.9, 8);
+        b.x += b.vx;
+        b.y += b.vy;
+
+        if (b.vy > 0 && b.y < 85) {
+          b.state = 'slamming';
+          b.vy = 8.2;
+          b.vx *= 0.3;
+        }
+      } else if (b.state === 'slamming') {
+        b.y += b.vy;
+        if (b.y + b.h >= 148) {
+          b.y = 148 - b.h;
+          b.vy = 0;
+          b.state = 'idle';
+          sound.playSfx('explosion');
+          sound.playSfx('yetiRoar');
+          this.screenShake = 12;
+          this.createBurst(b.x + b.w / 2, 148, 26, '#bae6fd');
+          this.createBurst(b.x + b.w / 2, 148, 16, '#ffffff');
+
+          // Dual shockwaves
+          b.shockwaves.push(
+            { x: b.x - 12, y: 138, vx: -4.5, w: 18, h: 12, life: 80, maxLife: 80, color: '#38bdf8' },
+            { x: b.x + b.w, y: 138, vx: 4.5, w: 18, h: 12, life: 80, maxLife: 80, color: '#38bdf8' }
+          );
+
+          // Falling icicles from arena ceiling
+          for (let ix = b.x - 160; ix <= b.x + 200; ix += 65) {
+            this.projectiles.push({
+              x: ix,
+              y: 12,
+              w: 8,
+              h: 16,
+              vx: 0,
+              vy: 3.8,
+              life: 70,
+              isHero: false,
+              kind: 'iceShard',
+            });
+          }
+          this.addFloatingText(b.x + b.w / 2, b.y - 15, '💥 ¡IMPACTO GLACIAL!', '#38bdf8');
+        }
       }
     }
 
@@ -5876,6 +6236,12 @@ export class GameEngine {
     this.daggers = DAGGER_MAX_AMMO;
     this.player.energy = Math.max(60, this.player.energy);
 
+    const isBlizzardSki = LEVEL_CONFIGS[this.levelIndex]?.id === 'blizzard-1';
+    this.player.isSkiing = isBlizzardSki;
+    this.player.skiSpeed = isBlizzardSki ? 4.2 : 0;
+    this.player.skiCrouch = false;
+    this.player.skiAirTimer = 0;
+
     sound.playSfx('checkpoint');
     this.createBurst(respawnTarget.x, respawnTarget.y, 24, '#38bdf8');
     this.createBurst(respawnTarget.x, respawnTarget.y, 16, '#4ade80');
@@ -5895,8 +6261,8 @@ export class GameEngine {
       this.boss.shockwaves = [];
       this.boss.inv = 0;
       if (this.boss.clones) this.boss.clones = [];
-      // Restore shield nodes ONLY for Guardián Neón (Boss 1)
-      if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón')) {
+      // Restore shield nodes for Guardián Neón and Yeti
+      if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón') || this.boss.name.includes('Yeti')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
       } else if (this.boss.name.includes('Kronos')) {
@@ -6000,6 +6366,8 @@ export class GameEngine {
       const totalCrystalsInLevel = this.crystals.length;
       const isBoss = isBossLevel(this.levelIndex);
       const isJungleFinal = this.levelIndex === 17;
+      const isBlizzardDownhill = this.levelIndex === 18;
+      const isBlizzardFinal = this.levelIndex === 20;
       const isBossBeaten = this.bossDefeated || (this.boss ? !this.boss.alive : false);
 
       checkLevelCompletionAchievements({
@@ -6013,6 +6381,8 @@ export class GameEngine {
         isBossDefeated: isBossBeaten,
         isSpecialStage: this.isInSpecialStage,
         isJungleRunFinal: isJungleFinal,
+        isBlizzardDownhill,
+        isBlizzardFinal,
         totalSaveCrystals: (activeSlot?.totalCrystals || 0) + this.stats.crystalsCollected,
         totalSaveSecrets: activeSlot?.totalSecrets || 0,
         clockPiecesPlacedCount: activeSlot?.kronosPiecesPlaced?.length || 0,

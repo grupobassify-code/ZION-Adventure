@@ -152,6 +152,14 @@ const ZONES_DATA: ZoneMeta[] = [
     accentColor: '#eab308',
     actsCount: 3,
   },
+  {
+    id: 'blizzard',
+    name: 'Blizzard Rush',
+    subtitle: 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal',
+    themeColor: '#38bdf8',
+    accentColor: '#93c5fd',
+    actsCount: 3,
+  },
 ];
 
 export const MainMenu: React.FC<MainMenuProps> = ({

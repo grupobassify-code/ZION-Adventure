@@ -3708,6 +3708,51 @@ export class GameRenderer {
         ctx.beginPath();
         ctx.arc(x + p.w / 2, p.y + p.h / 2, Math.max(1, p.w / 2 - 3), 0, Math.PI * 2);
         ctx.stroke();
+      } else if (p.kind === 'snowball') {
+        // Rolling crystalline snowball
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate(p.angle || 0);
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#bae6fd';
+        ctx.beginPath();
+        ctx.arc(-2, -2, p.w / 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-1, -1, 3, 3);
+        ctx.restore();
+      } else if (p.kind === 'iceShard' || p.kind === 'iceSpikeBlast') {
+        // Glacial Ice Shard Crystal
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        const shardAngle = Math.atan2(p.vy, p.vx);
+        ctx.rotate(shardAngle);
+        ctx.fillStyle = '#bae6fd';
+        ctx.beginPath();
+        ctx.moveTo(p.w / 2, 0);
+        ctx.lineTo(-p.w / 2, -p.h / 2);
+        ctx.lineTo(-p.w / 3, 0);
+        ctx.lineTo(-p.w / 2, p.h / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(-2, -1, p.w / 2, 2);
+        ctx.restore();
+      } else if (p.kind === 'blizzardRoarWave' || p.kind === 'yetiSlamWave') {
+        // Expanding glacial frost wave
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x + p.w / 2, p.y + p.h / 2, p.w / 2, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x + p.w / 2, p.y + p.h / 2, Math.max(1, p.w / 2 - 3), 0, Math.PI * 2);
+        ctx.stroke();
       } else {
         ctx.fillStyle = '#f43f5e';
         ctx.fillRect(x, p.y, p.w, p.h);
@@ -3817,8 +3862,10 @@ export class GameRenderer {
       ctx.scale(-1, 1);
     }
 
-    // Lean slightly forward when running or dashing
-    if (isDashing) {
+    // Lean slightly forward when running, dashing, or downhill skiing
+    if (player.isSkiing) {
+      ctx.rotate(player.skiCrouch ? 0.22 : 0.08);
+    } else if (isDashing) {
       ctx.rotate(0.18);
     } else if (isMoving && isGrounded) {
       ctx.rotate(0.06);
@@ -3853,7 +3900,51 @@ export class GameRenderer {
     // B. Legs & Cyber-Ninja Tabi Boots
     const legPhase = isGrounded && isMoving ? Math.sin(t * 0.45) : 0;
     
-    if (isDashing) {
+    if (player.isSkiing) {
+      // Downhill skiing stance
+      const crouchY = player.skiCrouch ? 2 : 0;
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4, 2 + crouchY, 3, 5);
+      ctx.fillRect(1, 1 + crouchY, 3, 5);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-4, 4 + crouchY, 3, 2);
+      ctx.fillRect(1, 3 + crouchY, 3, 2);
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(-4, 6 + crouchY, 3, 2);
+      ctx.fillRect(1, 5 + crouchY, 3, 2);
+
+      // Long high-speed skis with curved tips
+      const skiTilt = isJumping ? -0.15 : isFalling ? 0.12 : 0;
+      ctx.save();
+      ctx.translate(0, 8 + crouchY);
+      ctx.rotate(skiTilt);
+
+      // Bottom ski edge
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(-12, 0, 24, 2);
+      // Neon ski top
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-11, -1, 22, 1);
+      // Front curved ski tip
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(12, -2, 2, 2);
+      ctx.fillRect(13, -3, 1, 2);
+
+      ctx.restore();
+
+      // Ski poles in Zion's hands
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(3, 1 + crouchY);
+      ctx.lineTo(-5, 9 + crouchY);
+      ctx.moveTo(-1, 0 + crouchY);
+      ctx.lineTo(-9, 8 + crouchY);
+      ctx.stroke();
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-6, 7 + crouchY, 2, 2);
+      ctx.fillRect(-10, 6 + crouchY, 2, 2);
+    } else if (isDashing) {
       // Dashing pose (aerodynamic back kick)
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(-5, 2, 4, 5);

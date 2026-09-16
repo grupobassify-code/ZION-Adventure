@@ -18,6 +18,9 @@ export type MusicTrackName =
   | 'kronosTravel'
   | 'jungleAct1'
   | 'jungleBoss'
+  | 'blizzardSki'
+  | 'blizzardForest'
+  | 'blizzardBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -44,6 +47,9 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'kronosTravel', title: 'Kronos Travel: Odisea Dimensional', zone: 'Nivel Extra · Fusión Suprema', tag: 'Medley Legendario Multizona' },
   { id: 'jungleAct1', title: 'Jungle Run: Templo Maya y Selva Tropical', zone: 'Jungle Run · Acto 1 y 2', tag: 'Aventura Selvática · Percusión Tribal' },
   { id: 'jungleBoss', title: 'Balam: Furia del Jaguar Ancestral', zone: 'Jungle Run · Jefe', tag: 'Duelo Chamánico · Feline Battle Beat' },
+  { id: 'blizzardSki', title: 'Descenso en Esquís: Vértigo Blanco', zone: 'Blizzard Rush · Acto 1', tag: 'Ski Rush Chiptune · High-Speed Adrenaline' },
+  { id: 'blizzardForest', title: 'Sendero Glacial y Pinos de Escarcha', zone: 'Blizzard Rush · Acto 2', tag: 'Atmósfera Nevada · Campanas de Cristal' },
+  { id: 'blizzardBoss', title: 'Furia del Yeti: Coloso de las Nieves', zone: 'Blizzard Rush · Jefe', tag: 'Batalla de Cumbres · Heavy Frost Stomp' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -425,6 +431,27 @@ class SoundEngine {
         [523, 659, 784, 1046, 1318, 1568].forEach((n, i) => {
           this.tone(n, 0.2, 'triangle', 0.04, i * 0.09);
         });
+        break;
+      case 'skiJump':
+        this.tone(330, 0.12, 'triangle', 0.05, 0, 880);
+        this.tone(550, 0.16, 'sine', 0.04, 0.03, 1100);
+        break;
+      case 'snowCrunch':
+        this.noise(0.04, 0.03);
+        this.tone(220, 0.05, 'triangle', 0.02, 0, 110);
+        break;
+      case 'skiCarve':
+        this.noise(0.06, 0.025);
+        this.tone(440, 0.04, 'sine', 0.015, 0, 660);
+        break;
+      case 'yetiRoar':
+        this.tone(90, 0.5, 'sawtooth', 0.09, 0, 55);
+        this.tone(140, 0.4, 'square', 0.07, 0.05, 70);
+        this.tone(65, 0.6, 'triangle', 0.08, 0.02, 45);
+        break;
+      case 'iceShatter':
+        [1800, 2400, 3200, 1200].forEach((f, i) => this.tone(f, 0.09, 'sine', 0.03, i * 0.02, f * 0.5));
+        this.noise(0.08, 0.03);
         break;
       default:
         this.tone(440, 0.08, 'triangle', 0.03, 0);
@@ -934,6 +961,104 @@ class SoundEngine {
         N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.G1, N.G1, N.A1, N.A1, N.A2, N.G1, N.E1, N.D1,
         N.A1, N.A2, N.A1, N.G1, N.Ds2, N.D2, N.C2, N.A1,  N.C2, N.D2, N.Ds2, N.E2, N.G2, N.E2, N.Ds2, N.D2,
         N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.A1, N.C2, N.A1, N.G1, N.A1, N.A1, N.E1, N.A1
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
+      ],
+    },
+
+    // BLIZZARD RUSH · ACT 1: DESCENSO EN ESQUÍS (Adrenaline High-Tempo 146 BPM Ski Race Chiptune)
+    blizzardSki: {
+      tempo: 146,
+      leadWave: 'square',
+      harmonyWave: 'sawtooth',
+      bassWave: 'sawtooth',
+      arpWave: 'triangle',
+      leadNotes: [
+        N.E5, N.B4, N.E5, N.Fs5, N.G5, N.Fs5, N.E5, N.D5,  N.B4, N.D5, N.E5, N.G5, N.Fs5, N.E5, N.D5, N.B4,
+        N.E5, N.B4, N.E5, N.Fs5, N.G5, N.A5, N.B5, N.G5,  N.A5, N.B5, N.C6, N.B5, N.A5, N.G5, N.Fs5, N.D5,
+        N.E5, N.G5, N.B5, N.E6, N.D6, N.B5, N.A5, N.G5,  N.A5, N.B5, N.D6, N.B5, N.A5, N.G5, N.E5, N.D5,
+        N.E5, N.Fs5, N.G5, N.A5, N.B5, N.C6, N.B5, N.A5,  N.G5, N.Fs5, N.E5, N.D5, N.E5, N.B4, N.E5, N.REST
+      ],
+      harmonyNotes: [
+        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.D5, N.REST, N.A4, N.REST,
+        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.E5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST,
+        N.B4, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Fs5, N.REST,
+        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.C5, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.E2, N.E2, N.E3, N.E2, N.G2, N.E2, N.B2, N.A2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.A2, N.D2,
+        N.C2, N.C2, N.C3, N.C2, N.E2, N.C2, N.G2, N.C2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.B2, N.D2,
+        N.E2, N.E2, N.E3, N.E2, N.G2, N.E2, N.B2, N.A2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.A2, N.D2,
+        N.C2, N.C2, N.C3, N.C2, N.D2, N.D2, N.D3, N.D2,  N.E2, N.E2, N.B1, N.E2, N.E2, N.E2, N.E3, N.REST
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 5, 3, 5,
+        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 2, 5, 5,
+        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 5, 3, 5,
+        2, 4, 3, 4, 2, 4, 3, 4, 4, 4, 5, 5, 2, 2, 5, 5
+      ],
+    },
+
+    // BLIZZARD RUSH · ACT 2: BOSQUE GLACIAL (116 BPM Shimmering Crystalline Snow Mystery)
+    blizzardForest: {
+      tempo: 116,
+      leadWave: 'sine',
+      harmonyWave: 'triangle',
+      bassWave: 'triangle',
+      leadNotes: [
+        N.B4, N.D5, N.Fs5, N.A5, N.B5, N.A5, N.Fs5, N.D5,  N.C5, N.E5, N.G5, N.B5, N.A5, N.G5, N.E5, N.C5,
+        N.D5, N.Fs5, N.A5, N.C6, N.B5, N.A5, N.Fs5, N.D5,  N.B4, N.D5, N.Fs5, N.B5, N.A5, N.Fs5, N.E5, N.D5,
+        N.G5, N.B5, N.D6, N.Fs6, N.E6, N.D6, N.B5, N.G5,  N.A5, N.C6, N.E6, N.G6, N.Fs6, N.E6, N.C6, N.A5,
+        N.B5, N.D6, N.Fs6, N.B6, N.A6, N.Fs6, N.D6, N.B5,  N.Fs5, N.A5, N.D6, N.Cs6, N.B5, N.REST, N.B4, N.REST
+      ],
+      harmonyNotes: [
+        N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.E5, N.REST,
+        N.Fs4, N.REST, N.A4, N.REST, N.C5, N.REST, N.Fs5, N.REST, N.D4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST,
+        N.B4, N.REST, N.D5, N.REST, N.G5, N.REST, N.B5, N.REST, N.C5, N.REST, N.E5, N.REST, N.A5, N.REST, N.C6, N.REST,
+        N.D5, N.REST, N.Fs5, N.REST, N.B5, N.REST, N.D6, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,  N.C2, N.C3, N.G2, N.C3, N.C2, N.C3, N.E2, N.G2,
+        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.Fs2, N.A2,  N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,
+        N.G1, N.G2, N.D2, N.G2, N.G1, N.G2, N.B2, N.D3,  N.A1, N.A2, N.E2, N.A2, N.A1, N.A2, N.C2, N.E2,
+        N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,  N.Fs1, N.Fs2, N.Cs2, N.Fs2, N.B1, N.B1, N.Fs1, N.B1
+      ],
+      drumPattern: [
+        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 5, 3,
+        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 4, 3, 2, 2, 5, 3,
+        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 5, 3,
+        2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3, 2, 2, 5, 1
+      ],
+    },
+
+    // BLIZZARD RUSH · ACT 3: JEFE YETI COLOSO (140 BPM Heavy Stomp Frost Titan Battle)
+    blizzardBoss: {
+      tempo: 140,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'sine',
+      leadNotes: [
+        N.E4, N.E4, N.G4, N.Bb4, N.B4, N.Bb4, N.G4, N.E4,  N.E4, N.G4, N.Bb4, N.B4, N.D5, N.B4, N.Bb4, N.G4,
+        N.E4, N.E4, N.G4, N.Bb4, N.B4, N.Bb4, N.G4, N.E4,  N.F4, N.Fs4, N.G4, N.Bb4, N.B4, N.G4, N.E4, N.D4,
+        N.E5, N.REST, N.E5, N.D5, N.B4, N.Bb4, N.G4, N.E4, N.G4, N.Bb4, N.B4, N.D5, N.E5, N.G5, N.E5, N.D5,
+        N.B4, N.Bb4, N.G4, N.E4, N.G4, N.Bb4, N.B4, N.D5,  N.E5, N.B4, N.G4, N.Bb4, N.E4, N.REST, N.E4, N.REST
+      ],
+      harmonyNotes: [
+        N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.G5, N.REST,
+        N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.D5, N.REST, N.E5, N.REST, N.B4, N.REST,
+        N.G5, N.REST, N.G5, N.Fs5, N.E5, N.D5, N.B4, N.G4, N.B4, N.D5, N.E5, N.G5, N.B5, N.G5, N.E5, N.D5,
+        N.E5, N.REST, N.D5, N.REST, N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.E1, N.E1, N.E2, N.E1, N.D2, N.E1, N.B1, N.G1,
+        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.F1, N.Fs1, N.G1, N.G1, N.Bb1, N.G1, N.E1, N.D1,
+        N.E1, N.E2, N.E1, N.D1, N.B1, N.Bb1, N.G1, N.E1,  N.G1, N.Bb1, N.B1, N.D2, N.E2, N.G2, N.E2, N.D2,
+        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.E1, N.G1, N.E1, N.B1, N.E1, N.E1, N.B0, N.E1
       ],
       drumPattern: [
         2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,

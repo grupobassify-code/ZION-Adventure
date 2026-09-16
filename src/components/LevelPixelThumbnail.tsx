@@ -109,6 +109,11 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         skyGrad.addColorStop(0.4, '#38bdf8');
         skyGrad.addColorStop(0.8, '#34d399');
         skyGrad.addColorStop(1, '#059669');
+      } else if (zone === 'blizzard') {
+        skyGrad.addColorStop(0, '#0c4a6e');
+        skyGrad.addColorStop(0.4, '#0284c7');
+        skyGrad.addColorStop(0.8, '#38bdf8');
+        skyGrad.addColorStop(1, '#e0f2fe');
       } else {
         // Kronos Travel
         skyGrad.addColorStop(0, '#030712');
@@ -189,6 +194,30 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.fillStyle = '#fef9c366';
         ctx.beginPath();
         ctx.arc(w - 45, 28, 20, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (zone === 'blizzard') {
+        // Shimmering Aurora Borealis ribbons & Pale Winter Sun
+        const aWave = Math.sin(tick * 0.05) * 5;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, 18 + aWave);
+        ctx.quadraticCurveTo(w / 2, 8 - aWave, w, 20 + aWave);
+        ctx.stroke();
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.35)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, 24 - aWave);
+        ctx.quadraticCurveTo(w / 2, 14 + aWave, w, 26 - aWave);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(w - 38, 24, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.beginPath();
+        ctx.arc(w - 38, 24, 18, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -341,22 +370,66 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.fillRect(pyrX - 8, h - 85, 16, 11);
         ctx.fillStyle = '#047857';
         ctx.fillRect(pyrX - 3, h - 85, 6, 56);
+      } else if (zone === 'blizzard') {
+        // Snowy Sharp Alpine Peaks & Snow Covered Pines
+        ctx.fillStyle = '#0369a1';
+        ctx.beginPath();
+        ctx.moveTo(0, h - 25);
+        ctx.lineTo(40, h - 65);
+        ctx.lineTo(85, h - 30);
+        ctx.lineTo(135, h - 80);
+        ctx.lineTo(185, h - 30);
+        ctx.lineTo(w, h - 55);
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.fill();
+        // Snow caps on peaks
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.moveTo(30, h - 55);
+        ctx.lineTo(40, h - 65);
+        ctx.lineTo(50, h - 55);
+        ctx.closePath();
+        ctx.moveTo(125, h - 70);
+        ctx.lineTo(135, h - 80);
+        ctx.lineTo(145, h - 70);
+        ctx.closePath();
+        ctx.fill();
       }
 
       // 4. FOREGROUND PLATFORM & GROUND TERRAIN
       const groundY = h - 28;
-      ctx.fillStyle = zone === 'neon' ? '#081726' : zone === 'sakura' ? '#1c081e' : zone === 'lavacliff' ? '#1c0606' : zone === 'desert' ? '#451a03' : zone === 'krono' ? '#080d1e' : zone === 'jungle' ? '#064e3b' : '#0a0d1f';
+      ctx.fillStyle = zone === 'neon' ? '#081726' : zone === 'sakura' ? '#1c081e' : zone === 'lavacliff' ? '#1c0606' : zone === 'desert' ? '#451a03' : zone === 'krono' ? '#080d1e' : zone === 'jungle' ? '#064e3b' : zone === 'blizzard' ? '#0f172a' : '#0a0d1f';
       ctx.fillRect(0, groundY, w, 28);
 
       // Top Trim
-      const trimColor = zone === 'neon' ? '#22d3ee' : zone === 'sakura' ? '#f472b6' : zone === 'lavacliff' ? '#ea580c' : zone === 'desert' ? '#f59e0b' : zone === 'krono' ? '#06b6d4' : zone === 'jungle' ? '#10b981' : '#38bdf8';
+      const trimColor = zone === 'neon' ? '#22d3ee' : zone === 'sakura' ? '#f472b6' : zone === 'lavacliff' ? '#ea580c' : zone === 'desert' ? '#f59e0b' : zone === 'krono' ? '#06b6d4' : zone === 'jungle' ? '#10b981' : zone === 'blizzard' ? '#f8fafc' : '#38bdf8';
       ctx.fillStyle = trimColor;
       ctx.fillRect(0, groundY, w, 3);
       ctx.fillStyle = '#ffffff88';
       ctx.fillRect(0, groundY, w, 1);
 
+      if (zone === 'blizzard') {
+        // Icicles hanging from ground
+        ctx.fillStyle = '#bae6fd';
+        for (let ix = 10; ix < w; ix += 22) {
+          ctx.beginPath();
+          ctx.moveTo(ix, groundY + 3);
+          ctx.lineTo(ix + 4, groundY + 3);
+          ctx.lineTo(ix + 2, groundY + 9);
+          ctx.fill();
+        }
+        // Drifting snowflakes
+        ctx.fillStyle = '#ffffff';
+        for (let f = 0; f < 10; f++) {
+          const fx = (f * 25 + tick * 0.8) % w;
+          const fy = (f * 13 + tick * 1.1) % h;
+          ctx.fillRect(fx, fy, 1.5, 1.5);
+        }
+      }
+
       // Floating Ledges in foreground
-      ctx.fillStyle = zone === 'neon' ? '#0e7490' : zone === 'sakura' ? '#db2777' : zone === 'lavacliff' ? '#b91c1c' : zone === 'desert' ? '#d97706' : zone === 'krono' ? '#4f46e5' : zone === 'jungle' ? '#047857' : '#0284c7';
+      ctx.fillStyle = zone === 'neon' ? '#0e7490' : zone === 'sakura' ? '#db2777' : zone === 'lavacliff' ? '#b91c1c' : zone === 'desert' ? '#d97706' : zone === 'krono' ? '#4f46e5' : zone === 'jungle' ? '#047857' : zone === 'blizzard' ? '#0284c7' : '#0284c7';
       ctx.fillRect(40, groundY - 32, 45, 6);
       ctx.fillRect(w - 90, groundY - 26, 50, 6);
 
