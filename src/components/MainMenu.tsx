@@ -183,8 +183,22 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [activeSlotId, setActiveSlotState] = useState<number>(() => getActiveSlotId());
   const [selectedZone, setSelectedZone] = useState<ZoneId | null>(initialZone);
 
-  const getZoneName = (zoneId: ZoneId) => t(`zone_${zoneId}_name` as any);
-  const getZoneSubtitle = (zoneId: ZoneId) => t(`zone_${zoneId}_sub` as any);
+  const getZoneName = (zoneId: ZoneId) => {
+    if (zoneId === 'blizzard') return 'Blizzard Rush';
+    const key = `zone_${zoneId}_name` as any;
+    const val = t(key);
+    return val === key ? zoneId : val;
+  };
+  const getZoneSubtitle = (zoneId: ZoneId) => {
+    if (zoneId === 'blizzard') {
+      return language === 'es'
+        ? 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal'
+        : 'Downhill Skiing, Snowy Forest and Colossal Yeti';
+    }
+    const key = `zone_${zoneId}_sub` as any;
+    const val = t(key);
+    return val === key ? '' : val;
+  };
   const [modeModal, setModeModal] = useState<'vs_ai' | 'time_attack' | null>(null);
   const [newSlotModal, setNewSlotModal] = useState<{ open: boolean; slotId: number; name: string }>({
     open: false,
@@ -694,7 +708,11 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
                     <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
                       <span className="text-cyan-400 font-bold">
-                        {zoneStatus.unlocked ? t('enterActs') : t('beatPrevEra')}
+                        {zoneStatus.unlocked
+                          ? t('enterActs')
+                          : z.id === 'blizzard'
+                            ? (language === 'es' ? 'DERROTA A BALAM (JUNGLA)' : 'DEFEAT BALAM (JUNGLE)')
+                            : t('beatPrevEra')}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition-all" />
                     </div>

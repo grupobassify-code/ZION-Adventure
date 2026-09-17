@@ -175,6 +175,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     zone_travel_sub: 'La Fusión Dimensional de Todas las Eras',
     zone_jungle_name: 'Jungle Run',
     zone_jungle_sub: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam',
+    zone_blizzard_name: 'Blizzard Rush',
+    zone_blizzard_sub: 'Montaña Nevada, Esquís y el Coloso Yeti',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ RELOJ RESTAURADO',
@@ -378,6 +380,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     zone_travel_sub: 'The Dimensional Fusion of All Eras',
     zone_jungle_name: 'Jungle Run',
     zone_jungle_sub: 'Mayan Pyramid, Tree Canopies and Jaguar Balam',
+    zone_blizzard_name: 'Blizzard Rush',
+    zone_blizzard_sub: 'Snowy Mountain, Downhill Skiing and Colossal Yeti',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ CLOCK RESTORED',

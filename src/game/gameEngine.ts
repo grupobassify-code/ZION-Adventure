@@ -79,6 +79,8 @@ export interface GameInputState {
   block: boolean;
   dash: boolean;
   special: boolean;
+  down?: boolean;
+  up?: boolean;
   analogX?: number; // -1 to 1 analog joystick support
 }
 

@@ -26,6 +26,7 @@ const ZONES: { id: ZoneId; name: string }[] = [
   { id: 'desert', name: 'Dunas de Arena' },
   { id: 'krono', name: 'Templo de Kronos' },
   { id: 'jungle', name: 'Jungle Run' },
+  { id: 'blizzard', name: 'Blizzard Rush' },
 ];
 
 const ZONE_NAMES: Record<ZoneId, string> = {
@@ -36,6 +37,7 @@ const ZONE_NAMES: Record<ZoneId, string> = {
   krono: 'Templo de Kronos',
   travel: 'Viaje Cuántico',
   jungle: 'Jungle Run',
+  blizzard: 'Blizzard Rush',
 };
 
 interface ModeLevelSelectModalProps {
@@ -155,7 +157,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                       sound.playSfx('menuSelect');
                       setSelectedZone(z.id);
                       // Auto-select first non-boss level of this zone
-                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3'].includes(c.id));
+                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3'].includes(c.id));
                       if (firstInZone !== -1) setSelectedLevelIndex(firstInZone);
                     }}
                     className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border cursor-pointer ${

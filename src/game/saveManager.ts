@@ -84,6 +84,29 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
               hasMigrationChanges = true;
             }
           }
+
+          // Check if player has beaten Balam in Jungle Run (jungle-3)
+          const jungle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
+          const blizzard1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-1');
+          const isBalamBeaten =
+            jungle3Idx !== -1 && (slot.completedLevels.includes(jungle3Idx) || slot.completedLevels.includes('jungle-3' as any));
+
+          if (isBalamBeaten) {
+            if (blizzard1Idx !== -1 && !slot.unlockedLevels.includes(blizzard1Idx)) {
+              slot.unlockedLevels.push(blizzard1Idx);
+              hasMigrationChanges = true;
+            }
+          } else if (blizzard1Idx !== -1) {
+            // Remove any prematurely unlocked blizzard levels if Balam hasn't been defeated yet
+            const beforeCount = slot.unlockedLevels.length;
+            slot.unlockedLevels = slot.unlockedLevels.filter((lvl) => {
+              const cfg = LEVEL_CONFIGS[lvl];
+              return !cfg || cfg.zone !== 'blizzard';
+            });
+            if (slot.unlockedLevels.length !== beforeCount) {
+              hasMigrationChanges = true;
+            }
+          }
         }
         slots[i] = slot;
       }
@@ -233,11 +256,18 @@ export function recordLevelCompletion(
   const nextLevel = levelIndex + 1;
   const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
   const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+  const jungleFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
+  const blizzard1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-1');
 
   // If nextLevel is jungle-1, only unlock it if Kronos Travel is beaten
+  // If nextLevel is blizzard-1, only unlock it if Balam (jungle-3) is beaten
   if (nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
     if (nextLevel === jungle1Idx) {
       if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else if (nextLevel === blizzard1Idx) {
+      if (jungleFinalBossIdx !== -1 && slot.completedLevels.includes(jungleFinalBossIdx)) {
         slot.unlockedLevels.push(nextLevel);
       }
     } else {
@@ -254,6 +284,11 @@ export function recordLevelCompletion(
   // When Kronos Travel is beaten, unlock Jungle Run (jungle-1)
   if (levelIndex === travelIdx && jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
     slot.unlockedLevels.push(jungle1Idx);
+  }
+
+  // When Balam (jungle-3) is beaten, unlock Blizzard Rush (blizzard-1)
+  if (levelIndex === jungleFinalBossIdx && blizzard1Idx !== -1 && !slot.unlockedLevels.includes(blizzard1Idx)) {
+    slot.unlockedLevels.push(blizzard1Idx);
   }
 
   slots[slotId] = slot;
@@ -291,13 +326,11 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     const completedList = slot.completedLevels || [];
     const unlockedList = slot.unlockedLevels || [];
 
-    const isJungleCompleted =
-      (jungle3Idx !== -1 && (completedList.includes(jungle3Idx) || completedList.includes('jungle-3' as any))) ||
-      (blizzard1Idx !== -1 && (unlockedList.includes(blizzard1Idx) || completedList.includes(blizzard1Idx))) ||
-      unlockedList.includes(levelIndex);
+    const isBalamDefeated =
+      (jungle3Idx !== -1 && (completedList.includes(jungle3Idx) || completedList.includes('jungle-3' as any)));
 
-    if (!isJungleCompleted && !unlockedList.includes(levelIndex)) {
-      return false; // Blizzard Rush unlocks once Jungle Run is finished or unlocked
+    if (!isBalamDefeated) {
+      return false; // Blizzard Rush is strictly locked until Balam is defeated!
     }
     if (levelIndex === blizzard1Idx) {
       return true;
@@ -412,6 +445,24 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
       completedList.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
 
     if (!isTravelCompleted) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // Blizzard Rush requires defeating the jungle boss Balam (jungle-3)
+  if (zone === 'blizzard') {
+    const jungle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
+    const completedList = slot.completedLevels || [];
+
+    const isBalamDefeated =
+      (jungle3Idx !== -1 && (completedList.includes(jungle3Idx) || completedList.includes('jungle-3' as any)));
+
+    if (!isBalamDefeated) {
       return { completed: 0, total, unlocked: false };
     }
     let completed = 0;

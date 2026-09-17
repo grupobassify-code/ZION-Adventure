@@ -21,7 +21,7 @@ export interface Platform {
   y: number;
   w: number;
   h: number;
-  kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram' | 'jungle_stone' | 'temple_stone' | 'treetop' | 'vine_bridge' | 'snow' | 'ice' | 'frozen_rock' | 'ski_slope';
+  kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram' | 'jungle_stone' | 'temple_stone' | 'treetop' | 'vine_bridge' | 'snow' | 'ice' | 'frozen_rock' | 'ski_slope' | 'glacier_ice';
   phase?: number;
   hidden?: boolean;
   speed?: number;
@@ -160,6 +160,7 @@ export interface Hazard {
   isFalling?: boolean;
   falling?: boolean;
   vy?: number;
+  vx?: number;
   bladeAngle?: number;
   bladeSpeed?: number;
   beamLength?: number;
@@ -215,7 +216,7 @@ export interface Trampoline {
   h: number;
   bounceForce: number;
   springAnim: number;
-  type?: 'standard' | 'super' | 'mega';
+  type?: 'standard' | 'super' | 'mega' | 'normal';
 }
 
 export interface Liana {
@@ -259,6 +260,9 @@ export interface NodePillar {
   h: number;
   taken: boolean;
   id?: string | number;
+  hp?: number;
+  maxHp?: number;
+  active?: boolean;
 }
 
 export interface BossShockwave {
@@ -318,7 +322,7 @@ export interface Boss {
   name: string;
   title: string;
   subtitle?: string;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar';
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;
@@ -345,9 +349,10 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave';
   homingTimer?: number;
   angle?: number;
+  color?: string;
 }
 
 export interface Particle {
@@ -390,13 +395,14 @@ export interface FloatingText {
 }
 
 export interface Landmark {
-  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster';
+  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine';
   x: number;
   y?: number;
   w?: number;
   h?: number;
   scale?: number;
   label?: string;
+  name?: string;
 }
 
 export interface Player {
@@ -458,7 +464,9 @@ export interface Player {
   // Blizzard Rush Ski Mechanics
   isSkiing?: boolean;
   skiCrouch?: boolean;
+  skiSpeed?: number;
   skiAirTime?: number;
+  skiAirTimer?: number;
   skiTrickTimer?: number;
 }
 

@@ -69,18 +69,20 @@ interface MusicTrackPattern {
 // Frequency constants for pristine tuning
 const N = {
   REST: 0,
+  // Octave 0
+  B0: 30.87,
   // Octave 1
-  C1: 32.7, D1: 36.7, E1: 41.2, F1: 43.7, G1: 49.0, A1: 55.0, B1: 61.7,
+  C1: 32.7, Cs1: 34.65, D1: 36.7, Ds1: 38.89, E1: 41.2, F1: 43.7, Fs1: 46.25, G1: 49.0, Gs1: 51.91, A1: 55.0, As1: 58.27, Bb1: 58.27, B1: 61.7,
   // Octave 2
-  C2: 65.4, Cs2: 69.3, D2: 73.4, Ds2: 77.8, E2: 82.4, F2: 87.3, Fs2: 92.5, G2: 98.0, Gs2: 103.8, A2: 110.0, As2: 116.5, B2: 123.5,
+  C2: 65.4, Cs2: 69.3, D2: 73.4, Ds2: 77.8, E2: 82.4, F2: 87.3, Fs2: 92.5, G2: 98.0, Gs2: 103.8, A2: 110.0, As2: 116.5, Bb2: 116.5, B2: 123.5,
   // Octave 3
-  C3: 130.8, Cs3: 138.6, D3: 146.8, Ds3: 155.6, E3: 164.8, F3: 174.6, Fs3: 185.0, G3: 196.0, Gs3: 207.7, A3: 220.0, As3: 233.1, B3: 246.9,
+  C3: 130.8, Cs3: 138.6, D3: 146.8, Ds3: 155.6, E3: 164.8, F3: 174.6, Fs3: 185.0, G3: 196.0, Gs3: 207.7, A3: 220.0, As3: 233.1, Bb3: 233.1, B3: 246.9,
   // Octave 4
-  C4: 261.6, Cs4: 277.2, D4: 293.7, Ds4: 311.1, E4: 329.6, F4: 349.2, Fs4: 370.0, G4: 392.0, Gs4: 415.3, A4: 440.0, As4: 466.2, B4: 493.9,
+  C4: 261.6, Cs4: 277.2, D4: 293.7, Ds4: 311.1, E4: 329.6, F4: 349.2, Fs4: 370.0, G4: 392.0, Gs4: 415.3, A4: 440.0, As4: 466.2, Bb4: 466.2, B4: 493.9,
   // Octave 5
-  C5: 523.3, Cs5: 554.4, D5: 587.3, Ds5: 622.3, E5: 659.3, F5: 698.5, Fs5: 740.0, G5: 784.0, Gs5: 830.6, A5: 880.0, As5: 932.3, B5: 987.8,
+  C5: 523.3, Cs5: 554.4, D5: 587.3, Ds5: 622.3, E5: 659.3, F5: 698.5, Fs5: 740.0, G5: 784.0, Gs5: 830.6, A5: 880.0, As5: 932.3, Bb5: 932.3, B5: 987.8,
   // Octave 6
-  C6: 1046.5, Cs6: 1108.7, D6: 1174.7, Ds6: 1244.5, E6: 1318.5, F6: 1396.9, Fs6: 1480.0, G6: 1568.0, Gs6: 1661.2, A6: 1760.0, As6: 1864.7, B6: 1975.5,
+  C6: 1046.5, Cs6: 1108.7, D6: 1174.7, Ds6: 1244.5, E6: 1318.5, F6: 1396.9, Fs6: 1480.0, G6: 1568.0, Gs6: 1661.2, A6: 1760.0, As6: 1864.7, Bb6: 1864.7, B6: 1975.5,
 };
 
 class SoundEngine {
@@ -161,6 +163,34 @@ class SoundEngine {
     } catch {
       // Audio errors safely ignored
     }
+  }
+
+  public noise(duration = 0.05, volume = 0.03, filterFreq = 3000) {
+    if (!this.soundEnabled || this.masterVolume <= 0) return;
+    const ctx = this.initContext();
+    if (!ctx) return;
+    try {
+      const bufferSize = Math.max(256, Math.floor(ctx.sampleRate * duration));
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      const noiseNode = ctx.createBufferSource();
+      noiseNode.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = filterFreq;
+      const gain = ctx.createGain();
+      const startTime = ctx.currentTime;
+      gain.gain.setValueAtTime(volume * this.masterVolume, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      noiseNode.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noiseNode.start(startTime);
+      noiseNode.stop(startTime + duration + 0.02);
+    } catch {}
   }
 
   // Synthesized percussion sound generators with punchy punch & snap

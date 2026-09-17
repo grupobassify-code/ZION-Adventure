@@ -587,6 +587,53 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
   }
 }
 
+let _enemyGlobalId = 5000;
+function createEnemy(
+  x: number,
+  y: number,
+  type: Enemy['type'],
+  min: number,
+  max: number,
+  w = 16,
+  h = 16,
+  vx = 1
+): Enemy {
+  const stats = getEnemyStats(type);
+  let enemyW = w;
+  let enemyH = h;
+  if (type === 'ice_golem') {
+    enemyW = 24;
+    enemyH = 26;
+  } else if (type === 'arctic_wolf') {
+    enemyW = 22;
+    enemyH = 16;
+  } else if (type === 'frost_bat') {
+    enemyW = 16;
+    enemyH = 14;
+  } else if (type === 'snow_hopper') {
+    enemyW = 14;
+    enemyH = 14;
+  }
+  return {
+    id: _enemyGlobalId++,
+    type,
+    x,
+    y,
+    w: enemyW,
+    h: enemyH,
+    vx: vx * (type === 'arctic_wolf' ? 1.8 : 1),
+    vy: 0,
+    hp: stats.hp,
+    maxHp: stats.hp,
+    alive: true,
+    home: x,
+    min,
+    max,
+    scoreValue: stats.score,
+    xpValue: stats.xp,
+  };
+}
+
 export function buildLevel(levelIndex: number) {
   const config = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
   const LW = config.worldWidth;
@@ -4303,9 +4350,9 @@ export function buildLevel(levelIndex: number) {
 
     // 3 Glifos Rúnicos de Hielo (Nodos protectores del escudo del Yeti)
     nodes.push(
-      { id: 1, x: 1550, y: 95, w: 14, h: 14, hp: 6, maxHp: 6, active: true },
-      { id: 2, x: 1775, y: 70, w: 14, h: 14, hp: 6, maxHp: 6, active: true },
-      { id: 3, x: 1990, y: 95, w: 14, h: 14, hp: 6, maxHp: 6, active: true }
+      { id: 1, x: 1550, y: 95, w: 14, h: 14, taken: false, hp: 6, maxHp: 6, active: true },
+      { id: 2, x: 1775, y: 70, w: 14, h: 14, taken: false, hp: 6, maxHp: 6, active: true },
+      { id: 3, x: 1990, y: 95, w: 14, h: 14, taken: false, hp: 6, maxHp: 6, active: true }
     );
 
     // JEFE: YETI COLOSAL, SEÑOR DE LAS VENTISCAS
