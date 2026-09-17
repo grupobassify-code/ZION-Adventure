@@ -82,8 +82,14 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             </div>
           </div>
 
-          {/* Hearts Container (Eliminated in Only Up mode as requested) */}
-          {!engine.isOnlyUpMode ? (
+          {/* Hearts Container / Skiing Immunity Badge (Eliminated in Only Up mode or Skiing as requested) */}
+          {p.isSkiing ? (
+            <div className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl border border-sky-400/60 shadow-[0_0_10px_rgba(56,189,248,0.4)]" title="Blizzard Rush: ¡Inmune al daño! Descenso continuo a toda velocidad.">
+              <span className="text-sky-300 font-black text-[10px] sm:text-[11px] font-mono tracking-wider flex items-center gap-1">
+                🎿 <span>DESCENSO · INMUNE</span>
+              </span>
+            </div>
+          ) : !engine.isOnlyUpMode ? (
             <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-950/90 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-xl border border-pink-500/30 shadow-md" title={`Vidas: ${engine.lives}/${engine.maxLives}`}>
               {Array.from({ length: engine.maxLives }).map((_, idx) => (
                 <Heart

@@ -466,7 +466,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Guía de las Nieves Eternas'
       }
     ],
-    worldWidth: 7800,
+    worldWidth: 16500,
     themeColor: '#38bdf8',
     accentColor: '#e0f2fe'
   },
@@ -3986,26 +3986,36 @@ export function buildLevel(levelIndex: number) {
     goal = { x: 2420, y: 88, w: 36, h: 62 };
   } else if (config.id === 'blizzard-1') {
     // -------------------------------------------------------------
-    // ZONA 7 · ACTO 1 — BLIZZARD RUSH: DESCENSO EN ESQUÍS
+    // ZONA 7 · ACTO 1 — BLIZZARD RUSH: DESCENSO ÉPICO EN ESQUÍS (16,500 PX)
     // -------------------------------------------------------------
-    // Zion calza esquís y desciende a toda velocidad la ladera alpina inclinada.
-    // Mecánica central: Descenso por vertientes de montaña, saltos acrobáticos en rampas
-    // y esquivar ramas (agacharse) y troncos caídos (saltar).
-    // Diseño seguro: Terreno de montaña continuo sin caídas al vacío injustas.
+    // Zion calza esquís y desciende a toda velocidad una inmensa cordillera alpina.
+    // Mecánica central: Descenso continuo e imparable por vertientes inclinadas,
+    // saltos acrobáticos de gran vuelo, grinds sobre troncos y evasión de ramas.
+    // Zion es inmune al daño en este nivel para brindar una experiencia vertiginosa y viva.
 
-    // 1. Función de Altitud de la Montaña Inclinada
+    // 1. Función de Altitud Continua de la Cordillera Inclinada (18 Grandes Vertientes)
+    const slopes = [
+      { sX: 0, eX: 860, sY: 108, eY: 144 },
+      { sX: 890, eX: 1720, sY: 110, eY: 145 },
+      { sX: 1750, eX: 2440, sY: 112, eY: 144 },
+      { sX: 2470, eX: 3320, sY: 108, eY: 145 },
+      { sX: 3350, eX: 4100, sY: 110, eY: 145 },
+      { sX: 4130, eX: 4940, sY: 108, eY: 144 },
+      { sX: 4970, eX: 5860, sY: 110, eY: 145 },
+      { sX: 5890, eX: 6720, sY: 112, eY: 145 },
+      { sX: 6750, eX: 7600, sY: 110, eY: 144 },
+      { sX: 7630, eX: 8520, sY: 108, eY: 145 },
+      { sX: 8550, eX: 9440, sY: 110, eY: 144 },
+      { sX: 9470, eX: 10360, sY: 108, eY: 145 },
+      { sX: 10390, eX: 11280, sY: 110, eY: 144 },
+      { sX: 11310, eX: 12200, sY: 108, eY: 145 },
+      { sX: 12230, eX: 13120, sY: 110, eY: 144 },
+      { sX: 13150, eX: 14040, sY: 108, eY: 145 },
+      { sX: 14070, eX: 15100, sY: 106, eY: 144 },
+      { sX: 15130, eX: 16400, sY: 110, eY: 144 },
+    ];
+
     const getSlopeY = (posX: number): number => {
-      const slopes = [
-        { sX: 0, eX: 860, sY: 108, eY: 144 },
-        { sX: 890, eX: 1720, sY: 110, eY: 145 },
-        { sX: 1750, eX: 2440, sY: 112, eY: 144 },
-        { sX: 2470, eX: 3320, sY: 108, eY: 145 },
-        { sX: 3350, eX: 4100, sY: 110, eY: 145 },
-        { sX: 4130, eX: 4940, sY: 108, eY: 144 },
-        { sX: 4970, eX: 5860, sY: 110, eY: 145 },
-        { sX: 5890, eX: 6720, sY: 112, eY: 145 },
-        { sX: 6750, eX: 7700, sY: 110, eY: 144 },
-      ];
       for (const s of slopes) {
         if (posX >= s.sX && posX <= s.eX) {
           const t = (posX - s.sX) / (s.eX - s.sX);
@@ -4015,96 +4025,116 @@ export function buildLevel(levelIndex: number) {
       return 144;
     };
 
-    // 2. Fondos y Puntos de Referencia Alpinos (Chalets, Telesillas, Pinos y Rampas de Salto)
+    // 2. Puntos de Referencia Alpinos (Chalets, Torres de Telesilla, Pinos Gigantes y Rampas)
     landmarks.push(
-      { x: 60, y: 144, w: 90, h: 54, type: 'chalet', name: 'Refugio Inicial de la Cima' },
-      { x: 500, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
-      { x: 790, y: 144, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 1' },
-      { x: 920, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 1' },
-      { x: 1300, y: 138, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
-      { x: 1630, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 2' },
-      { x: 1900, y: 20, w: 90, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 2' },
+      // Chalets Alpinos de montaña
+      { x: 60, y: 144, w: 90, h: 54, type: 'chalet', name: 'Refugio Inicial de la Cumbre' },
       { x: 2320, y: 144, w: 88, h: 52, type: 'chalet', name: 'Chalet Intermedio de la Cuesta' },
-      { x: 2750, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.15 },
-      { x: 3230, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 3' },
-      { x: 3500, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 3' },
-      { x: 4010, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 4' },
-      { x: 4400, y: 135, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
       { x: 4820, y: 144, w: 88, h: 52, type: 'chalet', name: 'Refugio Glacial del Desfiladero' },
+      { x: 7480, y: 144, w: 92, h: 54, type: 'chalet', name: 'Parador de las Auroras Boreales' },
+      { x: 10100, y: 144, w: 88, h: 52, type: 'chalet', name: 'Estación Alpina del Valle Medio' },
+      { x: 12800, y: 144, w: 92, h: 54, type: 'chalet', name: 'Refugio Panorámico de los Pinos' },
+      { x: 16180, y: 144, w: 110, h: 64, type: 'chalet', name: 'Gran Lodge Alpino de la Meta' },
+
+      // Torres de Telesilla / Teleférico con cables aéreos
+      { x: 920, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 1' },
+      { x: 1900, y: 20, w: 90, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 2' },
+      { x: 3500, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 3' },
       { x: 5250, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 4' },
-      { x: 5770, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 5' },
-      { x: 6200, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
-      { x: 6630, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 6' },
       { x: 7100, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 5' },
-      { x: 7500, y: 144, w: 100, h: 60, type: 'chalet', name: 'Gran Lodge Alpino de la Meta' }
+      { x: 8900, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 6' },
+      { x: 10700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 7' },
+      { x: 12500, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 8' },
+      { x: 14300, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 9' },
+
+      // Pinos y Abetos Gigantes Escarchados
+      { x: 450, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
+      { x: 1300, y: 138, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
+      { x: 2750, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.15 },
+      { x: 4400, y: 135, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.25 },
+      { x: 6200, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
+      { x: 8100, y: 135, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
+      { x: 9800, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.15 },
+      { x: 11700, y: 135, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.25 },
+      { x: 13500, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.2 },
+      { x: 15500, y: 135, w: 28, h: 80, type: 'giant_frosted_pine', scale: 1.3 }
     );
 
-    // Banderas de Slalom adaptadas a la pendiente de la montaña
-    for (let bx = 300; bx < 7400; bx += 380) {
+    // Rampas de Salto Glacial
+    const rampXPositions = [790, 1630, 2310, 3230, 4010, 4810, 5770, 6630, 7510, 8430, 9350, 10270, 11190, 12110, 13030, 13950, 15010];
+    for (let rIdx = 0; rIdx < rampXPositions.length; rIdx++) {
+      const rx = rampXPositions[rIdx];
+      landmarks.push({
+        x: rx,
+        y: getSlopeY(rx),
+        w: 52,
+        h: 18,
+        type: 'ski_jump_ramp',
+        name: `Rampa de Salto Glacial ${rIdx + 1}`
+      });
+    }
+
+    // Banderas de Slalom adaptadas a la pendiente de la montaña (alternando azul y rojo)
+    for (let bx = 300; bx < 16200; bx += 360) {
       landmarks.push({
         x: bx,
         y: getSlopeY(bx),
         w: 16,
         h: 36,
         type: 'slalom_flag',
-        name: bx % 760 === 0 ? 'Bandera Roja' : 'Bandera Azul'
+        name: bx % 720 === 0 ? 'Bandera Roja' : 'Bandera Azul'
       });
     }
 
-    // 3. Terreno del Descenso Alpino (Laderas Inclinadas Continuas + Suelo Base Seguro)
-    // Red de seguridad continua de la montaña: NUNCA mueres por caídas al vacío en Blizzard Rush
-    platforms.push({ x: 0, y: 152, w: 7800, h: 36, kind: 'ground' });
+    // 3. Terreno del Descenso Alpino
+    // Base sólida continua e impenetrable: previene al 100% cualquier caída o vacío
+    platforms.push({ x: 0, y: 152, w: 16800, h: 36, kind: 'ground' });
 
-    // Laderas Alpinas Inclinadas (con pendiente visible e inercia gravitatoria)
-    platforms.push(
-      // Vertiente 1: Salida de la cumbre
-      { x: 0, y: 108, w: 860, h: 32, kind: 'ski_slope', slopeEndY: 144 },
-      // Vertiente 2: Cuesta de los Pinos
-      { x: 890, y: 110, w: 830, h: 32, kind: 'ski_slope', slopeEndY: 145 },
-      // Vertiente 3: Desfiladero del Chalet 1
-      { x: 1750, y: 112, w: 690, h: 32, kind: 'ski_slope', slopeEndY: 144 },
-      // Vertiente 4: Valle Medio
-      { x: 2470, y: 108, w: 850, h: 32, kind: 'ski_slope', slopeEndY: 145 },
-      // Vertiente 5: Ladera del Abeto Milenario
-      { x: 3350, y: 110, w: 750, h: 32, kind: 'ski_slope', slopeEndY: 145 },
-      // Vertiente 6: Cascada Helada y Chalet 2
-      { x: 4130, y: 108, w: 810, h: 32, kind: 'ski_slope', slopeEndY: 144 },
-      // Vertiente 7: Slalom Rápido
-      { x: 4970, y: 110, w: 890, h: 32, kind: 'ski_slope', slopeEndY: 145 },
-      // Vertiente 8: Alud Glacial
-      { x: 5890, y: 112, w: 830, h: 32, kind: 'ski_slope', slopeEndY: 145 },
-      // Vertiente 9: Descenso Final al Gran Lodge
-      { x: 6750, y: 110, w: 950, h: 32, kind: 'ski_slope', slopeEndY: 144 }
-    );
+    // Laderas Alpinas Inclinadas continuas con inercia gravitatoria
+    for (const s of slopes) {
+      platforms.push({
+        x: s.sX,
+        y: s.sY,
+        w: s.eX - s.sX + 30,
+        h: 32,
+        kind: 'ski_slope',
+        slopeEndY: s.eY
+      });
+    }
 
-    // Rampas de Salto elevadas para acrobacias
-    platforms.push(
-      { x: 650, y: 116, w: 90, h: 10, kind: 'snow' },
-      { x: 1450, y: 118, w: 100, h: 10, kind: 'snow' },
-      { x: 2150, y: 115, w: 110, h: 10, kind: 'snow' },
-      { x: 3050, y: 116, w: 95, h: 10, kind: 'snow' },
-      { x: 3850, y: 115, w: 120, h: 10, kind: 'snow' },
-      { x: 4650, y: 118, w: 90, h: 10, kind: 'snow' },
-      { x: 5500, y: 116, w: 110, h: 10, kind: 'snow' },
-      { x: 6400, y: 118, w: 100, h: 10, kind: 'snow' }
-    );
+    // Plataformas de nieve elevadas para saltos alternativos
+    const elevatedPlatX = [650, 1450, 2150, 3050, 3850, 4650, 5500, 6400, 7300, 8200, 9100, 10000, 10900, 11800, 12700, 13600, 14600];
+    for (const epx of elevatedPlatX) {
+      platforms.push({
+        x: epx,
+        y: 116,
+        w: 95,
+        h: 10,
+        kind: 'snow'
+      });
+    }
 
-    // Trampolines de Salto de Esquí (Super Ski Jumps sincronizados con rampas)
-    trampolines.push(
-      { x: 840, y: 136, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
-      { x: 1680, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 2360, y: 136, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
-      { x: 3280, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 4060, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 4860, y: 136, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
-      { x: 5820, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 6680, y: 137, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
-    );
+    // Super Trampolines de Salto de Esquí sincronizados con cada rampa
+    const trampolineX = [840, 1680, 2360, 3280, 4060, 4860, 5820, 6680, 7560, 8480, 9400, 10320, 11240, 12160, 13080, 14000, 15060];
+    for (let tIdx = 0; tIdx < trampolineX.length; tIdx++) {
+      const tx = trampolineX[tIdx];
+      const isMega = tIdx === trampolineX.length - 1;
+      trampolines.push({
+        x: tx,
+        y: getSlopeY(tx) - 8,
+        w: 36,
+        h: 10,
+        bounceForce: isMega ? -16.5 : -14,
+        springAnim: 0,
+        type: 'super'
+      });
+    }
 
-    // 4. Obstáculos Justos y Legibles
-    // A) Ramas Caídas: Se esquivan agachándose (tecla Abajo)
+    // 4. Obstáculos Alpinos (Sin Daño: dan puntos de acrobacia, grinds y bonos de agachado)
+    // A) Ramas Caídas: Se esquivan agachándose para bonus de velocidad
     const branchPositions = [
-      420, 580, 1120, 1320, 1950, 2600, 2800, 3500, 3720, 4300, 4520, 5150, 5380, 6050, 6280, 6950, 7150
+      420, 580, 1120, 1320, 1950, 2600, 2800, 3500, 3720, 4300, 4520, 5150, 5380, 6050, 6280, 6950, 7150,
+      7800, 8020, 8700, 8920, 9600, 9820, 10500, 10720, 11400, 11620, 12300, 12520, 13200, 13420, 14200, 14450, 15300, 15550
     ];
     for (const bx of branchPositions) {
       const sy = getSlopeY(bx);
@@ -4117,9 +4147,9 @@ export function buildLevel(levelIndex: number) {
       });
     }
 
-    // B) Troncos Caídos: Se superan saltando (tecla Salto)
+    // B) Troncos Caídos: Se saltan para realizar grinds acrobáticos (+50 pts)
     const logPositions = [
-      760, 1220, 1580, 2220, 2920, 3620, 4420, 5260, 6150, 6800
+      760, 1220, 1580, 2220, 2920, 3620, 4420, 5260, 6150, 6800, 7700, 8600, 9500, 10400, 11300, 12200, 13100, 14100, 15200
     ];
     for (const lx of logPositions) {
       const sy = getSlopeY(lx);
@@ -4132,8 +4162,10 @@ export function buildLevel(levelIndex: number) {
       });
     }
 
-    // C) Bolas de Nieve Rodantes en laderas amplias
-    const snowballSpawns = [1500, 2750, 4250, 5600, 6500];
+    // C) Bolas de Nieve Rodantes: Se destruyen al impacto con explosión de nieve (+100 pts)
+    const snowballSpawns = [
+      1500, 2750, 4250, 5600, 6500, 7900, 9200, 10600, 11900, 13300, 14500, 15600
+    ];
     for (const sx of snowballSpawns) {
       const sy = getSlopeY(sx);
       hazards.push({
@@ -4146,48 +4178,36 @@ export function buildLevel(levelIndex: number) {
       });
     }
 
-    // 5. Checkpoints Seguros en los Chalets Alpinos
+    // 5. Checkpoints en los Chalets Alpinos
     checkpoints.push(
-      {
-        x: 2360,
-        y: 114,
-        w: 20,
-        h: 32,
-        active: false,
-        spawn: { x: 2380, y: 124 }
-      },
-      {
-        x: 4860,
-        y: 114,
-        w: 20,
-        h: 32,
-        active: false,
-        spawn: { x: 4880, y: 124 }
-      }
+      { x: 2360, y: 114, w: 20, h: 32, active: false, spawn: { x: 2380, y: 124 } },
+      { x: 4860, y: 114, w: 20, h: 32, active: false, spawn: { x: 4880, y: 124 } },
+      { x: 7520, y: 114, w: 20, h: 32, active: false, spawn: { x: 7540, y: 124 } },
+      { x: 10140, y: 114, w: 20, h: 32, active: false, spawn: { x: 10160, y: 124 } },
+      { x: 12840, y: 114, w: 20, h: 32, active: false, spawn: { x: 12860, y: 124 } }
     );
 
-    // 6. Coleccionables: Cristales en arcos de salto acrobático
-    crystals.push(
-      { x: 1720, y: 70, w: 8, h: 8, taken: false },
-      { x: 4060, y: 65, w: 8, h: 8, taken: false },
-      { x: 6680, y: 65, w: 8, h: 8, taken: false }
+    // 6. Coleccionables: Arcos de Cristales en el Aire sobre los Grandes Saltos
+    const crystalArcs = [
+      860, 1700, 2380, 3300, 4080, 4880, 5840, 6700, 7580, 8500, 9420, 10340, 11260, 12180, 13100, 14020, 15080
+    ];
+    for (const cx of crystalArcs) {
+      crystals.push(
+        { x: cx, y: 68, w: 8, h: 8, taken: false },
+        { x: cx + 22, y: 56, w: 8, h: 8, taken: false },
+        { x: cx + 44, y: 68, w: 8, h: 8, taken: false }
+      );
+    }
+
+    // Objetos Secretos / Trofeos Alpinos Dorados
+    secrets.push(
+      { x: 3900, y: 60, w: 12, h: 14, taken: false, name: '⭐ Trofeo de Esquí de Oro Glacial' },
+      { x: 9350, y: 55, w: 12, h: 14, taken: false, name: '🏆 Medalla de Vuelo Libre Alpino' },
+      { x: 15120, y: 48, w: 12, h: 14, taken: false, name: '👑 Corona de las Cumbres Nevadas' }
     );
 
-    heals.push(
-      { x: 2400, y: 126, w: 10, h: 10, taken: false },
-      { x: 4900, y: 126, w: 10, h: 10, taken: false }
-    );
-
-    secrets.push({
-      x: 3900,
-      y: 60,
-      w: 12,
-      h: 14,
-      taken: false,
-      name: '⭐ Trofeo de Esquí de Oro Glacial'
-    });
-
-    goal = { x: 7580, y: 88, w: 40, h: 62 };
+    // Meta Triunfal en el Gran Lodge del Valle
+    goal = { x: 16320, y: 88, w: 40, h: 62 };
   } else if (config.id === 'blizzard-2') {
     // -------------------------------------------------------------
     // ZONA 7 · ACTO 2 — BLIZZARD RUSH: EL BOSQUE NEVADO

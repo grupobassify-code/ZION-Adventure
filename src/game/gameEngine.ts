@@ -5526,17 +5526,23 @@ export class GameEngine {
 
         if (isColliding) {
           if (h.type === 'snow_branch') {
-            sound.playSfx('hit');
-            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 16, '#bae6fd');
-            this.handlePlayerDamage('¡Chocaste con Rama Nevada! (Agáchate para esquivar)');
+            sound.playSfx('skiSwish');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 14, '#bae6fd');
+            this.addFloatingText(p.x, p.y - 14, '🎿 ¡ROZASTE RAMA! (Agáchate para bono)', '#38bdf8');
+            p.inv = 20;
           } else if (h.type === 'fallen_log') {
-            sound.playSfx('hit');
-            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#78350f');
-            this.handlePlayerDamage('¡Tropezaste con Tronco Caído! (Salta para superar)');
+            sound.playSfx('skiSwish');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 16, '#93c5fd');
+            this.addFloatingText(p.x, p.y - 14, '🏂 ¡GRIND SOBRE TRONCO! +50 PTS', '#facc15');
+            this.stats.score += 50;
+            p.inv = 20;
           } else if (h.type === 'rolling_snowball') {
-            sound.playSfx('hit');
-            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ffffff');
-            this.handlePlayerDamage('¡Arrollado por Bola de Nieve!');
+            sound.playSfx('break');
+            this.createBurst(h.x + (h.w || 20) / 2, h.y + (h.h || 20) / 2, 22, '#ffffff');
+            this.addFloatingText(p.x, p.y - 14, '💥 ¡ALUD DESTRUIDO! +100 PTS', '#4ade80');
+            this.stats.score += 100;
+            h.y = 999;
+            p.inv = 25;
           } else if (h.type === 'crusher') {
             sound.playSfx('crushSlam');
             this.createBurst(p.x + p.w / 2, p.y + p.h, 20, '#71717a');
@@ -6241,6 +6247,16 @@ export class GameEngine {
 
   private handlePlayerDamage(msg: string) {
     if (this.settings.godMode) return;
+    if (this.player.isSkiing || LEVEL_CONFIGS[this.levelIndex]?.id === 'blizzard-1') {
+      // In Blizzard Rush downhill skiing, Zion CANNOT receive damage!
+      // This keeps the downhill ski rush exhilarating, ultra-alive, and fluid!
+      sound.playSfx('skiSwish');
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 14, '#bae6fd');
+      this.addFloatingText(this.player.x, this.player.y - 14, '❄️ ¡ACROBACIA EN NIEVE! (0 DAÑO)', '#38bdf8');
+      this.player.inv = 30;
+      this.player.damageInvTimer = 30;
+      return;
+    }
     this.hitsTakenInLevel++;
     if (this.isInSpecialStage) {
       // In Special Stage: Strictly 1 single attempt! Any hit exits back to normal level
