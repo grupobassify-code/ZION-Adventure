@@ -28,6 +28,7 @@ import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './u
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
 import { LoadingIntroScreen } from './components/LoadingIntroScreen';
+import { checkIsMobilePhone } from './utils/device';
 import { MultiplayerModal } from './components/MultiplayerModal';
 import { VersusHUD } from './components/VersusHUD';
 import { OnlineMatchResultModal } from './components/OnlineMatchResultModal';
@@ -57,7 +58,7 @@ export default function App() {
   });
 
   const [, setRenderTick] = useState(0);
-  const [showIntroLoading, setShowIntroLoading] = useState<boolean>(true);
+  const [showIntroLoading, setShowIntroLoading] = useState<boolean>(() => checkIsMobilePhone());
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);

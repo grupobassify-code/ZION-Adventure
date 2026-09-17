@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Shield, Zap, Wind, Swords, ArrowUp } from 'lucide-react';
 import { GameInputState } from '../game/gameEngine';
 import { useLanguage } from '../utils/i18n';
+import { checkIsIPad } from '../utils/device';
 
 interface TouchControlsProps {
   inputs: GameInputState;
@@ -15,22 +16,6 @@ interface TouchControlsProps {
   onToggleControlMode?: () => void;
   isPortrait?: boolean;
 }
-
-const checkIsIPad = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  // 1. Explicit iPad in UA (older iOS or custom webview)
-  const isExplicitIPad = /iPad/i.test(ua);
-  // 2. Modern iPadOS reports as "Macintosh" with multi-touch points
-  const isMacTouch = /Macintosh/i.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1;
-  // 3. Tablet screen dimensions with touch support (iPad Mini 768x1024, iPad 810x1080, iPad Air 820x1180, iPad Pro 1024x1366, etc.)
-  const hasTouch = (typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 0) || 'ontouchstart' in window;
-  const minDim = Math.min(window.innerWidth, window.innerHeight);
-  const maxDim = Math.max(window.innerWidth, window.innerHeight);
-  const isTabletDimensions = hasTouch && minDim >= 600 && maxDim >= 850;
-
-  return isExplicitIPad || isMacTouch || isTabletDimensions;
-};
 
 export const TouchControls: React.FC<TouchControlsProps> = ({
   inputs,
