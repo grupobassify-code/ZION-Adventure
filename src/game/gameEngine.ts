@@ -1297,6 +1297,7 @@ export class GameEngine {
     if (p.isSkiing) {
       p.facing = 1; // Always facing downhill
       p.skiCrouch = !!inputs.down;
+      p.isDucking = p.skiCrouch; // Synchronize ducking state to duck under branches
 
       // Analog or digital steer:
       let targetSpeed = 4.4;
@@ -1532,7 +1533,7 @@ export class GameEngine {
     }
 
     for (const plat of walls) {
-      if (plat.hidden) continue;
+      if (plat.hidden || plat.slopeEndY !== undefined) continue;
       if (this.checkAABB(p, plat)) {
         if (p.vx > 0) {
           p.x = plat.x - p.w;
@@ -1615,6 +1616,28 @@ export class GameEngine {
       // Campaign level collision
       for (const plat of this.platforms) {
         if (plat.hidden) continue;
+
+        if (plat.slopeEndY !== undefined) {
+          // Downhill or Uphill Ski Slope Collision
+          const footX = p.x + p.w / 2;
+          if (footX >= plat.x && footX <= plat.x + plat.w) {
+            const progress = (footX - plat.x) / plat.w;
+            const surfaceY = plat.y + progress * (plat.slopeEndY - plat.y);
+            const footY = p.y + p.h;
+            // Catch falling or sliding player smoothly onto the slope
+            if (footY >= surfaceY - 6 && footY <= surfaceY + 12 && p.vy >= -1.0) {
+              p.y = surfaceY - p.h;
+              p.vy = 0;
+              p.ground = true;
+              if (p.isSkiing && plat.slopeEndY > plat.y) {
+                // Downhill gravitational acceleration on steeper inclines
+                p.vx = Math.min(6.2, Math.max(p.vx, 4.8));
+              }
+            }
+          }
+          continue;
+        }
+
         if (this.checkAABB(p, plat)) {
           if (plat.kind === 'quicksand') {
             p.ground = true;
@@ -1743,6 +1766,15 @@ export class GameEngine {
     // Track last grounded safe position on platforms
     if (p.ground && p.y < GAME_HEIGHT - 20 && !this.isInSpecialStage) {
       this.lastSafeGround = { x: p.x, y: p.y };
+    }
+
+    // Mountain slope safety net for skiing: prevent abrupt void drops on the mountain descent
+    if (p.isSkiing && p.y > 154) {
+      p.y = 146;
+      p.vy = 0;
+      p.ground = true;
+      sound.playSfx('skiSwish');
+      return;
     }
 
     // Pit fall check (Takes strictly 1 heart and safely resets to last checkpoint, or exits special stage)
@@ -2512,6 +2544,7 @@ export class GameEngine {
       } else if (h.type === 'rolling_snowball') {
         h.vx = h.vx || -2.4;
         h.x += h.vx;
+        h.spinAngle = ((h.spinAngle || 0) + (h.vx > 0 ? 1 : -1) * 0.15);
         if (this.time % 4 === 0) {
           this.particles.push({
             x: h.x + h.w / 2,
@@ -5317,6 +5350,7 @@ export class GameEngine {
         if (h.type === 'dartTrap') continue;
         if (h.type === 'proximityMine') continue; // Handled by proximity fuse
         if (h.type === 'antigravRift') continue; // Non-lethal gravitational anomaly
+        if (h.type === 'blizzard_gust') continue; // Non-lethal atmospheric wind gust
         if (Math.abs(h.x - p.x) > 90 || Math.abs(h.y - p.y) > 90) continue;
 
         const isSpikeHazard = h.type === 'spike' || h.type === 'sandSpike' || h.type === 'retractableSpikes' || h.type === 'rollingSpikeBall';
@@ -5454,6 +5488,34 @@ export class GameEngine {
           const pcy = p.y + p.h / 2;
           const dist = Math.hypot(bcx - pcx, bcy - pcy);
           isColliding = dist < ballRadius + 6;
+        } else if (h.type === 'snow_branch') {
+          if (p.isDucking) {
+            isColliding = false;
+          } else {
+            const branchBox = {
+              x: h.x + 3,
+              y: h.y + 2,
+              w: Math.max(4, h.w - 6),
+              h: Math.max(4, h.h - 4),
+            };
+            isColliding = this.checkAABB(p, branchBox);
+          }
+        } else if (h.type === 'fallen_log') {
+          const logBox = {
+            x: h.x + 4,
+            y: h.y + 4,
+            w: Math.max(4, h.w - 8),
+            h: Math.max(4, h.h - 4),
+          };
+          isColliding = this.checkAABB(p, logBox);
+        } else if (h.type === 'rolling_snowball') {
+          const ballRadius = (h.w || 24) / 2;
+          const bcx = h.x + ballRadius;
+          const bcy = h.y + ballRadius;
+          const pcx = p.x + p.w / 2;
+          const pcy = p.y + p.h / 2;
+          const dist = Math.hypot(bcx - pcx, bcy - pcy);
+          isColliding = dist < ballRadius + 4;
         } else if (h.type === 'plasmaTurret') {
           isColliding = this.checkAABB(p, h);
         } else if (h.type === 'gravityVortex') {
@@ -5463,7 +5525,19 @@ export class GameEngine {
         }
 
         if (isColliding) {
-          if (h.type === 'crusher') {
+          if (h.type === 'snow_branch') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 16, '#bae6fd');
+            this.handlePlayerDamage('¡Chocaste con Rama Nevada! (Agáchate para esquivar)');
+          } else if (h.type === 'fallen_log') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#78350f');
+            this.handlePlayerDamage('¡Tropezaste con Tronco Caído! (Salta para superar)');
+          } else if (h.type === 'rolling_snowball') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ffffff');
+            this.handlePlayerDamage('¡Arrollado por Bola de Nieve!');
+          } else if (h.type === 'crusher') {
             sound.playSfx('crushSlam');
             this.createBurst(p.x + p.w / 2, p.y + p.h, 20, '#71717a');
             this.handlePlayerDamage('¡Aplastado por Prensa Hidráulica!');

@@ -22,6 +22,7 @@ export interface Platform {
   w: number;
   h: number;
   kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram' | 'jungle_stone' | 'temple_stone' | 'treetop' | 'vine_bridge' | 'snow' | 'ice' | 'frozen_rock' | 'ski_slope' | 'glacier_ice';
+  slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
   speed?: number;
@@ -464,6 +465,7 @@ export interface Player {
   // Blizzard Rush Ski Mechanics
   isSkiing?: boolean;
   skiCrouch?: boolean;
+  isDucking?: boolean;
   skiSpeed?: number;
   skiAirTime?: number;
   skiAirTimer?: number;

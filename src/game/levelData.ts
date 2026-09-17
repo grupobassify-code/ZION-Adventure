@@ -3988,28 +3988,62 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // ZONA 7 · ACTO 1 — BLIZZARD RUSH: DESCENSO EN ESQUÍS
     // -------------------------------------------------------------
-    // Zion calza esquís y desciende a toda velocidad la ladera alpina.
-    // Mecánica central: Saltar rampas y esquivar ramas caídas, troncos y aludes.
+    // Zion calza esquís y desciende a toda velocidad la ladera alpina inclinada.
+    // Mecánica central: Descenso por vertientes de montaña, saltos acrobáticos en rampas
+    // y esquivar ramas (agacharse) y troncos caídos (saltar).
+    // Diseño seguro: Terreno de montaña continuo sin caídas al vacío injustas.
 
-    // 1. Fondos y Puntos de Referencia Alpinos
+    // 1. Función de Altitud de la Montaña Inclinada
+    const getSlopeY = (posX: number): number => {
+      const slopes = [
+        { sX: 0, eX: 860, sY: 108, eY: 144 },
+        { sX: 890, eX: 1720, sY: 110, eY: 145 },
+        { sX: 1750, eX: 2440, sY: 112, eY: 144 },
+        { sX: 2470, eX: 3320, sY: 108, eY: 145 },
+        { sX: 3350, eX: 4100, sY: 110, eY: 145 },
+        { sX: 4130, eX: 4940, sY: 108, eY: 144 },
+        { sX: 4970, eX: 5860, sY: 110, eY: 145 },
+        { sX: 5890, eX: 6720, sY: 112, eY: 145 },
+        { sX: 6750, eX: 7700, sY: 110, eY: 144 },
+      ];
+      for (const s of slopes) {
+        if (posX >= s.sX && posX <= s.eX) {
+          const t = (posX - s.sX) / (s.eX - s.sX);
+          return Math.round(s.sY + t * (s.eY - s.sY));
+        }
+      }
+      return 144;
+    };
+
+    // 2. Fondos y Puntos de Referencia Alpinos (Chalets, Telesillas, Pinos y Rampas de Salto)
     landmarks.push(
-      { x: 100, y: 30, w: 140, h: 120, type: 'chalet', name: 'Refugio Inicial de la Cima' },
-      { x: 700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Telesilla Alpino' },
-      { x: 1500, y: 20, w: 90, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 2' },
-      { x: 2320, y: 35, w: 120, h: 115, type: 'chalet', name: 'Chalet Intermedio de la Cuesta' },
-      { x: 3200, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 3' },
-      { x: 4100, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 4' },
-      { x: 4820, y: 35, w: 120, h: 115, type: 'chalet', name: 'Refugio Glacial del Desfiladero' },
-      { x: 5700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 5' },
-      { x: 6700, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 6' },
-      { x: 7520, y: 30, w: 160, h: 120, type: 'chalet', name: 'Gran Lodge Alpino de la Meta' }
+      { x: 60, y: 144, w: 90, h: 54, type: 'chalet', name: 'Refugio Inicial de la Cima' },
+      { x: 500, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
+      { x: 790, y: 144, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 1' },
+      { x: 920, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 1' },
+      { x: 1300, y: 138, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
+      { x: 1630, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 2' },
+      { x: 1900, y: 20, w: 90, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 2' },
+      { x: 2320, y: 144, w: 88, h: 52, type: 'chalet', name: 'Chalet Intermedio de la Cuesta' },
+      { x: 2750, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.15 },
+      { x: 3230, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 3' },
+      { x: 3500, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 3' },
+      { x: 4010, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 4' },
+      { x: 4400, y: 135, w: 26, h: 75, type: 'giant_frosted_pine', scale: 1.2 },
+      { x: 4820, y: 144, w: 88, h: 52, type: 'chalet', name: 'Refugio Glacial del Desfiladero' },
+      { x: 5250, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 4' },
+      { x: 5770, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 5' },
+      { x: 6200, y: 136, w: 24, h: 70, type: 'frozen_pine', scale: 1.1 },
+      { x: 6630, y: 145, w: 52, h: 18, type: 'ski_jump_ramp', name: 'Rampa de Salto Glacial 6' },
+      { x: 7100, y: 20, w: 80, h: 130, type: 'ski_lift', name: 'Torre de Telesilla 5' },
+      { x: 7500, y: 144, w: 100, h: 60, type: 'chalet', name: 'Gran Lodge Alpino de la Meta' }
     );
 
-    // Banderas de Slalom a lo largo de la pista (rojas y azules)
+    // Banderas de Slalom adaptadas a la pendiente de la montaña
     for (let bx = 300; bx < 7400; bx += 380) {
       landmarks.push({
         x: bx,
-        y: 115,
+        y: getSlopeY(bx),
         w: 16,
         h: 36,
         type: 'slalom_flag',
@@ -4017,110 +4051,122 @@ export function buildLevel(levelIndex: number) {
       });
     }
 
-    // 2. Terreno del Descenso Alpino (Laderas, terrazas nevadas y saltos)
-    // Tramos de nieve continua con pendientes escalonadas y desfiladeros
+    // 3. Terreno del Descenso Alpino (Laderas Inclinadas Continuas + Suelo Base Seguro)
+    // Red de seguridad continua de la montaña: NUNCA mueres por caídas al vacío en Blizzard Rush
+    platforms.push({ x: 0, y: 152, w: 7800, h: 36, kind: 'ground' });
+
+    // Laderas Alpinas Inclinadas (con pendiente visible e inercia gravitatoria)
     platforms.push(
-      // Tramo 1: Salida de la cumbre y primera bajada
-      { x: 0, y: 148, w: 900, h: 32, kind: 'ski_slope' },
-      { x: 960, y: 148, w: 750, h: 32, kind: 'ski_slope' },
-      { x: 1780, y: 148, w: 600, h: 32, kind: 'ski_slope' },
-
-      // Tramo 2: Desfiladero del Telesilla
-      { x: 2420, y: 148, w: 850, h: 32, kind: 'ski_slope' },
-      { x: 3340, y: 148, w: 700, h: 32, kind: 'ski_slope' },
-      { x: 4100, y: 148, w: 750, h: 32, kind: 'ski_slope' },
-
-      // Tramo 3: El Gran Salto Glacial
-      { x: 4900, y: 148, w: 900, h: 32, kind: 'ski_slope' },
-      { x: 5860, y: 148, w: 800, h: 32, kind: 'ski_slope' },
-      { x: 6720, y: 148, w: 1080, h: 32, kind: 'ski_slope' }
+      // Vertiente 1: Salida de la cumbre
+      { x: 0, y: 108, w: 860, h: 32, kind: 'ski_slope', slopeEndY: 144 },
+      // Vertiente 2: Cuesta de los Pinos
+      { x: 890, y: 110, w: 830, h: 32, kind: 'ski_slope', slopeEndY: 145 },
+      // Vertiente 3: Desfiladero del Chalet 1
+      { x: 1750, y: 112, w: 690, h: 32, kind: 'ski_slope', slopeEndY: 144 },
+      // Vertiente 4: Valle Medio
+      { x: 2470, y: 108, w: 850, h: 32, kind: 'ski_slope', slopeEndY: 145 },
+      // Vertiente 5: Ladera del Abeto Milenario
+      { x: 3350, y: 110, w: 750, h: 32, kind: 'ski_slope', slopeEndY: 145 },
+      // Vertiente 6: Cascada Helada y Chalet 2
+      { x: 4130, y: 108, w: 810, h: 32, kind: 'ski_slope', slopeEndY: 144 },
+      // Vertiente 7: Slalom Rápido
+      { x: 4970, y: 110, w: 890, h: 32, kind: 'ski_slope', slopeEndY: 145 },
+      // Vertiente 8: Alud Glacial
+      { x: 5890, y: 112, w: 830, h: 32, kind: 'ski_slope', slopeEndY: 145 },
+      // Vertiente 9: Descenso Final al Gran Lodge
+      { x: 6750, y: 110, w: 950, h: 32, kind: 'ski_slope', slopeEndY: 144 }
     );
 
-    // Rampas elevadas para saltos de esquí acrobáticos
+    // Rampas de Salto elevadas para acrobacias
     platforms.push(
-      { x: 650, y: 122, w: 90, h: 10, kind: 'snow' },
-      { x: 1450, y: 115, w: 100, h: 10, kind: 'snow' },
-      { x: 2150, y: 110, w: 110, h: 10, kind: 'snow' },
-      { x: 3050, y: 115, w: 95, h: 10, kind: 'snow' },
-      { x: 3850, y: 110, w: 120, h: 10, kind: 'snow' },
+      { x: 650, y: 116, w: 90, h: 10, kind: 'snow' },
+      { x: 1450, y: 118, w: 100, h: 10, kind: 'snow' },
+      { x: 2150, y: 115, w: 110, h: 10, kind: 'snow' },
+      { x: 3050, y: 116, w: 95, h: 10, kind: 'snow' },
+      { x: 3850, y: 115, w: 120, h: 10, kind: 'snow' },
       { x: 4650, y: 118, w: 90, h: 10, kind: 'snow' },
-      { x: 5500, y: 112, w: 110, h: 10, kind: 'snow' },
-      { x: 6400, y: 115, w: 100, h: 10, kind: 'snow' }
+      { x: 5500, y: 116, w: 110, h: 10, kind: 'snow' },
+      { x: 6400, y: 118, w: 100, h: 10, kind: 'snow' }
     );
 
-    // Trampolines de Salto de Esquí (Super Ski Jumps)
+    // Trampolines de Salto de Esquí (Super Ski Jumps sincronizados con rampas)
     trampolines.push(
-      { x: 860, y: 138, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
-      { x: 1680, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 2340, y: 138, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
-      { x: 3260, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 4020, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 4820, y: 138, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
-      { x: 5780, y: 138, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
-      { x: 6640, y: 138, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
+      { x: 840, y: 136, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
+      { x: 1680, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 2360, y: 136, w: 34, h: 10, bounceForce: -13.5, springAnim: 0, type: 'super' },
+      { x: 3280, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 4060, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 4860, y: 136, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
+      { x: 5820, y: 137, w: 34, h: 10, bounceForce: -14, springAnim: 0, type: 'super' },
+      { x: 6680, y: 137, w: 34, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
     );
 
-    // 3. Obstáculos Principales: Ramas Caídas y Troncos (Saltar para esquivar)
+    // 4. Obstáculos Justos y Legibles
+    // A) Ramas Caídas: Se esquivan agachándose (tecla Abajo)
     const branchPositions = [
       420, 580, 1120, 1320, 1950, 2600, 2800, 3500, 3720, 4300, 4520, 5150, 5380, 6050, 6280, 6950, 7150
     ];
     for (const bx of branchPositions) {
+      const sy = getSlopeY(bx);
       hazards.push({
         x: bx,
-        y: 126,
-        w: 28,
-        h: 22,
+        y: sy - 15,
+        w: 30,
+        h: 15,
         type: 'snow_branch'
       });
     }
 
+    // B) Troncos Caídos: Se superan saltando (tecla Salto)
     const logPositions = [
-      780, 1220, 1600, 2250, 2950, 3620, 4420, 5260, 6150, 6800
+      760, 1220, 1580, 2220, 2920, 3620, 4420, 5260, 6150, 6800
     ];
     for (const lx of logPositions) {
+      const sy = getSlopeY(lx);
       hazards.push({
         x: lx,
-        y: 124,
-        w: 34,
-        h: 24,
+        y: sy - 10,
+        w: 32,
+        h: 10,
         type: 'fallen_log'
       });
     }
 
-    // Bolas de nieve rodantes en pendientes pronunciadas
+    // C) Bolas de Nieve Rodantes en laderas amplias
     const snowballSpawns = [1500, 2750, 4250, 5600, 6500];
     for (const sx of snowballSpawns) {
+      const sy = getSlopeY(sx);
       hazards.push({
         x: sx,
-        y: 126,
-        w: 24,
-        h: 24,
+        y: sy - 18,
+        w: 20,
+        h: 20,
         type: 'rolling_snowball',
-        vx: -2.5
+        vx: -2.4
       });
     }
 
-    // 4. Checkpoints Seguros en los Chalets Alpinos
+    // 5. Checkpoints Seguros en los Chalets Alpinos
     checkpoints.push(
       {
         x: 2360,
-        y: 116,
+        y: 114,
         w: 20,
         h: 32,
         active: false,
-        spawn: { x: 2380, y: 125 }
+        spawn: { x: 2380, y: 124 }
       },
       {
         x: 4860,
-        y: 116,
+        y: 114,
         w: 20,
         h: 32,
         active: false,
-        spawn: { x: 4880, y: 125 }
+        spawn: { x: 4880, y: 124 }
       }
     );
 
-    // 5. Coleccionables: Cristales en arcos aéreos de salto
+    // 6. Coleccionables: Cristales en arcos de salto acrobático
     crystals.push(
       { x: 1720, y: 70, w: 8, h: 8, taken: false },
       { x: 4060, y: 65, w: 8, h: 8, taken: false },
@@ -4128,8 +4174,8 @@ export function buildLevel(levelIndex: number) {
     );
 
     heals.push(
-      { x: 2390, y: 126, w: 10, h: 10, taken: false },
-      { x: 4890, y: 126, w: 10, h: 10, taken: false }
+      { x: 2400, y: 126, w: 10, h: 10, taken: false },
+      { x: 4900, y: 126, w: 10, h: 10, taken: false }
     );
 
     secrets.push({

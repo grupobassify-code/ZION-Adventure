@@ -781,6 +781,13 @@ export class GameRenderer {
         grad.addColorStop(0.7, '#064e3b');
         grad.addColorStop(1, '#0f766e');
       }
+    } else if (zone === 'blizzard') {
+      // Blizzard Rush: High-Altitude Alpine Mountain Descent
+      grad.addColorStop(0, '#0284c7');    // Deep alpine cerulean blue
+      grad.addColorStop(0.32, '#38bdf8'); // Crisp mountain sky
+      grad.addColorStop(0.65, '#bae6fd'); // Glistening ice mist
+      grad.addColorStop(0.88, '#e0f2fe'); // Mountain snow reflection
+      grad.addColorStop(1, '#f8fafc');    // Pure snow white baseline
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1021,6 +1028,74 @@ export class GameRenderer {
         ctx.lineTo(bx - 7, by + 2 - flap * 0.5);
         ctx.stroke();
       }
+    } else if (zone === 'blizzard') {
+      // Blizzard Rush: Radiant Alpine Winter Sun, Solar Halo, and Frosted Clouds
+      const sunX = 245;
+      const sunY = 32;
+
+      // 1. Ice Crystal Solar Halo Ring (22° Alpine Halo Phenomenon)
+      const haloPulse = 0.35 + Math.sin(time * 0.04) * 0.1;
+      ctx.strokeStyle = `rgba(255, 255, 255, ${haloPulse})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 32, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Outer rainbow refraction rim
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.25)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Parhelia / Sun Dogs (brilliant twin ice prism spots on the halo)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(sunX - 32, sunY, 3, 0, Math.PI * 2);
+      ctx.arc(sunX + 32, sunY, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#bae6fd';
+      ctx.beginPath();
+      ctx.arc(sunX - 32, sunY, 5, 0, Math.PI * 2);
+      ctx.arc(sunX + 32, sunY, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Solar Corona & Brilliant Core
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 16, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 4-Point Alpine Solar Cross Glare
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.fillRect(sunX - 18, sunY - 0.5, 36, 1);
+      ctx.fillRect(sunX - 0.5, sunY - 18, 1, 36);
+
+      // 3. Drifting High-Altitude Alpine Cirrus Clouds
+      for (let c = 0; c < 4; c++) {
+        const cloudSpeed = 0.25 + c * 0.1;
+        const cx = ((c * 95 + time * cloudSpeed - cameraX * 0.03) % (GAME_WIDTH + 80) + GAME_WIDTH + 80) % (GAME_WIDTH + 80) - 40;
+        const cy = 12 + c * 10;
+        const cw = 36 + c * 12;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, cw / 2, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(224, 242, 254, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(cx + 4, cy - 2, cw / 3, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -1103,6 +1178,59 @@ export class GameRenderer {
         ctx.fillStyle = '#facc15aa';
         ctx.fillRect(crestX - 1, crestY - 26, 2, 2);
         ctx.fillStyle = act === 1 ? '#063f2f' : '#03261d';
+      }
+    } else if (zone === 'blizzard') {
+      // Blizzard Rush: High Alpine Jagged Mountain Peaks with Glaciers & Snow Caps
+      const p1Offset = (cameraX * 0.05) % 240;
+
+      // 1. Far jagged mountain silhouette
+      ctx.fillStyle = '#0c2238';
+      ctx.beginPath();
+      ctx.moveTo(0, 120);
+      for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 25) {
+        const peak = Math.sin(x * 0.018) * 22 + Math.cos(x * 0.04 + 1.2) * 12;
+        ctx.lineTo(x, 62 + peak);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // 2. Majestic Alpine Peak Triangles with Crisp Snow Facets
+      for (let px = -p1Offset - 240; px <= GAME_WIDTH + 240; px += 65) {
+        const peakY = 46 + Math.sin(px * 0.02) * 16;
+        const peakW = 44;
+        const peakH = 48;
+
+        // Left lit face (Pristine alpine snow)
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(px, peakY);
+        ctx.lineTo(px - peakW * 0.6, peakY + peakH);
+        ctx.lineTo(px, peakY + peakH * 0.68);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right shaded face (Cold alpine glacier cyan shadow)
+        ctx.fillStyle = '#7dd3fc';
+        ctx.beginPath();
+        ctx.moveTo(px, peakY);
+        ctx.lineTo(px + peakW * 0.6, peakY + peakH);
+        ctx.lineTo(px, peakY + peakH * 0.68);
+        ctx.closePath();
+        ctx.fill();
+
+        // Deep granite crevasse shadow
+        ctx.fillStyle = '#0369a1';
+        ctx.beginPath();
+        ctx.moveTo(px, peakY);
+        ctx.lineTo(px + 4, peakY + peakH * 0.68);
+        ctx.lineTo(px - 2, peakY + peakH * 0.85);
+        ctx.closePath();
+        ctx.fill();
+
+        // Razor summit peak accent
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(px - 1, peakY - 3, 2, 4);
       }
     } else {
       const p1Offset = (cameraX * 0.08) % 140;
@@ -1329,6 +1457,147 @@ export class GameRenderer {
         ctx.fillRect(cX - 8, pyrBaseY - 4, 3, 1.5);
         ctx.fillRect(cX + 8, pyrBaseY - 4, 3, 1.5);
       }
+    } else if (zone === 'blizzard') {
+      // Blizzard Rush: Downhill Mountain Ridge, Alpine Evergreen Forest, Ski Lift, and Mountain Chalets
+      const p2Offset = (cameraX * 0.16) % 200;
+
+      // 1. Midground Sloping Alpine Mountain Ridge Line
+      ctx.fillStyle = '#0f2744';
+      ctx.beginPath();
+      ctx.moveTo(0, 148);
+      for (let x = -p2Offset - 200; x <= GAME_WIDTH + 200; x += 25) {
+        // Continuous mountain flank descending towards the right
+        const slopeY = 82 + ((x + cameraX * 0.16) % 260) * 0.08 + Math.sin(x * 0.03) * 6;
+        ctx.lineTo(x, slopeY);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Frosted snow line on top of the midground ridge
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let x = -p2Offset - 200; x <= GAME_WIDTH + 200; x += 25) {
+        const slopeY = 82 + ((x + cameraX * 0.16) % 260) * 0.08 + Math.sin(x * 0.03) * 6;
+        if (x === -p2Offset - 200) ctx.moveTo(x, slopeY);
+        else ctx.lineTo(x, slopeY);
+      }
+      ctx.stroke();
+
+      // 2. Dense Alpine Pine & Spruce Trees on the Mountain Flank
+      for (let x = -p2Offset - 200; x < GAME_WIDTH + 200; x += 40) {
+        const treeBaseY = 94 + Math.sin(x * 0.03) * 5;
+        // Trunk
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 5, treeBaseY - 6, 3, 6);
+        // 3 Tiers of snow-laden pine foliage
+        for (let tier = 0; tier < 3; tier++) {
+          const tw = 15 - tier * 4;
+          const ty = treeBaseY - 6 - tier * 6;
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.moveTo(x + 6.5, ty - 6);
+          ctx.lineTo(x + 6.5 - tw / 2, ty);
+          ctx.lineTo(x + 6.5 + tw / 2, ty);
+          ctx.closePath();
+          ctx.fill();
+
+          // Snow blanket on each tier
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + 6.5 - tw / 2 + 1, ty - 2, tw - 2, 2);
+        }
+      }
+
+      // 3. Cozy Alpine Mountain Chalet (Nestled on the slope with smoking chimney)
+      for (let cx = -p2Offset - 200; cx < GAME_WIDTH + 200; cx += 220) {
+        const chaletX = cx + 70;
+        const chaletBaseY = 95;
+        // Timber log walls
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(chaletX - 12, chaletBaseY - 14, 24, 14);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(chaletX - 11, chaletBaseY - 13, 22, 12);
+        // Glowing warm amber windows
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(chaletX - 7, chaletBaseY - 10, 4, 4);
+        ctx.fillRect(chaletX + 3, chaletBaseY - 10, 4, 4);
+        // Steep snow-covered A-frame roof
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(chaletX, chaletBaseY - 24);
+        ctx.lineTo(chaletX - 16, chaletBaseY - 13);
+        ctx.lineTo(chaletX + 16, chaletBaseY - 13);
+        ctx.closePath();
+        ctx.fill();
+        // Stone chimney with curling smoke
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(chaletX + 6, chaletBaseY - 24, 4, 8);
+        for (let s = 0; s < 3; s++) {
+          const smokeX = chaletX + 8 + Math.sin(time * 0.08 + s) * 3 - s * 2;
+          const smokeY = chaletBaseY - 26 - s * 5;
+          ctx.fillStyle = `rgba(224, 242, 254, ${0.6 - s * 0.18})`;
+          ctx.beginPath();
+          ctx.arc(smokeX, smokeY, 2 + s, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 4. Overhead Working Alpine Ski Lift (Telesilla alpino)
+      const cableY1 = 36;
+      const cableY2 = 54;
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, cableY1);
+      ctx.lineTo(GAME_WIDTH, cableY2);
+      ctx.stroke();
+
+      // Steel Lift Pylons
+      for (let px = -p2Offset - 200; px < GAME_WIDTH + 200; px += 130) {
+        const pylonTopY = cableY1 + ((px / GAME_WIDTH) * (cableY2 - cableY1));
+        // Steel Mast
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(px - 2, pylonTopY, 4, 55);
+        // Crossbar
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(px - 10, pylonTopY - 2, 20, 3);
+        // Pulley wheels
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.arc(px - 7, pylonTopY, 2.5, 0, Math.PI * 2);
+        ctx.arc(px + 7, pylonTopY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Moving Ski Chairs suspended on the cable
+      for (let c = 0; c < 5; c++) {
+        const chairX = ((time * 0.45 + c * 85 - cameraX * 0.16) % (GAME_WIDTH + 120) + GAME_WIDTH + 120) % (GAME_WIDTH + 120) - 60;
+        const chairY = cableY1 + ((chairX / GAME_WIDTH) * (cableY2 - cableY1));
+        // Hanger Arm
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(chairX, chairY);
+        ctx.lineTo(chairX, chairY + 11);
+        ctx.stroke();
+        // Orange alpine chair seat
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(chairX - 4, chairY + 11, 8, 2);
+        ctx.fillRect(chairX - 4, chairY + 7, 2, 5);
+        // Skier silhouette on the chair with blue beanie
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(chairX - 2, chairY + 6, 4, 5);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(chairX - 2, chairY + 4, 4, 2);
+        // Skis hanging down
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(chairX - 3, chairY + 12);
+        ctx.lineTo(chairX + 3, chairY + 14);
+        ctx.stroke();
+      }
     } else {
       const p2Offset = (cameraX * 0.22) % 100;
       ctx.fillStyle = zone === 'neon'
@@ -1393,10 +1662,10 @@ export class GameRenderer {
       }
     }
 
-    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies)
-    const count = zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
+    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies / blizzard snow)
+    const count = zone === 'blizzard' ? 44 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
-      const px = ((i * 47 - cameraX * (zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : 0.15) + (time * (zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : 0.65))) % (GAME_WIDTH + 40)) - 20;
+      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : 0.65))) % (GAME_WIDTH + 40)) - 20;
       const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
 
       if (zone === 'neon') {
@@ -1437,6 +1706,17 @@ export class GameRenderer {
           ? `rgba(74, 222, 128, ${fireflyPulse})`
           : '#34d399cc';
         ctx.fillRect(px, py, i % 2 === 0 ? 2.5 : 1.5, i % 2 === 0 ? 2.5 : 1.5);
+      } else if (zone === 'blizzard') {
+        // High-Speed Swirling Alpine Blizzard Snowflakes & Frost Crystals
+        const flakeSize = i % 3 === 0 ? 2.5 : 1.5;
+        ctx.fillStyle = i % 3 === 0 ? '#ffffff' : '#bae6fd';
+        ctx.fillRect(px, py, flakeSize, flakeSize);
+        if (i % 5 === 0) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          ctx.beginPath();
+          ctx.arc(px + 1, py + 1, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else {
         // Golden swirling sand dust & hieroglyphic sparkle specks
         ctx.fillStyle = i % 3 === 0 ? '#fde68acc' : i % 2 === 0 ? '#f59e0bcc' : '#fbbf24cc';
@@ -2058,6 +2338,216 @@ export class GameRenderer {
         ctx.fillStyle = '#22c55e99';
         ctx.fillRect(x + 2, 65, 3, 22);
         ctx.fillRect(x + Math.round(44 * sc), 64, 4, 28);
+      } else if (lm.type === 'slalom_flag') {
+        // Alpine Ski Race Slalom Gate / Flag
+        const flagBaseY = lm.y || 148;
+        const flagH = lm.h || 36;
+        const isRed = (lm.name && lm.name.includes('Roja')) || (lm.x % 500 === 0);
+        const poleColor = '#cbd5e1';
+        const flagColor = isRed ? '#ef4444' : '#3b82f6';
+        const flagTrim = isRed ? '#fee2e2' : '#dbeafe';
+
+        // 1. Snow drift mound at base
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(x + 8, flagBaseY, 10, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. Flexible slalom racing pole
+        ctx.fillStyle = poleColor;
+        ctx.fillRect(x + 7, flagBaseY - flagH, 2, flagH);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x + 6, flagBaseY - flagH - 1, 4, 2); // Pole top cap
+
+        // 3. Dynamic fluttering cloth race flag
+        const flutter = Math.sin(time * 0.2 + x * 0.05) * 3;
+        ctx.fillStyle = flagColor;
+        ctx.beginPath();
+        ctx.moveTo(x + 9, flagBaseY - flagH + 2);
+        ctx.lineTo(x + 22 + flutter, flagBaseY - flagH + 8);
+        ctx.lineTo(x + 9, flagBaseY - flagH + 16);
+        ctx.closePath();
+        ctx.fill();
+
+        // Racing chevron stripe on flag
+        ctx.fillStyle = flagTrim;
+        ctx.beginPath();
+        ctx.moveTo(x + 13, flagBaseY - flagH + 5);
+        ctx.lineTo(x + 17 + flutter * 0.6, flagBaseY - flagH + 8);
+        ctx.lineTo(x + 13, flagBaseY - flagH + 12);
+        ctx.closePath();
+        ctx.fill();
+      } else if (lm.type === 'frozen_pine' || lm.type === 'giant_frosted_pine') {
+        // Towering Snow-Draped Alpine Pine Tree
+        const sc = lm.scale || 1.1;
+        const treeBaseY = lm.y || 148;
+        const trunkW = Math.round(6 * sc);
+        const treeH = Math.round(70 * sc);
+
+        // Snow base
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(x + Math.round(trunkW / 2), treeBaseY, 14 * sc, 4 * sc, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sturdy pine trunk
+        ctx.fillStyle = '#331800';
+        ctx.fillRect(x, treeBaseY - treeH, trunkW, treeH);
+        ctx.fillStyle = '#5c2c00';
+        ctx.fillRect(x + 1, treeBaseY - treeH, Math.max(1, trunkW - 2), treeH);
+
+        // 4 Dense Tiers of snow-cushioned evergreen boughs
+        const tiers = 4;
+        for (let t = 0; t < tiers; t++) {
+          const tierW = Math.round((46 - t * 9) * sc);
+          const tierY = treeBaseY - Math.round((22 + t * 14) * sc);
+          const cx = x + Math.round(trunkW / 2);
+
+          // Dark pine needles underneath
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.moveTo(cx, tierY - Math.round(14 * sc));
+          ctx.lineTo(cx - Math.round(tierW / 2), tierY);
+          ctx.lineTo(cx + Math.round(tierW / 2), tierY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Fluffy snow mantle on top of the tier
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(cx, tierY - Math.round(14 * sc));
+          ctx.lineTo(cx - Math.round(tierW / 2), tierY);
+          ctx.lineTo(cx + Math.round(tierW / 2), tierY);
+          ctx.lineTo(cx, tierY - Math.round(9 * sc));
+          ctx.closePath();
+          ctx.fill();
+
+          // Ice fringe trim
+          ctx.fillStyle = '#bae6fd';
+          ctx.fillRect(cx - Math.round(tierW / 2) + 2, tierY - 1, tierW - 4, 1.5);
+        }
+      } else if (lm.type === 'chalet' || lm.type === 'snow_cabin') {
+        // Alpine Ski Lodge / Mountain Chalet
+        const baseY = lm.y || 148;
+        const w = lm.w || 64;
+        const h = lm.h || 48;
+        const cx = x + Math.round(w / 2);
+
+        // Snow base
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x - 6, baseY - 4, w + 12, 6);
+
+        // Log timber structure
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(x, baseY - h + 16, w, h - 16);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(x + 2, baseY - h + 18, w - 4, h - 20);
+
+        // Horizontal log siding grooves
+        ctx.fillStyle = '#331800';
+        for (let gy = baseY - h + 22; gy < baseY - 4; gy += 6) {
+          ctx.fillRect(x + 2, gy, w - 4, 1);
+        }
+
+        // Warm Glowing Amber Windows with Cross Mullions
+        const winGlow = 0.8 + Math.sin(time * 0.08) * 0.15;
+        ctx.fillStyle = `rgba(251, 191, 36, ${winGlow})`;
+        ctx.fillRect(x + 8, baseY - 24, 12, 12);
+        ctx.fillRect(x + w - 20, baseY - 24, 12, 12);
+        ctx.fillStyle = '#451a03';
+        // Cross mullions
+        ctx.fillRect(x + 13, baseY - 24, 2, 12);
+        ctx.fillRect(x + 8, baseY - 19, 12, 2);
+        ctx.fillRect(x + w - 15, baseY - 24, 2, 12);
+        ctx.fillRect(x + w - 20, baseY - 19, 12, 2);
+
+        // Front Wooden Door
+        ctx.fillStyle = '#331800';
+        ctx.fillRect(cx - 6, baseY - 18, 12, 18);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx + 2, baseY - 10, 2, 2); // Brass door handle
+
+        // Steep Snow-Covered Alpine A-Frame Roof
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(cx, baseY - h - 8);
+        ctx.lineTo(x - 8, baseY - h + 18);
+        ctx.lineTo(x + w + 8, baseY - h + 18);
+        ctx.closePath();
+        ctx.fill();
+
+        // Shaded under-eaves
+        ctx.fillStyle = '#bae6fd';
+        ctx.beginPath();
+        ctx.moveTo(cx, baseY - h - 4);
+        ctx.lineTo(x + w + 8, baseY - h + 18);
+        ctx.lineTo(cx, baseY - h + 18);
+        ctx.closePath();
+        ctx.fill();
+
+        // Hanging Icicles from eaves
+        ctx.fillStyle = '#e0f2fe';
+        for (let ix = x - 6; ix <= x + w + 6; ix += 6) {
+          ctx.beginPath();
+          ctx.moveTo(ix, baseY - h + 18);
+          ctx.lineTo(ix + 2, baseY - h + 18);
+          ctx.lineTo(ix + 1, baseY - h + 24 + ((ix * 7) % 5));
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Stone Chimney with Smoke
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(cx + 10, baseY - h - 14, 8, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx + 9, baseY - h - 15, 10, 2); // Chimney snow cap
+
+        // Drifting chimney smoke
+        for (let s = 0; s < 4; s++) {
+          const smX = cx + 14 + Math.sin(time * 0.08 + s) * 4 - s * 3;
+          const smY = baseY - h - 18 - s * 6;
+          ctx.fillStyle = `rgba(224, 242, 254, ${0.55 - s * 0.12})`;
+          ctx.beginPath();
+          ctx.arc(smX, smY, 3 + s * 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (lm.type === 'ski_jump_ramp') {
+        // Red-and-White Alpine Ski Launch Ramp
+        const rampBaseY = lm.y || 148;
+        const rampW = lm.w || 48;
+        const rampH = lm.h || 18;
+
+        // Wooden scaffolding foundation
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(x + 4, rampBaseY - rampH, rampW - 4, rampH);
+
+        // Angled launch ramp surface
+        ctx.beginPath();
+        ctx.moveTo(x, rampBaseY);
+        ctx.lineTo(x + rampW, rampBaseY - rampH);
+        ctx.lineTo(x + rampW, rampBaseY);
+        ctx.closePath();
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+
+        // Crisp white racing launch stripe
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x, rampBaseY);
+        ctx.lineTo(x + rampW, rampBaseY - rampH);
+        ctx.stroke();
+
+        // Launch edge warning marker flag
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(x + rampW - 1, rampBaseY - rampH - 12, 2, 12);
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(x + rampW + 1, rampBaseY - rampH - 12);
+        ctx.lineTo(x + rampW + 8, rampBaseY - rampH - 9);
+        ctx.lineTo(x + rampW + 1, rampBaseY - rampH - 6);
+        ctx.closePath();
+        ctx.fill();
       }
     }
   }
@@ -2071,12 +2561,100 @@ export class GameRenderer {
     const isKrono = zone === 'krono';
     const isTravel = zone === 'travel';
     const isJungle = zone === 'jungle';
+    const isBlizzard = zone === 'blizzard';
 
     for (const p of platforms) {
       if (p.hidden) continue;
       const x = Math.round(p.x - cameraX);
       const y = Math.round(p.y);
       if (x + p.w < -10 || x > GAME_WIDTH + 10) continue;
+
+      if (p.slopeEndY !== undefined) {
+        // Downhill or Uphill Ski Slope Platform
+        const endY = Math.round(p.slopeEndY);
+        // Deep Mountain Granite Bedrock Base Polygon
+        ctx.fillStyle = '#0f2744';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + p.w, endY);
+        ctx.lineTo(x + p.w, Math.max(y, endY) + p.h + 20);
+        ctx.lineTo(x, Math.max(y, endY) + p.h + 20);
+        ctx.closePath();
+        ctx.fill();
+
+        // Layered Frozen Blue Ice Strata
+        ctx.strokeStyle = '#0284c755';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 4);
+        ctx.lineTo(x + p.w, endY + 4);
+        ctx.stroke();
+
+        // Pristine White Snow Top Mantle on the Slope
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + p.w, endY);
+        ctx.stroke();
+
+        // Neon Cyan Glaze Sheen Line
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 1);
+        ctx.lineTo(x + p.w, endY + 1);
+        ctx.stroke();
+
+        // Carved Ski Tracks carved into the snow slope
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 2);
+        ctx.lineTo(x + p.w, endY + 2);
+        ctx.stroke();
+
+        continue;
+      }
+
+      if (p.kind === 'snow' || p.kind === 'ice' || p.kind === 'ski_slope' || (isBlizzard && (p.kind === 'ground' || p.kind === 'arena' || p.kind === 'ledge'))) {
+        // Alpine Granite Bedrock Base
+        ctx.fillStyle = '#0f2744';
+        ctx.fillRect(x, y, p.w, p.h);
+
+        // Glacier Ice Strata
+        ctx.fillStyle = '#0369a1';
+        ctx.fillRect(x, y + 3, p.w, 4);
+
+        // Pristine White Snow Top Mantle (3px deep)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, y, p.w, 3);
+
+        // Ice Glaze Highlight
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillRect(x, y + 3, p.w, 1);
+
+        // Parallel Ski Track Grooves in the snow surface
+        ctx.fillStyle = '#cbd5e1';
+        for (let tx = x + 12; tx < x + p.w - 12; tx += 28) {
+          ctx.fillRect(tx, y + 1, 16, 1);
+          ctx.fillRect(tx + 2, y + 2, 12, 1);
+        }
+
+        // Hanging Icicles from ledge undersides
+        if (p.kind === 'ledge') {
+          ctx.fillStyle = '#e0f2fe';
+          for (let ix = x + 6; ix < x + p.w - 6; ix += 10) {
+            ctx.beginPath();
+            ctx.moveTo(ix, y + p.h);
+            ctx.lineTo(ix + 3, y + p.h);
+            ctx.lineTo(ix + 1.5, y + p.h + 4 + ((ix * 7) % 4));
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+        continue;
+      }
 
       if (p.kind === 'ground' || p.kind === 'arena' || p.kind === 'jungle_stone') {
         // Base foundation
@@ -2306,7 +2884,121 @@ export class GameRenderer {
       const x = Math.round(h.x - cameraX);
       if (x + h.w < -15 || x > GAME_WIDTH + 15) continue;
 
-      if (h.type === 'spike' || h.type === 'sandSpike') {
+      if (h.type === 'snow_branch') {
+        // Alpine Fallen Pine Branch with Heavy Snow Cap
+        const branchBaseY = h.y + h.h;
+        // Wood Branch Core
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.moveTo(x, branchBaseY - 2);
+        ctx.quadraticCurveTo(x + h.w / 2, h.y + 4, x + h.w, h.y);
+        ctx.lineTo(x + h.w, h.y + 3);
+        ctx.quadraticCurveTo(x + h.w / 2, h.y + 7, x, branchBaseY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Evergreen Pine Needles Fan
+        ctx.fillStyle = '#166534';
+        for (let bx = x + 3; bx < x + h.w - 3; bx += 5) {
+          ctx.beginPath();
+          ctx.moveTo(bx, h.y + 6);
+          ctx.lineTo(bx - 3, h.y + 11);
+          ctx.lineTo(bx + 4, h.y + 10);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Fluffy Snow Mantle on Top
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(x + 2, branchBaseY - 3);
+        ctx.quadraticCurveTo(x + h.w / 2, h.y + 2, x + h.w - 2, h.y - 1);
+        ctx.quadraticCurveTo(x + h.w / 2, h.y + 5, x + 2, branchBaseY - 1);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cyan Ice Highlight
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillRect(x + 4, h.y + 4, h.w - 8, 1);
+      } else if (h.type === 'fallen_log') {
+        // Alpine Cut Pine Trunk / Log Obstacle
+        const logBaseY = h.y + h.h;
+        // Shadow on snow
+        ctx.fillStyle = 'rgba(15, 39, 68, 0.25)';
+        ctx.beginPath();
+        ctx.ellipse(x + h.w / 2, logBaseY, h.w / 2 + 2, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dark Bark Body
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(x + 4, h.y + 4, h.w - 8, h.h - 4);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(x + 4, h.y + 6, h.w - 8, h.h - 8);
+
+        // Bark grooves
+        ctx.fillStyle = '#331800';
+        ctx.fillRect(x + 6, h.y + 8, h.w - 12, 1);
+        ctx.fillRect(x + 8, h.y + 12, h.w - 16, 1);
+
+        // Circular Log Ends (Annual Rings)
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.ellipse(x + 4, h.y + h.h / 2 + 2, 4, h.h / 2 - 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.ellipse(x + 4, h.y + h.h / 2 + 2, 2, (h.h / 2 - 2) * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Thick Pristine Snow Cushion on Top
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(x + h.w / 2, h.y + 4, h.w / 2 - 2, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#bae6fd';
+        ctx.fillRect(x + 5, h.y + 5, h.w - 10, 1.5);
+      } else if (h.type === 'rolling_snowball') {
+        // Giant Rolling Snowball with Rotation & Snow Dust
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const radius = Math.min(h.w, h.h) / 2;
+
+        // Shadow on snow
+        ctx.fillStyle = 'rgba(15, 39, 68, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(cx, h.y + h.h, radius * 0.9, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Snowball sphere
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glacier ice shaded side
+        ctx.fillStyle = '#bae6fd';
+        ctx.beginPath();
+        ctx.arc(cx + 2, cy + 2, radius * 0.75, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx - 2, cy - 2, radius * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rotating snow swirls
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(h.spinAngle || 0);
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.6, 0.4, 2.2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.4, 3.2, 5.2);
+        ctx.stroke();
+        ctx.restore();
+      } else if (h.type === 'spike' || h.type === 'sandSpike') {
         const isDesertSpike = h.type === 'sandSpike';
         // Metallic / Golden Desert Spikes
         for (let sx = x; sx < x + h.w; sx += 8) {
