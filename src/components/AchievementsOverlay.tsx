@@ -199,79 +199,79 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
         <div className="absolute -top-32 -left-32 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* 1. Header Bar: Optimized for both mobile and desktop */}
-        <div className="px-3 sm:px-6 md:px-8 py-2.5 sm:py-4 border-b border-slate-800/90 bg-slate-950/85 flex flex-col gap-2 shrink-0 relative z-10">
+        {/* 1. Header Bar: Ultra-optimized for mobile phones (landscape & portrait) and desktop */}
+        <div className="px-2.5 sm:px-6 md:px-8 py-2 sm:py-3.5 border-b border-slate-800/90 bg-slate-950/90 flex flex-col gap-1.5 sm:gap-2 shrink-0 relative z-10">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Left Title & Status */}
-            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400/25 to-yellow-600/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 shadow-md shadow-amber-950/60 shrink-0">
-                <Trophy className="w-5 h-5 sm:w-7 sm:h-7 text-amber-400 animate-pulse" />
+            <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400/25 to-yellow-600/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 shadow-md shadow-amber-950/60 shrink-0">
+                <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-amber-400 animate-pulse" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-base sm:text-xl md:text-2xl font-black text-white font-heading tracking-wide truncate">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <h2 className="text-sm sm:text-lg md:text-2xl font-black text-white font-heading tracking-wide truncate">
                     {language === 'es' ? 'LOGROS & MEDALLAS' : 'ACHIEVEMENTS & MEDALS'}
                   </h2>
-                  <span className="text-[10px] sm:text-xs font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/40 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="text-[9px] sm:text-xs font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/40 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">
                     {stats.unlockedCount}/{stats.total} ({stats.percentage}%)
                   </span>
                 </div>
-                <p className="hidden sm:block text-xs text-slate-400 mt-0.5 truncate font-normal">
+                <p className="hidden md:block text-xs text-slate-400 mt-0.5 truncate font-normal">
                   {language === 'es'
-                    ? 'Supera hazañas legendarias a través de las 7 zonas para ganar medallas y puntos'
+                    ? 'Supera hazañas legendarias a través de las 8 zonas para ganar medallas y puntos'
                     : 'Overcome legendary feats across all zones to earn medals and points'}
                 </p>
               </div>
             </div>
 
             {/* Right: Medals tally & Close Button */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-              {/* Compact Medals Row (Mobile & Desktop) */}
-              <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 border border-slate-800 px-2 py-1 rounded-xl text-[10px] sm:text-xs font-mono font-bold">
+            <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+              {/* Compact Medals Row (Optimized for Mobile) */}
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-mono font-bold">
                 <span className="flex items-center gap-0.5 text-cyan-300" title="Platino">
-                  <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" />
+                  <Crown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-cyan-400" />
                   <span>{stats.platinum}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-amber-300" title="Oro">
-                  <Medal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
+                  <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400" />
                   <span>{stats.gold}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-slate-300" title="Plata">
-                  <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-300" />
+                  <Award className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-slate-300" />
                   <span>{stats.silver}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-orange-300" title="Bronce">
-                  <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400" />
+                  <Trophy className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-400" />
                   <span>{stats.bronze}</span>
                 </span>
               </div>
 
-              {/* Total Gamer Points Badge (Hidden on very tiny mobile, visible sm+) */}
-              <div className="hidden md:flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/30 px-2.5 py-1 rounded-xl text-xs font-mono font-bold text-amber-300">
+              {/* Total Gamer Points Badge (Desktop) */}
+              <div className="hidden lg:flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/30 px-2.5 py-1 rounded-xl text-xs font-mono font-bold text-amber-300">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
                 <span>{stats.earnedPoints} <span className="text-slate-500 font-semibold">/ {stats.totalPoints} PTS</span></span>
               </div>
 
-              {/* Close Button: Large touch target (44px) for mobile */}
+              {/* Close Button: Large 44px touch target on mobile */}
               <button
                 id="close-achievements-btn"
                 onClick={() => {
                   sound.playSfx('menuSelect');
                   onClose();
                 }}
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
                 title={language === 'es' ? 'Cerrar' : 'Close'}
               >
-                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                <X className="w-4 h-4 sm:w-6 sm:h-6" />
               </button>
             </div>
           </div>
 
           {/* Integrated Slim Progress Bar */}
-          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden border border-slate-700/80 mt-1">
+          <div className="w-full bg-slate-800/90 h-1 sm:h-2 rounded-full overflow-hidden border border-slate-700/80 mt-0.5">
             <div
               className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,158,11,0.5)]"
               style={{ width: `${stats.percentage}%` }}
@@ -404,7 +404,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
         </div>
 
         {/* 3. Achievements List Area: Mobile-responsive scroll container with smooth momentum touch */}
-        <div className="flex-1 p-2.5 sm:p-5 md:p-6 overflow-y-auto overscroll-contain min-h-0 relative z-10">
+        <div className="flex-1 p-2 sm:p-5 md:p-6 overflow-y-auto overscroll-contain min-h-0 relative z-10 pb-24 sm:pb-8 touch-pan-y">
           {filteredAchievements.length === 0 ? (
             <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-6 bg-slate-950/40 rounded-2xl border border-slate-800">
               <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600 mb-2.5" />

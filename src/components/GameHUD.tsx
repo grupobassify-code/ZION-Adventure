@@ -346,10 +346,10 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             <button
               onClick={onOpenAchievements}
               title="Ver Logros y Medallas"
-              className="flex items-center gap-1 px-2 py-1 rounded-xl bg-amber-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 transition-all shadow-md active:scale-95 text-[10px] sm:text-xs font-bold cursor-pointer"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl bg-amber-500/25 border border-amber-400/60 hover:border-amber-400 text-amber-300 transition-all shadow-md active:scale-95 text-[10px] sm:text-xs font-bold cursor-pointer shrink-0"
             >
-              <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 fill-amber-400/30" />
-              <span className="hidden md:inline">LOGROS</span>
+              <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/40" />
+              <span className="font-mono tracking-tight">LOGROS</span>
             </button>
           )}
 

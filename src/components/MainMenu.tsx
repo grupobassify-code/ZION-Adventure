@@ -93,6 +93,7 @@ interface ZoneMeta {
   themeColor: string;
   accentColor: string;
   actsCount: number;
+  status?: 'released' | 'development' | 'soon';
 }
 
 const ZONES_DATA: ZoneMeta[] = [
@@ -160,6 +161,51 @@ const ZONES_DATA: ZoneMeta[] = [
     accentColor: '#93c5fd',
     actsCount: 3,
   },
+  {
+    id: 'steampunk',
+    name: 'Steampunk',
+    subtitle: 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m',
+    themeColor: '#d97706',
+    accentColor: '#fbbf24',
+    actsCount: 3,
+    status: 'development',
+  },
+  {
+    id: 'castlesmash',
+    name: 'Castle Smash',
+    subtitle: 'Asedio Medieval, Almenas de Piedra y Titán Acorazado',
+    themeColor: '#64748b',
+    accentColor: '#f59e0b',
+    actsCount: 3,
+    status: 'soon',
+  },
+  {
+    id: 'piratestreasure',
+    name: 'Pirates Treasure',
+    subtitle: 'Bahía del Corsario, Galeón Fantasma y el Kraken',
+    themeColor: '#0284c7',
+    accentColor: '#facc15',
+    actsCount: 3,
+    status: 'soon',
+  },
+  {
+    id: 'jurasicdraft',
+    name: 'Jurasic draft',
+    subtitle: 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal',
+    themeColor: '#15803d',
+    accentColor: '#ea580c',
+    actsCount: 3,
+    status: 'soon',
+  },
+  {
+    id: 'themoon',
+    name: 'The moon',
+    subtitle: 'Mar de la Tranquilidad, Gravedad Lunar y Mecha Titán',
+    themeColor: '#475569',
+    accentColor: '#38bdf8',
+    actsCount: 3,
+    status: 'soon',
+  },
 ];
 
 export const MainMenu: React.FC<MainMenuProps> = ({
@@ -182,9 +228,15 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [slots, setSlots] = useState<(SaveSlot | null)[]>(loadAllSaveSlots());
   const [activeSlotId, setActiveSlotState] = useState<number>(() => getActiveSlotId());
   const [selectedZone, setSelectedZone] = useState<ZoneId | null>(initialZone);
+  const [soonToast, setSoonToast] = useState<string | null>(null);
 
   const getZoneName = (zoneId: ZoneId) => {
     if (zoneId === 'blizzard') return 'Blizzard Rush';
+    if (zoneId === 'steampunk') return 'Steampunk';
+    if (zoneId === 'castlesmash') return 'Castle Smash';
+    if (zoneId === 'piratestreasure') return 'Pirates Treasure';
+    if (zoneId === 'jurasicdraft') return 'Jurasic draft';
+    if (zoneId === 'themoon') return 'The moon';
     const key = `zone_${zoneId}_name` as any;
     const val = t(key);
     return val === key ? zoneId : val;
@@ -194,6 +246,31 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       return language === 'es'
         ? 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal'
         : 'Downhill Skiing, Snowy Forest and Colossal Yeti';
+    }
+    if (zoneId === 'steampunk') {
+      return language === 'es'
+        ? 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m'
+        : 'Steam Factory, Gears and 1000m Only Up Boss';
+    }
+    if (zoneId === 'castlesmash') {
+      return language === 'es'
+        ? 'Asedio Medieval, Almenas de Piedra y Guardián de Hierro'
+        : 'Medieval Fortress, Stone Battlements and Iron Guardian';
+    }
+    if (zoneId === 'piratestreasure') {
+      return language === 'es'
+        ? 'Bahía del Corsario, Galeón Fantasma y el Kraken'
+        : 'Corsair Cove, Ghost Galleon and the Kraken';
+    }
+    if (zoneId === 'jurasicdraft') {
+      return language === 'es'
+        ? 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal'
+        : 'Mesozoic Jungle, Pterodactyls and Colossal T-Rex';
+    }
+    if (zoneId === 'themoon') {
+      return language === 'es'
+        ? 'Mar de la Tranquilidad, Baja Gravedad y Mecha Titán'
+        : 'Sea of Tranquility, Low Gravity and Mecha Titan';
     }
     const key = `zone_${zoneId}_sub` as any;
     const val = t(key);
@@ -648,12 +725,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             {ZONES_DATA.map((z) => {
               const zoneStatus = getZoneCompletion(activeSlot, z.id);
               const isExtraZone = z.id === 'travel';
+              const isDev = z.status === 'development';
+              const isSoon = z.status === 'soon';
+              const canPlay = zoneStatus.unlocked || isDev;
 
               return (
                 <div
                   key={z.id}
                   onClick={() => {
-                    if (zoneStatus.unlocked) {
+                    if (isSoon) {
+                      sound.playSfx('block');
+                      setSoonToast(getZoneName(z.id));
+                      setTimeout(() => setSoonToast(null), 3000);
+                    } else if (canPlay) {
                       sound.playSfx('menuSelect');
                       setSelectedZone(z.id);
                       setView('acts');
@@ -662,7 +746,11 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     }
                   }}
                   className={`relative group flex flex-col rounded-2xl border-2 overflow-hidden transition-all shadow-xl cursor-pointer ${
-                    zoneStatus.unlocked
+                    isDev
+                      ? 'bg-amber-950/30 border-amber-500/50 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.35)] active:scale-98'
+                      : isSoon
+                      ? 'bg-slate-950/80 border-slate-800/90 hover:border-purple-500/50 opacity-80 cursor-pointer'
+                      : zoneStatus.unlocked
                       ? 'bg-slate-900/90 border-slate-700 hover:border-cyan-400 hover:shadow-[0_0_25px_rgba(6,182,212,0.3)] active:scale-98'
                       : 'bg-slate-950/80 border-slate-800 opacity-60 cursor-not-allowed'
                   }`}
@@ -672,7 +760,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     <LevelPixelThumbnail
                       zone={z.id}
                       act={1}
-                      isLocked={!zoneStatus.unlocked}
+                      isLocked={!canPlay && !isSoon}
                       width={280}
                       height={144}
                     />
@@ -681,6 +769,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-sm border border-slate-700 text-[10px] font-mono font-bold text-cyan-300">
                       {z.actsCount === 1 ? t('actsCountSingular') : t('actsCountPlural', { count: z.actsCount })}
                     </div>
+
+                    {/* Status Badges: En desarrollo / Próximamente */}
+                    {isDev && (
+                      <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-amber-500/95 text-slate-950 text-[10px] font-mono font-black tracking-wider shadow-lg flex items-center gap-1 animate-pulse">
+                        <span>⚙️ {language === 'es' ? 'EN DESARROLLO' : 'IN DEVELOPMENT'}</span>
+                      </div>
+                    )}
+                    {isSoon && (
+                      <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-purple-900/90 border border-purple-400/50 text-purple-200 text-[10px] font-mono font-black tracking-wider shadow-lg flex items-center gap-1">
+                        <span>🔒 {language === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON'}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Zone Details */}
@@ -690,7 +790,15 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                         <h3 className="text-base font-black text-white font-heading">
                           {getZoneName(z.id)}
                         </h3>
-                        {zoneStatus.unlocked ? (
+                        {isDev ? (
+                          <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded">
+                            {language === 'es' ? 'JUGABLE' : 'PLAYABLE'}
+                          </span>
+                        ) : isSoon ? (
+                          <span className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/15 border border-purple-500/30 px-1.5 py-0.5 rounded">
+                            {language === 'es' ? 'PRÓXIMAMENTE' : 'SOON'}
+                          </span>
+                        ) : zoneStatus.unlocked ? (
                           <span className="text-xs font-mono font-bold text-emerald-400 flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             {zoneStatus.completed}/{zoneStatus.total}
@@ -707,8 +815,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-                      <span className="text-cyan-400 font-bold">
-                        {zoneStatus.unlocked
+                      <span className={isDev ? 'text-amber-400 font-bold' : isSoon ? 'text-purple-300 font-medium' : 'text-cyan-400 font-bold'}>
+                        {isDev
+                          ? (language === 'es' ? 'PROBAR 3 ACTOS (EN DESARROLLO)' : 'TEST 3 ACTS (IN DEV)')
+                          : isSoon
+                          ? (language === 'es' ? 'PRÓXIMAMENTE' : 'COMING SOON')
+                          : zoneStatus.unlocked
                           ? t('enterActs')
                           : z.id === 'blizzard'
                             ? (language === 'es' ? 'DERROTA A BALAM (JUNGLA)' : 'DEFEAT BALAM (JUNGLE)')
@@ -721,6 +833,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               );
             })}
           </div>
+
+          {/* Coming Soon Toast Banner */}
+          {soonToast && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-purple-950/95 border-2 border-purple-500/70 text-purple-200 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2.5 font-mono text-xs font-bold animate-in fade-in slide-in-from-bottom duration-300">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+              <span>{language === 'es' ? `¡La era de ${soonToast} estará disponible próximamente!` : `The era of ${soonToast} will be available soon!`}</span>
+            </div>
+          )}
 
           {/* SECTION: MODOS ESPECIALES & MECANISMOS CUÁNTICOS */}
           <div className="w-full mt-8 pt-6 border-t border-slate-800/80">

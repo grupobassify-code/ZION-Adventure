@@ -788,6 +788,27 @@ export class GameRenderer {
       grad.addColorStop(0.65, '#bae6fd'); // Glistening ice mist
       grad.addColorStop(0.88, '#e0f2fe'); // Mountain snow reflection
       grad.addColorStop(1, '#f8fafc');    // Pure snow white baseline
+    } else if (zone === 'steampunk') {
+      // Steampunk Industrial Factory: Victorian Amber Morning (Act 1), Rusted Verdigris Decay (Act 2), Only Up 1000m Steam Furnace (Act 3)
+      if (act === 1) {
+        grad.addColorStop(0, '#1c1208');    // Smoked coal sky
+        grad.addColorStop(0.35, '#78350f'); // Warm copper industrial smog
+        grad.addColorStop(0.65, '#b45309'); // Polished brass amber
+        grad.addColorStop(0.88, '#f59e0b'); // Golden steam glare
+        grad.addColorStop(1, '#fef08a');    // Hearth glow
+      } else if (act === 2) {
+        grad.addColorStop(0, '#091c16');    // Toxic corroded verdigris sky
+        grad.addColorStop(0.35, '#291508'); // Rusted dark brick
+        grad.addColorStop(0.65, '#78350f'); // Iron oxide amber
+        grad.addColorStop(0.88, '#ca8a04'); // Peeling sulfur yellow
+        grad.addColorStop(1, '#fef08a');    // Acidic haze
+      } else {
+        grad.addColorStop(0, '#0a0303');    // 1000m Colossal Steam Core Void
+        grad.addColorStop(0.3, '#450a0a');  // High-pressure boiler red
+        grad.addColorStop(0.6, '#991b1b');  // Superheated furnace orange
+        grad.addColorStop(0.85, '#ea580c'); // Intense steam flame
+        grad.addColorStop(1, '#fed7aa');    // Blinding steam vent light
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1096,6 +1117,89 @@ export class GameRenderer {
         ctx.ellipse(cx + 4, cy - 2, cw / 3, 3, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+    } else if (zone === 'steampunk') {
+      // Steampunk Factory: Giant Revolving Brass Clockwork Gear-Sun & Billowing Industrial Chimneys
+      const isRusted = act === 2;
+      const isOnlyUp = act === 3;
+      const gearSunX = 245;
+      const gearSunY = 36;
+      const radius = 24;
+
+      // 1. Rotating Clockwork Brass Gear-Sun in the Industrial Smog
+      ctx.save();
+      ctx.translate(gearSunX, gearSunY);
+      ctx.rotate(time * 0.015);
+
+      // Gear teeth perimeter
+      const teeth = 10;
+      ctx.fillStyle = isRusted ? '#7c2d12' : '#b45309';
+      for (let t = 0; t < teeth; t++) {
+        ctx.save();
+        ctx.rotate((t / teeth) * Math.PI * 2);
+        ctx.fillRect(-2.5, -radius - 4, 5, 5);
+        ctx.restore();
+      }
+
+      // Outer bronze ring
+      ctx.fillStyle = isRusted ? '#431407' : '#78350f';
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Glowing inner brass dial
+      ctx.fillStyle = isRusted ? '#ca8a04' : '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Mechanical central core
+      ctx.fillStyle = isRusted ? '#1c1917' : '#451a03';
+      ctx.beginPath();
+      ctx.arc(0, 0, radius - 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Clockwork pointer needles
+      ctx.strokeStyle = isRusted ? '#ea580c' : '#fef08a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -radius + 8);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(radius - 10, 0);
+      ctx.stroke();
+
+      ctx.restore();
+
+      // 2. Colossal Victorian Chimneys Billowing Plumes of Pure Steam
+      for (let i = 0; i < 4; i++) {
+        const stackX = 35 + i * 72;
+        const stackH = 38 + ((i * 19) % 22);
+        const stackY = 115 - stackH;
+        // Brick stack body
+        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
+        ctx.fillRect(stackX, stackY, 14, stackH + 25);
+        ctx.fillStyle = isRusted ? '#78350f' : '#78350f';
+        ctx.fillRect(stackX + 2, stackY, 4, stackH + 25);
+        // Smokestack flanged brass ring
+        ctx.fillStyle = isRusted ? '#431407' : '#b45309';
+        ctx.fillRect(stackX - 2, stackY - 2, 18, 3.5);
+
+        // Billowing steam puffs rising upwards
+        for (let s = 0; s < 5; s++) {
+          const plumeY = stackY - 6 - s * 9;
+          const puffR = 5 + s * 3.5;
+          const plumeWiggle = Math.sin(time * 0.08 + s * 0.7 + i) * (3 + s * 2);
+          const alpha = Math.max(0.12, 0.6 - s * 0.1);
+          ctx.fillStyle = isRusted
+            ? `rgba(217, 249, 157, ${alpha * 0.55})`
+            : isOnlyUp
+            ? `rgba(254, 215, 170, ${alpha})`
+            : `rgba(255, 247, 237, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(stackX + 7 + plumeWiggle, plumeY, puffR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -1231,6 +1335,31 @@ export class GameRenderer {
         // Razor summit peak accent
         ctx.fillStyle = '#f8fafc';
         ctx.fillRect(px - 1, peakY - 3, 2, 4);
+      }
+    } else if (zone === 'steampunk') {
+      // Steampunk Far Layer: Victorian Industrial Factory Silhouettes, Sawtooth Gables, Clock Towers
+      const p1Offset = (cameraX * 0.06) % 200;
+      const isRusted = act === 2;
+      const isOnlyUp = act === 3;
+
+      ctx.fillStyle = isRusted ? '#140c06' : isOnlyUp ? '#200505' : '#1e0f06';
+      ctx.beginPath();
+      ctx.moveTo(0, 130);
+      for (let x = -p1Offset - 200; x <= GAME_WIDTH + 200; x += 36) {
+        // Industrial Sawtooth rooflines
+        ctx.lineTo(x, 96);
+        ctx.lineTo(x + 22, 72);
+        ctx.lineTo(x + 22, 96);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Factory brickwork & illuminated arched windows
+      ctx.fillStyle = isRusted ? 'rgba(120, 53, 15, 0.4)' : isOnlyUp ? 'rgba(234, 88, 12, 0.45)' : 'rgba(245, 158, 11, 0.4)';
+      for (let x = -p1Offset - 200; x <= GAME_WIDTH + 200; x += 36) {
+        ctx.fillRect(x + 4, 84, 5, 8);
+        ctx.fillRect(x + 13, 84, 5, 8);
       }
     } else {
       const p1Offset = (cameraX * 0.08) % 140;
@@ -1598,6 +1727,130 @@ export class GameRenderer {
         ctx.lineTo(chairX + 3, chairY + 14);
         ctx.stroke();
       }
+    } else if (zone === 'steampunk') {
+      // Steampunk Midground Layer: Interconnected Industrial Copper Pipes, Rotating Bronze Cogwheels, Gauges & Catwalks
+      const p2Offset = (cameraX * 0.16) % 180;
+      const isRusted = act === 2;
+      const isOnlyUp = act === 3;
+
+      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 150) {
+        // 1. Horizontal Industrial Steam Conduit
+        ctx.fillStyle = isRusted ? '#381608' : '#7c2d12';
+        ctx.fillRect(x, 92, 150, 7);
+        ctx.fillStyle = isRusted ? '#63280c' : '#c2410c';
+        ctx.fillRect(x, 93.5, 150, 2);
+
+        // 2. Vertical Feeder Pipe & Flanged Coupling Joints
+        ctx.fillStyle = isRusted ? '#291206' : '#5c1d0a';
+        ctx.fillRect(x + 45, 92, 9, 48);
+        ctx.fillStyle = isRusted ? '#52220b' : '#9a3412';
+        ctx.fillRect(x + 46, 92, 3, 48);
+
+        // Brass Pipe Flanges
+        ctx.fillStyle = isRusted ? '#1c140e' : '#fbbf24';
+        ctx.fillRect(x + 43, 90, 13, 3);
+        ctx.fillRect(x + 43, 118, 13, 3);
+
+        // Steam Pressure Dial / Manometer
+        ctx.fillStyle = isRusted ? '#451a03' : '#d97706';
+        ctx.beginPath();
+        ctx.arc(x + 49.5, 85, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(x + 49.5, 85, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        // Needle
+        ctx.strokeStyle = '#dc2626';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + 49.5, 85);
+        ctx.lineTo(x + 49.5 + Math.cos(time * 0.1 + x) * 2.5, 85 + Math.sin(time * 0.1 + x) * 2.5);
+        ctx.stroke();
+
+        // 3. Rotating Bronze Industrial Cogwheels
+        const cogX = x + 95;
+        const cogY = 82;
+        const cogR = 15;
+        ctx.save();
+        ctx.translate(cogX, cogY);
+        ctx.rotate(-time * 0.035);
+
+        // Teeth
+        const teethCount = 8;
+        ctx.fillStyle = isRusted ? '#431407' : '#9a3412';
+        for (let t = 0; t < teethCount; t++) {
+          ctx.save();
+          ctx.rotate((t / teethCount) * Math.PI * 2);
+          ctx.fillRect(-2, -cogR - 3.5, 4, 4);
+          ctx.restore();
+        }
+
+        // Cog Body
+        ctx.fillStyle = isRusted ? '#52220b' : '#b45309';
+        ctx.beginPath();
+        ctx.arc(0, 0, cogR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = isRusted ? '#78350f' : '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, 0, cogR - 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Center Axle Hole
+        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Second Interlocking Smaller Cog (Rotates in reverse!)
+        const cog2X = cogX + 22;
+        const cog2Y = cogY + 12;
+        const cog2R = 10;
+        ctx.save();
+        ctx.translate(cog2X, cog2Y);
+        ctx.rotate(time * 0.05 + 0.3);
+        ctx.fillStyle = isRusted ? '#431407' : '#9a3412';
+        for (let t = 0; t < 6; t++) {
+          ctx.save();
+          ctx.rotate((t / 6) * Math.PI * 2);
+          ctx.fillRect(-1.5, -cog2R - 2.5, 3, 3);
+          ctx.restore();
+        }
+        ctx.fillStyle = isRusted ? '#63280c' : '#d97706';
+        ctx.beginPath();
+        ctx.arc(0, 0, cog2R, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
+        ctx.beginPath();
+        ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // 4. Hanging Factory Lantern with Warm Amber Spill
+        const lampX = x + 15;
+        const lampY = 99;
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(lampX, 92);
+        ctx.lineTo(lampX, lampY);
+        ctx.stroke();
+
+        ctx.fillStyle = isRusted ? '#1c140e' : '#b45309';
+        ctx.fillRect(lampX - 3, lampY, 6, 2);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(lampX - 2, lampY + 2, 4, 4);
+        ctx.fillStyle = isRusted ? '#1c140e' : '#78350f';
+        ctx.fillRect(lampX - 3, lampY + 6, 6, 1.5);
+
+        // Lantern Warm Ambient Glow
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
+        ctx.beginPath();
+        ctx.arc(lampX, lampY + 4, 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
     } else {
       const p2Offset = (cameraX * 0.22) % 100;
       ctx.fillStyle = zone === 'neon'
@@ -1662,10 +1915,10 @@ export class GameRenderer {
       }
     }
 
-    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies / blizzard snow)
-    const count = zone === 'blizzard' ? 44 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
+    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies / blizzard snow / steampunk steam & sparks)
+    const count = zone === 'blizzard' ? 44 : zone === 'steampunk' ? 38 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
-      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : 0.65))) % (GAME_WIDTH + 40)) - 20;
+      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;
       const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
 
       if (zone === 'neon') {
@@ -1715,6 +1968,20 @@ export class GameRenderer {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
           ctx.beginPath();
           ctx.arc(px + 1, py + 1, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (zone === 'steampunk') {
+        // Soft rising steam clouds and fiery furnace sparks
+        if (i % 3 === 0) {
+          // Fiery furnace spark
+          ctx.fillStyle = i % 6 === 0 ? '#fef08a' : '#fbbf24';
+          ctx.fillRect(px, py, 1.5, 1.5);
+        } else {
+          // Billowing steam vapor puff
+          const puffRadius = i % 2 === 0 ? 3.5 : 2.5;
+          ctx.fillStyle = act === 2 ? 'rgba(217, 249, 157, 0.25)' : 'rgba(255, 237, 213, 0.35)';
+          ctx.beginPath();
+          ctx.arc(px, py, puffRadius, 0, Math.PI * 2);
           ctx.fill();
         }
       } else {

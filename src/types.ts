@@ -1,4 +1,17 @@
-export type ZoneId = 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono' | 'travel' | 'jungle' | 'blizzard';
+export type ZoneId = 
+  | 'neon' 
+  | 'sakura' 
+  | 'lavacliff' 
+  | 'desert' 
+  | 'krono' 
+  | 'travel' 
+  | 'jungle' 
+  | 'blizzard'
+  | 'steampunk'
+  | 'castlesmash'
+  | 'piratestreasure'
+  | 'jurasicdraft'
+  | 'themoon';
 
 export interface LevelConfig {
   id: string;
@@ -21,12 +34,41 @@ export interface Platform {
   y: number;
   w: number;
   h: number;
-  kind: 'ground' | 'ledge' | 'arena' | 'moon' | 'bridge' | 'sinking' | 'basalt' | 'quicksand' | 'sandstone' | 'ruins' | 'cyber' | 'conveyor' | 'hologram' | 'jungle_stone' | 'temple_stone' | 'treetop' | 'vine_bridge' | 'snow' | 'ice' | 'frozen_rock' | 'ski_slope' | 'glacier_ice';
+  kind: 
+    | 'ground' 
+    | 'ledge' 
+    | 'arena' 
+    | 'moon' 
+    | 'bridge' 
+    | 'sinking' 
+    | 'basalt' 
+    | 'quicksand' 
+    | 'sandstone' 
+    | 'ruins' 
+    | 'cyber' 
+    | 'conveyor' 
+    | 'hologram' 
+    | 'jungle_stone' 
+    | 'temple_stone' 
+    | 'treetop' 
+    | 'vine_bridge' 
+    | 'snow' 
+    | 'ice' 
+    | 'frozen_rock' 
+    | 'ski_slope' 
+    | 'glacier_ice'
+    | 'steampunk_brass'
+    | 'steampunk_rust'
+    | 'steampunk_pipe'
+    | 'steampunk_gear'
+    | 'gear_rotating';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
   speed?: number;
   dir?: 1 | -1;
+  rotationSpeed?: number;
+  gearRadius?: number;
   
   // Sinking platform properties
   sinkTimer?: number;
@@ -67,7 +109,11 @@ export type EnemyType =
   | 'arctic_wolf'
   | 'ice_golem'
   | 'frost_bat'
-  | 'snow_hopper';
+  | 'snow_hopper'
+  | 'clockwork_drone'
+  | 'steam_spider'
+  | 'brass_automaton'
+  | 'rust_golem';
 
 export interface Enemy {
   id: number;
@@ -143,7 +189,11 @@ export interface Hazard {
     | 'rolling_snowball'
     | 'icicle'
     | 'blizzard_gust'
-    | 'ice_spikes';
+    | 'ice_spikes'
+    | 'steam_jet'
+    | 'steam_pipe_burst'
+    | 'rotating_gear_hazard'
+    | 'scalding_steam';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -217,7 +267,7 @@ export interface Trampoline {
   h: number;
   bounceForce: number;
   springAnim: number;
-  type?: 'standard' | 'super' | 'mega' | 'normal';
+  type?: 'standard' | 'super' | 'mega' | 'normal' | 'steam_boost';
 }
 
 export interface Liana {

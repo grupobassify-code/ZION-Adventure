@@ -75,6 +75,8 @@ export class BossRenderer {
       this.renderBalamJaguar(boss, x, y, time);
     } else if (boss.name.includes('Yeti') || boss.name.includes('Blizzard') || boss.name.includes('Glacial')) {
       this.renderYetiBoss(boss, x, y, time);
+    } else if (boss.name.includes('Vulkan') || boss.name.includes('Reactor') || boss.name.includes('Vapor')) {
+      this.renderVulkanSteamColossus(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -1427,4 +1429,187 @@ export class BossRenderer {
 
     ctx.restore();
   }
+
+  // ---------------------------------------------------------------------------
+  // 7. VULKAN-Ω, COLOSO DEL REACTOR DE VAPOR (STEAMPUNK ONLY UP 1000M BOSS)
+  // ---------------------------------------------------------------------------
+  private renderVulkanSteamColossus(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const cx = x + boss.w / 2;
+    const cy = y + boss.h / 2;
+    const isFacingLeft = boss.facing < 0;
+    const isOverheated = boss.phase >= 2;
+    const isSuperHeated = boss.phase >= 3;
+    const bob = Math.sin(time * 0.1) * 2;
+
+    ctx.save();
+    ctx.translate(cx, cy + bob);
+    if (isFacingLeft) {
+      ctx.scale(-1, 1);
+    }
+
+    // 1. Dual Shoulder Steam Exhaust Smokestacks
+    for (const sx of [-18, 14]) {
+      // Chimney base
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(sx, -28, 7, 12);
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(sx + 1, -27, 5, 10);
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(sx - 1, -30, 9, 3); // Flanged lip
+
+      // Billowing rhythmic steam exhaust puffs
+      const puffRate = isSuperHeated ? 0.35 : 0.2;
+      const puffWave = Math.sin(time * puffRate + (sx > 0 ? 1 : 0)) * 3;
+      const steamAlpha = isSuperHeated ? 0.75 : 0.55;
+      ctx.fillStyle = isSuperHeated ? `rgba(254, 215, 170, ${steamAlpha})` : `rgba(241, 245, 249, ${steamAlpha})`;
+      ctx.beginPath();
+      ctx.arc(sx + 3.5, -34 + puffWave, 4, 0, Math.PI * 2);
+      ctx.arc(sx + 2 + puffWave, -40 + puffWave * 1.5, 6, 0, Math.PI * 2);
+      ctx.arc(sx + 5 - puffWave, -47 + puffWave * 2, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 2. Heavy Riveted Boiler Torso
+    ctx.fillStyle = '#1c1208'; // Cast iron base
+    ctx.fillRect(-22, -18, 44, 36);
+
+    // Bronze Boiler Hull
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-20, -16, 40, 32);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-18, -14, 36, 28);
+
+    // Boiler Rivet Bands
+    ctx.fillStyle = '#f59e0b';
+    for (let rx = -16; rx <= 16; rx += 8) {
+      ctx.fillRect(rx, -15, 2, 2);
+      ctx.fillRect(rx, 11, 2, 2);
+    }
+
+    // 3. Glowing Firebox Belly Furnace with Cast-Iron Grate
+    ctx.fillStyle = '#180903';
+    ctx.fillRect(-12, -4, 24, 16);
+
+    // Interior Furnace Fire / Superheated Plasma
+    const fireGrad = ctx.createLinearGradient(0, 12, 0, -4);
+    if (isSuperHeated) {
+      fireGrad.addColorStop(0, '#ffffff');
+      fireGrad.addColorStop(0.3, '#fef08a');
+      fireGrad.addColorStop(0.7, '#f97316');
+      fireGrad.addColorStop(1, '#dc2626');
+    } else if (isOverheated) {
+      fireGrad.addColorStop(0, '#fef08a');
+      fireGrad.addColorStop(0.5, '#f97316');
+      fireGrad.addColorStop(1, '#991b1b');
+    } else {
+      fireGrad.addColorStop(0, '#fde047');
+      fireGrad.addColorStop(0.6, '#ea580c');
+      fireGrad.addColorStop(1, '#7c2d12');
+    }
+    ctx.fillStyle = fireGrad;
+    ctx.fillRect(-11, -3, 22, 14);
+
+    // Heavy Iron Furnace Grating Bars
+    ctx.fillStyle = '#29180c';
+    for (let gx = -9; gx <= 9; gx += 5) {
+      ctx.fillRect(gx, -3, 2, 14);
+    }
+    ctx.fillRect(-11, 3, 22, 2);
+
+    // 4. Steam Pressure Manometer Gauge (Center Chest / Heart)
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(0, -9, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, -9, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Pressure Needle Dial
+    const dialAngle = isSuperHeated ? Math.PI * 0.85 : isOverheated ? Math.PI * 0.6 : (time * 0.1) % Math.PI;
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -9);
+    ctx.lineTo(Math.cos(dialAngle) * 3, -9 + Math.sin(dialAngle) * 3);
+    ctx.stroke();
+
+    // 5. Heavy Armored Steampunk Head / Furnace Dome
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.arc(0, -18, 12, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.arc(0, -18, 10, Math.PI, 0);
+    ctx.fill();
+
+    // Glowing Optical Furnace Visor / Goggles
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-8, -22, 16, 5);
+    ctx.fillStyle = isSuperHeated ? '#ffffff' : isOverheated ? '#fef08a' : '#f97316';
+    ctx.fillRect(-6, -21, 5, 3);
+    ctx.fillRect(1, -21, 5, 3);
+    // Glowing eye shine
+    ctx.fillStyle = '#fef9c3';
+    ctx.fillRect(-5, -21, 2, 2);
+    ctx.fillRect(2, -21, 2, 2);
+
+    // 6. Hydraulic Piston Arms with Spinning Brass Gear Elbows
+    const armSwing = Math.sin(time * 0.15) * 4;
+    // Left / Back Arm
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-26, -12 + armSwing, 7, 18);
+    // Left Gear Elbow
+    const gearRot = time * 0.08;
+    ctx.save();
+    ctx.translate(-22, -2 + armSwing);
+    ctx.rotate(gearRot);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(-4, -4, 8, 8);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-3, -3, 6, 6);
+    ctx.restore();
+    // Left Iron Piston Fist
+    ctx.fillStyle = '#29180c';
+    ctx.fillRect(-28, 6 + armSwing, 9, 10);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-27, 7 + armSwing, 7, 3);
+
+    // Right / Front Arm (Heavy Steam Hammer Piston)
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(19, -12 - armSwing, 8, 18);
+    // Right Gear Elbow
+    ctx.save();
+    ctx.translate(23, -2 - armSwing);
+    ctx.rotate(-gearRot);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(-4, -4, 8, 8);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-3, -3, 6, 6);
+    ctx.restore();
+    // Right Iron Piston Fist
+    ctx.fillStyle = '#1c1208';
+    ctx.fillRect(18, 6 - armSwing, 11, 12);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(19, 7 - armSwing, 9, 3);
+
+    // 7. Heavy Mechanical Leg Bases / Caterpillar Tracks
+    ctx.fillStyle = '#29180c';
+    ctx.fillRect(-18, 18, 14, 12);
+    ctx.fillRect(4, 18, 14, 12);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-17, 26, 12, 4);
+    ctx.fillRect(5, 26, 12, 4);
+    // Brass rollers
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(-15, 27, 3, 2);
+    ctx.fillRect(-9, 27, 3, 2);
+    ctx.fillRect(7, 27, 3, 2);
+    ctx.fillRect(13, 27, 3, 2);
+
+    ctx.restore();
+  }
 }
+

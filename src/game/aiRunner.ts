@@ -127,10 +127,10 @@ export class AiRunner {
       return;
     }
 
-    // Update last checkpoint reached along the route
+    // Update last checkpoint reached along the route (strictly tracks checkpoints)
     for (const cp of checkpoints) {
-      if (this.x >= cp.x - 5) {
-        if (cp.spawn.x > this.lastCheckpointSpawn.x) {
+      if (this.x >= cp.x - 15) {
+        if (!this.lastCheckpointSpawn || cp.spawn.x > this.lastCheckpointSpawn.x) {
           this.lastCheckpointSpawn = { x: cp.spawn.x, y: cp.spawn.y };
         }
       }
@@ -159,13 +159,13 @@ export class AiRunner {
       if (this.attackTimer === 0) this.isAttacking = false;
     }
 
-    // 1. HORIZONTAL VELOCITY & ACCELERATION (Exact same speed & acceleration as player)
-    const baseSpeed = PLAYER_MAX_SPEED * this.speedMultiplier;
+    // 1. HORIZONTAL VELOCITY & ACCELERATION (Strict parity with player: identical speed, accel, dash, and jump)
+    const baseSpeed = PLAYER_MAX_SPEED;
     this.facing = 1;
 
     if (this.isDashing) {
-      // Dash speed & gravity suspension exactly identical to player
-      this.vx = DASH_SPEED * this.speedMultiplier;
+      // Dash speed & duration strictly identical to player
+      this.vx = DASH_SPEED;
       this.vy = 0;
     } else {
       // Accelerate forward with player's exact acceleration

@@ -513,11 +513,220 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     worldWidth: 2600,
     themeColor: '#0369a1',
     accentColor: '#ef4444'
+  },
+  {
+    id: 'steampunk-1',
+    zone: 'steampunk',
+    act: 1,
+    title: 'Zona 8 · Acto 1 — Fábrica Steampunk',
+    subtitle: 'Engranajes de Cobre, Calderas y Válvulas de Presión',
+    lore: [
+      {
+        title: '⚙️ EL RUGIR DE LA MAQUINARIA DE VAPOR',
+        lines: [
+          'En el corazón de la gran metrópolis industrial, la Fábrica Steampunk bombea energía a través de kilómetros de tuberías de cobre.',
+          'Colosales engranajes de bronce giran al unísono impulsados por vapor a alta presión, conectando pasarelas suspendidas en el aire.',
+          'Cuidado con las válvulas de escape: expulsan chorros de vapor hirviente en ciclos rítmicos.',
+          'Aprovecha las catapultas de vapor para impulsarte hacia las plataformas superiores y halla el legendario Engranaje Maestro de Oro.'
+        ],
+        author: 'Bitácora del Ingeniero en Jefe'
+      }
+    ],
+    worldWidth: 7000,
+    themeColor: '#d97706',
+    accentColor: '#fbbf24'
+  },
+  {
+    id: 'steampunk-2',
+    zone: 'steampunk',
+    act: 2,
+    title: 'Zona 8 · Acto 2 — Fábrica Oxidada',
+    subtitle: 'Maquinaria Corroída, Fugas Inestables y Óxido',
+    lore: [
+      {
+        title: '☣️ EL DECLIVE DEL VAPOR Y LA CORROSIÓN',
+        lines: [
+          'Años tras el abandono del sector oriental, la fábrica ha sucumbido a la humedad y los vapores sulfurosos.',
+          'El bronce pulido ha sido devorado por el óxido y el cardenillo verdoso; los engranajes chirrían y se atascan con furia.',
+          'Las pasarelas metálicas se desmoronan bajo tus pies y las tuberías agrietadas liberan chorros descontrolados de vapor hirviente.',
+          'Los autómatas guardianes, ahora oxidados y erráticos, patrullan los escombros atacando a cualquier intruso.'
+        ],
+        author: 'Archivo de la Zona Abandonada'
+      }
+    ],
+    worldWidth: 7500,
+    themeColor: '#78350f',
+    accentColor: '#10b981'
+  },
+  {
+    id: 'steampunk-3',
+    zone: 'steampunk',
+    act: 3,
+    title: 'Zona 8 · Acto 3 — Only Up 1000m (Jefe de Vapor)',
+    subtitle: 'Ascenso a la Caldera Central · Evasión de Fugas de 1000m',
+    lore: [
+      {
+        title: '🌋 SOBRECARGA EN LA CALDERA COLOSAL (1000 METROS)',
+        lines: [
+          '¡ALERTA MÁXIMA DE PRESIÓN! El núcleo del reactor termodinámico ha colapsado y una ola de vapor hirviente asciende sin control desde el fondo.',
+          'Debes realizar un ascenso vertical extremo de 1000 metros a través del tiro de la chimenea gigante.',
+          'Salta de engranaje en engranaje, esquiva los chorros de vapor mortal que emergen de los conductos y utiliza los respiraderos de alta presión como catapultas.',
+          '¡Alcanza la cima a los 1000 metros para ventilar la válvula maestra y desactivar al Coloso de Vapor VULKAN-Ω!'
+        ],
+        author: 'Protocolo de Emergencia Térmica'
+      }
+    ],
+    worldWidth: 1200,
+    themeColor: '#ea580c',
+    accentColor: '#ef4444'
+  },
+  // -------------------------------------------------------------------------
+  // NIVELES PRÓXIMAMENTE (CASTLE SMASH, PIRATES TREASURE, JURASIC DRAFT, THE MOON)
+  // -------------------------------------------------------------------------
+  {
+    id: 'castlesmash-1',
+    zone: 'castlesmash',
+    act: 1,
+    title: 'Zona 9 · Acto 1 — Murallas del Bastión (Próximamente)',
+    subtitle: 'Fortaleza Medieval, Almenas de Piedra y Catapultas',
+    lore: [{ title: '🏰 ASEDIO A LA FORTALEZA', lines: ['Próximamente: Las fuerzas mecánicas se adentran en el asedio feudal de Castle Smash.'], author: 'Crónicas Cuánticas' }],
+    worldWidth: 3000,
+    themeColor: '#64748b',
+    accentColor: '#f59e0b'
+  },
+  {
+    id: 'castlesmash-2',
+    zone: 'castlesmash',
+    act: 2,
+    title: 'Zona 9 · Acto 2 — Mazmorras y Patio de Armas (Próximamente)',
+    subtitle: 'Trampas de Foso, Rejas Levadizas y Ballestas',
+    lore: [{ title: '⚔️ MAZMORRAS SECRETAS', lines: ['Próximamente: Pasajes subterráneos medievales y defensas acorazadas.'], author: 'Crónicas Cuánticas' }],
+    worldWidth: 3200,
+    themeColor: '#475569',
+    accentColor: '#fbbf24'
+  },
+  {
+    id: 'castlesmash-3',
+    zone: 'castlesmash',
+    act: 3,
+    title: 'Zona 9 · Acto 3 — Torre del Gran Señor (Próximamente)',
+    subtitle: 'La Cima del Castillo · Jefe Titán Acorazado',
+    lore: [{ title: '👑 JEFE DE CASTILLO', lines: ['Próximamente: El Guardián de Hierro de Castle Smash.'], author: 'Crónicas Cuánticas' }],
+    worldWidth: 2600,
+    themeColor: '#334155',
+    accentColor: '#ef4444'
+  },
+  {
+    id: 'piratestreasure-1',
+    zone: 'piratestreasure',
+    act: 1,
+    title: 'Zona 10 · Acto 1 — Bahía del Corsario (Próximamente)',
+    subtitle: 'Cala Caribeña, Muelle de Madera y Palmeras',
+    lore: [{ title: '⚓ TIERRA A LA VISTA', lines: ['Próximamente: Navegando los mares dimensionales en busca de tesoros perdidos.'], author: 'Bitácora del Corsario' }],
+    worldWidth: 3000,
+    themeColor: '#0284c7',
+    accentColor: '#facc15'
+  },
+  {
+    id: 'piratestreasure-2',
+    zone: 'piratestreasure',
+    act: 2,
+    title: 'Zona 10 · Acto 2 — Cubierta del Galeón Fantasma (Próximamente)',
+    subtitle: 'Mástiles, Velas Negras y Fuego de Cañones',
+    lore: [{ title: '🏴‍☠️ EL GALEÓN NEGRO', lines: ['Próximamente: Batalla en cubierta entre cañonazos y olas bravías.'], author: 'Bitácora del Corsario' }],
+    worldWidth: 3200,
+    themeColor: '#0369a1',
+    accentColor: '#f59e0b'
+  },
+  {
+    id: 'piratestreasure-3',
+    zone: 'piratestreasure',
+    act: 3,
+    title: 'Zona 10 · Acto 3 — La Cueva del Kraken (Próximamente)',
+    subtitle: 'Templo Sumergido · Jefe Kraken de los Mares',
+    lore: [{ title: '🦑 TERROR DE LAS PROFUNDIDADES', lines: ['Próximamente: Enfréntate a los tentáculos descomunales del Kraken.'], author: 'Bitácora del Corsario' }],
+    worldWidth: 2600,
+    themeColor: '#0c4a6e',
+    accentColor: '#ef4444'
+  },
+  {
+    id: 'jurasicdraft-1',
+    zone: 'jurasicdraft',
+    act: 1,
+    title: 'Zona 11 · Acto 1 — Jungla del Mesozoico (Próximamente)',
+    subtitle: 'Helechos Gigantes, Dinosaurios y Fósiles',
+    lore: [{ title: '🦖 ERA DE LOS TITANES', lines: ['Próximamente: Un ecosistema jurásico primigenio donde ruge la naturaleza salvaje.'], author: 'Expedición Mesozoica' }],
+    worldWidth: 3000,
+    themeColor: '#15803d',
+    accentColor: '#ea580c'
+  },
+  {
+    id: 'jurasicdraft-2',
+    zone: 'jurasicdraft',
+    act: 2,
+    title: 'Zona 11 · Acto 2 — Cañón de los Pterodáctilos (Próximamente)',
+    subtitle: 'Corrientes de Viento Térmico y Rocas Volcánicas',
+    lore: [{ title: '🦅 EL VUELO ANCESTRAL', lines: ['Próximamente: Corrientes de aire ascendentes y desfiladeros prehistóricos.'], author: 'Expedición Mesozoica' }],
+    worldWidth: 3200,
+    themeColor: '#166534',
+    accentColor: '#f97316'
+  },
+  {
+    id: 'jurasicdraft-3',
+    zone: 'jurasicdraft',
+    act: 3,
+    title: 'Zona 11 · Acto 3 — Caldera del T-Rex Alfa (Próximamente)',
+    subtitle: 'Cráter de Lava Primitiva · Jefe Rex Colosal',
+    lore: [{ title: '🌋 REINADO DEL T-REX', lines: ['Próximamente: El Rey del Jurásico te espera en el cráter de impacto.'], author: 'Expedición Mesozoica' }],
+    worldWidth: 2600,
+    themeColor: '#14532d',
+    accentColor: '#ef4444'
+  },
+  {
+    id: 'themoon-1',
+    zone: 'themoon',
+    act: 1,
+    title: 'Zona 12 · Acto 1 — Mar de la Tranquilidad (Próximamente)',
+    subtitle: 'Regolito Lunar, Baja Gravedad y Cielo Estelar',
+    lore: [{ title: '🌙 UN PEQUEÑO PASO', lines: ['Próximamente: Salta a grandes alturas con la gravedad lunar reducida y contempla la Tierra.'], author: 'Misión Apolo Ω' }],
+    worldWidth: 3000,
+    themeColor: '#475569',
+    accentColor: '#38bdf8'
+  },
+  {
+    id: 'themoon-2',
+    zone: 'themoon',
+    act: 2,
+    title: 'Zona 12 · Acto 2 — Base Lunar Apolo Kronos (Próximamente)',
+    subtitle: 'Módulos de Oxígeno, Láseres y Cúpulas Biosféricas',
+    lore: [{ title: '🚀 BASE KRONOS-LUNA', lines: ['Próximamente: Complejo de investigación espacial en el lado oculto de la Luna.'], author: 'Misión Apolo Ω' }],
+    worldWidth: 3200,
+    themeColor: '#334155',
+    accentColor: '#06b6d4'
+  },
+  {
+    id: 'themoon-3',
+    zone: 'themoon',
+    act: 3,
+    title: 'Zona 12 · Acto 3 — El Núcleo de Helio-3 (Próximamente)',
+    subtitle: 'Cráter Profundo · Jefe Mecha Lunar Titán',
+    lore: [{ title: '🛰️ COLOSO DE TITANIO', lines: ['Próximamente: El robot de defensa orbital lunar en gravedad cero.'], author: 'Misión Apolo Ω' }],
+    worldWidth: 2600,
+    themeColor: '#1e293b',
+    accentColor: '#a855f7'
   }
 ];
 
 function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: number } {
   switch (type) {
+    case 'clockwork_drone':
+      return { hp: 2, xp: 35, score: 140 };
+    case 'steam_spider':
+      return { hp: 3, xp: 45, score: 180 };
+    case 'brass_automaton':
+      return { hp: 5, xp: 70, score: 300 };
+    case 'rust_golem':
+      return { hp: 6, xp: 80, score: 360 };
     case 'patrol':
       return { hp: 2, xp: 25, score: 100 };
     case 'sentinel':
@@ -4471,6 +4680,490 @@ export function buildLevel(levelIndex: number) {
     });
 
     goal = { x: 2420, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'steampunk-1') {
+    // -------------------------------------------------------------
+    // ZONA 8 · ACTO 1 — FÁBRICA STEAMPUNK
+    // -------------------------------------------------------------
+    // Gran fábrica victoriana de vapor: engranajes pulidos, tuberías de cobre,
+    // válvulas de presión rítmicas y catapultas de vapor.
+
+    landmarks.push(
+      { x: 1200, y: 15, w: 220, h: 140, type: 'clocktower', name: 'Gran Máquina de Vapor Central' },
+      { x: 3300, y: 15, w: 240, h: 140, type: 'clocktower', name: 'Caldera de Alta Presión de Bronce' },
+      { x: 5500, y: 15, w: 260, h: 140, type: 'clocktower', name: 'Regulador Termodinámico Gigante' }
+    );
+
+    // Suelo base de la fábrica (láminas de bronce y vigas remachadas)
+    platforms.push(
+      { x: 0, y: 148, w: 900, h: 32, kind: 'steampunk_brass' },
+      { x: 1000, y: 148, w: 850, h: 32, kind: 'steampunk_brass' },
+      { x: 2000, y: 148, w: 950, h: 32, kind: 'steampunk_brass' },
+      { x: 3100, y: 148, w: 800, h: 32, kind: 'steampunk_brass' },
+      { x: 4100, y: 148, w: 900, h: 32, kind: 'steampunk_brass' },
+      { x: 5200, y: 148, w: 950, h: 32, kind: 'steampunk_brass' },
+      { x: 6300, y: 148, w: 700, h: 32, kind: 'steampunk_brass' }
+    );
+
+    // Engranajes giratorios de bronce (Mecánica Única de Engranajes)
+    platforms.push(
+      { x: 920, y: 112, w: 70, h: 70, kind: 'gear_rotating', rotationSpeed: 0.02, gearRadius: 35 },
+      { x: 1880, y: 105, w: 80, h: 80, kind: 'gear_rotating', rotationSpeed: -0.022, gearRadius: 40 },
+      { x: 2980, y: 110, w: 76, h: 76, kind: 'gear_rotating', rotationSpeed: 0.018, gearRadius: 38 },
+      { x: 3950, y: 100, w: 84, h: 84, kind: 'gear_rotating', rotationSpeed: -0.025, gearRadius: 42 },
+      { x: 5080, y: 112, w: 78, h: 78, kind: 'gear_rotating', rotationSpeed: 0.02, gearRadius: 39 },
+      { x: 6180, y: 105, w: 80, h: 80, kind: 'gear_rotating', rotationSpeed: -0.022, gearRadius: 40 }
+    );
+
+    // Pasarelas elevadas de tuberías de cobre y vigas de bronce
+    for (let px = 300; px < 6600; px += 420) {
+      platforms.push(
+        { x: px, y: 105, w: 75, h: 10, kind: 'steampunk_brass' },
+        { x: px + 150, y: 72, w: 65, h: 8, kind: 'steampunk_pipe' }
+      );
+    }
+
+    // Catapultas de Vapor de alta potencia (Mecánica de Trampolín de Vapor)
+    trampolines.push(
+      { x: 650, y: 138, w: 34, h: 10, bounceForce: -16, springAnim: 0, type: 'steam_boost' },
+      { x: 1550, y: 138, w: 34, h: 10, bounceForce: -16.5, springAnim: 0, type: 'steam_boost' },
+      { x: 2600, y: 138, w: 34, h: 10, bounceForce: -17, springAnim: 0, type: 'steam_boost' },
+      { x: 3650, y: 138, w: 34, h: 10, bounceForce: -16.5, springAnim: 0, type: 'steam_boost' },
+      { x: 4750, y: 138, w: 34, h: 10, bounceForce: -17, springAnim: 0, type: 'steam_boost' },
+      { x: 5850, y: 138, w: 34, h: 10, bounceForce: -17.5, springAnim: 0, type: 'steam_boost' }
+    );
+
+    // Trampas de Vapor y Engranes Serrados (Mecánica Única de Trampas de Vapor)
+    for (let hx = 520; hx < 6500; hx += 380) {
+      hazards.push({
+        x: hx,
+        y: 120,
+        w: 24,
+        h: 28,
+        type: 'steam_jet',
+        cycleTimer: (hx % 120),
+        maxCycle: 120
+      });
+      if (hx % 760 === 0) {
+        hazards.push({
+          x: hx + 180,
+          y: 60,
+          w: 26,
+          h: 26,
+          type: 'rotating_gear_hazard',
+          bladeAngle: 0
+        });
+      }
+    }
+
+    // Enemigos Mecánicos Steampunk
+    for (let ex = 450; ex < 6400; ex += 480) {
+      const type: Enemy['type'] = (ex % 3 === 0) ? 'clockwork_drone' : (ex % 2 === 0) ? 'steam_spider' : 'brass_automaton';
+      const stats = getEnemyStats(type);
+      enemies.push({
+        id: 3000 + (ex / 10),
+        type,
+        x: ex,
+        y: type === 'clockwork_drone' ? 80 : 130,
+        w: 18,
+        h: 18,
+        vx: 1.1,
+        vy: 0,
+        min: ex - 90,
+        max: ex + 90,
+        alive: true,
+        hp: stats.hp,
+        maxHp: stats.hp,
+        home: ex,
+        scoreValue: stats.score,
+        xpValue: stats.xp
+      });
+    }
+
+    // Cristales de energía de vapor
+    for (let cx = 280; cx < 6600; cx += 160) {
+      crystals.push({ x: cx, y: 92, w: 8, h: 8, taken: false });
+    }
+
+    // Checkpoints de la Fábrica
+    checkpoints.push(
+      { x: 2150, y: 116, w: 20, h: 32, active: false, spawn: { x: 2160, y: 125 } },
+      { x: 4350, y: 116, w: 20, h: 32, active: false, spawn: { x: 4360, y: 125 } }
+    );
+
+    // Botiquines de vapor
+    heals.push(
+      { x: 1250, y: 136, w: 10, h: 10, taken: false },
+      { x: 3350, y: 136, w: 10, h: 10, taken: false },
+      { x: 5450, y: 136, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto de Zona
+    secrets.push({
+      x: 3480,
+      y: 40,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '⭐ Engranaje Maestro de Oro'
+    });
+
+    goal = { x: 6860, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'steampunk-2') {
+    // -------------------------------------------------------------
+    // ZONA 8 · ACTO 2 — FÁBRICA OXIDADA
+    // -------------------------------------------------------------
+    // La misma fábrica años después: maquinaria corroída, fugas ácidas de vapor,
+    // engranajes que rechinan y pasarelas metálicas que se hunden.
+
+    landmarks.push(
+      { x: 1300, y: 15, w: 230, h: 140, type: 'clocktower', name: 'Caldera de Vapor Desmoronada' },
+      { x: 3500, y: 15, w: 250, h: 140, type: 'clocktower', name: 'Engranaje Titánico Corroído' },
+      { x: 5800, y: 15, w: 250, h: 140, type: 'clocktower', name: 'Tiro de Chimenea Agrietado' }
+    );
+
+    // Suelo base corroído y oxidado
+    platforms.push(
+      { x: 0, y: 148, w: 850, h: 32, kind: 'steampunk_rust' },
+      { x: 950, y: 148, w: 800, h: 32, kind: 'steampunk_rust' },
+      { x: 1900, y: 148, w: 900, h: 32, kind: 'steampunk_rust' },
+      { x: 2950, y: 148, w: 850, h: 32, kind: 'steampunk_rust' },
+      { x: 3950, y: 148, w: 850, h: 32, kind: 'steampunk_rust' },
+      { x: 4950, y: 148, w: 900, h: 32, kind: 'steampunk_rust' },
+      { x: 6000, y: 148, w: 750, h: 32, kind: 'steampunk_rust' },
+      { x: 6900, y: 148, w: 600, h: 32, kind: 'steampunk_rust' }
+    );
+
+    // Plataformas que se hunden por el óxido y el peso
+    for (let sx = 400; sx < 6800; sx += 520) {
+      platforms.push({
+        x: sx,
+        y: 102,
+        w: 65,
+        h: 10,
+        kind: 'sinking',
+        sinkTimer: 0,
+        sinkOffset: 0,
+        originalY: 102
+      });
+    }
+
+    // Engranajes oxidados que rechinan y giran más lento
+    platforms.push(
+      { x: 880, y: 110, w: 75, h: 75, kind: 'gear_rotating', rotationSpeed: -0.014, gearRadius: 37 },
+      { x: 1800, y: 102, w: 82, h: 82, kind: 'gear_rotating', rotationSpeed: 0.015, gearRadius: 41 },
+      { x: 2820, y: 110, w: 78, h: 78, kind: 'gear_rotating', rotationSpeed: -0.016, gearRadius: 39 },
+      { x: 3820, y: 105, w: 82, h: 82, kind: 'gear_rotating', rotationSpeed: 0.014, gearRadius: 41 },
+      { x: 4820, y: 108, w: 80, h: 80, kind: 'gear_rotating', rotationSpeed: -0.015, gearRadius: 40 },
+      { x: 5860, y: 104, w: 84, h: 84, kind: 'gear_rotating', rotationSpeed: 0.014, gearRadius: 42 }
+    );
+
+    // Fugas de vapor sulfuroso a alta presión y charcos de condensación hirviente
+    for (let hx = 420; hx < 7000; hx += 340) {
+      hazards.push({
+        x: hx,
+        y: 116,
+        w: 26,
+        h: 32,
+        type: 'steam_pipe_burst',
+        cycleTimer: (hx % 100),
+        maxCycle: 100
+      });
+      if (hx % 680 === 0) {
+        hazards.push({
+          x: hx + 140,
+          y: 142,
+          w: 42,
+          h: 12,
+          type: 'scalding_steam'
+        });
+      }
+    }
+
+    // Catapultas de Vapor Inestables
+    trampolines.push(
+      { x: 720, y: 138, w: 34, h: 10, bounceForce: -16.8, springAnim: 0, type: 'steam_boost' },
+      { x: 2350, y: 138, w: 34, h: 10, bounceForce: -17.2, springAnim: 0, type: 'steam_boost' },
+      { x: 4400, y: 138, w: 34, h: 10, bounceForce: -17, springAnim: 0, type: 'steam_boost' },
+      { x: 6350, y: 138, w: 34, h: 10, bounceForce: -17.5, springAnim: 0, type: 'steam_boost' }
+    );
+
+    // Enemigos Oxidados y Autómatas Corroídos
+    for (let ex = 420; ex < 6900; ex += 440) {
+      const type: Enemy['type'] = (ex % 3 === 0) ? 'rust_golem' : (ex % 2 === 0) ? 'steam_spider' : 'clockwork_drone';
+      const stats = getEnemyStats(type);
+      enemies.push({
+        id: 4000 + (ex / 10),
+        type,
+        x: ex,
+        y: type === 'clockwork_drone' ? 82 : 128,
+        w: 19,
+        h: 19,
+        vx: 1.0,
+        vy: 0,
+        min: ex - 85,
+        max: ex + 85,
+        alive: true,
+        hp: stats.hp,
+        maxHp: stats.hp,
+        home: ex,
+        scoreValue: stats.score,
+        xpValue: stats.xp
+      });
+    }
+
+    // Cristales
+    for (let cx = 250; cx < 7100; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 2300, y: 116, w: 20, h: 32, active: false, spawn: { x: 2310, y: 125 } },
+      { x: 4700, y: 116, w: 20, h: 32, active: false, spawn: { x: 4710, y: 125 } }
+    );
+
+    // Botiquines
+    heals.push(
+      { x: 1400, y: 136, w: 10, h: 10, taken: false },
+      { x: 3600, y: 136, w: 10, h: 10, taken: false },
+      { x: 5700, y: 136, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 3920,
+      y: 35,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '⭐ Válvula de Vapor Ancestral'
+    });
+
+    goal = { x: 7360, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'steampunk-3') {
+    // -------------------------------------------------------------
+    // ZONA 8 · ACTO 3 — ONLY UP 1000 METROS (JEFE DE VAPOR)
+    // -------------------------------------------------------------
+    // "un jefe unico que es un only up de 1000 metros pero las trampas son de puro vapor"
+    // Ascenso vertical colosal desde la caldera Y=140 hasta la cima Y=-9860 (1000 Metros de Altura!)
+    // ¡La caldera se sobrecalienta y una marea de vapor mortal sube desde abajo!
+    // Solo plataformas de engranes, tuberías y trampas de puro vapor.
+
+    // Base de la Caldera (Punto de inicio)
+    platforms.push(
+      { x: 180, y: 148, w: 840, h: 40, kind: 'steampunk_brass' }
+    );
+
+    // Paredes del tiro de la chimenea vertical gigante para saltos de pared y contención
+    // (Pared izquierda en x: 180..220, Pared derecha en x: 980..1020)
+    for (let py = 120; py >= -10100; py -= 200) {
+      platforms.push(
+        { x: 180, y: py, w: 40, h: 200, kind: 'steampunk_pipe' },
+        { x: 980, y: py, w: 40, h: 200, kind: 'steampunk_pipe' }
+      );
+    }
+
+    // Generación de los 1000 METROS de plataformas y trampas de puro vapor:
+    // Altura: Y = 140 (0m) hasta Y = -9860 (1000m)
+    // Cada 10 unidades de Y equivalen a 1 metro de altitud.
+    let currentY = 100;
+    let stepCount = 0;
+
+    while (currentY > -9800) {
+      stepCount++;
+      const altitudeMeters = Math.round((140 - currentY) / 10);
+      const isLeft = (stepCount % 2 === 0);
+      const px = isLeft ? 260 + ((stepCount * 73) % 240) : 560 + ((stepCount * 59) % 240);
+      const pw = 70 + (stepCount % 3) * 15;
+
+      if (stepCount % 4 === 0) {
+        // Engranaje giratorio como plataforma de salto
+        platforms.push({
+          x: px,
+          y: currentY,
+          w: 70,
+          h: 70,
+          kind: 'gear_rotating',
+          rotationSpeed: stepCount % 2 === 0 ? 0.02 : -0.02,
+          gearRadius: 35
+        });
+      } else {
+        // Pasarela de latón o tubería de alta resistencia
+        platforms.push({
+          x: px,
+          y: currentY,
+          w: pw,
+          h: 12,
+          kind: (stepCount % 3 === 0) ? 'steampunk_pipe' : 'steampunk_brass'
+        });
+      }
+
+      // TRAMPAS DE PURO VAPOR: Chorros de vapor de alta presión que cruzan el tiro de la chimenea
+      if (stepCount % 3 === 1) {
+        hazards.push({
+          x: isLeft ? 220 : 940,
+          y: currentY - 14,
+          w: 36,
+          h: 26,
+          type: 'steam_jet',
+          cycleTimer: (stepCount * 25) % 90,
+          maxCycle: 90
+        });
+      }
+
+      // Válvulas de vapor explosivo en las plataformas
+      if (stepCount % 5 === 2) {
+        hazards.push({
+          x: px + pw / 2 - 12,
+          y: currentY - 24,
+          w: 24,
+          h: 24,
+          type: 'steam_pipe_burst',
+          cycleTimer: (stepCount * 30) % 80,
+          maxCycle: 80
+        });
+      }
+
+      // Respiraderos de vapor catapultas (Steam Boost) que impulsan hasta 80 metros verticales
+      if (stepCount % 7 === 0) {
+        trampolines.push({
+          x: px + pw / 2 - 18,
+          y: currentY - 10,
+          w: 36,
+          h: 10,
+          bounceForce: -21.5,
+          springAnim: 0,
+          type: 'steam_boost'
+        });
+      }
+
+      // Cristales de energía
+      if (stepCount % 2 === 0) {
+        crystals.push({
+          x: px + pw / 2 - 4,
+          y: currentY - 18,
+          w: 8,
+          h: 8,
+          taken: false
+        });
+      }
+
+      // Checkpoints a los 250m, 500m y 750m
+      if (Math.abs(altitudeMeters - 250) < 15 && !checkpoints.some(c => c.spawn.y < -2000 && c.spawn.y > -3000)) {
+        checkpoints.push({
+          x: px + pw / 2 - 10,
+          y: currentY - 32,
+          w: 20,
+          h: 32,
+          active: false,
+          spawn: { x: px + pw / 2, y: currentY - 10 }
+        });
+        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
+      } else if (Math.abs(altitudeMeters - 500) < 15 && !checkpoints.some(c => c.spawn.y < -4500 && c.spawn.y > -5500)) {
+        checkpoints.push({
+          x: px + pw / 2 - 10,
+          y: currentY - 32,
+          w: 20,
+          h: 32,
+          active: false,
+          spawn: { x: px + pw / 2, y: currentY - 10 }
+        });
+        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
+      } else if (Math.abs(altitudeMeters - 750) < 15 && !checkpoints.some(c => c.spawn.y < -7000 && c.spawn.y > -8000)) {
+        checkpoints.push({
+          x: px + pw / 2 - 10,
+          y: currentY - 32,
+          w: 20,
+          h: 32,
+          active: false,
+          spawn: { x: px + pw / 2, y: currentY - 10 }
+        });
+        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
+      }
+
+      currentY -= 48; // Escalón vertical
+    }
+
+    // =============================================================
+    // CIMA A LOS 1000 METROS (Y = -9860): ARENA DEL JEFE DE VAPOR
+    // =============================================================
+    // Plataforma de la Cima
+    platforms.push(
+      { x: 260, y: -9860, w: 680, h: 32, kind: 'steampunk_brass' },
+      { x: 380, y: -9920, w: 100, h: 10, kind: 'steampunk_pipe' },
+      { x: 720, y: -9920, w: 100, h: 10, kind: 'steampunk_pipe' }
+    );
+
+    // Checkpoint de la Cima (1000m)
+    checkpoints.push({
+      x: 320,
+      y: -9892,
+      w: 20,
+      h: 32,
+      active: false,
+      spawn: { x: 340, y: -9880 },
+      arena: true
+    });
+
+    // 3 Válvulas de Alivio de Presión (Nodos que deben ser desactivados)
+    nodes.push(
+      { id: 1, x: 420, y: -9935, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true },
+      { id: 2, x: 590, y: -9955, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true },
+      { id: 3, x: 760, y: -9935, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true }
+    );
+
+    // JEFE ÚNICO: VULKAN-Ω, COLOSO DEL REACTOR DE VAPOR (JEFE ONLY UP 1000M)
+    boss = {
+      x: 570,
+      y: -9915,
+      w: 64,
+      h: 56,
+      vx: 0,
+      vy: 0,
+      hp: 65,
+      maxHp: 65,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 60,
+      shotTimer: 55,
+      stateTimer: 60,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 45,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'Vulkan-Ω, Coloso del Reactor',
+      title: 'VULKAN-Ω · COLOSO DEL REACTOR DE VAPOR',
+      subtitle: 'Núcleo Térmico de la Cumbre de 1000 Metros',
+      state: 'idle'
+    };
+
+    heals.push(
+      { x: 300, y: -9875, w: 10, h: 10, taken: false },
+      { x: 890, y: -9875, w: 10, h: 10, taken: false }
+    );
+
+    secrets.push({
+      x: 600,
+      y: -9980,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '⭐ Regulador Maestro de 1000 Metros'
+    });
+
+    goal = { x: 860, y: -9925, w: 36, h: 62 };
+  } else {
+    // Escenario de prueba / sala de espera para zonas próximas
+    platforms.push(
+      { x: 0, y: 148, w: 1200, h: 32, kind: 'ground' },
+      { x: 300, y: 110, w: 120, h: 12, kind: 'wood' },
+      { x: 600, y: 80, w: 120, h: 12, kind: 'wood' }
+    );
+    goal = { x: 900, y: 88, w: 36, h: 62 };
   }
 
   return {

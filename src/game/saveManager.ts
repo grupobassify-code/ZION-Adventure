@@ -337,6 +337,15 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
   }
+  if (cfg && cfg.zone === 'steampunk') {
+    const steampunk1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+    if (levelIndex === steampunk1Idx) {
+      return true; // Act 1 is unlocked for playing and testing the in-development zone!
+    }
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`steampunk-${cfg.act - 1}` as any);
+  }
   return slot.unlockedLevels.includes(levelIndex);
 }
 
@@ -346,7 +355,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3'].includes(cfg.id);
 }
 
 /**

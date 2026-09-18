@@ -21,6 +21,9 @@ export type MusicTrackName =
   | 'blizzardSki'
   | 'blizzardForest'
   | 'blizzardBoss'
+  | 'steampunkAct1'
+  | 'steampunkAct2'
+  | 'steampunkBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -50,6 +53,9 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'blizzardSki', title: 'Descenso en Esquís: Vértigo Blanco', zone: 'Blizzard Rush · Acto 1', tag: 'Ski Rush Chiptune · High-Speed Adrenaline' },
   { id: 'blizzardForest', title: 'Sendero Glacial y Pinos de Escarcha', zone: 'Blizzard Rush · Acto 2', tag: 'Atmósfera Nevada · Campanas de Cristal' },
   { id: 'blizzardBoss', title: 'Furia del Yeti: Coloso de las Nieves', zone: 'Blizzard Rush · Jefe', tag: 'Batalla de Cumbres · Heavy Frost Stomp' },
+  { id: 'steampunkAct1', title: 'Engranes de Cobre y Vapor Caliente', zone: 'Fábrica Steampunk · Acto 1', tag: 'Victorian Clockwork · Brass Chiptune' },
+  { id: 'steampunkAct2', title: 'Fábrica Oxidada y Calderas Corroídas', zone: 'Fábrica Oxidada · Acto 2', tag: 'Industrial Rust · Grinding Machinery' },
+  { id: 'steampunkBoss', title: 'Ascenso 1000m: Evasión de Vapor Colosal', zone: 'Fábrica Steampunk · Jefe Only Up', tag: 'Only Up 1000m · Boiler Meltdown Rush' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -1089,6 +1095,105 @@ class SoundEngine {
         N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.F1, N.Fs1, N.G1, N.G1, N.Bb1, N.G1, N.E1, N.D1,
         N.E1, N.E2, N.E1, N.D1, N.B1, N.Bb1, N.G1, N.E1,  N.G1, N.Bb1, N.B1, N.D2, N.E2, N.G2, N.E2, N.D2,
         N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.E1, N.G1, N.E1, N.B1, N.E1, N.E1, N.B0, N.E1
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
+      ],
+    },
+
+    // STEAMPUNK · ACT 1: FÁBRICA DE ENGRANAJES Y VAPOR (136 BPM Victorian Clockwork & Brass Melodies)
+    steampunkAct1: {
+      tempo: 136,
+      leadWave: 'square',
+      harmonyWave: 'sawtooth',
+      bassWave: 'square',
+      arpWave: 'triangle',
+      leadNotes: [
+        N.D4, N.F4, N.A4, N.D5, N.Cs5, N.A4, N.F4, N.E4,  N.D4, N.F4, N.A4, N.D5, N.E5, N.F5, N.E5, N.Cs5,
+        N.D4, N.F4, N.A4, N.D5, N.Cs5, N.A4, N.F4, N.E4,  N.Bb4, N.A4, N.G4, N.F4, N.E4, N.D4, N.Cs4, N.D4,
+        N.F4, N.A4, N.D5, N.F5, N.E5, N.D5, N.Cs5, N.A4, N.Bb4, N.D5, N.G5, N.F5, N.E5, N.D5, N.Cs5, N.E5,
+        N.D5, N.A4, N.F4, N.D4, N.Cs4, N.E4, N.A4, N.Cs5, N.D5, N.F5, N.E5, N.Cs5, N.D5, N.REST, N.D5, N.REST
+      ],
+      harmonyNotes: [
+        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.A4, N.REST, N.A4, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.A4, N.REST,
+        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.E4, N.REST, N.F4, N.REST,
+        N.D5, N.REST, N.F5, N.REST, N.E5, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.G5, N.REST, N.E5, N.REST, N.Cs5, N.REST,
+        N.F5, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.E5, N.REST, N.F5, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.D1, N.D1, N.A1, N.D2, N.A1, N.D1, N.E1, N.F1,  N.D1, N.D1, N.A1, N.D2, N.Cs1, N.A1, N.E1, N.A1,
+        N.D1, N.D1, N.A1, N.D2, N.A1, N.D1, N.E1, N.F1,  N.G1, N.D1, N.F1, N.C1, N.A0, N.E1, N.A1, N.Cs1,
+        N.D1, N.A1, N.F1, N.D2, N.A1, N.F1, N.Cs1, N.A1, N.G1, N.D2, N.Bb1, N.G1, N.A1, N.E1, N.Cs2, N.A1,
+        N.D1, N.D1, N.A1, N.D2, N.A1, N.E1, N.A1, N.Cs1, N.D1, N.A1, N.F1, N.A1, N.D1, N.D1, N.A0, N.D1
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
+        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
+      ],
+    },
+
+    // STEAMPUNK · ACT 2: FÁBRICA OXIDADA (122 BPM Industrial Rust & Grinding Gear Grooves)
+    steampunkAct2: {
+      tempo: 122,
+      leadWave: 'sawtooth',
+      harmonyWave: 'triangle',
+      bassWave: 'sawtooth',
+      arpWave: 'square',
+      leadNotes: [
+        N.C4, N.Eb4, N.G4, N.Bb4, N.B4, N.G4, N.Eb4, N.D4,  N.C4, N.Eb4, N.Fs4, N.G4, N.C5, N.B4, N.Ab4, N.G4,
+        N.C4, N.Eb4, N.G4, N.Bb4, N.B4, N.G4, N.Eb4, N.D4,  N.Ab4, N.G4, N.F4, N.Eb4, N.D4, N.C4, N.B3, N.C4,
+        N.Eb4, N.G4, N.C5, N.Eb5, N.D5, N.C5, N.B4, N.G4, N.Ab4, N.C5, N.F5, N.Eb5, N.D5, N.C5, N.B4, N.D5,
+        N.C5, N.G4, N.Eb4, N.C4, N.B3, N.D4, N.G4, N.B4, N.C5, N.Eb5, N.D5, N.B4, N.C5, N.REST, N.C5, N.REST
+      ],
+      harmonyNotes: [
+        N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.G4, N.REST, N.G4, N.REST, N.C5, N.REST, N.B4, N.REST, N.G4, N.REST,
+        N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.G4, N.REST, N.F4, N.REST, N.Eb4, N.REST, N.D4, N.REST, N.Eb4, N.REST,
+        N.C5, N.REST, N.Eb5, N.REST, N.D5, N.REST, N.B4, N.REST, N.C5, N.REST, N.F5, N.REST, N.D5, N.REST, N.B4, N.REST,
+        N.Eb5, N.REST, N.C5, N.REST, N.B4, N.REST, N.D5, N.REST, N.Eb5, N.REST, N.B4, N.REST, N.C5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.C1, N.C1, N.G1, N.C2, N.G1, N.C1, N.D1, N.Eb1,  N.C1, N.C1, N.G1, N.C2, N.B0, N.G1, N.D1, N.G1,
+        N.C1, N.C1, N.G1, N.C2, N.G1, N.C1, N.D1, N.Eb1,  N.F1, N.C1, N.Eb1, N.Bb0, N.G0, N.D1, N.G1, N.B0,
+        N.C1, N.G1, N.Eb1, N.C2, N.G1, N.Eb1, N.B0, N.G1, N.F1, N.C2, N.Ab1, N.F1, N.G1, N.D1, N.B1, N.G1,
+        N.C1, N.C1, N.G1, N.C2, N.G1, N.D1, N.G1, N.B0, N.C1, N.G1, N.Eb1, N.G1, N.C1, N.C1, N.G0, N.C1
+      ],
+      drumPattern: [
+        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3,
+        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 2, 5, 5,
+        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3,
+        2, 1, 4, 3, 2, 1, 4, 3, 2, 4, 5, 4, 2, 2, 5, 1
+      ],
+    },
+
+    // STEAMPUNK · ACT 3: ONLY UP 1000 METROS (154 BPM High Adrenaline Boiler Meltdown & Steam Ascent)
+    steampunkBoss: {
+      tempo: 154,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'sawtooth',
+      leadNotes: [
+        N.E4, N.G4, N.B4, N.E5, N.Ds5, N.B4, N.G4, N.Fs4,  N.E4, N.G4, N.B4, N.E5, N.Fs5, N.G5, N.Fs5, N.Ds5,
+        N.E4, N.G4, N.B4, N.E5, N.Ds5, N.B4, N.G4, N.Fs4,  N.C5, N.B4, N.A4, N.G4, N.Fs4, N.E4, N.Ds4, N.E4,
+        N.G4, N.B4, N.E5, N.G5, N.Fs5, N.E5, N.Ds5, N.B4, N.C5, N.E5, N.A5, N.G5, N.Fs5, N.E5, N.Ds5, N.Fs5,
+        N.E5, N.B4, N.G4, N.E4, N.Ds4, N.Fs4, N.B4, N.Ds5, N.E5, N.G5, N.Fs5, N.Ds5, N.E5, N.REST, N.E5, N.REST
+      ],
+      harmonyNotes: [
+        N.B4, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.B4, N.REST, N.B4, N.REST, N.E5, N.REST, N.Ds5, N.REST, N.B4, N.REST,
+        N.B4, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.Fs4, N.REST, N.G4, N.REST,
+        N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST, N.E5, N.REST, N.A5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST,
+        N.G5, N.REST, N.E5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.G5, N.REST, N.Ds5, N.REST, N.E5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.E1, N.E1, N.B1, N.E2, N.B1, N.E1, N.Fs1, N.G1,  N.E1, N.E1, N.B1, N.E2, N.Ds1, N.B1, N.Fs1, N.B1,
+        N.E1, N.E1, N.B1, N.E2, N.B1, N.E1, N.Fs1, N.G1,  N.A1, N.E1, N.G1, N.D1, N.B0, N.Fs1, N.B1, N.Ds1,
+        N.E1, N.B1, N.G1, N.E2, N.B1, N.G1, N.Ds1, N.B1, N.A1, N.E2, N.C2, N.A1, N.B1, N.Fs1, N.Ds2, N.B1,
+        N.E1, N.E1, N.B1, N.E2, N.B1, N.Fs1, N.B1, N.Ds1, N.E1, N.B1, N.G1, N.B1, N.E1, N.E1, N.B0, N.E1
       ],
       drumPattern: [
         2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
