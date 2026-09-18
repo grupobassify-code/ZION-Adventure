@@ -851,10 +851,8 @@ export class GameEngine {
     let spd = 1.0;
     let botName = 'Krono-Bot Alfa';
     if (difficulty === 'fast') {
-      spd = 1.15;
       botName = 'Cyber-Specter Ω';
     } else if (difficulty === 'expert') {
-      spd = 1.28;
       botName = 'Titan-Runner Prime';
     }
 
@@ -1233,7 +1231,19 @@ export class GameEngine {
 
     // Carrera VS IA: Update AI competitor & simulate physics navigation
     if (this.isVsAiMode && this.aiRunner) {
-      this.aiRunner.update(this.platforms, this.hazards, this.enemies, this.goal);
+      this.aiRunner.update(
+        this.platforms,
+        this.hazards,
+        this.enemies,
+        this.goal || { x: 5000, y: 100 },
+        this.checkpoints,
+        (deathX, deathY, cpX, cpY) => {
+          sound.playSfx('hurt');
+          this.createBurst(deathX + 7, deathY + 8, 18, '#ef4444');
+          this.createBurst(cpX + 7, cpY + 8, 22, '#10b981');
+          this.addFloatingText(cpX, cpY - 18, `🤖 ¡${this.aiRunner?.name || 'IA'} REAPARECE EN CHECKPOINT! ⚠️`, '#10b981');
+        }
+      );
       this.remotePlayer = this.aiRunner.getState();
 
       // Check if AI crossed the finish line first
