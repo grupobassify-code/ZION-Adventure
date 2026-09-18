@@ -244,11 +244,11 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             {onOpenAchievements && (
               <button
                 onClick={onOpenAchievements}
-                className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 hover:text-amber-200 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-500/50 hover:border-amber-400 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
                 title="Ver Logros y Medallas"
               >
-                <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                <span className="hidden sm:inline">Logros</span>
+                <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/30 shrink-0" />
+                <span>Logros</span>
               </button>
             )}
           </div>

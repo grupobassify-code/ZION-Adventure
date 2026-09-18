@@ -767,6 +767,10 @@ export default function App() {
           isPortrait={isPortrait}
           onToggleOrientation={handleToggleFullscreen}
           onTogglePause={() => engine.togglePause()}
+          onOpenAchievements={() => {
+            if (!engine.isPaused) engine.togglePause();
+            setShowAchievements(true);
+          }}
           onToggleFullscreen={handleToggleFullscreen}
           onToggleAudio={() => {
             unlockAudio();

@@ -18,6 +18,7 @@ import { SaveSlot, ZoneId } from '../types';
 import { isBossLevel, isLevelUnlockedInSlot, getLevelBestTime } from '../game/saveManager';
 import { formatTimeMs, loadGhostRecording } from '../game/timeAttackGhost';
 import { sound } from '../audio/soundEngine';
+import { LevelPixelThumbnail } from './LevelPixelThumbnail';
 
 const ZONES: { id: ZoneId; name: string }[] = [
   { id: 'neon', name: 'Bosque Neón' },
@@ -283,6 +284,21 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
               <div className="mt-3">
                 <h3 className="text-lg font-mono font-black text-white">{currentCfg.title}</h3>
                 <p className="text-xs text-slate-300 mt-1">{currentCfg.subtitle}</p>
+              </div>
+
+              {/* Animated Pixel Art Level Thumbnail Preview */}
+              <div className="mt-3 relative w-full h-32 sm:h-36 rounded-xl overflow-hidden border border-slate-700/80 shadow-lg">
+                <LevelPixelThumbnail
+                  zone={currentCfg.zone}
+                  act={currentCfg.act}
+                  isLocked={!isSelectedUnlocked}
+                  isBoss={isSelectedLevelBoss}
+                  width={300}
+                  height={150}
+                />
+                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-sm border border-slate-700 text-[10px] font-mono font-bold text-cyan-300">
+                  Acto {currentCfg.act}
+                </div>
               </div>
 
               {/* Boss warning if boss level */}

@@ -1346,16 +1346,30 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               </h2>
             </div>
 
-            <button
-              onClick={() => {
-                sound.playSfx('menuSelect');
-                setView('zones');
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>{t('otherZoneBtn')}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {onOpenAchievements && (
+                <button
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenAchievements();
+                  }}
+                  className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 px-3 py-1.5 rounded-xl border border-amber-500/50 hover:border-amber-400 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                >
+                  <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+                  <span>LOGROS</span>
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  setView('zones');
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>{t('otherZoneBtn')}</span>
+              </button>
+            </div>
           </div>
 
           {/* Acts List */}
