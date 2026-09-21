@@ -1,4 +1,4 @@
-import { Boss, Checkpoint, Collectible, Enemy, Hazard, Landmark, LevelConfig, Liana, NodePillar, Platform, SecretItem, Trampoline, Waterfall } from '../types';
+import { Boss, Checkpoint, Collectible, DestructibleObject, Enemy, Hazard, Landmark, LevelConfig, Liana, NodePillar, Platform, SecretItem, Trampoline, Waterfall } from '../types';
 
 export const LEVEL_CONFIGS: LevelConfig[] = [
   {
@@ -581,16 +581,26 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     accentColor: '#ef4444'
   },
   // -------------------------------------------------------------------------
-  // NIVELES PRÓXIMAMENTE (CASTLE SMASH, PIRATES TREASURE, JURASIC DRAFT, THE MOON)
+  // ZONA 9: CASTLE SMASH (NIVELES COMPLETOS Y JUGABLES)
   // -------------------------------------------------------------------------
   {
     id: 'castlesmash-1',
     zone: 'castlesmash',
     act: 1,
-    title: 'Zona 9 · Acto 1 — Murallas del Bastión (Próximamente)',
-    subtitle: 'Fortaleza Medieval, Almenas de Piedra y Catapultas',
-    lore: [{ title: '🏰 ASEDIO A LA FORTALEZA', lines: ['Próximamente: Las fuerzas mecánicas se adentran en el asedio feudal de Castle Smash.'], author: 'Crónicas Cuánticas' }],
-    worldWidth: 3000,
+    title: 'Zona 9 · Acto 1 — Murallas del Bastión',
+    subtitle: 'Asedio Medieval, Almenas de Piedra y Barricadas',
+    lore: [
+      {
+        title: '🏰 EL ASEDIO AL BASTIÓN DE HIERRO',
+        lines: [
+          'Frente a Zion se alzan los muros ciclópeos del Bastión Feudal de Castle Smash.',
+          'Los soldados de Lord Malakar han fortificado cada acceso con pesadas barricadas de roble y cadenas de hierro templado.',
+          'Para avanzar hacia el interior de la fortaleza, deberás destruir estas defensas con tus ataques de espada y proyectiles.'
+        ],
+        author: 'Crónicas de los Guardianes'
+      }
+    ],
+    worldWidth: 3200,
     themeColor: '#64748b',
     accentColor: '#f59e0b'
   },
@@ -598,10 +608,20 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'castlesmash-2',
     zone: 'castlesmash',
     act: 2,
-    title: 'Zona 9 · Acto 2 — Mazmorras y Patio de Armas (Próximamente)',
-    subtitle: 'Trampas de Foso, Rejas Levadizas y Ballestas',
-    lore: [{ title: '⚔️ MAZMORRAS SECRETAS', lines: ['Próximamente: Pasajes subterráneos medievales y defensas acorazadas.'], author: 'Crónicas Cuánticas' }],
-    worldWidth: 3200,
+    title: 'Zona 9 · Acto 2 — Mazmorras y Patio de Armas',
+    subtitle: 'Muros Agrietados, Péndulos Afilados y Rejas de Asedio',
+    lore: [
+      {
+        title: '⚔️ EL PATIO DE ARMAS Y LAS CATACUMBAS',
+        lines: [
+          'Las mazmorras subterráneas del castillo están resguardadas por colosos de piedra y caballeros acorazados con escudos torre.',
+          'Péndulos gigantes con púas oscilan sobre los fosos, mientras muros debilitados bloquean el paso a las torres superiores.',
+          '¡Derrumba los muros de piedra agrietada y esquiva las rejas levadizas para alcanzar la cámara del trono!'
+        ],
+        author: 'Crónicas de los Guardianes'
+      }
+    ],
+    worldWidth: 3400,
     themeColor: '#475569',
     accentColor: '#fbbf24'
   },
@@ -609,9 +629,19 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'castlesmash-3',
     zone: 'castlesmash',
     act: 3,
-    title: 'Zona 9 · Acto 3 — Torre del Gran Señor (Próximamente)',
-    subtitle: 'La Cima del Castillo · Jefe Titán Acorazado',
-    lore: [{ title: '👑 JEFE DE CASTILLO', lines: ['Próximamente: El Guardián de Hierro de Castle Smash.'], author: 'Crónicas Cuánticas' }],
+    title: 'Zona 9 · Acto 3 — Torre del Trono: Lord Malakar',
+    subtitle: 'El Coloso Rompemuros · El Blasón Real de Hierro',
+    lore: [
+      {
+        title: '👑 EL DESAFÍO DE LORD MALAKAR',
+        lines: [
+          'En la cúspide de la torre fortaleza aguarda Lord Malakar, el temible Warlord del Martillo Demoledor.',
+          'Protegido tras escudos-baluarte destructibles, este titán aplasta las almenas y convoca la artillería del castillo.',
+          '¡Destruye sus barricadas defensivas, esquiva sus impactos demoledores y reclama el noveno fragmento del Reloj Cuántico!'
+        ],
+        author: 'Crónicas de los Guardianes'
+      }
+    ],
     worldWidth: 2600,
     themeColor: '#334155',
     accentColor: '#ef4444'
@@ -791,6 +821,16 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 2, xp: 40, score: 180 };
     case 'snow_hopper':
       return { hp: 3, xp: 50, score: 200 };
+    case 'castle_knight':
+      return { hp: 5, xp: 75, score: 320 };
+    case 'shield_guard':
+      return { hp: 7, xp: 95, score: 390 };
+    case 'gargoyle':
+      return { hp: 3, xp: 50, score: 220 };
+    case 'siege_crossbow':
+      return { hp: 4, xp: 65, score: 280 };
+    case 'castle_golem':
+      return { hp: 8, xp: 110, score: 460 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -822,6 +862,21 @@ function createEnemy(
   } else if (type === 'snow_hopper') {
     enemyW = 14;
     enemyH = 14;
+  } else if (type === 'castle_knight') {
+    enemyW = 20;
+    enemyH = 24;
+  } else if (type === 'shield_guard') {
+    enemyW = 22;
+    enemyH = 24;
+  } else if (type === 'gargoyle') {
+    enemyW = 20;
+    enemyH = 18;
+  } else if (type === 'siege_crossbow') {
+    enemyW = 18;
+    enemyH = 20;
+  } else if (type === 'castle_golem') {
+    enemyW = 26;
+    enemyH = 28;
   }
   return {
     id: _enemyGlobalId++,
@@ -858,6 +913,7 @@ export function buildLevel(levelIndex: number) {
   const lianas: Liana[] = [];
   const waterfalls: Waterfall[] = [];
   const trampolines: Trampoline[] = [];
+  const destructibles: DestructibleObject[] = [];
   let nodes: NodePillar[] = [];
   let boss: Boss | null = null;
   let goal = { x: LW - 240, y: 92, w: 28, h: 56 };
@@ -5081,17 +5137,21 @@ export function buildLevel(levelIndex: number) {
         heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
       }
 
-      currentY -= 48; // Escalón vertical
+      currentY -= 38; // Escalón vertical suave y alcanzable
     }
 
     // =============================================================
     // CIMA A LOS 1000 METROS (Y = -9860): ARENA DEL JEFE DE VAPOR
     // =============================================================
-    // Plataforma de la Cima
+    // Plataforma de la Cima y Balcones
     platforms.push(
-      { x: 260, y: -9860, w: 680, h: 32, kind: 'steampunk_brass' },
-      { x: 380, y: -9920, w: 100, h: 10, kind: 'steampunk_pipe' },
-      { x: 720, y: -9920, w: 100, h: 10, kind: 'steampunk_pipe' }
+      { x: 240, y: -9860, w: 720, h: 36, kind: 'steampunk_brass' },
+      { x: 280, y: -9925, w: 120, h: 12, kind: 'steampunk_pipe' },
+      { x: 800, y: -9925, w: 120, h: 12, kind: 'steampunk_pipe' },
+      { x: 540, y: -9950, w: 120, h: 12, kind: 'steampunk_brass' },
+      // Paredes de confinamiento para no caer al abismo durante el combate
+      { x: 220, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' },
+      { x: 960, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' }
     );
 
     // Checkpoint de la Cima (1000m)
@@ -5105,11 +5165,11 @@ export function buildLevel(levelIndex: number) {
       arena: true
     });
 
-    // 3 Válvulas de Alivio de Presión (Nodos que deben ser desactivados)
+    // 3 Válvulas de Alivio de Presión (Equilibradas para ser alcanzables y justas)
     nodes.push(
-      { id: 1, x: 420, y: -9935, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true },
-      { id: 2, x: 590, y: -9955, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true },
-      { id: 3, x: 760, y: -9935, w: 16, h: 16, taken: false, hp: 5, maxHp: 5, active: true }
+      { id: 1, x: 340, y: -9945, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true },
+      { id: 2, x: 590, y: -9970, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true },
+      { id: 3, x: 840, y: -9945, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true }
     );
 
     // JEFE ÚNICO: VULKAN-Ω, COLOSO DEL REACTOR DE VAPOR (JEFE ONLY UP 1000M)
@@ -5120,30 +5180,31 @@ export function buildLevel(levelIndex: number) {
       h: 56,
       vx: 0,
       vy: 0,
-      hp: 65,
-      maxHp: 65,
+      hp: 55,
+      maxHp: 55,
       alive: true,
       inv: 0,
       flash: 0,
       phase: 1,
-      jumpTimer: 60,
-      shotTimer: 55,
+      jumpTimer: 75,
+      shotTimer: 65,
       stateTimer: 60,
       telegraphTimer: 0,
       stagger: 0,
-      maxStagger: 45,
+      maxStagger: 75,
       isStaggered: false,
       facing: -1,
       shockwaves: [],
       name: 'Vulkan-Ω, Coloso del Reactor',
       title: 'VULKAN-Ω · COLOSO DEL REACTOR DE VAPOR',
-      subtitle: 'Núcleo Térmico de la Cumbre de 1000 Metros',
+      subtitle: 'Núcleo Térmico de la Cumbre de 1000 Metros (Equilibrado)',
       state: 'idle'
     };
 
     heals.push(
       { x: 300, y: -9875, w: 10, h: 10, taken: false },
-      { x: 890, y: -9875, w: 10, h: 10, taken: false }
+      { x: 890, y: -9875, w: 10, h: 10, taken: false },
+      { x: 590, y: -9970, w: 10, h: 10, taken: false }
     );
 
     secrets.push({
@@ -5156,6 +5217,454 @@ export function buildLevel(levelIndex: number) {
     });
 
     goal = { x: 860, y: -9925, w: 36, h: 62 };
+  } else if (config.id === 'castlesmash-1') {
+    // -------------------------------------------------------------
+    // ZONA 9 · ACTO 1 — MURALLAS DEL BASTIÓN (CASTLE SMASH)
+    // -------------------------------------------------------------
+    // Plataformas base del exterior del castillo y fosos
+    platforms.push(
+      { x: 0, y: 148, w: 820, h: 32, kind: 'castle_stone' },
+      // Foso de asedio con puente de madera
+      { x: 860, y: 148, w: 820, h: 32, kind: 'castle_stone' },
+      { x: 1720, y: 148, w: 630, h: 32, kind: 'castle_stone' },
+      { x: 2400, y: 148, w: 800, h: 32, kind: 'castle_stone' }
+    );
+
+    // Almenas y torres elevadas
+    platforms.push(
+      // Almena 1 (Inicio)
+      { x: 220, y: 112, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 360, y: 84, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 520, y: 108, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 670, y: 78, w: 120, h: 12, kind: 'castle_bridge' },
+
+      // Torre de Guardia Exterior (x: 950 - 1300)
+      { x: 960, y: 110, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 1090, y: 76, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 1240, y: 104, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 1380, y: 72, w: 110, h: 12, kind: 'castle_bridge' },
+      { x: 1530, y: 102, w: 100, h: 12, kind: 'castle_stone' },
+
+      // Patio Intermedio y Muralla Central (x: 1750 - 2300)
+      { x: 1780, y: 114, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 1920, y: 80, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 2080, y: 108, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 2220, y: 76, w: 100, h: 12, kind: 'castle_bridge' },
+
+      // Puente Levadizo Principal y Patio del Portal
+      { x: 2500, y: 110, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 2650, y: 80, w: 120, h: 12, kind: 'castle_stone' },
+      { x: 2820, y: 105, w: 110, h: 12, kind: 'castle_stone' }
+    );
+
+    // OBSTÁCULOS DESTRUIBLES (Mecánica Castle Smash: destruye para avanzar)
+    destructibles.push(
+      {
+        id: 101,
+        x: 820,
+        y: 106,
+        w: 26,
+        h: 44,
+        hp: 3,
+        maxHp: 3,
+        type: 'wooden_barricade',
+        destroyed: false,
+        name: 'Barricada de Roble con Púas'
+      },
+      {
+        id: 102,
+        x: 1680,
+        y: 94,
+        w: 26,
+        h: 56,
+        hp: 4,
+        maxHp: 4,
+        type: 'wooden_barricade',
+        destroyed: false,
+        name: 'Empalizada de Asedio Fortificada'
+      },
+      {
+        id: 103,
+        x: 2350,
+        y: 104,
+        w: 24,
+        h: 46,
+        hp: 4,
+        maxHp: 4,
+        type: 'drawbridge_chain',
+        destroyed: false,
+        name: 'Cadena de Contención del Puente'
+      }
+    );
+
+    // ENEMIGOS MEDIEVALES
+    enemies.push(
+      createEnemy(320, 126, 'castle_knight', 250, 420),
+      createEnemy(680, 56, 'siege_crossbow', 660, 780),
+      createEnemy(1100, 54, 'gargoyle', 1040, 1220),
+      createEnemy(1300, 126, 'castle_knight', 1220, 1420),
+      createEnemy(1540, 80, 'siege_crossbow', 1520, 1630),
+      createEnemy(1850, 126, 'castle_knight', 1780, 1960),
+      createEnemy(2100, 86, 'gargoyle', 2040, 2220),
+      createEnemy(2680, 58, 'castle_knight', 2640, 2760),
+      createEnemy(2850, 126, 'castle_golem', 2800, 2980)
+    );
+
+    // TRAMPAS MEDIEVALES (Péndulo maza con púas y rocas de catapulta)
+    hazards.push(
+      {
+        x: 580,
+        y: 110,
+        w: 24,
+        h: 24,
+        type: 'swinging_mace',
+        cycleTimer: 0,
+        maxCycle: 90
+      },
+      {
+        x: 1440,
+        y: 105,
+        w: 24,
+        h: 24,
+        type: 'swinging_mace',
+        cycleTimer: 30,
+        maxCycle: 90
+      },
+      {
+        x: 2000,
+        y: 100,
+        w: 28,
+        h: 28,
+        type: 'catapult_boulder',
+        cycleTimer: 45,
+        maxCycle: 100
+      }
+    );
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 1050, y: 116, w: 20, h: 32, active: false, spawn: { x: 1060, y: 125 } },
+      { x: 2150, y: 116, w: 20, h: 32, active: false, spawn: { x: 2160, y: 125 } }
+    );
+
+    // Cristales & Botiquines
+    for (let cx = 150; cx < 3000; cx += 160) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 420, y: 64, w: 10, h: 10, taken: false },
+      { x: 1280, y: 84, w: 10, h: 10, taken: false },
+      { x: 2260, y: 56, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 1390,
+      y: 42,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🛡️ Estandarte Real del León de Plata'
+    });
+
+    goal = { x: 3020, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'castlesmash-2') {
+    // -------------------------------------------------------------
+    // ZONA 9 · ACTO 2 — MAZMORRAS Y PATIO DE ARMAS (CASTLE SMASH)
+    // -------------------------------------------------------------
+    // Mazmorras subterráneas y patio de armas fortificado
+    platforms.push(
+      { x: 0, y: 148, w: 750, h: 32, kind: 'castle_stone' },
+      { x: 790, y: 148, w: 740, h: 32, kind: 'castle_stone' },
+      { x: 1580, y: 148, w: 890, h: 32, kind: 'castle_stone' },
+      { x: 2520, y: 148, w: 880, h: 32, kind: 'castle_stone' }
+    );
+
+    // Pasadizos de mazmorra, rejas elevadas y plataformas de piedra
+    platforms.push(
+      { x: 180, y: 110, w: 90, h: 12, kind: 'castle_stone' },
+      { x: 320, y: 78, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 470, y: 108, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 620, y: 74, w: 110, h: 12, kind: 'castle_iron' },
+
+      // Zona de Catacumbas (x: 880 - 1500)
+      { x: 890, y: 106, w: 90, h: 12, kind: 'castle_stone' },
+      { x: 1030, y: 72, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 1180, y: 102, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 1320, y: 70, w: 110, h: 12, kind: 'castle_iron' },
+      { x: 1460, y: 100, w: 80, h: 12, kind: 'castle_stone' },
+
+      // El Gran Patio de Armas (x: 1680 - 2450)
+      { x: 1720, y: 110, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 1880, y: 78, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 2040, y: 105, w: 95, h: 12, kind: 'castle_bridge' },
+      { x: 2200, y: 74, w: 105, h: 12, kind: 'castle_parapet' },
+      { x: 2360, y: 102, w: 90, h: 12, kind: 'castle_stone' },
+
+      // Escalera a la Torre del Trono
+      { x: 2620, y: 108, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 2780, y: 78, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 2950, y: 105, w: 100, h: 12, kind: 'castle_stone' }
+    );
+
+    // OBSTÁCULOS DESTRUIBLES (Muros agrietados y rejas de asedio)
+    destructibles.push(
+      {
+        id: 201,
+        x: 750,
+        y: 102,
+        w: 28,
+        h: 48,
+        hp: 4,
+        maxHp: 4,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Muro de Piedra Agrietado'
+      },
+      {
+        id: 202,
+        x: 1530,
+        y: 92,
+        w: 26,
+        h: 58,
+        hp: 5,
+        maxHp: 5,
+        type: 'iron_gate',
+        destroyed: false,
+        name: 'Reja de Hierro Corroída'
+      },
+      {
+        id: 203,
+        x: 2470,
+        y: 88,
+        w: 30,
+        h: 62,
+        hp: 5,
+        maxHp: 5,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Muralla de Piedra Fortificada'
+      }
+    );
+
+    // ENEMIGOS: Guardia con Escudo Torre, Caballeros y Golem de Piedra
+    enemies.push(
+      createEnemy(280, 126, 'shield_guard', 220, 360),
+      createEnemy(540, 126, 'castle_knight', 480, 620),
+      createEnemy(960, 126, 'shield_guard', 900, 1040),
+      createEnemy(1050, 50, 'gargoyle', 1010, 1150),
+      createEnemy(1340, 48, 'siege_crossbow', 1310, 1430),
+      createEnemy(1800, 126, 'castle_golem', 1740, 1920),
+      createEnemy(2120, 126, 'shield_guard', 2050, 2200),
+      createEnemy(2250, 52, 'gargoyle', 2180, 2320),
+      createEnemy(2720, 126, 'castle_knight', 2650, 2800),
+      createEnemy(2880, 126, 'castle_golem', 2820, 3050)
+    );
+
+    // TRAMPAS: Reja Levadiza Aplastante y Mazas Oscilantes
+    hazards.push(
+      {
+        x: 480,
+        y: 110,
+        w: 24,
+        h: 24,
+        type: 'swinging_mace',
+        cycleTimer: 15,
+        maxCycle: 85
+      },
+      {
+        x: 1120,
+        y: 105,
+        w: 28,
+        h: 30,
+        type: 'portcullis',
+        cycleTimer: 0,
+        maxCycle: 80
+      },
+      {
+        x: 1960,
+        y: 100,
+        w: 24,
+        h: 24,
+        type: 'swinging_mace',
+        cycleTimer: 45,
+        maxCycle: 90
+      },
+      {
+        x: 2300,
+        y: 95,
+        w: 28,
+        h: 30,
+        type: 'portcullis',
+        cycleTimer: 20,
+        maxCycle: 80
+      }
+    );
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 1100, y: 116, w: 20, h: 32, active: false, spawn: { x: 1110, y: 125 } },
+      { x: 2200, y: 116, w: 20, h: 32, active: false, spawn: { x: 2210, y: 125 } }
+    );
+
+    // Cristales & Botiquines
+    for (let cx = 160; cx < 3200; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 380, y: 58, w: 10, h: 10, taken: false },
+      { x: 1240, y: 82, w: 10, h: 10, taken: false },
+      { x: 2240, y: 54, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 1330,
+      y: 42,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🗝️ Llave Maestra de las Catacumbas'
+    });
+
+    goal = { x: 3200, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'castlesmash-3') {
+    // -------------------------------------------------------------
+    // ZONA 9 · ACTO 3 — SALA DEL TRONO: LORD MALAKAR (CASTLE SMASH)
+    // -------------------------------------------------------------
+    // Gran sala gótica del trono con columnas, alfombras reales y almenas
+    platforms.push(
+      { x: 0, y: 148, w: 1600, h: 32, kind: 'castle_stone' },
+      // Gran Arena del Trono de Lord Malakar (x: 1650 a 2550)
+      { x: 1650, y: 148, w: 900, h: 32, kind: 'castle_stone' }
+    );
+
+    // Pasarela de entrada y columnas del trono
+    platforms.push(
+      { x: 220, y: 112, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 380, y: 80, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 550, y: 108, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 720, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 900, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 1100, y: 78, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 1320, y: 108, w: 100, h: 12, kind: 'castle_parapet' },
+
+      // Plataformas tácticas elevadas dentro de la Arena del Jefe
+      { x: 1740, y: 105, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 1950, y: 75, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 2180, y: 105, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 2360, y: 78, w: 100, h: 12, kind: 'castle_bridge' }
+    );
+
+    // Checkpoint previo al jefe
+    checkpoints.push(
+      { x: 1480, y: 116, w: 20, h: 32, active: false, spawn: { x: 1490, y: 125 }, arena: true }
+    );
+
+    // MECÁNICA DE DESTRUCCIÓN DEL JEFE:
+    // Lord Malakar cuenta con 3 Escudos-Baluarte Destructibles en su arena.
+    // Mientras alguno esté en pie, Malakar es invulnerable a ataques frontales.
+    // ¡Zion debe demoler los 3 baluartes para derribar su defensa!
+    destructibles.push(
+      {
+        id: 301,
+        x: 1840,
+        y: 106,
+        w: 26,
+        h: 44,
+        hp: 4,
+        maxHp: 4,
+        type: 'siege_core',
+        destroyed: false,
+        name: 'Baluarte de Asedio Izquierdo'
+      },
+      {
+        id: 302,
+        x: 2060,
+        y: 106,
+        w: 26,
+        h: 44,
+        hp: 4,
+        maxHp: 4,
+        type: 'siege_core',
+        destroyed: false,
+        name: 'Baluarte de Asedio Central'
+      },
+      {
+        id: 303,
+        x: 2280,
+        y: 106,
+        w: 26,
+        h: 44,
+        hp: 4,
+        maxHp: 4,
+        type: 'siege_core',
+        destroyed: false,
+        name: 'Baluarte de Asedio Derecho'
+      }
+    );
+
+    // JEFE DE CASTLE SMASH: LORD MALAKAR, COLOSO ROMPEMUROS
+    boss = {
+      x: 2100,
+      y: 92,
+      w: 64,
+      h: 58,
+      vx: 0,
+      vy: 0,
+      hp: 75,
+      maxHp: 75,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 80,
+      shotTimer: 60,
+      stateTimer: 70,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 70,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'Lord Malakar, Coloso Rompemuros',
+      title: 'LORD MALAKAR · COLOSO ROMPEMUROS',
+      subtitle: 'Señor del Martillo de Asedio y el Bastión de Hierro',
+      state: 'idle'
+    };
+
+    // Enemigos en el camino al trono
+    enemies.push(
+      createEnemy(340, 126, 'castle_knight', 260, 440),
+      createEnemy(740, 56, 'siege_crossbow', 720, 840),
+      createEnemy(940, 126, 'shield_guard', 880, 1020),
+      createEnemy(1150, 58, 'gargoyle', 1100, 1220),
+      createEnemy(1360, 126, 'castle_golem', 1300, 1440)
+    );
+
+    // Cristales & Botiquines
+    for (let cx = 160; cx < 1600; cx += 160) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 440, y: 60, w: 10, h: 10, taken: false },
+      { x: 1140, y: 58, w: 10, h: 10, taken: false },
+      // Botiquines dentro de la Arena del Jefe
+      { x: 1760, y: 85, w: 10, h: 10, taken: false },
+      { x: 2380, y: 58, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 2420,
+      y: 50,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '👑 Blasón Real de Hierro de Lord Malakar'
+    });
+
+    goal = { x: 2500, y: 88, w: 36, h: 62 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(
@@ -5181,6 +5690,7 @@ export function buildLevel(levelIndex: number) {
     goal,
     lianas,
     waterfalls,
-    trampolines
+    trampolines,
+    destructibles
   };
 }

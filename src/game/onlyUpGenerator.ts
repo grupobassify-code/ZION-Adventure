@@ -16,7 +16,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
   accentColor: string;
   bgGradient: [string, string, string];
 } {
-  if (altitudeMeters < 150) {
+  if (altitudeMeters < 90) {
     return {
       zone: 'neon',
       name: 'ERA 1: BOSQUE NEÓN',
@@ -24,7 +24,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
       accentColor: '#4ade80',
       bgGradient: ['#030712', '#082f49', '#022c22'],
     };
-  } else if (altitudeMeters < 350) {
+  } else if (altitudeMeters < 190) {
     return {
       zone: 'sakura',
       name: 'ERA 2: CEREZO ESPIRITUAL',
@@ -32,7 +32,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
       accentColor: '#fb7185',
       bgGradient: ['#0f051d', '#3b0764', '#500724'],
     };
-  } else if (altitudeMeters < 600) {
+  } else if (altitudeMeters < 300) {
     return {
       zone: 'lavacliff',
       name: 'ERA 3: ACANTILADOS DE LAVA',
@@ -40,7 +40,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
       accentColor: '#ef4444',
       bgGradient: ['#180303', '#450a0a', '#7c2d12'],
     };
-  } else if (altitudeMeters < 900) {
+  } else if (altitudeMeters < 420) {
     return {
       zone: 'desert',
       name: 'ERA 4: SANTUARIO DEL DESIERTO',
@@ -48,7 +48,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
       accentColor: '#d97706',
       bgGradient: ['#1c1003', '#451a03', '#78350f'],
     };
-  } else if (altitudeMeters < 1300) {
+  } else if (altitudeMeters < 490) {
     return {
       zone: 'krono',
       name: 'ERA 5: KRONO CITY',
@@ -59,7 +59,7 @@ export function getOnlyUpBiome(altitudeMeters: number): {
   } else {
     return {
       zone: 'travel',
-      name: 'ERA FINAL: FUSIÓN CUÁNTICA',
+      name: 'CIMA FINAL: VÓRTICE CUÁNTICO',
       themeColor: '#e879f9',
       accentColor: '#38bdf8',
       bgGradient: ['#0b021a', '#2e1065', '#0c4a6e'],
@@ -93,45 +93,73 @@ export function generateOnlyUpChunk(
 
   while (currentY > toY) {
     const altitude = Math.max(0, Math.floor((140 - currentY) / 2));
+    
+    // Check if we have reached the Summit Arena (500 Meters)
+    if (currentY <= -860) {
+      // Generate the grand Apex Summit Arena once
+      if (!platforms.some((p) => p.y === -880 && p.w >= 200)) {
+        // Main Arena Floor
+        platforms.push({
+          x: 25,
+          y: -880,
+          w: 270,
+          h: 24,
+          kind: 'cyber',
+        });
+        // Left & Right Strategic Balconies
+        platforms.push(
+          { x: 32, y: -930, w: 64, h: 10, kind: 'hologram' },
+          { x: 224, y: -930, w: 64, h: 10, kind: 'hologram' },
+          { x: 128, y: -960, w: 64, h: 10, kind: 'cyber' }
+        );
+        // Safety Barrier Walls
+        platforms.push(
+          { x: 18, y: -970, w: 8, h: 110, kind: 'cyber' },
+          { x: 294, y: -970, w: 8, h: 110, kind: 'cyber' }
+        );
+        // Restorative Energy at the Summit
+        heals.push(
+          { x: 48, y: -944, w: 10, h: 10, taken: false },
+          { x: 252, y: -944, w: 10, h: 10, taken: false }
+        );
+        crystals.push(
+          { x: 160, y: -974, w: 10, h: 10, taken: false },
+          { x: 50, y: -894, w: 8, h: 8, taken: false },
+          { x: 260, y: -894, w: 8, h: 8, taken: false }
+        );
+      }
+      break; // Summit reached, stop generating above
+    }
+
     const biome = getOnlyUpBiome(altitude);
 
-    // Vertical spacing matches Zion's altitude-scaled jump power progression:
-    // Higher altitude gives Zion higher jump height, so gaps expand dynamically!
+    // Vertical spacing tuned to be fair and achievable across all skill levels
     let baseDy = 28;
     if (altitude < 80) {
-      baseDy = 28 + Math.floor(Math.sin(currentY * 0.05) * 3); // 25-31px (easy starting jump)
+      baseDy = 26 + Math.floor(Math.sin(currentY * 0.05) * 3); // 23-29px
     } else if (altitude < 200) {
+      baseDy = 30 + Math.floor(Math.sin(currentY * 0.05) * 3); // 27-33px
+    } else if (altitude < 350) {
       baseDy = 34 + Math.floor(Math.sin(currentY * 0.05) * 4); // 30-38px
-    } else if (altitude < 450) {
-      baseDy = 42 + Math.floor(Math.sin(currentY * 0.05) * 5); // 37-47px
-    } else if (altitude < 800) {
-      baseDy = 50 + Math.floor(Math.sin(currentY * 0.05) * 5); // 45-55px
-    } else if (altitude < 1200) {
-      baseDy = 58 + Math.floor(Math.sin(currentY * 0.05) * 6); // 52-64px
     } else {
-      baseDy = 66 + Math.floor(Math.sin(currentY * 0.05) * 7); // 59-73px (apex leaps!)
+      baseDy = 38 + Math.floor(Math.sin(currentY * 0.05) * 4); // 34-42px (fair summit approach)
     }
     currentY -= baseDy;
 
-    // Platform width: very generous at start, gradually narrows to require precision landing
+    // Platform width: generous, readable, and perfectly balanced
     let baseW = 95;
     if (altitude < 80) {
-      baseW = 85 + Math.floor(Math.random() * 25); // 85-110px
+      baseW = 90 + Math.floor(Math.random() * 25); // 90-115px
     } else if (altitude < 200) {
-      baseW = 68 + Math.floor(Math.random() * 20); // 68-88px
-    } else if (altitude < 450) {
-      baseW = 52 + Math.floor(Math.random() * 18); // 52-70px
-    } else if (altitude < 800) {
-      baseW = 42 + Math.floor(Math.random() * 14); // 42-56px
-    } else if (altitude < 1200) {
-      baseW = 35 + Math.floor(Math.random() * 12); // 35-47px
+      baseW = 78 + Math.floor(Math.random() * 20); // 78-98px
+    } else if (altitude < 350) {
+      baseW = 68 + Math.floor(Math.random() * 18); // 68-86px
     } else {
-      baseW = 30 + Math.floor(Math.random() * 10); // 30-40px (apex precision)
+      baseW = 60 + Math.floor(Math.random() * 16); // 60-76px
     }
-    const platW = Math.max(30, Math.min(115, baseW));
+    const platW = Math.max(55, Math.min(120, baseW));
 
     // Stagger X across left (32-90), middle (110-170), right (180-250)
-    // Higher speeds allow wider horizontal traversals
     let targetX: number;
     if (prevX < 110) {
       targetX = 145 + Math.floor(Math.random() * 95); // move right

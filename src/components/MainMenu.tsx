@@ -175,7 +175,6 @@ const ZONES_DATA: ZoneMeta[] = [
     themeColor: '#64748b',
     accentColor: '#f59e0b',
     actsCount: 3,
-    status: 'soon',
   },
   {
     id: 'piratestreasure',

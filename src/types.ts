@@ -61,7 +61,11 @@ export interface Platform {
     | 'steampunk_rust'
     | 'steampunk_pipe'
     | 'steampunk_gear'
-    | 'gear_rotating';
+    | 'gear_rotating'
+    | 'castle_stone'
+    | 'castle_parapet'
+    | 'castle_bridge'
+    | 'castle_iron';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -113,7 +117,12 @@ export type EnemyType =
   | 'clockwork_drone'
   | 'steam_spider'
   | 'brass_automaton'
-  | 'rust_golem';
+  | 'rust_golem'
+  | 'castle_knight'
+  | 'shield_guard'
+  | 'gargoyle'
+  | 'siege_crossbow'
+  | 'castle_golem';
 
 export interface Enemy {
   id: number;
@@ -193,7 +202,11 @@ export interface Hazard {
     | 'steam_jet'
     | 'steam_pipe_burst'
     | 'rotating_gear_hazard'
-    | 'scalding_steam';
+    | 'scalding_steam'
+    | 'swinging_mace'
+    | 'portcullis'
+    | 'catapult_boulder'
+    | 'crumbling_floor';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -316,6 +329,21 @@ export interface NodePillar {
   active?: boolean;
 }
 
+export interface DestructibleObject {
+  id: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  hp: number;
+  maxHp: number;
+  type: 'wooden_barricade' | 'stone_wall' | 'drawbridge_chain' | 'siege_core' | 'iron_gate';
+  destroyed: boolean;
+  name: string;
+  hitFlash?: number;
+  shake?: number;
+}
+
 export interface BossShockwave {
   x: number;
   y: number;
@@ -400,7 +428,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt';
   homingTimer?: number;
   angle?: number;
   color?: string;

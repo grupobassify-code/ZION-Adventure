@@ -971,6 +971,7 @@ export default function App() {
           crystals={engine.stats.crystalsCollected}
           score={engine.stats.score}
           isNewRecord={engine.onlyUpNewRecordAchieved}
+          isVictory={engine.onlyUpVictory}
           onRetry={() => {
             engine.startOnlyUpMode(engine.onlyUpActiveSlotId);
             setRenderTick((t) => t + 1);

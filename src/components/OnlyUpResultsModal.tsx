@@ -9,6 +9,7 @@ interface OnlyUpResultsModalProps {
   timeSurvived: number;
   crystals?: number;
   score?: number;
+  isVictory?: boolean;
   onRetry: () => void;
   onReturnToMenu: () => void;
 }
@@ -20,6 +21,7 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
   timeSurvived,
   crystals = 0,
   score = 0,
+  isVictory = false,
   onRetry,
   onReturnToMenu,
 }) => {
@@ -30,7 +32,11 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
   };
 
   useEffect(() => {
-    sound.playSfx('gameOver');
+    if (isVictory) {
+      sound.playSfx('win');
+    } else {
+      sound.playSfx('gameOver');
+    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space' || e.code === 'Enter') {
         e.preventDefault();
@@ -44,32 +50,56 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onRetry, onReturnToMenu]);
+  }, [onRetry, onReturnToMenu, isVictory]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn select-none">
-      <div className="relative w-full max-w-lg max-h-[96vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-2 border-red-500/60 bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-3.5 sm:p-6 shadow-[0_0_50px_rgba(239,68,68,0.4)]">
-        {/* Animated Lava Embers background glow */}
-        <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-red-600/20 blur-3xl pointer-events-none" />
-        <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-orange-600/20 blur-3xl pointer-events-none" />
+      <div
+        className={`relative w-full max-w-lg max-h-[96vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-2 ${
+          isVictory ? 'border-amber-400/80 shadow-[0_0_50px_rgba(251,191,36,0.45)]' : 'border-red-500/60 shadow-[0_0_50px_rgba(239,68,68,0.4)]'
+        } bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-slate-900/95 p-3.5 sm:p-6`}
+      >
+        {/* Animated background glow */}
+        <div className={`absolute -bottom-16 -left-16 w-48 h-48 rounded-full ${isVictory ? 'bg-amber-500/20' : 'bg-red-600/20'} blur-3xl pointer-events-none`} />
+        <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full ${isVictory ? 'bg-yellow-400/20' : 'bg-orange-600/20'} blur-3xl pointer-events-none`} />
 
         {/* Header Icon & Title */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-red-600 to-orange-500 p-0.5 shadow-[0_0_25px_rgba(239,68,68,0.6)] mb-3 flex items-center justify-center animate-bounce">
+          <div
+            className={`w-16 h-16 rounded-2xl ${
+              isVictory ? 'bg-gradient-to-tr from-amber-500 to-yellow-300 shadow-[0_0_25px_rgba(251,191,36,0.6)]' : 'bg-gradient-to-tr from-red-600 to-orange-500 shadow-[0_0_25px_rgba(239,68,68,0.6)]'
+            } p-0.5 mb-3 flex items-center justify-center animate-bounce`}
+          >
             <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center">
-              <Skull className="w-8 h-8 text-red-400" />
+              {isVictory ? (
+                <Trophy className="w-8 h-8 text-amber-400" />
+              ) : (
+                <Skull className="w-8 h-8 text-red-400" />
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-400/40 text-[11px] font-mono font-bold text-red-300 mb-1">
-            <span>KRONOS ONLY UP — FIN DE LA PARTIDA</span>
+          <div
+            className={`flex items-center gap-2 px-3 py-1 rounded-full ${
+              isVictory ? 'bg-amber-500/20 border-amber-400/40 text-amber-300' : 'bg-red-500/20 border-red-400/40 text-red-300'
+            } border text-[11px] font-mono font-bold mb-1`}
+          >
+            <span>{isVictory ? '👑 KRONOS ONLY UP — ¡CIMA CONQUISTADA!' : 'KRONOS ONLY UP — FIN DE LA PARTIDA'}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-black text-white font-heading tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 drop-shadow-[0_2px_8px_rgba(239,68,68,0.5)]">
-            GAME OVER
+          <h2
+            className={`text-3xl sm:text-4xl font-black font-heading tracking-wide text-transparent bg-clip-text ${
+              isVictory
+                ? 'bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.5)]'
+                : 'bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 drop-shadow-[0_2px_8px_rgba(239,68,68,0.5)]'
+            }`}
+          >
+            {isVictory ? '¡VICTORIA ÉPICA!' : 'GAME OVER'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-sm">
-            ¡Tu ascenso ha terminado! Puedes volver a jugar inmediatamente o regresar al menú de inicio.
+            {isVictory
+              ? '¡Increíble hazaña! Has derrotado al Guardián de la Cima y completado el ascenso de 500 metros.'
+              : '¡Tu ascenso ha terminado! Puedes volver a jugar inmediatamente o regresar al menú de inicio.'}
           </p>
         </div>
 

@@ -43,6 +43,7 @@ import {
   Boss,
   Checkpoint,
   Collectible,
+  DestructibleObject,
   Enemy,
   FloatingText,
   GameSettings,
@@ -170,6 +171,10 @@ export class GameEngine {
   public onlyUpNextEnemyId: number = 2000;
   public trampolines: Trampoline[] = [];
   public onlyUpAgilityTier: number = 1;
+  public onlyUpVictory: boolean = false;
+  public destructibles: DestructibleObject[] = [];
+  public destroyedDestructibleIds = new Set<number>();
+  private cpSavedDestructibles = new Set<number>();
 
   // Online Multiplayer (1v1 Matchmaking & Duels)
   public remotePlayer: RemotePlayerState | null = null;
@@ -393,6 +398,7 @@ export class GameEngine {
     this.nodes = lvl.nodes;
     this.boss = lvl.boss;
     this.goal = lvl.goal;
+    this.destructibles = lvl.destructibles ? lvl.destructibles.map((d) => ({ ...d })) : [];
 
     // Reset Special Stage state for the level
     this.specialStagePortal = null;
@@ -413,12 +419,14 @@ export class GameEngine {
       this.collectedSecretIndices.clear();
       this.collectedNodeIndices.clear();
       this.defeatedEnemyIndices.clear();
+      this.destroyedDestructibleIds.clear();
 
       this.cpSavedCrystals.clear();
       this.cpSavedHeals.clear();
       this.cpSavedSecrets.clear();
       this.cpSavedNodes.clear();
       this.cpSavedEnemies.clear();
+      this.cpSavedDestructibles.clear();
 
       this.hasActiveCheckpoint = false;
       if (lvl.config.id === 'steampunk-3') {
@@ -467,6 +475,10 @@ export class GameEngine {
       });
       this.enemies.forEach((e, idx) => {
         if (this.defeatedEnemyIndices.has(idx)) e.alive = false;
+      });
+      this.destroyedDestructibleIds = new Set(this.cpSavedDestructibles);
+      this.destructibles.forEach((d) => {
+        if (this.destroyedDestructibleIds.has(d.id)) d.destroyed = true;
       });
     }
 
@@ -761,6 +773,7 @@ export class GameEngine {
     this.onlyUpAltitude = 0;
     this.onlyUpMaxAltitude = 0;
     this.onlyUpIsGameOver = false;
+    this.onlyUpVictory = false;
     this.onlyUpNewRecordAchieved = false;
     this.onlyUpTimeSurvived = 0;
     this.onlyUpGraceTimer = 180; // 3 seconds head start (ventaja de 3s)
@@ -1706,6 +1719,29 @@ export class GameEngine {
           } else if (p.vy < 0) {
             p.y = plat.y + plat.h;
             p.vy = 0;
+          }
+        }
+      }
+
+      // Solid Destructible Obstacles (Castle Smash barrier physics)
+      for (const d of this.destructibles) {
+        if (d.destroyed) continue;
+        if (d.shake && d.shake > 0) d.shake--;
+        if (d.hitFlash && d.hitFlash > 0) d.hitFlash--;
+        if (this.checkAABB(p, d)) {
+          // If dashing, damage it on impact!
+          if (p.isDashing) {
+            this.damageDestructible(d, 2);
+          }
+          // Push player out horizontally so they cannot pass through until destroyed
+          const pMidX = p.x + p.w / 2;
+          const dMidX = d.x + d.w / 2;
+          if (pMidX < dMidX) {
+            p.x = d.x - p.w;
+            if (p.vx > 0) p.vx = 0;
+          } else {
+            p.x = d.x + d.w;
+            if (p.vx < 0) p.vx = 0;
           }
         }
       }
@@ -3800,6 +3836,7 @@ export class GameEngine {
         this.cpSavedSecrets = new Set(this.collectedSecretIndices);
         this.cpSavedNodes = new Set(this.collectedNodeIndices);
         this.cpSavedEnemies = new Set(this.defeatedEnemyIndices);
+        this.cpSavedDestructibles = new Set(this.destroyedDestructibleIds);
         if (this.onCheckpoint) {
           this.onCheckpoint(cp);
         }
@@ -5576,6 +5613,7 @@ export class GameEngine {
         this.cpSavedSecrets = new Set(this.collectedSecretIndices);
         this.cpSavedNodes = new Set(this.collectedNodeIndices);
         this.cpSavedEnemies = new Set(this.defeatedEnemyIndices);
+        this.cpSavedDestructibles = new Set(this.destroyedDestructibleIds);
 
         this.lives = this.maxLives;
         p.shieldEnergy = p.maxShieldEnergy;
