@@ -421,13 +421,23 @@ export class GameEngine {
       this.cpSavedEnemies.clear();
 
       this.hasActiveCheckpoint = false;
-      const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
-      const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
-      this.levelStartPoint = { x: 35, y: startGroundY };
-      this.spawnPoint = { x: 35, y: startGroundY };
-      this.lastSafeGround = { x: 35, y: startGroundY };
-      this.player.x = 35;
-      this.player.y = startGroundY;
+      if (lvl.config.id === 'steampunk-3') {
+        const startX = 260;
+        const startGroundY = 148 - this.player.h;
+        this.levelStartPoint = { x: startX, y: startGroundY };
+        this.spawnPoint = { x: startX, y: startGroundY };
+        this.lastSafeGround = { x: startX, y: startGroundY };
+        this.player.x = startX;
+        this.player.y = startGroundY;
+      } else {
+        const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
+        const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
+        this.levelStartPoint = { x: 35, y: startGroundY };
+        this.spawnPoint = { x: 35, y: startGroundY };
+        this.lastSafeGround = { x: 35, y: startGroundY };
+        this.player.x = 35;
+        this.player.y = startGroundY;
+      }
     } else {
       this.hasActiveCheckpoint = true;
       this.levelStartPoint = { x: 35, y: 100 };
@@ -1027,6 +1037,17 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('blizzardForest');
       }
+    } else if (currentConfig.zone === 'steampunk') {
+      // Steampunk Industrial Factory Zone
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('steampunkBoss');
+      } else if (currentConfig.act === 1) {
+        sound.setMusicTrack('steampunkAct1');
+      } else if (currentConfig.act === 2) {
+        sound.setMusicTrack('steampunkAct2');
+      } else {
+        sound.setMusicTrack('steampunkBoss');
+      }
     }
   }
 
@@ -1534,12 +1555,19 @@ export class GameEngine {
     }
 
     // Resolve Wall Collisions (In Only Up mode, platforms are jump-through and do not block horizontally)
-    const walls = this.isOnlyUpMode ? [] : [...this.platforms];
+    const isVerticalSteampunk = LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3';
+    const walls = this.isOnlyUpMode
+      ? []
+      : isVerticalSteampunk
+      ? this.platforms.filter((pl) => pl.w <= 40 && pl.h >= 100)
+      : [...this.platforms];
     if (this.boss && this.arenaActive && !this.bossDefeated) {
-      const arenaLeft = this.boss.x - 380;
-      const arenaRight = this.boss.x + 380;
-      walls.push({ x: arenaLeft, y: 0, w: 8, h: 180, kind: 'arena' });
-      walls.push({ x: arenaRight, y: 0, w: 8, h: 180, kind: 'arena' });
+      const arenaLeft = this.boss.x - 360;
+      const arenaRight = this.boss.x + 360;
+      const arenaY = isVerticalSteampunk ? this.boss.y - 120 : 0;
+      const arenaH = isVerticalSteampunk ? 260 : 180;
+      walls.push({ x: arenaLeft, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
+      walls.push({ x: arenaRight, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
     }
 
     for (const plat of walls) {
@@ -1648,6 +1676,22 @@ export class GameEngine {
           continue;
         }
 
+        if (isVerticalSteampunk && plat.y < 145) {
+          // Pass-through platforms in vertical climb: freely jump UP through them, land securely on top when falling DOWN
+          if (p.vy >= 0) {
+            const prevBottom = (p.y - p.vy) + p.h;
+            const currentBottom = p.y + p.h;
+            const horizontalOverlap = p.x + p.w > plat.x + 2 && p.x < plat.x + plat.w - 2;
+            const verticalLanding = prevBottom <= plat.y + 8 && currentBottom >= plat.y;
+            if (horizontalOverlap && verticalLanding) {
+              p.y = plat.y - p.h;
+              p.vy = 0;
+              p.ground = true;
+            }
+          }
+          continue;
+        }
+
         if (this.checkAABB(p, plat)) {
           if (plat.kind === 'quicksand') {
             p.ground = true;
@@ -1666,7 +1710,7 @@ export class GameEngine {
         }
       }
 
-      // Dynamic Trampolines (Bounce Pads in Campaign / Jungle Run)
+      // Dynamic Trampolines (Bounce Pads in Campaign / Jungle Run / Steampunk)
       for (const t of this.trampolines) {
         if (t.springAnim > 0) {
           t.springAnim--;
@@ -1681,17 +1725,18 @@ export class GameEngine {
             t.springAnim = 20;
             p.ground = false;
             p.coyoteTimer = 0;
-            sound.playSfx('jump');
+            const isSteam = t.type === 'steam_boost';
+            sound.playSfx(isSteam ? 'flameWhoosh' : 'jump');
             incrementAchievementProgress('bounce_acrobat', 1);
-            this.screenShake = t.type === 'mega' ? 12 : t.type === 'super' ? 8 : 4;
+            this.screenShake = t.type === 'mega' ? 12 : isSteam ? 8 : t.type === 'super' ? 8 : 4;
             const isMega = t.type === 'mega';
             const isSuper = t.type === 'super';
-            this.createBurst(t.x + t.w / 2, t.y, isMega ? 25 : isSuper ? 18 : 12, isMega ? '#facc15' : isSuper ? '#e879f9' : '#38bdf8');
+            this.createBurst(t.x + t.w / 2, t.y, isMega ? 25 : isSteam ? 22 : isSuper ? 18 : 12, isMega ? '#facc15' : isSteam ? '#fbbf24' : isSuper ? '#e879f9' : '#38bdf8');
             this.addFloatingText(
               p.x,
               p.y - 14,
-              isMega ? '☀️ ¡SUPER TRAMPOLÍN SOLAR MAYA!' : isSuper ? '🚀 ¡MEGA IMPULSO!' : '⏫ ¡TRAMPOLÍN!',
-              isMega ? '#facc15' : isSuper ? '#f472b6' : '#38bdf8'
+              isMega ? '☀️ ¡SUPER TRAMPOLÍN SOLAR MAYA!' : isSteam ? '♨️ ¡CATAPULTA DE VAPOR!' : isSuper ? '🚀 ¡MEGA IMPULSO!' : '⏫ ¡TRAMPOLÍN!',
+              isMega ? '#facc15' : isSteam ? '#fbbf24' : isSuper ? '#f472b6' : '#38bdf8'
             );
           }
         }
@@ -1805,6 +1850,9 @@ export class GameEngine {
             p.inv = 90;
             this.lastSafeGround = { x: this.spawnPoint.x, y: this.spawnPoint.y };
             this.cameraX = Math.max(0, p.x - GAME_WIDTH * 0.38);
+            if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
+              this.cameraY = this.spawnPoint.y - GAME_HEIGHT * 0.55;
+            }
             sound.playSfx('hurt');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#38bdf8');
             this.addFloatingText(p.x, p.y - 18, `⚠️ ¡CAÍDA AL VACÍO! RETORNO A CHECKPOINT -1 ❤ [${this.lives}/${this.maxLives}]`, '#f43f5e');
@@ -3053,6 +3101,73 @@ export class GameEngine {
         if (h.cycleTimer === Math.round(cycle * 0.8)) {
           this.playHazardSfx(h, 'laserFire', 85);
         }
+      } else if (h.type === 'steam_jet' || h.type === 'steam_pipe_burst') {
+        // High-Pressure Steampunk Steam Valve / Jet
+        const maxCycle = h.maxCycle || 100;
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % maxCycle;
+        const isWarning = h.cycleTimer >= 35 && h.cycleTimer < 50;
+        const isErupting = h.cycleTimer >= 50;
+
+        if (h.cycleTimer === 35) {
+          this.playHazardSfx(h, 'bossWarning', 70);
+        } else if (h.cycleTimer === 50) {
+          this.playHazardSfx(h, 'flameWhoosh', 85);
+        }
+
+        if (isWarning && Math.random() < 0.45 && this.particles.length < 80) {
+          // Warning hissing wisps
+          this.particles.push({
+            x: h.x + h.w / 2 + (Math.random() - 0.5) * 6,
+            y: h.y + h.h - 4,
+            vx: (Math.random() - 0.5) * 1.0,
+            vy: -1.6 - Math.random() * 1.5,
+            life: 14,
+            maxLife: 14,
+            color: '#fef08a',
+            size: 2,
+          });
+        } else if (isErupting && Math.random() < 0.65 && this.particles.length < 90) {
+          // Volumetric scalding steam particles
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + (h.h ? Math.random() * h.h : 0),
+            vx: (Math.random() - 0.5) * 2.2,
+            vy: -3.2 - Math.random() * 2.8,
+            life: 18,
+            maxLife: 18,
+            color: Math.random() < 0.4 ? '#fed7aa' : '#ffffff',
+            size: 3,
+          });
+        }
+      } else if (h.type === 'scalding_steam') {
+        // Boiling Condensation Puddle with Rising Vapor
+        if (Math.random() < 0.3 && this.particles.length < 80) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + 4,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: -1.4 - Math.random() * 1.2,
+            life: 18,
+            maxLife: 18,
+            color: Math.random() < 0.5 ? '#fef3c7' : '#ffffff',
+            size: 2.2,
+          });
+        }
+      } else if (h.type === 'rotating_gear_hazard') {
+        // Rotating Razor-Edged Gear Hazard
+        h.bladeAngle = ((h.bladeAngle || 0) + (h.bladeSpeed || 0.08)) % (Math.PI * 2);
+        if (Math.random() < 0.25 && this.particles.length < 80) {
+          this.particles.push({
+            x: h.x + h.w / 2 + (Math.random() - 0.5) * h.w * 0.7,
+            y: h.y + h.h / 2 + (Math.random() - 0.5) * h.h * 0.7,
+            vx: (Math.random() - 0.5) * 1.8,
+            vy: (Math.random() - 0.5) * 1.8,
+            life: 10,
+            maxLife: 10,
+            color: '#f59e0b',
+            size: 1.6,
+          });
+        }
       }
     }
   }
@@ -3667,7 +3782,12 @@ export class GameEngine {
     if (!b || !b.alive) return;
 
     // Trigger Arena lock & Cinematic Intro
-    if (this.player.x > b.x - 330 && !this.arenaActive) {
+    const isVerticalSteampunk = LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3';
+    const inArenaRange = isVerticalSteampunk
+      ? (Math.abs(this.player.x - b.x) < 320 && Math.abs(this.player.y - b.y) < 160)
+      : (this.player.x > b.x - 330);
+
+    if (inArenaRange && !this.arenaActive) {
       this.arenaActive = true;
       const cp = this.checkpoints.find((c) => c.arena) || this.checkpoints[this.checkpoints.length - 1];
       if (cp) {
@@ -4969,6 +5089,140 @@ export class GameEngine {
       }
     }
 
+    // =========================================================================
+    // VULKAN-Ω · COLOSO DEL REACTOR DE VAPOR (STEAMPUNK 1000M BOSS)
+    // =========================================================================
+    if (b.name.includes('Vulkan')) {
+      const p = this.player;
+      const dist = p.x - b.x;
+      const speed = b.phase === 1 ? 1.2 : b.phase === 2 ? 1.8 : 2.4;
+
+      // Shield is active while any pressure relief valves (nodes) remain
+      const activeNodes = this.nodes.filter((n) => !n.taken);
+      b.shield = activeNodes.length > 0;
+
+      if (b.state === 'idle') {
+        b.vx += Math.sign(dist) * 0.05;
+        b.vx = Math.max(-speed, Math.min(speed, b.vx));
+        b.stateTimer--;
+
+        // Steam hiss particles from exhaust pipes
+        if (Math.random() < 0.35) {
+          this.particles.push({
+            x: b.x + (b.facing === 1 ? 12 : b.w - 12),
+            y: b.y + 10,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -2.5 - Math.random() * 2,
+            life: 14,
+            maxLife: 14,
+            color: b.phase === 3 ? '#ea580c' : '#ffffff',
+            size: 2.5,
+          });
+        }
+
+        if (b.stateTimer <= 0) {
+          const rand = Math.random();
+          if (rand < 0.45) {
+            // High Pressure Steam Burst / Thermal Projectiles
+            b.state = 'attack';
+            b.stateTimer = 45;
+            b.telegraphTimer = 20;
+            sound.playSfx('bossWarning');
+            this.addFloatingText(b.x + b.w / 2, b.y - 14, '♨️ ¡PRESIÓN CRÍTICA!', '#f97316');
+          } else if (rand < 0.8) {
+            // Steam Leap & Ground Slam with Shockwaves
+            b.state = 'jumping';
+            b.vy = -7.5;
+            b.vx = Math.sign(dist) * 3.2;
+            b.stateTimer = 60;
+            sound.playSfx('flameWhoosh');
+            this.addFloatingText(b.x + b.w / 2, b.y - 14, '⚡ ¡SALTO HIDRÁULICO!', '#fbbf24');
+          } else {
+            // Phase 2/3 Superheated Steam Barrage or Charge
+            b.state = 'charging';
+            b.stateTimer = 45;
+            sound.playSfx('flameWhoosh');
+          }
+        }
+      } else if (b.state === 'attack') {
+        b.vx *= 0.85;
+        b.stateTimer--;
+
+        if (b.stateTimer === 25) {
+          sound.playSfx('flameWhoosh');
+          this.screenShake = 6;
+          // Fire thermal steam fireballs towards player
+          const count = b.phase === 3 ? 3 : 2;
+          for (let i = 0; i < count; i++) {
+            const spreadY = (i - (count - 1) / 2) * 1.2;
+            this.projectiles.push({
+              x: b.facing === 1 ? b.x + b.w + 4 : b.x - 14,
+              y: b.y + b.h * 0.4 + spreadY * 10,
+              w: 14,
+              h: 14,
+              vx: b.facing * (4.2 + (b.phase * 0.5)),
+              vy: spreadY,
+              life: 75,
+              isHero: false,
+              kind: 'steam_fireball',
+              color: '#f97316',
+            });
+          }
+        }
+
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = 45;
+        }
+      } else if (b.state === 'jumping') {
+        // Falling back to the summit platform (at y = -9860)
+        b.vy += 0.32;
+        const groundY = -9860 - b.h;
+        if (b.y >= groundY) {
+          b.y = groundY;
+          b.vy = 0;
+          b.vx = 0;
+          b.state = 'idle';
+          b.stateTimer = 50;
+          sound.playSfx('crushSlam');
+          this.screenShake = 12;
+          this.createBurst(b.x + b.w / 2, b.y + b.h, 28, '#ea580c');
+          // Dual steam shockwaves across summit floor
+          b.shockwaves.push(
+            { x: b.x - 10, y: b.y + b.h - 16, vx: -4.5, w: 16, h: 16, life: 60, maxLife: 60, color: '#ea580c' },
+            { x: b.x + b.w + 10, y: b.y + b.h - 16, vx: 4.5, w: 16, h: 16, life: 60, maxLife: 60, color: '#ea580c' }
+          );
+          this.addFloatingText(b.x + b.w / 2, b.y - 16, '💥 ¡IMPACTO TÉRMICO!', '#ef4444');
+        }
+      } else if (b.state === 'charging') {
+        b.vx = b.facing * (speed * 1.6);
+        b.stateTimer--;
+        if (Math.random() < 0.4) {
+          this.particles.push({
+            x: b.x + Math.random() * b.w,
+            y: b.y + b.h,
+            vx: -b.facing * 2.5,
+            vy: -Math.random() * 2,
+            life: 10,
+            maxLife: 10,
+            color: '#f59e0b',
+            size: 2,
+          });
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = 40;
+        }
+      }
+
+      // Keep Vulkan grounded when not leaping
+      const groundY = -9860 - b.h;
+      if (b.state !== 'jumping' && b.y !== groundY) {
+        b.y = groundY;
+        b.vy = 0;
+      }
+    }
+
     // Universal Relentless Boss Watchdog: Ensures the boss NEVER goes passive or stops attacking
     if (!b.isStaggered && b.state !== 'overheat') {
       if (b.stateTimer <= 0 && b.state !== 'slamming') {
@@ -5530,6 +5784,19 @@ export class GameEngine {
           isColliding = this.checkAABB(p, h);
         } else if (h.type === 'gravityVortex') {
           isColliding = false; // Core suction damage handled in updateHazards
+        } else if (h.type === 'steam_jet' || h.type === 'steam_pipe_burst') {
+          const cycle = ((h.cycleTimer || 0) % (h.maxCycle || 100));
+          const isErupting = cycle >= 50;
+          isColliding = isErupting && this.checkAABB(p, h);
+        } else if (h.type === 'rotating_gear_hazard') {
+          const gcx = h.x + h.w / 2;
+          const gcy = h.y + h.h / 2;
+          const pcx = p.x + p.w / 2;
+          const pcy = p.y + p.h / 2;
+          const rad = (Math.min(h.w, h.h) / 2) + 2;
+          isColliding = Math.hypot(pcx - gcx, pcy - gcy) < rad;
+        } else if (h.type === 'scalding_steam') {
+          isColliding = this.checkAABB(p, h);
         } else {
           isColliding = this.checkAABB(p, h);
         }
@@ -5639,6 +5906,18 @@ export class GameEngine {
             sound.playSfx('hit');
             this.createBurst(p.x + p.w / 2, p.y + p.h, 18, '#ef4444');
             this.handlePlayerDamage('¡Pinchado por Púas Afiladas!');
+          } else if (h.type === 'steam_jet' || h.type === 'steam_pipe_burst') {
+            sound.playSfx('flameWhoosh');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#fef08a');
+            this.handlePlayerDamage('¡Quemado por Chorro de Vapor!');
+          } else if (h.type === 'scalding_steam') {
+            sound.playSfx('acidSizzle');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 18, '#fbbf24');
+            this.handlePlayerDamage('¡Quemadura por Condensado de Vapor!');
+          } else if (h.type === 'rotating_gear_hazard') {
+            sound.playSfx('buzzSaw');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f59e0b');
+            this.handlePlayerDamage('¡Enganchado por Engranaje Dentado!');
           } else {
             this.handlePlayerDamage('¡Peligro en el terreno!');
           }
@@ -6363,8 +6642,8 @@ export class GameEngine {
       this.boss.shockwaves = [];
       this.boss.inv = 0;
       if (this.boss.clones) this.boss.clones = [];
-      // Restore shield nodes for Guardián Neón and Yeti
-      if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón') || this.boss.name.includes('Yeti')) {
+      // Restore shield nodes for Guardián Neón, Yeti and Vulkan
+      if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón') || this.boss.name.includes('Yeti') || this.boss.name.includes('Vulkan')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
       } else if (this.boss.name.includes('Kronos')) {
@@ -6622,6 +6901,15 @@ export class GameEngine {
       return;
     }
     const config = LEVEL_CONFIGS[this.levelIndex];
+    if (config?.id === 'steampunk-3') {
+      const targetCameraY = this.player.y - GAME_HEIGHT * 0.55;
+      this.cameraY += (targetCameraY - this.cameraY) * 0.16;
+      const targetCameraX = this.player.x - GAME_WIDTH * 0.45;
+      this.cameraX += (targetCameraX - this.cameraX) * 0.14;
+      this.cameraX = Math.max(0, Math.min(config.worldWidth - GAME_WIDTH, this.cameraX));
+      return;
+    }
+    this.cameraY = 0;
     const targetCameraX = this.player.x - GAME_WIDTH * 0.38;
     this.cameraX += (targetCameraX - this.cameraX) * 0.12;
     this.cameraX = Math.max(0, Math.min(config.worldWidth - GAME_WIDTH, this.cameraX));

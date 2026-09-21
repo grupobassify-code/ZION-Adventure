@@ -157,6 +157,20 @@ export class EnemyRenderer {
         this.renderSnowHopper(anim, time, e);
         break;
 
+      // --- ZONA 8: FÁBRICA STEAMPUNK ---
+      case 'clockwork_drone':
+        this.renderClockworkDrone(anim, time, e);
+        break;
+      case 'steam_spider':
+        this.renderSteamSpider(anim, time, e);
+        break;
+      case 'brass_automaton':
+        this.renderBrassAutomaton(anim, time, e);
+        break;
+      case 'rust_golem':
+        this.renderRustGolem(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -1999,5 +2013,251 @@ export class EnemyRenderer {
     ctx.fillRect(3.5, -9, 1.5, 4);
 
     ctx.restore();
+  }
+
+  // ===========================================================================
+  // ZONA 8: FÁBRICA STEAMPUNK ENEMIES
+  // ===========================================================================
+
+  private renderClockworkDrone(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const hoverY = Math.sin(time * 0.08 + e.id) * 2.5;
+
+    ctx.save();
+    ctx.translate(0, hoverY);
+
+    // Twin Clockwork Spinning Propeller Blades on Top
+    const propAngle = time * 0.4;
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(-1.5, -9, 3, 3);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(-0.5, -9.5, 1, 1);
+
+    ctx.save();
+    ctx.translate(0, -9);
+    ctx.scale(Math.cos(propAngle), 1);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-9, -1, 18, 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-7, -0.5, 14, 1);
+    ctx.restore();
+
+    // Spherical Brass Fuselage Body
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.arc(-1.5, -1.5, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Riveted Outer Band
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 6.5, -Math.PI * 0.4, Math.PI * 0.4);
+    ctx.stroke();
+
+    // Rivets
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(4, -2, 1.5, 1.5);
+    ctx.fillRect(4, 2, 1.5, 1.5);
+
+    // Glowing Amber Cycloptic Sensor Eye
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(1, -2, 4, 4);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(2, -1.5, 3, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(3, -1, 1.5, 1.5);
+
+    // Exhaust Steam Pipe on Underside
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-3, 6, 6, 2.5);
+    // Exhaust steam puff
+    if (Math.sin(time * 0.2 + e.id) > 0.3) {
+      ctx.fillStyle = 'rgba(255, 247, 237, 0.5)';
+      ctx.beginPath();
+      ctx.arc(-2 + Math.sin(time * 0.3) * 2, 10, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+
+  private renderSteamSpider(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walkCycle = time * 0.15;
+
+    // 6 Articulated Brass Spider Legs (3 on each side)
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 1.5;
+
+    for (let i = 0; i < 3; i++) {
+      const legPhase = walkCycle + i * 1.3;
+      const legLift = Math.sin(legPhase) * 3;
+      const legReach = Math.cos(legPhase) * 4;
+
+      // Left Legs (Back)
+      ctx.beginPath();
+      ctx.moveTo(-2 + i * 2, 0);
+      ctx.lineTo(-7 + i * 2, -4 + legLift);
+      ctx.lineTo(-10 + legReach, 6);
+      ctx.stroke();
+
+      // Right Legs (Front)
+      ctx.beginPath();
+      ctx.moveTo(0 + i * 2, 0);
+      ctx.lineTo(5 + i * 2, -4 - legLift);
+      ctx.lineTo(8 - legReach, 6);
+      ctx.stroke();
+    }
+
+    // Heavy Boiler Core Carapace
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.ellipse(-2, 0, 7, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.ellipse(-2, 0, 6, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pressure Gauge on Carapace
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-3, -1, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(-3, -1);
+    ctx.lineTo(-2, -2);
+    ctx.stroke();
+
+    // Head Unit with Glowing Ruby Optics
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(3, -2.5, 4, 4);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(5, -2, 2, 1.5);
+    ctx.fillRect(5, 0.5, 2, 1.5);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(6, -1.5, 1, 1);
+
+    // Copper Mandibles / Pinchers
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.moveTo(7, -3);
+    ctx.lineTo(10, -1);
+    ctx.lineTo(7, 0);
+    ctx.moveTo(7, 1);
+    ctx.lineTo(10, 2);
+    ctx.lineTo(7, 4);
+    ctx.stroke();
+  }
+
+  private renderBrassAutomaton(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walkStep = Math.sin(time * 0.12) * 3;
+
+    // Legs (Heavy Piston Struts)
+    ctx.fillStyle = '#451a03';
+    // Back Leg
+    ctx.fillRect(-3 - walkStep, 4, 3, 5);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-4 - walkStep, 8, 4, 2);
+    // Front Leg
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(1 + walkStep, 4, 3, 5);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(1 + walkStep, 8, 4, 2);
+
+    // Torso / Cast Bronze Boiler Body
+    ctx.fillStyle = '#291206';
+    ctx.fillRect(-5, -6, 10, 10);
+    ctx.fillStyle = '#b45309';
+    ctx.fillRect(-4, -5, 8, 8);
+
+    // Glowing Furnace Hearth Grate (Belly Fire)
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(-3, -2, 6, 4);
+    const fireFlicker = Math.sin(time * 0.3) * 0.3 + 0.7;
+    ctx.fillStyle = `rgba(239, 68, 68, ${fireFlicker})`;
+    ctx.fillRect(-2.5, -1.5, 5, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-1.5, -1, 3, 2);
+
+    // Furnace Iron Grate Bars
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(-1.5, -2, 1, 4);
+    ctx.fillRect(0.5, -2, 1, 4);
+
+    // Brass Helmet Head & Visor
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-4, -12, 8, 6);
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-3, -11, 6, 4);
+    // Glowing Visor Slit
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(0, -9.5, 4, 1.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, -9.5, 1.5, 1);
+
+    // Shoulder Chimney
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(-5, -10, 2, 4);
+    if (Math.sin(time * 0.25) > 0.4) {
+      ctx.fillStyle = 'rgba(255, 247, 237, 0.45)';
+      ctx.fillRect(-6, -13, 3, 2);
+    }
+
+    // Heavy Piston Arm
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(3, -5, 3, 6);
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(3, 1, 4, 3);
+  }
+
+  private renderRustGolem(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const sway = Math.sin(time * 0.08) * 2;
+
+    // Massive Iron Leg Pillars
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(-6, 3, 5, 7);
+    ctx.fillRect(1, 3, 5, 7);
+
+    // Hulking Rusted Body
+    ctx.fillStyle = '#1c140e';
+    ctx.fillRect(-8, -9 + sway * 0.5, 16, 12);
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(-7, -8 + sway * 0.5, 14, 10);
+
+    // Toxic Verdigris Oxide Patches
+    ctx.fillStyle = '#115e59';
+    ctx.fillRect(-5, -6 + sway * 0.5, 4, 4);
+    ctx.fillRect(1, -7 + sway * 0.5, 5, 3);
+
+    // Exposed Iron Core Heat Vent
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(-2, -3 + sway * 0.5, 4, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-1, -2 + sway * 0.5, 2, 1.5);
+
+    // Heavy Stone/Iron Fist Arms
+    ctx.fillStyle = '#291206';
+    ctx.fillRect(-11, -7 + sway, 4, 10);
+    ctx.fillRect(7, -7 - sway, 4, 10);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-11, 2 + sway, 4, 4);
+    ctx.fillRect(7, 2 - sway, 4, 4);
   }
 }

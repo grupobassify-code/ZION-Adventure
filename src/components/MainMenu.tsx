@@ -168,7 +168,6 @@ const ZONES_DATA: ZoneMeta[] = [
     themeColor: '#d97706',
     accentColor: '#fbbf24',
     actsCount: 3,
-    status: 'development',
   },
   {
     id: 'castlesmash',
@@ -338,13 +337,17 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   return (
     <div
       id="main-menu-root"
-      className="absolute inset-0 z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white overflow-y-auto overflow-x-hidden px-2 py-2.5 sm:p-6 select-none"
+      className={`absolute inset-0 z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none ${
+        view === 'title'
+          ? 'overflow-hidden h-full max-h-screen px-2 py-1.5 sm:px-6 sm:py-3'
+          : 'overflow-y-auto overflow-x-hidden px-2 py-2.5 sm:p-6'
+      }`}
     >
       {/* Dynamic Cyber Matrix Grid Background */}
       <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,#06b6d418_1px,transparent_1px),linear-gradient(to_bottom,#06b6d418_1px,transparent_1px)] bg-[size:32px_32px]" />
 
       {/* Top Navbar */}
-      <header className="relative z-10 w-full max-w-5xl flex items-center justify-between gap-2 pt-1 sm:pt-2">
+      <header className="relative z-10 w-full max-w-5xl flex items-center justify-between gap-2 pt-0.5 sm:pt-1">
         <div className="flex items-center gap-1.5 sm:gap-2">
           {view !== 'title' && (
             <button
@@ -431,39 +434,39 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      {/* VIEW 1: TITLE SCREEN */}
+      {/* VIEW 1: TITLE SCREEN (Non-scrollable, fits 100% in viewport) */}
       {view === 'title' && (
-        <main className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center text-center my-auto py-1 sm:py-6 px-2 sm:px-4">
+        <main className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center text-center my-auto py-1 px-2 sm:px-4">
           {/* Animated Pixel Art Character Zion */}
-          <div className="relative mb-0.5 sm:mb-2">
-            <PixelCharacter scale={typeof window !== 'undefined' && window.innerWidth < 640 ? 1.8 : 3.8} interactive={true} />
-            <div className="text-[8px] sm:text-[11px] font-mono text-cyan-400/80 tracking-wider sm:tracking-widest mt-[-4px] sm:mt-[-10px] animate-pulse">
+          <div className="relative mb-1">
+            <PixelCharacter scale={typeof window !== 'undefined' && window.innerHeight < 700 ? 1.5 : typeof window !== 'undefined' && window.innerWidth < 640 ? 1.7 : 2.7} interactive={true} />
+            <div className="text-[8px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-6px] animate-pulse">
               {t('tapZionToAttack')}
             </div>
           </div>
 
           {/* Epic Main Game Title: ZION ADVENTURE */}
-          <div className="relative mt-0.5 mb-2 sm:mb-4">
-            <div className="absolute -inset-x-8 -inset-y-4 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-2xl -z-10 rounded-full" />
-            <h1 className="text-3xl xs:text-4xl sm:text-7xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_5px_25px_rgba(6,182,212,0.8)] leading-tight">
+          <div className="relative mt-1 mb-1.5 sm:mb-2.5">
+            <div className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl -z-10 rounded-full" />
+            <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
               {t('gameTitle')}
             </h1>
-            <p className="text-[9px] xs:text-xs sm:text-base font-bold text-cyan-300/90 tracking-[0.1em] sm:tracking-[0.25em] uppercase font-mono mt-0.5 sm:mt-1">
+            <p className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.12em] sm:tracking-[0.2em] uppercase font-mono mt-1">
               {t('gameSubtitle')}
             </p>
           </div>
 
           {/* Prominent Language Selector Chips on Title Screen */}
-          <LanguageSelector variant="chips" className="mb-2 sm:mb-3" />
+          <LanguageSelector variant="chips" className="mb-2 sm:mb-2.5" />
 
           {/* Primary Action Buttons - Highly responsive for mobile and desktop */}
-          <div className="flex flex-col gap-2 mt-1 sm:mt-2 w-full max-w-md sm:max-w-lg">
+          <div className="flex flex-col gap-1.5 sm:gap-2 w-full max-w-sm sm:max-w-md">
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');
                 setView('slots');
               }}
-              className="w-full group relative flex items-center justify-center gap-2 px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_35px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[48px]"
+              className="w-full group relative flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_28px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[44px]"
             >
               <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               <span>{t('startGame')}</span>
@@ -477,7 +480,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     sound.playSfx('menuSelect');
                     onOpenAchievements();
                   }}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[42px] cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] cursor-pointer"
                 >
                   <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400/30" />
                   <span>LOGROS</span>
@@ -489,7 +492,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   sound.playSfx('menuSelect');
                   onOpenCredits();
                 }}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[42px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
+                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
               >
                 <Award className="w-3.5 h-3.5 text-pink-400 shrink-0" />
                 <span>{t('credits')}</span>
@@ -497,8 +500,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </div>
           </div>
 
+          {/* Compact Feature Highlights Ribbon */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
+            <span>8 ERAS DIMENSIONALES</span>
+            <span className="text-slate-600">·</span>
+            <span>22 NIVELES</span>
+            <span className="text-slate-600">·</span>
+            <span>JEFES ÉPICOS</span>
+            <span className="text-slate-600">·</span>
+            <span>3 PARTIDAS</span>
+          </div>
+
           {/* Quick Legal & Privacy Trust Bar */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 mt-2 sm:mt-3 text-[9px] sm:text-xs">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[8px] sm:text-[10px]">
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');
@@ -521,22 +535,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               <span>{t('googleDocsLink')}</span>
               <ExternalLink className="w-3 h-3 text-cyan-400" />
             </a>
-          </div>
-
-          {/* Key Feature Highlights */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mt-2.5 sm:mt-6 w-full max-w-md sm:max-w-lg text-center">
-            <div className="bg-slate-900/60 border border-slate-800 p-1.5 sm:p-2.5 rounded-xl">
-              <div className="text-cyan-400 font-black text-xs sm:text-base">{t('sevenZones')}</div>
-              <div className="text-[8px] sm:text-[10px] text-slate-400 font-mono">{t('thirteenLevels')}</div>
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 p-1.5 sm:p-2.5 rounded-xl">
-              <div className="text-pink-400 font-black text-xs sm:text-base">{t('sixBosses')}</div>
-              <div className="text-[8px] sm:text-[10px] text-slate-400 font-mono">{t('phasesAndAi')}</div>
-            </div>
-            <div className="bg-slate-900/60 border border-slate-800 p-1.5 sm:p-2.5 rounded-xl">
-              <div className="text-amber-400 font-black text-xs sm:text-base">{t('threeSlots')}</div>
-              <div className="text-[8px] sm:text-[10px] text-slate-400 font-mono">{t('autosave')}</div>
-            </div>
           </div>
         </main>
       )}
@@ -761,6 +759,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       zone={z.id}
                       act={1}
                       isLocked={!canPlay && !isSoon}
+                      isUnderConstruction={isSoon}
                       width={280}
                       height={144}
                     />
@@ -824,7 +823,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                           ? t('enterActs')
                           : z.id === 'blizzard'
                             ? (language === 'es' ? 'DERROTA A BALAM (JUNGLA)' : 'DEFEAT BALAM (JUNGLE)')
-                            : t('beatPrevEra')}
+                          : z.id === 'steampunk'
+                            ? (language === 'es' ? 'DERROTA A YUKIO EL YETI (BLIZZARD)' : 'DEFEAT YUKIO THE YETI (BLIZZARD)')
+                          : t('beatPrevEra')}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition-all" />
                     </div>

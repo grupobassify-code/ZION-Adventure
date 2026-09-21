@@ -62,6 +62,12 @@ export class GameRenderer {
       this.renderBackground(config.zone, config.act, engine.cameraX, config.worldWidth, engine.time);
     }
 
+    const hasCameraY = engine.cameraY !== 0;
+    if (hasCameraY) {
+      this.ctx.save();
+      this.ctx.translate(0, -Math.round(engine.cameraY));
+    }
+
     // 3. World landmarks and shrines
     this.renderLandmarks(engine.landmarks, engine.cameraX, engine.time);
 
@@ -121,6 +127,60 @@ export class GameRenderer {
     // 12. Dynamic pixel particles & floating damage/score text
     this.renderParticles(engine.particles, engine.cameraX);
     this.renderFloatingTexts(engine.floatingTexts, engine.cameraX);
+
+    if (hasCameraY) {
+      this.ctx.restore();
+    }
+
+    // Steampunk Chimney Ascent 1000m Altimeter (Act 3)
+    if (config.id === 'steampunk-3') {
+      const altMeters = Math.max(0, Math.min(1000, Math.round((134 - engine.player.y) / 10)));
+      const ctx = this.ctx;
+      const barX = GAME_WIDTH - 28;
+      const barY = 24;
+      const barH = 120;
+
+      // Victorian Brass Casing
+      ctx.fillStyle = '#1c140e';
+      ctx.fillRect(barX - 1, barY - 1, 14, barH + 2);
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(barX, barY, 12, barH);
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(barX + 1, barY + 1, 10, barH - 2);
+
+      // Glass Tube
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(barX + 3, barY + 3, 6, barH - 6);
+
+      // Mercury / Steam Pressure Column
+      const fillH = Math.round((altMeters / 1000) * (barH - 6));
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(barX + 3, barY + barH - 3 - fillH, 6, fillH);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(barX + 4, barY + barH - 3 - fillH, 2, fillH);
+
+      // Summit Boss Marker
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(barX - 1, barY + 2, 14, 3);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 7px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('1000m ⚙', barX - 3, barY + 6);
+
+      // Current Height Label
+      const playerMarkerY = barY + barH - 3 - fillH;
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.moveTo(barX - 1, playerMarkerY);
+      ctx.lineTo(barX - 5, playerMarkerY - 3);
+      ctx.lineTo(barX - 5, playerMarkerY + 3);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 7px sans-serif';
+      ctx.fillText(`${altMeters}m`, barX - 6, playerMarkerY + 2.5);
+    }
 
     // 13. Boss intro cinematic banner & combo HUD
     this.renderBossIntroBanner(engine.bossIntroBanner);
@@ -3086,6 +3146,166 @@ export class GameRenderer {
           ctx.fillStyle = '#fb923c88';
           ctx.fillRect(x - 2, y + p.h, p.w + 4, 3);
         }
+      } else if (p.kind === 'gear_rotating' || p.kind === 'steampunk_gear') {
+        // Rotating Steampunk Brass Cogwheel Platform
+        const gearR = (p.gearRadius || Math.min(p.w, p.h) / 2) || 35;
+        const gcx = x + p.w / 2;
+        const gcy = y + p.h / 2;
+        const rot = time * (p.rotationSpeed || 0.02);
+
+        ctx.save();
+        ctx.translate(gcx, gcy);
+        ctx.rotate(rot);
+
+        // Gear Teeth (12 industrial rectangular teeth)
+        const teeth = 12;
+        ctx.fillStyle = '#78350f';
+        for (let t = 0; t < teeth; t++) {
+          ctx.save();
+          ctx.rotate((t / teeth) * Math.PI * 2);
+          ctx.fillRect(-3.5, -gearR - 4, 7, 6);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(-2.5, -gearR - 4, 5, 4);
+          ctx.restore();
+        }
+
+        // Outer Bronze Rim
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(0, 0, gearR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(0, 0, gearR - 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#d97706';
+        ctx.beginPath();
+        ctx.arc(0, 0, gearR - 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner Recessed Cast Iron Well
+        ctx.fillStyle = '#1c140e';
+        ctx.beginPath();
+        ctx.arc(0, 0, gearR - 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4 Curved Brass Spoke Arms
+        for (let s = 0; s < 4; s++) {
+          ctx.save();
+          ctx.rotate((s / 4) * Math.PI * 2);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(-3, -gearR + 8, 6, (gearR - 8) * 2);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(-1, -gearR + 8, 2, (gearR - 8) * 2);
+          ctx.restore();
+        }
+
+        // Heavy Central Axle Hub & Hex Nut
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(-3, -3, 6, 6);
+        ctx.fillStyle = '#1c140e';
+        ctx.fillRect(-1, -1, 2, 2);
+
+        ctx.restore();
+
+        // Solid standing platform bar across top rim so player has clear footing
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(x + 4, y, p.w - 8, 3);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x + 6, y, p.w - 12, 1);
+      } else if (p.kind === 'steampunk_brass') {
+        // Heavy Riveted Victorian Brass & Bronze Factory Bedplate
+        ctx.fillStyle = '#1c1208'; // Cast iron base
+        ctx.fillRect(x, y, p.w, p.h);
+
+        ctx.fillStyle = '#78350f'; // Bronze body
+        ctx.fillRect(x, y + 2, p.w, p.h - 4);
+
+        // Polished Brass Center Inlay
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(x + 2, y + 3, p.w - 4, p.h - 7);
+
+        // Golden Rivet Rows on top and bottom
+        ctx.fillStyle = '#fbbf24';
+        for (let rx = x + 6; rx < x + p.w - 6; rx += 14) {
+          ctx.fillRect(rx, y + 4, 2, 2);
+          if (p.h > 14) {
+            ctx.fillRect(rx, y + p.h - 6, 2, 2);
+          }
+        }
+
+        // Small Steam Vent Slits
+        ctx.fillStyle = '#180903';
+        for (let vx = x + 16; vx < x + p.w - 16; vx += 36) {
+          ctx.fillRect(vx, y + 7, 8, 2);
+          // Faint steam puff from vent
+          if (Math.sin(time * 0.1 + vx) > 0.7) {
+            ctx.fillStyle = 'rgba(255, 247, 237, 0.4)';
+            ctx.fillRect(vx + 2, y - 2, 4, 2);
+            ctx.fillStyle = '#180903';
+          }
+        }
+
+        // Polished Brass Top Lip
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x, y, p.w, 2);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(x + 2, y, p.w - 4, 1);
+      } else if (p.kind === 'steampunk_pipe') {
+        // Industrial Copper Steam Pipe / Conduit Catwalk
+        ctx.fillStyle = '#431407'; // Deep shadow
+        ctx.fillRect(x, y, p.w, p.h);
+
+        // Copper pipe cylindrical gradient
+        ctx.fillStyle = '#9a3412';
+        ctx.fillRect(x, y + 1, p.w, p.h - 2);
+        ctx.fillStyle = '#c2410c';
+        ctx.fillRect(x, y + 1, p.w, Math.max(2, Math.floor(p.h / 3)));
+        ctx.fillStyle = '#fed7aa'; // Glistening copper specular highlight
+        ctx.fillRect(x, y, p.w, 1);
+
+        // Brass Pipe Flange Collars every 28px
+        ctx.fillStyle = '#fbbf24';
+        for (let fx = x + 8; fx < x + p.w; fx += 28) {
+          ctx.fillRect(fx - 1, y - 1, 3, p.h + 2);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(fx, y, 1, p.h);
+          ctx.fillStyle = '#fbbf24';
+        }
+      } else if (p.kind === 'steampunk_rust') {
+        // Corroded Oxidized Iron & Verdigris Slag Platform
+        ctx.fillStyle = '#140c06'; // Slag iron core
+        ctx.fillRect(x, y, p.w, p.h);
+
+        ctx.fillStyle = '#451a03'; // Heavy rust
+        ctx.fillRect(x, y + 2, p.w, p.h - 4);
+
+        // Toxic Green Verdigris Oxidized Patches
+        ctx.fillStyle = '#115e59';
+        for (let ox = x + 8; ox < x + p.w - 8; ox += 24) {
+          ctx.fillRect(ox, y + 3, 10, 4);
+          ctx.fillRect(ox + 2, y + 2, 6, 1);
+        }
+
+        // Corroded Pitted Metal Texture
+        ctx.fillStyle = '#0f172a';
+        for (let px = x + 4; px < x + p.w - 4; px += 16) {
+          ctx.fillRect(px, y + 4, 3, 2);
+        }
+
+        // Chipped Orange Rust Top
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(x, y, p.w, 2);
+        ctx.fillStyle = '#ea580c';
+        for (let cx = x + 2; cx < x + p.w - 2; cx += 8) {
+          ctx.fillRect(cx, y, 4, 1);
+        }
       } else {
         // Floating Ledges & Elevated Platforms
         // Drop shadow for depth
@@ -4090,6 +4310,239 @@ export class GameRenderer {
         ctx.beginPath();
         ctx.arc(cx, cy, radius * 0.58, 0, Math.PI * 2);
         ctx.stroke();
+      } else if (h.type === 'steam_jet' || h.type === 'steam_pipe_burst') {
+        // High-Pressure Victorian Steam Jet Hazard (Fully Telegraphed & Highly Visible)
+        const nozzleX = x + h.w / 2;
+        const nozzleY = h.y + h.h;
+        const cycle = h.cycleTimer !== undefined ? (h.cycleTimer % (h.maxCycle || 100)) : (Math.floor(time * 2) % 100);
+        const isWarning = cycle >= 25 && cycle < 50; // Extended 25-frame warning hiss
+        const isErupting = cycle >= 50;              // Active scalding eruption
+
+        // 1. High-Visibility Hazard Base Mount with Warning Chevrons & Heavy Brass Flange
+        ctx.fillStyle = '#1c140e';
+        ctx.fillRect(x, nozzleY - 8, h.w, 8);
+
+        // Yellow and dark hazard stripes across the nozzle base
+        const stripeW = 6;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 1, nozzleY - 7, h.w - 2, 6);
+        ctx.clip();
+        for (let sx = x - 6; sx < x + h.w + 6; sx += stripeW) {
+          ctx.fillStyle = ((sx / stripeW) | 0) % 2 === 0 ? '#eab308' : '#18181b';
+          ctx.beginPath();
+          ctx.moveTo(sx, nozzleY - 1);
+          ctx.lineTo(sx + 5, nozzleY - 1);
+          ctx.lineTo(sx + 9, nozzleY - 7);
+          ctx.lineTo(sx + 4, nozzleY - 7);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Polished brass rim and nozzle mouth
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x + 1, nozzleY - 9, h.w - 2, 2);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(nozzleX - 4, nozzleY - 11, 8, 3);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(nozzleX - 3, nozzleY - 11, 6, 2);
+
+        // 2. Brass Pressure Gauge with Needle
+        const gaugeX = x + (h.w > 20 ? 5 : nozzleX - 7);
+        const gaugeY = nozzleY - 13;
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(gaugeX, gaugeY, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef3c7';
+        ctx.beginPath();
+        ctx.arc(gaugeX, gaugeY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        // Red danger slice on gauge
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(gaugeX, gaugeY);
+        ctx.arc(gaugeX, gaugeY, 3.5, -Math.PI * 0.4, 0);
+        ctx.closePath();
+        ctx.fill();
+        // Needle vibrating with pressure
+        const needleAngle = isErupting ? -0.1 : isWarning ? -0.6 + Math.sin(time * 0.8) * 0.25 : -1.8;
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(gaugeX, gaugeY);
+        ctx.lineTo(gaugeX + Math.cos(needleAngle) * 3, gaugeY + Math.sin(needleAngle) * 3);
+        ctx.stroke();
+
+        // 3. Status Strobe LED Light
+        const ledColor = isErupting ? '#ef4444' : isWarning ? '#f59e0b' : '#10b981';
+        const ledX = x + h.w - 5;
+        const ledY = nozzleY - 13;
+        ctx.fillStyle = ledColor;
+        ctx.beginPath();
+        ctx.arc(ledX, ledY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        if (isWarning || isErupting) {
+          ctx.fillStyle = isErupting ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.45)';
+          ctx.beginPath();
+          ctx.arc(ledX, ledY, 5 + Math.sin(time * 0.5) * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 4. Telegraphed Danger Area Box (Always visible so players can anticipate!)
+        const plumeH = h.h || 48;
+        if (!isErupting) {
+          // Semi-transparent danger zone bounds
+          ctx.save();
+          ctx.setLineDash([3, 3]);
+          ctx.strokeStyle = isWarning
+            ? (Math.floor(time * 0.3) % 2 === 0 ? '#ef4444' : '#f59e0b')
+            : 'rgba(245, 158, 11, 0.35)';
+          ctx.lineWidth = isWarning ? 1.5 : 1;
+          ctx.strokeRect(x, h.y, h.w, plumeH);
+
+          if (isWarning) {
+            // Warning diagonal wash inside danger box
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+            ctx.fillRect(x, h.y, h.w, plumeH);
+
+            // Warning Banner Icon above nozzle
+            const warnPulse = Math.sin(time * 0.4) * 2;
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(nozzleX - 10, h.y - 12 + warnPulse, 20, 9);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 7px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠️ VAPOR', nozzleX, h.y - 5 + warnPulse);
+
+            // Thin hissing steam wisps and orange embers
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            for (let w = 0; w < 4; w++) {
+              const wy = nozzleY - 12 - w * (plumeH / 5);
+              const wx = nozzleX + Math.sin(time * 0.5 + w) * 4;
+              ctx.fillRect(wx - 1, wy, 2, 5);
+            }
+          }
+          ctx.restore();
+        }
+
+        // 5. Scalding High-Velocity Eruption Plume
+        if (isErupting) {
+          // Intense background danger wash
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+          ctx.fillRect(x - 2, h.y, h.w + 4, plumeH);
+
+          // Hot pressure orange core at nozzle
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(nozzleX - 4, nozzleY - 16, 8, 8);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(nozzleX - 2, nozzleY - 14, 4, 6);
+
+          // Dense billowing steam clouds
+          const puffs = 7;
+          for (let p = 0; p < puffs; p++) {
+            const py = h.y + (p / puffs) * (plumeH - 8);
+            const pr = 6 + (puffs - p) * 2.8;
+            const pxOffset = Math.sin(time * 0.3 + p * 1.2) * 5;
+            const alpha = 0.75 + Math.sin(time * 0.4 + p) * 0.2;
+
+            // Outer boiling vapor cloud
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(nozzleX + pxOffset, py, pr, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Superheated orange center
+            if (p >= puffs - 3) {
+              ctx.fillStyle = 'rgba(251, 146, 60, 0.6)';
+              ctx.beginPath();
+              ctx.arc(nozzleX + pxOffset * 0.5, py + 3, pr * 0.65, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+      } else if (h.type === 'scalding_steam') {
+        // Boiling Condensation Basin Hazard
+        const basinY = h.y + h.h - 6;
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(x, basinY, h.w, 6);
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(x + 2, basinY + 1, h.w - 4, 4);
+
+        // Scalding bubbling liquid surface
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(x + 2, basinY + 1, h.w - 4, 3);
+        ctx.fillStyle = '#fef08a';
+        for (let bx = x + 4; bx < x + h.w - 4; bx += 7) {
+          const bubbleY = basinY + 1 - Math.sin(time * 0.2 + bx) * 2;
+          ctx.fillRect(bx, bubbleY, 2, 2);
+        }
+
+        // Steaming clouds rising from puddle
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        for (let s = 0; s < 3; s++) {
+          const sy = h.y + 4 + s * 6;
+          const sx = x + 6 + s * 8 + Math.sin(time * 0.25 + s) * 3;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (h.type === 'rotating_gear_hazard') {
+        // Razor-Edged Industrial Serrated Cogwheel Hazard (High-Contrast Danger)
+        const gcx = x + h.w / 2;
+        const gcy = h.y + h.h / 2;
+        const radius = Math.min(h.w, h.h) / 2;
+        const rot = time * (h.bladeSpeed || 0.08);
+
+        // Mounting Iron Bracket
+        ctx.fillStyle = '#1c140e';
+        ctx.fillRect(gcx - 2, h.y, 4, h.h);
+
+        ctx.save();
+        ctx.translate(gcx, gcy);
+        ctx.rotate(rot);
+
+        // Serrated triangular teeth (8 razor saw teeth)
+        const teeth = 8;
+        ctx.fillStyle = '#dc2626';
+        for (let t = 0; t < teeth; t++) {
+          ctx.save();
+          ctx.rotate((t / teeth) * Math.PI * 2);
+          ctx.beginPath();
+          ctx.moveTo(-3, -radius + 2);
+          ctx.lineTo(0, -radius - 6);
+          ctx.lineTo(4, -radius + 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Blade Disc Body
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 1, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Center Rivet Hub with Caution Yellow
+        ctx.fillStyle = '#1c140e';
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(-1.5, -1.5, 3, 3);
+
+        ctx.restore();
       }
     }
   }
@@ -4712,6 +5165,22 @@ export class GameRenderer {
         ctx.beginPath();
         ctx.arc(x + p.w / 2, p.y + p.h / 2, Math.max(1, p.w / 2 - 3), 0, Math.PI * 2);
         ctx.stroke();
+      } else if (p.kind === 'steam_fireball') {
+        // Superheated Thermal Steam Blast from Vulkan-Ω
+        const cx = x + p.w / 2;
+        const cy = p.y + p.h / 2;
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.w * 0.38, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(cx, cy, p.w * 0.2, 0, Math.PI * 2);
+        ctx.fill();
       } else {
         ctx.fillStyle = '#f43f5e';
         ctx.fillRect(x, p.y, p.w, p.h);

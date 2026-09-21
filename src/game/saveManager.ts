@@ -338,11 +338,19 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
   }
   if (cfg && cfg.zone === 'steampunk') {
+    const blizzard3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-3');
     const steampunk1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-1');
     const completedList = slot.completedLevels || [];
     const unlockedList = slot.unlockedLevels || [];
+
+    const isBlizzardBossDefeated =
+      blizzard3Idx !== -1 && (completedList.includes(blizzard3Idx) || completedList.includes('blizzard-3' as any));
+
+    if (!isBlizzardBossDefeated) {
+      return false; // Steampunk is strictly locked until Yukio el Yeti (blizzard-3) is defeated!
+    }
     if (levelIndex === steampunk1Idx) {
-      return true; // Act 1 is unlocked for playing and testing the in-development zone!
+      return true;
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`steampunk-${cfg.act - 1}` as any);
   }
@@ -472,6 +480,24 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
       (jungle3Idx !== -1 && (completedList.includes(jungle3Idx) || completedList.includes('jungle-3' as any)));
 
     if (!isBalamDefeated) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // Steampunk Zone requires defeating the blizzard boss Yukio el Yeti (blizzard-3)
+  if (zone === 'steampunk') {
+    const blizzard3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-3');
+    const completedList = slot.completedLevels || [];
+
+    const isBlizzardBossDefeated =
+      blizzard3Idx !== -1 && (completedList.includes(blizzard3Idx) || completedList.includes('blizzard-3' as any));
+
+    if (!isBlizzardBossDefeated) {
       return { completed: 0, total, unlocked: false };
     }
     let completed = 0;

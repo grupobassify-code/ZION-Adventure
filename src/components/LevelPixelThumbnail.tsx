@@ -6,6 +6,7 @@ interface LevelPixelThumbnailProps {
   act: number;
   isLocked?: boolean;
   isBoss?: boolean;
+  isUnderConstruction?: boolean;
   width?: number;
   height?: number;
   className?: string;
@@ -16,6 +17,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
   act,
   isLocked = false,
   isBoss = false,
+  isUnderConstruction = false,
   width = 280,
   height = 150,
   className = '',
@@ -40,6 +42,228 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
+
+      const underConstruction = isUnderConstruction || ['castlesmash', 'piratestreasure', 'jurasicdraft', 'themoon'].includes(zone);
+
+      // ========================================================
+      // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
+      // ========================================================
+      if (underConstruction) {
+        // 1. Deep Blueprint Navy Background
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+        bgGrad.addColorStop(0, '#09152b');
+        bgGrad.addColorStop(0.6, '#060e1e');
+        bgGrad.addColorStop(1, '#03070f');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Blueprint Grid Lines
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+        ctx.lineWidth = 1;
+        const gridSize = 14;
+        for (let gx = 0; gx < w; gx += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, h);
+          ctx.stroke();
+        }
+        for (let gy = 0; gy < h; gy += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(w, gy);
+          ctx.stroke();
+        }
+
+        // 3. Construction Scaffolding (Left & Right Towers)
+        const drawScaffold = (sx: number, sw: number) => {
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(sx, 16, 4, h - 32);
+          ctx.fillRect(sx + sw - 4, 16, 4, h - 32);
+          // Horizontal platforms
+          for (let py = 30; py < h - 20; py += 26) {
+            ctx.fillStyle = '#b45309';
+            ctx.fillRect(sx - 2, py, sw + 4, 3);
+            // Cross bracing
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(sx + 2, py);
+            ctx.lineTo(sx + sw - 2, py + 26);
+            ctx.moveTo(sx + sw - 2, py);
+            ctx.lineTo(sx + 2, py + 26);
+            ctx.stroke();
+          }
+        };
+        drawScaffold(8, 36);
+        drawScaffold(w - 44, 36);
+
+        // 4. Heavy Construction Crane (Top Right)
+        const craneX = w - 55;
+        const craneY = 14;
+        // Crane Vertical Mast
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(craneX, craneY, 8, 48);
+        ctx.fillStyle = '#ca8a04';
+        ctx.fillRect(craneX + 2, craneY + 2, 4, 44);
+        // Horizontal Jib Arm
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(craneX - 70, craneY, 90, 5);
+        // Diagonal Cable
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(craneX + 4, craneY - 8);
+        ctx.lineTo(craneX - 60, craneY + 2);
+        ctx.moveTo(craneX + 4, craneY - 8);
+        ctx.lineTo(craneX + 18, craneY + 2);
+        ctx.stroke();
+        // Crane Top Peak & Flashing Red Warning Light
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(craneX + 2, craneY - 8, 4, 8);
+        const craneBeaconOn = Math.floor(tick / 15) % 2 === 0;
+        ctx.fillStyle = craneBeaconOn ? '#ef4444' : '#7f1d1d';
+        ctx.beginPath();
+        ctx.arc(craneX + 4, craneY - 9, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hanging Hoist Cable & Hook (sways slightly)
+        const sway = Math.sin(tick * 0.05) * 4;
+        const hookX = craneX - 45 + sway;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(craneX - 45, craneY + 5);
+        ctx.lineTo(hookX, craneY + 36);
+        ctx.stroke();
+        // Steel Hook
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(hookX - 2, craneY + 36, 4, 4);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(hookX, craneY + 42, 3.5, 0, Math.PI);
+        ctx.stroke();
+
+        // 5. Ground Foundation & Construction Site Terrain
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, h - 22, w, 22);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, h - 22, w, 2);
+
+        // Stacked I-Beams on ground
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(20, h - 14, 28, 4);
+        ctx.fillRect(22, h - 18, 24, 4);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(20, h - 13, 28, 1);
+
+        // Traffic Safety Cones
+        const drawCone = (cx: number) => {
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.moveTo(cx, h - 20);
+          ctx.lineTo(cx - 5, h - 8);
+          ctx.lineTo(cx + 5, h - 8);
+          ctx.closePath();
+          ctx.fill();
+          // White reflective band
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(cx - 3, h - 15, 6, 2.5);
+          // Black base
+          ctx.fillStyle = '#18181b';
+          ctx.fillRect(cx - 6, h - 8, 12, 2);
+        };
+        drawCone(62);
+        drawCone(w - 68);
+
+        // 6. Centered Heavy Industrial Hazard Barrier
+        const bx = Math.floor(w / 2 - 58);
+        const by = Math.floor(h / 2 - 18);
+        const bw = 116;
+        const bh = 34;
+
+        // Wooden Support Legs
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(bx + 12, by + bh - 2, 6, 18);
+        ctx.fillRect(bx + bw - 18, by + bh - 2, 6, 18);
+
+        // Main Barrier Plaque Backdrop
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = '#eab308';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, by, bw, bh);
+
+        // Diagonal Yellow & Black Warning Stripes (Hazard Tape)
+        const stripeW = 8;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(bx + 1, by + 1, bw - 2, bh - 2);
+        ctx.clip();
+        for (let sx = bx - 20; sx < bx + bw + 20; sx += stripeW * 2) {
+          ctx.fillStyle = 'rgba(234, 179, 8, 0.22)';
+          ctx.beginPath();
+          ctx.moveTo(sx, by);
+          ctx.lineTo(sx + stripeW, by);
+          ctx.lineTo(sx + stripeW - 14, by + bh);
+          ctx.lineTo(sx - 14, by + bh);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Pulsing Warning Beacon on Top of Barrier
+        const beaconPulsing = Math.sin(tick * 0.12) > -0.2;
+        const beaconX = Math.floor(w / 2);
+        const beaconY = by - 5;
+        // Mount
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(beaconX - 4, beaconY + 1, 8, 4);
+        // Amber Lamp
+        ctx.fillStyle = beaconPulsing ? '#fbbf24' : '#b45309';
+        ctx.beginPath();
+        ctx.arc(beaconX, beaconY - 1, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        if (beaconPulsing) {
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
+          ctx.beginPath();
+          ctx.arc(beaconX, beaconY - 1, 11, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Text Badge inside Barrier
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('EN CONSTRUCCIÓN', Math.floor(w / 2), by + 15);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 8px monospace';
+        ctx.fillText('ZONA EN DESARROLLO', Math.floor(w / 2), by + 26);
+
+        // 7. Top & Bottom Caution Hazard Border Stripes
+        const tapeH = 4;
+        const drawHazardTape = (ty: number) => {
+          ctx.fillStyle = '#18181b';
+          ctx.fillRect(0, ty, w, tapeH);
+          ctx.fillStyle = '#eab308';
+          for (let tx = -tapeH; tx < w + tapeH; tx += tapeH * 2) {
+            ctx.beginPath();
+            ctx.moveTo(tx, ty);
+            ctx.lineTo(tx + tapeH, ty);
+            ctx.lineTo(tx + tapeH - 4, ty + tapeH);
+            ctx.lineTo(tx - 4, ty + tapeH);
+            ctx.closePath();
+            ctx.fill();
+          }
+        };
+        drawHazardTape(0);
+        drawHazardTape(h - tapeH);
+
+        // Request next animation frame for the under-construction preview
+        animId = requestAnimationFrame(render);
+        return;
+      }
 
       // ==========================================
       // 1. SKY & ATMOSPHERE GRADIENTS
@@ -116,6 +340,12 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         skyGrad.addColorStop(0.35, '#0c4a6e');
         skyGrad.addColorStop(0.7, '#0284c7');
         skyGrad.addColorStop(1, '#e0f2fe');
+      } else if (zone === 'steampunk') {
+        skyGrad.addColorStop(0, '#1c1208');
+        skyGrad.addColorStop(0.35, '#78350f');
+        skyGrad.addColorStop(0.65, '#b45309');
+        skyGrad.addColorStop(0.88, '#f59e0b');
+        skyGrad.addColorStop(1, '#fef08a');
       } else {
         // travel
         skyGrad.addColorStop(0, '#020617');
@@ -320,6 +550,49 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.beginPath();
         ctx.arc(w - 44, 25, 20, 0, Math.PI * 2);
         ctx.fill();
+      } else if (zone === 'steampunk') {
+        // Rotating Clockwork Brass Gear-Sun & Victorian Chimney Steam
+        const gSunX = w - 46;
+        const gSunY = 26;
+        const radius = 15;
+        ctx.save();
+        ctx.translate(gSunX, gSunY);
+        ctx.rotate(tick * 0.02);
+        // Teeth
+        ctx.fillStyle = '#b45309';
+        for (let t = 0; t < 8; t++) {
+          ctx.save();
+          ctx.rotate((t / 8) * Math.PI * 2);
+          ctx.fillRect(-2, -radius - 3, 4, 4);
+          ctx.restore();
+        }
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius - 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Smokestack & Steam
+        ctx.fillStyle = '#291508';
+        ctx.fillRect(26, 34, 12, 40);
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(24, 32, 16, 3);
+        // Steam clouds
+        for (let s = 0; s < 4; s++) {
+          const sy = 26 - s * 8;
+          ctx.fillStyle = `rgba(255, 247, 237, ${0.7 - s * 0.15})`;
+          ctx.beginPath();
+          ctx.arc(32 + Math.sin(tick * 0.08 + s) * 3, sy, 4 + s * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
       } else {
         // Quantum Hyperspace Spiral Void (Travel)
         const rot = tick * 0.03;
@@ -707,6 +980,30 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillStyle = s % 3 === 0 ? '#ffffff' : '#bae6fd';
           ctx.fillRect(sx, sy, 2, 2);
         }
+      } else if (zone === 'steampunk') {
+        // Victorian Industrial Factory Gables, Sawtooth Rooflines, Interlocking Cogs
+        ctx.fillStyle = '#1e0f06';
+        ctx.beginPath();
+        ctx.moveTo(0, h - 34);
+        for (let gx = 0; gx <= w + 30; gx += 26) {
+          ctx.lineTo(gx, h - 52);
+          ctx.lineTo(gx + 16, h - 70);
+          ctx.lineTo(gx + 16, h - 52);
+        }
+        ctx.lineTo(w, h - 34);
+        ctx.fill();
+
+        // Factory Glowing Arched Windows
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
+        for (let wx = 12; wx < w; wx += 26) {
+          ctx.fillRect(wx, h - 48, 5, 8);
+        }
+
+        // Copper Conduit Pipe & Rotating Cog
+        ctx.fillStyle = '#7c2d12';
+        ctx.fillRect(0, h - 42, w, 4);
+        ctx.fillStyle = '#c2410c';
+        ctx.fillRect(0, h - 41, w, 1.5);
       } else {
         // Quantum Space Shards (Travel)
         for (let i = 0; i < 6; i++) {
@@ -757,6 +1054,10 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platBaseColor = '#0f172a';
         platTrimColor = '#38bdf8';
         platHighlight = '#ffffff';
+      } else if (zone === 'steampunk') {
+        platBaseColor = '#1c1208';
+        platTrimColor = '#b45309';
+        platHighlight = '#fbbf24';
       }
 
       // Draw Main Ground Block
@@ -801,6 +1102,21 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         for (let gx = 8; gx < w; gx += 16) {
           ctx.fillRect(gx, groundY - 3, 3, 3);
           ctx.fillRect(gx + 2, groundY - 5, 2, 5);
+        }
+      } else if (zone === 'steampunk') {
+        // Golden Rivets & Steam Vents
+        ctx.fillStyle = '#fbbf24';
+        for (let rx = 10; rx < w; rx += 18) {
+          ctx.fillRect(rx, groundY + 8, 2, 2);
+        }
+        ctx.fillStyle = '#180903';
+        for (let vx = 28; vx < w; vx += 44) {
+          ctx.fillRect(vx, groundY + 6, 8, 2);
+          if (Math.sin(tick * 0.1 + vx) > 0.4) {
+            ctx.fillStyle = 'rgba(255, 247, 237, 0.45)';
+            ctx.fillRect(vx + 2, groundY - 2, 4, 3);
+            ctx.fillStyle = '#180903';
+          }
         }
       }
 

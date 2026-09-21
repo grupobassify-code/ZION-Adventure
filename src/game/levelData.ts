@@ -4949,9 +4949,9 @@ export function buildLevel(levelIndex: number) {
     // ¡La caldera se sobrecalienta y una marea de vapor mortal sube desde abajo!
     // Solo plataformas de engranes, tuberías y trampas de puro vapor.
 
-    // Base de la Caldera (Punto de inicio)
+    // Base de la Caldera (Punto de inicio seguro en toda la amplitud)
     platforms.push(
-      { x: 180, y: 148, w: 840, h: 40, kind: 'steampunk_brass' }
+      { x: 0, y: 148, w: 1200, h: 40, kind: 'steampunk_brass' }
     );
 
     // Paredes del tiro de la chimenea vertical gigante para saltos de pared y contención
@@ -5160,8 +5160,8 @@ export function buildLevel(levelIndex: number) {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(
       { x: 0, y: 148, w: 1200, h: 32, kind: 'ground' },
-      { x: 300, y: 110, w: 120, h: 12, kind: 'wood' },
-      { x: 600, y: 80, w: 120, h: 12, kind: 'wood' }
+      { x: 300, y: 110, w: 120, h: 12, kind: 'ledge' },
+      { x: 600, y: 80, w: 120, h: 12, kind: 'ledge' }
     );
     goal = { x: 900, y: 88, w: 36, h: 62 };
   }
