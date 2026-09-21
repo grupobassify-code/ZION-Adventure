@@ -339,6 +339,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       className={`fixed inset-0 w-full h-full min-h-[100dvh] z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none ${
         view === 'title'
           ? 'overflow-y-auto sm:overflow-hidden px-3 py-2 sm:px-6 sm:py-4'
+          : view === 'slots'
+          ? 'overflow-y-auto overflow-x-hidden p-1.5 sm:px-4 sm:py-3'
           : 'overflow-y-auto overflow-x-hidden px-2 py-2.5 sm:p-6'
       }`}
     >
@@ -372,10 +374,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
         {/* Global Action Toggles */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Header language selector only when not in title screen (title screen has big chips) */}
-          {view !== 'title' && (
-            <LanguageSelector variant="compact" />
-          )}
+          {/* Header language selector always available across all views */}
+          <LanguageSelector variant="compact" />
 
           <button
             onClick={() => {
@@ -478,7 +478,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md active:scale-95 min-h-[40px] cursor-pointer"
                 >
                   <Trophy className="w-4 h-4 text-amber-400 shrink-0 fill-amber-400/30" />
-                  <span>LOGROS</span>
+                  <span>{t('achievements')}</span>
                 </button>
               )}
 
@@ -498,13 +498,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
           {/* Compact Feature Highlights Ribbon */}
           <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
-            <span>8 ERAS DIMENSIONALES</span>
+            <span>{t('ribbonEras')}</span>
             <span className="text-slate-600">·</span>
-            <span>22 NIVELES</span>
+            <span>{t('ribbonLevels')}</span>
             <span className="text-slate-600">·</span>
-            <span>JEFES ÉPICOS</span>
+            <span>{t('ribbonBosses')}</span>
             <span className="text-slate-600">·</span>
-            <span>3 PARTIDAS</span>
+            <span>{t('ribbonSlots')}</span>
           </div>
 
           {/* Quick Legal & Privacy Trust Bar */}
@@ -535,30 +535,31 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </main>
       )}
 
-      {/* VIEW 2: SAVE SLOTS SCREEN (Máximo 3 Partidas) */}
+      {/* VIEW 2: SAVE SLOTS SCREEN (Máximo 3 Partidas - Optimizado para abarcar toda la pantalla en celular) */}
       {view === 'slots' && (
-        <main className="relative z-10 w-full max-w-4xl flex flex-col items-center my-auto py-4">
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-2">
-              <Layers className="w-3.5 h-3.5" />
+        <main className="relative z-10 w-full max-w-6xl flex-1 flex flex-col justify-between py-1 sm:py-3 px-1 sm:px-2">
+          {/* Responsive Sleek Header */}
+          <div className="text-center mb-1.5 sm:mb-3">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-[10px] sm:text-xs font-mono font-bold mb-1">
+              <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               {t('slotsBadge')}
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black text-white font-heading tracking-wide">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white font-heading tracking-wide">
               {t('slotsTitle')}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md mx-auto">
+            <p className="text-[11px] sm:text-xs md:text-sm text-slate-400 mt-0.5 max-w-lg mx-auto hidden xs:block">
               {t('slotsDesc')}
             </p>
           </div>
 
-          {/* 3 Slots Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+          {/* 3 Slots Grid: Spans full width on mobile portrait and 3 equal columns on mobile landscape / desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 w-full flex-1 my-1 sm:my-2 items-stretch">
             {[0, 1, 2].map((slotIdx) => {
               const slot = slots[slotIdx];
               return (
                 <div
                   key={slotIdx}
-                  className={`relative flex flex-col justify-between p-5 rounded-2xl border-2 transition-all shadow-xl ${
+                  className={`relative flex flex-col justify-between p-3 sm:p-5 rounded-2xl border-2 transition-all shadow-xl flex-1 min-h-[140px] ${
                     slot
                       ? 'bg-slate-900/90 border-cyan-500/40 hover:border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]'
                       : 'bg-slate-950/60 border-dashed border-slate-700/80 hover:border-cyan-500/50'
@@ -568,52 +569,63 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     <>
                       {/* Slot Header */}
                       <div>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold">
-                            {t('slotPrefix')} {slotIdx + 1}
-                          </span>
+                        <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 text-[10px] sm:text-xs font-mono font-black">
+                              {t('slotPrefix')} {slotIdx + 1}
+                            </span>
+                            <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 font-bold">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              {language === 'es' ? 'ACTIVA' : 'ACTIVE'}
+                            </span>
+                          </div>
                           <button
-                            onClick={() => setDeleteConfirmModal({ open: true, slotId: slotIdx })}
-                            className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 hover:text-red-200 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConfirmModal({ open: true, slotId: slotIdx });
+                            }}
+                            className="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 hover:text-red-200 transition-colors cursor-pointer"
                             title={t('deleteSaveTooltip')}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
-                        <h3 className="text-lg font-black text-white font-heading truncate">
+                        <h3 className="text-base sm:text-lg md:text-xl font-black text-white font-heading truncate">
                           {slot.name}
                         </h3>
 
                         {/* Progression Stats */}
-                        <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800 text-xs">
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-slate-800 text-[11px] sm:text-xs">
                           <div className="flex items-center gap-1.5 text-slate-300">
-                            <Unlock className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>{t('levelsRatio', { unlocked: slot.unlockedLevels.length, total: LEVEL_CONFIGS.length })}</span>
+                            <Unlock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span className="truncate">{t('levelsRatio', { unlocked: slot.unlockedLevels.length, total: LEVEL_CONFIGS.length })}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-slate-300">
-                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                            <span>{t('crystalsCount', { count: slot.totalCrystals })}</span>
+                            <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                            <span className="truncate">{t('crystalsCount', { count: slot.totalCrystals })}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-slate-300">
-                            <Award className="w-3.5 h-3.5 text-amber-400" />
-                            <span>{t('secretsCount', { count: slot.totalSecrets })}</span>
+                            <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span className="truncate">{t('secretsCount', { count: slot.totalSecrets })}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-slate-300">
-                            <Star className="w-3.5 h-3.5 text-purple-400" />
-                            <span>{t('scorePoints', { score: slot.totalScore.toLocaleString() })}</span>
+                            <Star className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                            <span className="truncate">{t('scorePoints', { score: slot.totalScore.toLocaleString() })}</span>
                           </div>
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="mt-3">
+                        <div className="mt-2 sm:mt-3">
                           <div className="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
                             <span>{t('totalProgress')}</span>
-                            <span>{Math.min(100, Math.round((slot.completedLevels.length / LEVEL_CONFIGS.length) * 100))}%</span>
+                            <span className="text-cyan-400 font-bold">
+                              {Math.min(100, Math.round((slot.completedLevels.length / LEVEL_CONFIGS.length) * 100))}%
+                            </span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="w-full h-1.5 sm:h-2 rounded-full bg-slate-800 overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full"
+                              className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-all duration-500"
                               style={{ width: `${Math.min(100, (slot.completedLevels.length / LEVEL_CONFIGS.length) * 100)}%` }}
                             />
                           </div>
@@ -623,7 +635,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                       {/* Slot Launch Button */}
                       <button
                         onClick={() => handleSelectSlotAndProceed(slotIdx)}
-                        className="mt-5 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all"
+                        className="mt-3 sm:mt-4 w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all cursor-pointer min-h-[44px]"
                       >
                         <span>{t('levelPortalBtn')}</span>
                         <ChevronRight className="w-4 h-4" />
@@ -631,23 +643,37 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                     </>
                   ) : (
                     /* Empty Slot Prompt */
-                    <div className="flex flex-col items-center justify-center text-center my-auto py-8">
-                      <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-500 mb-3">
-                        <Plus className="w-6 h-6" />
+                    <div className="flex flex-col justify-between h-full text-center group">
+                      <div className="flex items-center justify-between w-full mb-1 sm:mb-2">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] sm:text-xs font-mono font-bold">
+                          {t('slotPrefix')} {slotIdx + 1}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                          {language === 'es' ? 'VACÍA' : 'EMPTY'}
+                        </span>
                       </div>
-                      <h4 className="text-base font-bold text-slate-300">{t('emptySlotTitle', { num: slotIdx + 1 })}</h4>
-                      <p className="text-xs text-slate-500 mt-1 max-w-[180px]">
-                        {t('emptySlotDesc')}
-                      </p>
+
+                      <div className="my-auto flex flex-col items-center py-2 sm:py-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-500 group-hover:text-cyan-400 group-hover:border-cyan-500/40 transition-colors mb-2 shadow-inner">
+                          <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </div>
+                        <h4 className="text-sm sm:text-base font-bold text-slate-300 font-heading">
+                          {t('emptySlotTitle', { num: slotIdx + 1 })}
+                        </h4>
+                        <p className="text-[11px] sm:text-xs text-slate-500 mt-1 max-w-[220px]">
+                          {t('emptySlotDesc')}
+                        </p>
+                      </div>
+
                       <button
                         onClick={() =>
                           setNewSlotModal({
                             open: true,
                             slotId: slotIdx,
-                            name: `Aventurero ${slotIdx + 1}`,
+                            name: language === 'es' ? `Aventurero ${slotIdx + 1}` : `Adventurer ${slotIdx + 1}`,
                           })
                         }
-                        className="mt-4 flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-xs transition-all active:scale-95"
+                        className="mt-3 sm:mt-4 w-full flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-bold text-xs sm:text-sm tracking-wide transition-all active:scale-95 shadow-md cursor-pointer min-h-[44px]"
                       >
                         <Plus className="w-4 h-4" />
                         <span>{t('createSaveBtn')}</span>
@@ -660,15 +686,15 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           </div>
 
           {/* Slots Screen Footer Info & Reset Option */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full mt-6 pt-4 border-t border-slate-800 text-xs text-slate-400">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-3 w-full mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-800/80 text-[11px] sm:text-xs text-slate-400">
+            <div className="flex items-center gap-2 text-center sm:text-left">
               <span className="text-emerald-400 font-mono font-bold">{t('deviceLabel')}</span>
               <span>{t('deviceSaveNotice')}</span>
             </div>
 
             <button
               onClick={() => setResetAllConfirmModal(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 hover:text-red-100 font-semibold text-xs transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 hover:text-red-100 font-semibold text-[11px] sm:text-xs transition-all active:scale-95 cursor-pointer"
               title={t('resetAllDataBtn')}
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -703,7 +729,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 px-3 py-1.5 rounded-xl border border-amber-500/50 hover:border-amber-400 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                 >
                   <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                  <span>LOGROS</span>
+                  <span>{t('achievements')}</span>
                 </button>
               )}
 
@@ -1473,7 +1499,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 px-3 py-1.5 rounded-xl border border-amber-500/50 hover:border-amber-400 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                 >
                   <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                  <span>LOGROS</span>
+                  <span>{t('achievements')}</span>
                 </button>
               )}
               <button

@@ -4,33 +4,49 @@ export type Language = 'es' | 'en';
 
 const LANGUAGE_STORAGE_KEY = 'zion_adventure_language';
 
+// In-memory language fallback to ensure instant switching even in sandboxed iframes or private browsing
+let inMemoryLanguage: Language | null = null;
+
 // Event emitter to notify components when language changes
 const listeners = new Set<(lang: Language) => void>();
 
 export function getSavedLanguage(): Language {
+  if (inMemoryLanguage) {
+    return inMemoryLanguage;
+  }
   if (typeof window === 'undefined') return 'es';
   try {
     const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (saved === 'es' || saved === 'en') {
+      inMemoryLanguage = saved;
       return saved;
     }
     // Auto-detect browser language if not set
     if (navigator.language && navigator.language.toLowerCase().startsWith('en')) {
+      inMemoryLanguage = 'en';
       return 'en';
     }
   } catch (e) {
-    console.error('Error reading saved language:', e);
+    console.warn('Could not read saved language, falling back to default:', e);
   }
+  inMemoryLanguage = 'es';
   return 'es';
 }
 
 export function setSavedLanguage(lang: Language) {
+  inMemoryLanguage = lang;
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
   } catch (e) {
-    console.error('Error saving language:', e);
+    console.warn('Could not persist language to localStorage:', e);
   }
-  listeners.forEach((fn) => fn(lang));
+  listeners.forEach((fn) => {
+    try {
+      fn(lang);
+    } catch (err) {
+      console.error('Error in language listener:', err);
+    }
+  });
 }
 
 export function toggleLanguage(): Language {
@@ -101,6 +117,11 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     online1v1: 'ONLINE 1v1',
     onlineInDev: 'Modo Online 1v1 en desarrollo',
     credits: 'CRÉDITOS',
+    achievements: 'LOGROS',
+    ribbonEras: '8 ERAS DIMENSIONALES',
+    ribbonLevels: '22 NIVELES',
+    ribbonBosses: 'JEFES ÉPICOS',
+    ribbonSlots: '3 PARTIDAS',
     privacyPolicy: 'Política de Privacidad',
     googleDocsLink: 'Google Docs',
     sevenZones: '7 ZONAS',
@@ -338,6 +359,11 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     online1v1: 'ONLINE 1v1',
     onlineInDev: 'Online 1v1 mode currently in development',
     credits: 'CREDITS',
+    achievements: 'ACHIEVEMENTS',
+    ribbonEras: '8 DIMENSIONAL ERAS',
+    ribbonLevels: '22 LEVELS',
+    ribbonBosses: 'EPIC BOSSES',
+    ribbonSlots: '3 SLOTS',
     privacyPolicy: 'Privacy Policy',
     googleDocsLink: 'Google Docs',
     sevenZones: '7 ZONES',
