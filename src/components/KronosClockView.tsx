@@ -20,6 +20,10 @@ import {
   AlertCircle,
   HelpCircle,
   Gem,
+  Snowflake,
+  Gauge,
+  Compass,
+  Moon,
 } from 'lucide-react';
 import {
   SaveSlot,
@@ -33,6 +37,7 @@ import {
   placeAllAvailableKronosPieces,
   isKronosClockCompleted,
   isKronosLockerUnlocked,
+  unlockAllKronosBossesForDemo,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 
@@ -109,7 +114,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
       setPlacedPieces([...updatedSlot.kronosPiecesPlaced]);
       onRefreshSlot();
 
-      // If this was the 5th and final piece, start the epic cinematic!
+      // If all 12 pieces are placed, start the epic cinematic!
       if (updatedSlot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
         triggerReassemblyCinematic();
       }
@@ -127,6 +132,53 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
       if (updatedSlot.kronosPiecesPlaced && updatedSlot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
         triggerReassemblyCinematic();
       }
+    }
+  };
+
+  const handleUnlockAllDemo = () => {
+    if (!slot) return;
+    const updatedSlot = unlockAllKronosBossesForDemo(slot.id);
+    if (updatedSlot) {
+      sound.playSfx('secret');
+      onRefreshSlot();
+      const { slot: finalSlot } = placeAllAvailableKronosPieces(slot.id);
+      if (finalSlot) {
+        setPlacedPieces([...(finalSlot.kronosPiecesPlaced || [])]);
+        onRefreshSlot();
+        triggerReassemblyCinematic();
+      }
+    }
+  };
+
+  // Helper to render piece icon
+  const renderPieceIcon = (pieceId: string, className: string = 'w-5 h-5') => {
+    switch (pieceId) {
+      case 'neon':
+        return <Sun className={className} />;
+      case 'sakura':
+        return <Sparkles className={className} />;
+      case 'lavacliff':
+        return <Flame className={className} />;
+      case 'desert':
+        return <Clock className={className} />;
+      case 'krono':
+        return <Zap className={className} />;
+      case 'jungle':
+        return <Gem className={className} />;
+      case 'blizzard':
+        return <Snowflake className={className} />;
+      case 'steampunk':
+        return <Gauge className={className} />;
+      case 'castlesmash':
+        return <Shield className={className} />;
+      case 'piratestreasure':
+        return <Compass className={className} />;
+      case 'jurasicdraft':
+        return <Flame className={className} />;
+      case 'themoon':
+        return <Moon className={className} />;
+      default:
+        return <Sparkles className={className} />;
     }
   };
 
@@ -171,18 +223,18 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
-                  MECANISMO CUÁNTICO
+                  NEXO DIMENSIONAL KRONOS
                 </span>
-                <span className={`px-1.5 py-0.2 rounded font-mono text-[9px] sm:text-[10px] font-bold border ${
+                <span className={`px-2 py-0.5 rounded-full font-mono text-[9px] sm:text-[10px] font-bold border ${
                   isCompleted
                     ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                     : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                 }`}>
-                  {isCompleted ? '✓ 100% RECONSTRUIDO' : `FRACTURADO [${placedPieces.length}/${KRONOS_PIECES.length}]`}
+                  {isCompleted ? '✓ PORTAL RESTAURADO (12/12)' : `FRACTURADO [${placedPieces.length}/12 PIEZAS]`}
                 </span>
               </div>
               <h1 className="text-base sm:text-2xl font-black text-white font-heading tracking-wide">
-                EL GRAN RELOJ DE KRONOS
+                EL PORTAL & RELOJ DE KRONOS
               </h1>
             </div>
           </div>
@@ -190,6 +242,18 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
 
         {/* Action Header Links */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {!isCompleted && (
+            <button
+              id="unlock-all-demo-clock-btn"
+              onClick={handleUnlockAllDemo}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-[10px] sm:text-xs font-mono font-bold transition-all shadow-md active:scale-95"
+              title="Probar las 12 piezas y cinemática de apertura"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Probar 12/12 (Demo)</span>
+            </button>
+          )}
+
           {isLockerUnlocked ? (
             <button
               id="open-locker-from-clock-btn"
@@ -205,7 +269,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
           ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] sm:text-[11px] font-mono text-slate-400">
               <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>Casillero bloqueado (Arma el reloj)</span>
+              <span>Casillero Bloqueado ({placedPieces.length}/12 piezas)</span>
             </div>
           )}
         </div>
@@ -231,8 +295,8 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-xs font-mono text-cyan-300">
                 {isCompleted
-                  ? '⚡ FLUJO TEMPORAL ACTIVADO'
-                  : '⚠️ MECANISMO ENGRANAJES DESTROZADO'}
+                  ? '⚡ PORTAL DIMENSIONAL: 12 PIEZAS SINCRONIZADAS'
+                  : '⚠️ PORTAL FRACTURADO — 12 PIEZAS REQUERIDAS'}
               </span>
             </div>
 
@@ -249,7 +313,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
             </div>
           </div>
 
-          {/* THE BIG CLOCK SVG VISUALIZATION */}
+          {/* THE BIG CLOCK SVG VISUALIZATION (12 PIECES) */}
           <div className="relative my-4 flex items-center justify-center">
             {/* Pulsing Energy Shockwave when cinematic is running */}
             {isCinematicRunning && (
@@ -276,14 +340,6 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                   <stop offset="100%" stopColor="#0f172a" />
                 </radialGradient>
 
-                {/* Gold Bronze Rim Gradient */}
-                <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f59e0b" />
-                  <stop offset="45%" stopColor="#78350f" />
-                  <stop offset="70%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#1e293b" />
-                </linearGradient>
-
                 {/* Neon Cyan Rim Gradient */}
                 <linearGradient id="neonRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#38bdf8" />
@@ -292,7 +348,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 </linearGradient>
               </defs>
 
-              {/* Outer Gear Teeth Ring */}
+              {/* Outer Gear Teeth Ring (24 Teeth) */}
               <g
                 className="transition-transform"
                 style={{
@@ -339,23 +395,26 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 strokeWidth="3"
               />
 
-              {/* Roman Numerals on Dial */}
+              {/* 12 Roman Numerals on Outer Ring */}
               {['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'].map(
                 (num, i) => {
-                  const angle = (i * 30 - 90) * (Math.PI / 180);
-                  const x = 200 + 138 * Math.cos(angle);
-                  const y = 200 + 138 * Math.sin(angle) + 5;
+                  const angle = ((i * 30 - 90) * Math.PI) / 180;
+                  const x = 200 + 154 * Math.cos(angle);
+                  const y = 200 + 154 * Math.sin(angle) + 4;
+                  const piece = KRONOS_PIECES[i];
+                  const isPlaced = piece && placedPieces.includes(piece.id);
+
                   return (
                     <text
                       key={num}
                       x={x}
                       y={y}
                       textAnchor="middle"
-                      fill={isCompleted ? '#e2e8f0' : '#64748b'}
-                      fontSize="14"
+                      fill={isPlaced ? '#38bdf8' : '#64748b'}
+                      fontSize="10"
                       fontWeight="bold"
                       fontFamily="monospace"
-                      opacity={isCompleted ? 0.9 : 0.4}
+                      opacity={isPlaced ? 0.95 : 0.45}
                     >
                       {num}
                     </text>
@@ -363,285 +422,146 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 }
               )}
 
-              {/* ENERGY CONDUIT CHANNELS (Connecting placed outer nodes to central core) */}
-              <g>
-                {placedPieces.includes('neon') && (
-                  <g>
-                    <line x1="200" y1="80" x2="200" y2="150" stroke="#22d3ee" strokeWidth="3" opacity="0.9" />
-                    <circle cx="200" cy="115" r="2.5" fill="#a5f3fc" />
+              {/* 12 ANCESTRAL PIECES & SECTORS */}
+              {KRONOS_PIECES.map((piece, i) => {
+                const isOwned = hasKronosPiece(slot, piece.id);
+                const isPlaced = placedPieces.includes(piece.id);
+                const isReadyToPlace = isOwned && !isPlaced;
+                const isSelected = selectedPieceInfo?.id === piece.id;
+
+                // 12 angles around clock (i=0 is top 12 o'clock = -90 deg)
+                const angleDeg = i * 30 - 90;
+                const angleRad = (angleDeg * Math.PI) / 180;
+                const radius = 122;
+                const px = 200 + radius * Math.cos(angleRad);
+                const py = 200 + radius * Math.sin(angleRad);
+
+                // Sector wedge
+                const startAngle = ((i * 30 - 14 - 90) * Math.PI) / 180;
+                const endAngle = ((i * 30 + 14 - 90) * Math.PI) / 180;
+                const wedgeRadius = 144;
+                const innerWedgeRadius = 56;
+                const x1 = 200 + wedgeRadius * Math.cos(startAngle);
+                const y1 = 200 + wedgeRadius * Math.sin(startAngle);
+                const x2 = 200 + wedgeRadius * Math.cos(endAngle);
+                const y2 = 200 + wedgeRadius * Math.sin(endAngle);
+                const ix1 = 200 + innerWedgeRadius * Math.cos(startAngle);
+                const iy1 = 200 + innerWedgeRadius * Math.sin(startAngle);
+                const ix2 = 200 + innerWedgeRadius * Math.cos(endAngle);
+                const iy2 = 200 + innerWedgeRadius * Math.sin(endAngle);
+
+                const sectorPath = `M ${ix1} ${iy1} L ${x1} ${y1} A ${wedgeRadius} ${wedgeRadius} 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A ${innerWedgeRadius} ${innerWedgeRadius} 0 0 0 ${ix1} ${iy1} Z`;
+
+                return (
+                  <g
+                    key={piece.id}
+                    id={`portal-svg-piece-${piece.id}`}
+                    className="cursor-pointer transition-transform hover:scale-105"
+                    opacity={isPlaced ? 1 : isOwned ? 0.95 : piece.isComingSoon ? 0.45 : 0.35}
+                    onClick={() => {
+                      if (isReadyToPlace) {
+                        handlePlacePiece(piece.id);
+                      } else {
+                        sound.playSfx('menuSelect');
+                        setSelectedPieceInfo(piece);
+                      }
+                    }}
+                  >
+                    {/* Sector Glow */}
+                    <path
+                      d={sectorPath}
+                      fill={isPlaced ? `${piece.color}25` : isOwned ? `${piece.color}15` : 'rgba(30, 41, 59, 0.08)'}
+                      stroke={isPlaced ? `${piece.color}55` : isSelected ? piece.color : 'rgba(71, 85, 105, 0.2)'}
+                      strokeWidth={isSelected ? 1.5 : 0.5}
+                    />
+
+                    {/* Energy Conduit to Center */}
+                    {isPlaced && (
+                      <line
+                        x1={px}
+                        y1={py}
+                        x2={200}
+                        y2={200}
+                        stroke={piece.color}
+                        strokeWidth="2.5"
+                        opacity="0.85"
+                        strokeDasharray={isCompleted ? 'none' : '4 2'}
+                      />
+                    )}
+
+                    {/* Ready to place spinning guide ring */}
+                    {isReadyToPlace && (
+                      <circle
+                        cx={px}
+                        cy={py}
+                        r="18"
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth="2"
+                        strokeDasharray="3 3"
+                        className="animate-spin"
+                        style={{ transformOrigin: `${px}px ${py}px` }}
+                      />
+                    )}
+
+                    {/* Piece Node Circle */}
+                    <circle
+                      cx={px}
+                      cy={py}
+                      r={isSelected ? 16 : 13.5}
+                      fill={isPlaced ? piece.color : isOwned ? `${piece.color}88` : '#0f172a'}
+                      stroke={isReadyToPlace ? '#facc15' : isSelected ? '#ffffff' : isPlaced ? piece.accentColor : '#475569'}
+                      strokeWidth={isReadyToPlace ? 3 : isSelected ? 2.5 : isPlaced ? 2 : 1.5}
+                      className={isReadyToPlace ? 'animate-pulse' : ''}
+                      filter={isPlaced ? `drop-shadow(0 0 6px ${piece.color})` : undefined}
+                    />
+
+                    {/* Node Index Marker */}
+                    <text
+                      x={px}
+                      y={py + 3.5}
+                      textAnchor="middle"
+                      fontSize="9"
+                      fontWeight="bold"
+                      fontFamily="monospace"
+                      fill={isPlaced ? '#050814' : isReadyToPlace ? '#facc15' : '#94a3b8'}
+                    >
+                      {i + 1}
+                    </text>
                   </g>
-                )}
-                {placedPieces.includes('sakura') && (
-                  <g>
-                    <line x1="315" y1="165" x2="245" y2="190" stroke="#f472b6" strokeWidth="3" opacity="0.9" />
-                    <circle cx="280" cy="177" r="2.5" fill="#fbcfe8" />
-                  </g>
-                )}
-                {placedPieces.includes('lavacliff') && (
-                  <g>
-                    <line x1="268" y1="295" x2="230" y2="235" stroke="#f97316" strokeWidth="3" opacity="0.9" />
-                    <circle cx="249" cy="265" r="2.5" fill="#fed7aa" />
-                  </g>
-                )}
-                {placedPieces.includes('desert') && (
-                  <g>
-                    <line x1="132" y1="295" x2="170" y2="235" stroke="#f59e0b" strokeWidth="3" opacity="0.9" />
-                    <circle cx="151" cy="265" r="2.5" fill="#fde68a" />
-                  </g>
-                )}
-                {placedPieces.includes('jungle') && (
-                  <g>
-                    <line x1="85" y1="165" x2="155" y2="190" stroke="#10b981" strokeWidth="3" opacity="0.9" />
-                    <circle cx="120" cy="177" r="2.5" fill="#6ee7b7" />
-                  </g>
-                )}
+                );
+              })}
+
+              {/* CENTER QUANTUM CORE (Singularity of the Portal) */}
+              <g
+                className="cursor-pointer transition-transform hover:scale-105"
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  const p = KRONOS_PIECES.find((item) => item.id === 'krono');
+                  if (p) setSelectedPieceInfo(p);
+                }}
+              >
+                <circle
+                  cx="200"
+                  cy="200"
+                  r={isCompleted ? 48 : 42}
+                  fill="url(#coreVortex)"
+                  stroke={isCompleted ? '#38bdf8' : '#a855f7'}
+                  strokeWidth={isCompleted ? 4 : 2.5}
+                  className={isCompleted ? 'animate-pulse' : ''}
+                  filter={isCompleted ? 'drop-shadow(0 0 15px rgba(56,189,248,0.9))' : undefined}
+                />
+                <Zap
+                  x="188"
+                  y="188"
+                  width="24"
+                  height="24"
+                  color={isCompleted ? '#38bdf8' : '#e2e8f0'}
+                  className={isCompleted ? 'animate-bounce' : ''}
+                />
               </g>
 
-              {/* 6 ANCESTRAL PIECES & SECTORS */}
-
-              {/* 1. NEON PIECE (Top, 12 o'clock - x:200, y:65) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'neon');
-                const isPlaced = placedPieces.includes('neon');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('neon');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'neon');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    <path
-                      d="M 200 200 L 160 48 A 160 160 0 0 1 240 48 Z"
-                      fill={isPlaced ? 'rgba(34, 211, 238, 0.18)' : 'rgba(34, 211, 238, 0.05)'}
-                    />
-                    {isReadyToPlace && (
-                      <circle cx="200" cy="65" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '200px 65px' }} />
-                    )}
-                    <circle
-                      cx="200"
-                      cy="65"
-                      r={selectedPieceInfo?.id === 'neon' ? '18' : '15'}
-                      fill={isPlaced ? '#0891b2' : isOwned ? '#164e63' : '#1e293b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'neon' ? '#38bdf8' : isPlaced ? '#22d3ee' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'neon' ? '3' : '2'}
-                      className={isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Sun x="192" y="57" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* 2. SAKURA PIECE (Top-Right, 72° - x:328, y:158) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'sakura');
-                const isPlaced = placedPieces.includes('sakura');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('sakura');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'sakura');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    <path
-                      d="M 200 200 L 330 115 A 160 160 0 0 1 350 200 Z"
-                      fill={isPlaced ? 'rgba(244, 114, 182, 0.18)' : 'rgba(244, 114, 182, 0.05)'}
-                    />
-                    {isReadyToPlace && (
-                      <circle cx="328" cy="158" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '328px 158px' }} />
-                    )}
-                    <circle
-                      cx="328"
-                      cy="158"
-                      r={selectedPieceInfo?.id === 'sakura' ? '18' : '15'}
-                      fill={isPlaced ? '#db2777' : isOwned ? '#831843' : '#1e293b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'sakura' ? '#f472b6' : isPlaced ? '#f472b6' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'sakura' ? '3' : '2'}
-                      className={isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Sparkles x="320" y="150" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* 3. LAVACLIFF PIECE (Bottom-Right, 144° - x:279, y:309) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'lavacliff');
-                const isPlaced = placedPieces.includes('lavacliff');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('lavacliff');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'lavacliff');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    <path
-                      d="M 200 200 L 330 250 A 160 160 0 0 1 225 358 Z"
-                      fill={isPlaced ? 'rgba(249, 115, 22, 0.18)' : 'rgba(249, 115, 22, 0.05)'}
-                    />
-                    {isReadyToPlace && (
-                      <circle cx="279" cy="309" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '279px 309px' }} />
-                    )}
-                    <circle
-                      cx="279"
-                      cy="309"
-                      r={selectedPieceInfo?.id === 'lavacliff' ? '18' : '15'}
-                      fill={isPlaced ? '#c2410c' : isOwned ? '#7c2d12' : '#1e293b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'lavacliff' ? '#fb923c' : isPlaced ? '#f97316' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'lavacliff' ? '3' : '2'}
-                      className={isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Flame x="271" y="301" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* 4. DESERT PIECE (Bottom-Left, 216° - x:121, y:309) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'desert');
-                const isPlaced = placedPieces.includes('desert');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('desert');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'desert');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    <path
-                      d="M 200 200 L 175 358 A 160 160 0 0 1 70 250 Z"
-                      fill={isPlaced ? 'rgba(245, 158, 11, 0.18)' : 'rgba(245, 158, 11, 0.05)'}
-                    />
-                    {isReadyToPlace && (
-                      <circle cx="121" cy="309" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '121px 309px' }} />
-                    )}
-                    <circle
-                      cx="121"
-                      cy="309"
-                      r={selectedPieceInfo?.id === 'desert' ? '18' : '15'}
-                      fill={isPlaced ? '#b45309' : isOwned ? '#78350f' : '#1e293b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'desert' ? '#fbbf24' : isPlaced ? '#f59e0b' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'desert' ? '3' : '2'}
-                      className={isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Clock x="113" y="301" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* 5. JUNGLE RUN MAYA PIECE (Top-Left, 288° - x:72, y:158) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'jungle');
-                const isPlaced = placedPieces.includes('jungle');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    opacity={isPlaced ? 1 : isOwned ? 0.9 : 0.3}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('jungle');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'jungle');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    <path
-                      d="M 200 200 L 50 200 A 160 160 0 0 1 70 115 Z"
-                      fill={isPlaced ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.05)'}
-                    />
-                    {isReadyToPlace && (
-                      <circle cx="72" cy="158" r="22" fill="none" stroke="#facc15" strokeWidth="2" strokeDasharray="3 3" className="animate-spin" style={{ transformOrigin: '72px 158px' }} />
-                    )}
-                    <circle
-                      cx="72"
-                      cy="158"
-                      r={selectedPieceInfo?.id === 'jungle' ? '18' : '15'}
-                      fill={isPlaced ? '#059669' : isOwned ? '#064e3b' : '#1e293b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'jungle' ? '#34d399' : isPlaced ? '#10b981' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '3' : selectedPieceInfo?.id === 'jungle' ? '3' : '2'}
-                      className={isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Gem x="64" y="150" width="16" height="16" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* 6. KRONO CITY PIECE (Center Quantum Core - x:200, y:200) */}
-              {(() => {
-                const isOwned = hasKronosPiece(slot, 'krono');
-                const isPlaced = placedPieces.includes('krono');
-                const isReadyToPlace = isOwned && !isPlaced;
-
-                return (
-                  <g
-                    className="cursor-pointer transition-transform hover:scale-105"
-                    opacity={isPlaced ? 1 : isOwned ? 0.95 : 0.35}
-                    onClick={() => {
-                      if (isReadyToPlace) {
-                        handlePlacePiece('krono');
-                      } else {
-                        sound.playSfx('menuSelect');
-                        const p = KRONOS_PIECES.find((item) => item.id === 'krono');
-                        if (p) setSelectedPieceInfo(p);
-                      }
-                    }}
-                  >
-                    {isReadyToPlace && (
-                      <circle cx="200" cy="200" r="58" fill="none" stroke="#facc15" strokeWidth="2.5" strokeDasharray="5 5" className="animate-spin" style={{ transformOrigin: '200px 200px' }} />
-                    )}
-                    <circle
-                      cx="200"
-                      cy="200"
-                      r="52"
-                      fill={isPlaced ? 'url(#coreVortex)' : '#1e1b4b'}
-                      stroke={isReadyToPlace ? '#facc15' : selectedPieceInfo?.id === 'krono' ? '#c084fc' : isPlaced ? '#a855f7' : '#475569'}
-                      strokeWidth={isReadyToPlace ? '4' : selectedPieceInfo?.id === 'krono' ? '4' : '3'}
-                      className={isPlaced ? 'animate-pulse' : isReadyToPlace ? 'animate-pulse' : ''}
-                    />
-                    <Zap x="188" y="188" width="24" height="24" color={isReadyToPlace ? '#facc15' : '#ffffff'} />
-                  </g>
-                );
-              })()}
-
-              {/* FRACTURE CRACKS OVERLAY (Disappears or heals when all 6 pieces are placed) */}
+              {/* FRACTURE CRACKS OVERLAY (Disappears when all 12 pieces are placed) */}
               {!isCompleted && (
                 <g stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" opacity="0.85">
                   <path d="M 200 200 L 170 140 L 140 120 L 120 70" />
@@ -709,7 +629,6 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
               ) : (
                 /* Broken Broken Drooping Hands */
                 <g>
-                  {/* Broken Hour hand tilted downwards */}
                   <line
                     x1="200"
                     y1="200"
@@ -719,7 +638,6 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                     strokeWidth="6"
                     strokeLinecap="round"
                   />
-                  {/* Broken minute hand */}
                   <line
                     x1="200"
                     y1="200"
@@ -739,14 +657,53 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
           <div className="text-center mt-2 z-10 w-full">
             <h3 className="text-base sm:text-lg font-black text-white font-heading">
               {isCompleted
-                ? '¡EL ENGRANAJE DE KRONOS GIRA EN ARMONÍA!'
-                : 'MECANISMO DAÑADO — REQUIERE PIEZAS ANCESTRALES'}
+                ? '¡PORTAL DIMENSIONAL ACTIVADO AL 100%!'
+                : 'PORTAL FRACTURADO — REQUIERE 12 PIEZAS SAGRADAS'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-lg mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl mx-auto leading-relaxed">
               {isCompleted
-                ? `Todas las ${KRONOS_PIECES.length} piezas sagradas (incluyendo la Gema Maya de Jungle Run) han sido ensambladas. El continuo temporal está a salvo.`
-                : `Derrota al jefe del Acto Final de cada una de las ${KRONOS_PIECES.length} zonas para conseguir las piezas sagradas (¡incluyendo a Balam en Jungle Run!).`}
+                ? 'Todas las 12 piezas sagradas han sido ensambladas en el portal de Kronos. El flujo dimensional está completamente estabilizado y el Casillero de Skins está abierto.'
+                : 'Se necesitan las 12 piezas ancestrales (1 por cada una de las 12 zonas del juego) para reactivar el portal y desbloquear el Casillero de Skins. Aunque los jefes de las zonas 9 a 12 aún están en desarrollo, ¡aquí puedes ver las 12 reliquias requeridas para la apertura del Casillero!'}
             </p>
+
+            {/* Explicit Locker Unlock Requirement Callout */}
+            <div className={`mt-3 p-3 rounded-2xl border flex items-center justify-between gap-3 text-left max-w-lg mx-auto ${
+              isLockerUnlocked
+                ? 'bg-emerald-500/10 border-emerald-500/30'
+                : 'bg-amber-500/10 border-amber-500/30'
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <div className={`p-2 rounded-xl shrink-0 ${
+                  isLockerUnlocked ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                }`}>
+                  <Shirt className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black font-heading text-white">
+                    {isLockerUnlocked
+                      ? '🔓 CASILLERO DE PERSONAJES DESBLOQUEADO'
+                      : '🔒 CASILLERO BLOQUEADO — REQUIERE 12 PIEZAS'}
+                  </h4>
+                  <p className="text-[11px] text-slate-300">
+                    {isLockerUnlocked
+                      ? '¡Has restaurado las 12 piezas! Accede al vestidor de atuendos y personaliza a Zion.'
+                      : `Progreso: ${placedPieces.length}/12 piezas colocadas. Al reunir las 12 se desbloqueará el Casillero.`}
+                  </p>
+                </div>
+              </div>
+
+              {isLockerUnlocked && (
+                <button
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenLocker();
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs font-heading shrink-0 shadow-md active:scale-95 transition-all"
+                >
+                  ABRIR
+                </button>
+              )}
+            </div>
 
             {/* Quick action: Place all available pieces */}
             {unplacedAvailable.length > 0 && (
@@ -774,12 +731,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                       color: selectedPieceInfo.color,
                     }}
                   >
-                    {selectedPieceInfo.id === 'neon' && <Sun className="w-5 h-5" />}
-                    {selectedPieceInfo.id === 'sakura' && <Sparkles className="w-5 h-5" />}
-                    {selectedPieceInfo.id === 'lavacliff' && <Flame className="w-5 h-5" />}
-                    {selectedPieceInfo.id === 'desert' && <Clock className="w-5 h-5" />}
-                    {selectedPieceInfo.id === 'jungle' && <Gem className="w-5 h-5" />}
-                    {selectedPieceInfo.id === 'krono' && <Zap className="w-5 h-5" />}
+                    {renderPieceIcon(selectedPieceInfo.id)}
                   </div>
                   <div>
                     <div className="text-[10px] font-mono font-bold uppercase" style={{ color: selectedPieceInfo.color }}>
@@ -793,7 +745,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 <div className="shrink-0 w-full sm:w-auto flex justify-end">
                   {placedPieces.includes(selectedPieceInfo.id) ? (
                     <span className="flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/30">
-                      <CheckCircle2 className="w-4 h-4" /> ENSAMBLADA EN EL RELOJ
+                      <CheckCircle2 className="w-4 h-4" /> ENSAMBLADA EN EL PORTAL
                     </span>
                   ) : hasKronosPiece(slot, selectedPieceInfo.id) ? (
                     <button
@@ -801,8 +753,12 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                       className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs font-heading flex items-center justify-center gap-1.5 shadow-lg shadow-orange-500/25 active:scale-95 transition-all min-h-[44px]"
                     >
                       <Sparkles className="w-4 h-4 fill-slate-950" />
-                      <span>ENCAJAR EN EL RELOJ</span>
+                      <span>ENCAJAR EN EL PORTAL</span>
                     </button>
+                  ) : selectedPieceInfo.isComingSoon ? (
+                    <span className="flex items-center gap-1 text-[11px] font-mono text-purple-300 bg-purple-950/60 px-3 py-1.5 rounded-lg border border-purple-500/40">
+                      <Lock className="w-3.5 h-3.5 text-purple-400" /> Próximamente ({selectedPieceInfo.bossName})
+                    </span>
                   ) : (
                     <span className="flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
                       <Lock className="w-3.5 h-3.5 text-slate-500" /> Derrota a {selectedPieceInfo.bossName}
@@ -814,19 +770,19 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
           </div>
         </div>
 
-        {/* Right Panel: The 6 Pieces Workbench / Inventory (Cols 8-12) */}
+        {/* Right Panel: The 12 Pieces Workbench / Inventory (Cols 8-12) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-black text-white font-heading tracking-wide flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>PIEZAS ANCESTRALES DE KRONOS</span>
+              <span>PIEZAS ANCESTRALES DEL PORTAL</span>
             </h3>
             <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
               {placedPieces.length} / {KRONOS_PIECES.length} Ensambladas
             </span>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5 max-h-[720px] overflow-y-auto pr-1">
             {KRONOS_PIECES.map((piece, index) => {
               const isOwned = hasKronosPiece(slot, piece.id);
               const isPlaced = placedPieces.includes(piece.id);
@@ -836,19 +792,21 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                   key={piece.id}
                   id={`kronos-piece-card-${piece.id}`}
                   onClick={() => setSelectedPieceInfo(piece)}
-                  className={`relative p-4 rounded-2xl border-2 transition-all cursor-pointer select-none overflow-hidden ${
+                  className={`relative p-3.5 rounded-2xl border transition-all cursor-pointer select-none overflow-hidden ${
                     isPlaced
                       ? 'border-emerald-500/50 bg-gradient-to-r from-emerald-950/30 via-slate-900/80 to-slate-950'
                       : isOwned
                       ? 'border-amber-500 bg-gradient-to-r from-amber-950/50 via-slate-900 to-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.25)] hover:border-amber-400'
+                      : piece.isComingSoon
+                      ? 'border-purple-800/40 bg-purple-950/20 opacity-75 hover:opacity-95'
                       : 'border-slate-800/80 bg-slate-950/50 opacity-65 hover:opacity-85'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2.5">
                     <div className="flex items-start gap-3">
                       {/* Piece Icon Badge */}
                       <div
-                        className="p-3 rounded-xl border shrink-0 flex items-center justify-center"
+                        className="p-2.5 rounded-xl border shrink-0 flex items-center justify-center"
                         style={{
                           backgroundColor: isPlaced
                             ? 'rgba(16, 185, 129, 0.15)'
@@ -863,16 +821,11 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                           color: isPlaced ? '#10b981' : isOwned ? piece.color : '#94a3b8',
                         }}
                       >
-                        {piece.id === 'neon' && <Sun className="w-5 h-5" />}
-                        {piece.id === 'sakura' && <Sparkles className="w-5 h-5" />}
-                        {piece.id === 'lavacliff' && <Flame className="w-5 h-5" />}
-                        {piece.id === 'desert' && <Clock className="w-5 h-5" />}
-                        {piece.id === 'jungle' && <Gem className="w-5 h-5" />}
-                        {piece.id === 'krono' && <Zap className="w-5 h-5" />}
+                        {renderPieceIcon(piece.id)}
                       </div>
 
                       <div>
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span
                             className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded uppercase"
                             style={{
@@ -882,7 +835,12 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                           >
                             PIEZA {index + 1}
                           </span>
-                          <h4 className="text-sm sm:text-base font-bold text-white">
+                          {piece.isComingSoon && (
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                              Próximamente
+                            </span>
+                          )}
+                          <h4 className="text-sm font-bold text-white">
                             {piece.name}
                           </h4>
                         </div>
@@ -914,6 +872,10 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                           <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
                           <span>ENCAJAR</span>
                         </button>
+                      ) : piece.isComingSoon ? (
+                        <span className="flex items-center gap-1 text-[10px] font-mono text-purple-300 bg-purple-950/80 px-2 py-1 rounded border border-purple-800/60">
+                          <Lock className="w-3 h-3 text-purple-400" /> EN DESARROLLO
+                        </span>
                       ) : (
                         <span className="flex items-center gap-1 text-[11px] font-mono text-slate-500 bg-slate-900/80 px-2 py-1 rounded border border-slate-800">
                           <Lock className="w-3 h-3" /> BLOQUEADO
@@ -923,7 +885,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                   </div>
 
                   {/* Lore line */}
-                  <p className="text-[11px] text-slate-400 mt-2.5 pt-2 border-t border-slate-800/80 italic">
+                  <p className="text-[11px] text-slate-400 mt-2 pt-1.5 border-t border-slate-800/80 italic">
                     "{piece.lore}"
                   </p>
                 </div>
@@ -946,10 +908,10 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
               RESTAURACIÓN DEL CONTINUO TEMPORAL
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white font-heading mt-1">
-              ¡FELICIDADES, MISIÓN COMPLETADA!
+              ¡FELICIDADES, PORTAL RESTAURADO!
             </h2>
             <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed">
-              El Gran Reloj de Kronos ha vuelto a girar. Con las 6 piezas sagradas restauradas, el flujo del tiempo ancestral vuelve a fluir en sincronía perfecta.
+              El Gran Portal de Kronos ha vuelto a girar. Con las 12 piezas sagradas restauradas, el nexo interdimensional está completamente activo y el flujo del tiempo vuelve a estar en armonía.
             </p>
 
             {/* Reward Box */}
@@ -962,7 +924,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                   ¡HAS DESBLOQUEADO EL CASILLERO DE PERSONAJES!
                 </h4>
                 <p className="text-xs text-slate-300 mt-0.5">
-                  Accede al sistema de skins y casillero estilo Fortnite. Zion está listo para equipar, y nuevas skins exclusivas se añadirán próximamente.
+                  Accede al casillero de skins estilo Fortnite. Zion está listo para equipar sus atuendos especiales y legendarios.
                 </p>
               </div>
             </div>
@@ -986,7 +948,7 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 onClick={() => setShowCompletionModal(false)}
                 className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all"
               >
-                Contemplar el Reloj
+                Contemplar el Portal
               </button>
             </div>
           </div>

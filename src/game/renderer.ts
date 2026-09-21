@@ -1421,12 +1421,62 @@ export class GameRenderer {
         ctx.fillRect(x + 4, 84, 5, 8);
         ctx.fillRect(x + 13, 84, 5, 8);
       }
+    } else if (zone === 'sakura') {
+      // Sacred Sakura Mountain Ridge (Layer 1: Distant Misty Peaks & Mount Fuji)
+      const p1Offset = (cameraX * 0.06) % 220;
+      ctx.fillStyle = isNight ? '#180e2b' : '#5a1d41';
+      ctx.beginPath();
+      ctx.moveTo(0, 118);
+      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 30) {
+        const h = Math.sin(x * 0.025 + cameraX * 0.0006) * 15 + Math.cos(x * 0.04) * 8;
+        ctx.lineTo(x, 74 + h);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Distant Sacred Snow-Capped Mountain Peak (Mount Fuji silhouette)
+      for (let px = -p1Offset - 220; px <= GAME_WIDTH + 220; px += 210) {
+        const fujiX = px + 95;
+        const fujiY = 52;
+        ctx.fillStyle = isNight ? '#26143e' : '#752554';
+        ctx.beginPath();
+        ctx.moveTo(fujiX - 38, 92);
+        ctx.lineTo(fujiX - 8, fujiY);
+        ctx.lineTo(fujiX + 8, fujiY);
+        ctx.lineTo(fujiX + 38, 92);
+        ctx.closePath();
+        ctx.fill();
+
+        // Snow cap atop Fuji
+        ctx.fillStyle = isNight ? '#ddd6fe' : '#fdf2f8';
+        ctx.beginPath();
+        ctx.moveTo(fujiX - 14, 66);
+        ctx.lineTo(fujiX - 8, fujiY);
+        ctx.lineTo(fujiX + 8, fujiY);
+        ctx.lineTo(fujiX + 14, 66);
+        ctx.lineTo(fujiX + 7, 68);
+        ctx.lineTo(fujiX, 65);
+        ctx.lineTo(fujiX - 7, 68);
+        ctx.closePath();
+        ctx.fill();
+
+        // Distant Pagoda Spire silhouette on the ridge
+        const pagodaX = px + 25;
+        const pagodaY = 70;
+        ctx.fillStyle = isNight ? '#10091c' : '#451231';
+        ctx.fillRect(pagodaX - 1, pagodaY - 14, 2, 7);
+        ctx.fillRect(pagodaX - 5, pagodaY - 7, 10, 2);
+        ctx.fillRect(pagodaX - 3, pagodaY - 5, 6, 2);
+        ctx.fillRect(pagodaX - 7, pagodaY - 3, 14, 2);
+        ctx.fillRect(pagodaX - 4, pagodaY - 1, 8, 3);
+        ctx.fillRect(pagodaX - 9, pagodaY + 2, 18, 2);
+        ctx.fillRect(pagodaX - 5, pagodaY + 4, 10, 6);
+      }
     } else {
       const p1Offset = (cameraX * 0.08) % 140;
       ctx.fillStyle = zone === 'neon'
         ? (act === 1 ? '#0f2b35' : '#11172e')
-        : zone === 'sakura'
-        ? (isNight ? '#1b1232' : '#6b274e')
         : zone === 'lavacliff'
         ? (act === 1 ? '#330a0a' : '#220505')
         : zone === 'krono'
@@ -1932,10 +1982,77 @@ export class GameRenderer {
           ctx.fillRect(x + 24, 86, 4, 6);
           ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
         } else if (zone === 'sakura') {
-          ctx.fillRect(x + 28, 68, 8, 80);
+          // Midground Graceful Cherry Blossom Trees & Shinto Stone Lanterns
+          const trunkX = x + 34;
+          // Curved gnarled trunk
+          ctx.fillStyle = isNight ? '#140c20' : '#42162e';
           ctx.beginPath();
-          ctx.arc(x + 32, 58, 26, 0, Math.PI * 2);
+          ctx.moveTo(trunkX - 4, 150);
+          ctx.quadraticCurveTo(trunkX - 1, 95, trunkX - 2, 68);
+          ctx.lineTo(trunkX + 4, 68);
+          ctx.quadraticCurveTo(trunkX + 5, 95, trunkX + 5, 150);
+          ctx.closePath();
           ctx.fill();
+
+          // Tree branches
+          ctx.beginPath();
+          ctx.moveTo(trunkX, 74);
+          ctx.quadraticCurveTo(trunkX - 12, 66, trunkX - 18, 58);
+          ctx.lineTo(trunkX - 16, 56);
+          ctx.quadraticCurveTo(trunkX - 10, 63, trunkX + 2, 70);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(trunkX + 1, 72);
+          ctx.quadraticCurveTo(trunkX + 14, 65, trunkX + 20, 56);
+          ctx.lineTo(trunkX + 18, 54);
+          ctx.quadraticCurveTo(trunkX + 12, 62, trunkX - 1, 68);
+          ctx.fill();
+
+          // Layered Blossom Foliage Canopies
+          const blossomDeep = isNight ? '#3b1652' : '#9d2f6c';
+          const blossomMid = isNight ? '#5b217c' : '#c04a88';
+          const blossomLight = isNight ? '#7c3aed88' : '#e879a8aa';
+
+          // Base canopy puff
+          ctx.fillStyle = blossomDeep;
+          ctx.beginPath();
+          ctx.arc(trunkX - 12, 56, 18, 0, Math.PI * 2);
+          ctx.arc(trunkX + 14, 54, 19, 0, Math.PI * 2);
+          ctx.arc(trunkX, 48, 22, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Mid highlight blossom puffs
+          ctx.fillStyle = blossomMid;
+          ctx.beginPath();
+          ctx.arc(trunkX - 8, 50, 14, 0, Math.PI * 2);
+          ctx.arc(trunkX + 10, 48, 15, 0, Math.PI * 2);
+          ctx.arc(trunkX, 42, 16, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Top light petal highlight
+          ctx.fillStyle = blossomLight;
+          ctx.beginPath();
+          ctx.arc(trunkX - 3, 38, 11, 0, Math.PI * 2);
+          ctx.arc(trunkX + 5, 38, 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Stone Shrine Lantern (Tōrō) nestled beside tree
+          const tX = x + 10;
+          ctx.fillStyle = isNight ? '#1e1b2e' : '#4c2e42';
+          ctx.fillRect(tX - 3, 106, 6, 2);
+          ctx.fillRect(tX - 1.5, 96, 3, 10);
+          ctx.fillRect(tX - 3.5, 94, 7, 2);
+          // Fire chamber with warm flame glow
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(tX - 2, 90, 4, 4);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(tX - 1, 91, 2, 2);
+          // Lantern roof & jewel finial
+          ctx.fillStyle = isNight ? '#1e1b2e' : '#4c2e42';
+          ctx.fillRect(tX - 5, 88, 10, 2);
+          ctx.fillRect(tX - 1, 86, 2, 2);
+          ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
         } else if (zone === 'lavacliff') {
           // Jagged volcanic columns with glowing cracks
           ctx.fillRect(x + 18, 55, 24, 95);
@@ -1975,7 +2092,347 @@ export class GameRenderer {
       }
     }
 
-    // Atmospheric ambient particles (digital bits / sakura petals / volcanic embers / sand dust / bioluminescent fireflies / blizzard snow / steampunk steam & sparks)
+    // =========================================================================
+    // Parallax Layer 3: Near Forest & Canopy Depth Layer (p3Offset)
+    // Dynamic near-depth multi-layered scrolling based on camera position (0.36x - 0.42x)
+    // providing rich organic depth to forest environments (Sakura & Jungle)
+    // =========================================================================
+    if (zone === 'sakura') {
+      // Near Forest Layer: Ancient Flowering Cherry Trees, Cascading Blossoms, Bamboo Thickets, Shinto Shide
+      const p3Offset = (cameraX * 0.38) % 220;
+      for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 190) {
+        const treeX = x + 55;
+        const groundY = 155;
+
+        // 1. Ancient Gnarled Sakura Trunk (near depth silhouette)
+        const trunkCol = isNight ? '#0d0716' : '#2b0c1e';
+        const barkShade = isNight ? '#160b24' : '#3f132c';
+        ctx.fillStyle = trunkCol;
+        // Flared roots
+        ctx.beginPath();
+        ctx.moveTo(treeX - 10, groundY);
+        ctx.quadraticCurveTo(treeX - 3, groundY - 25, treeX - 3, 75);
+        ctx.lineTo(treeX + 5, 75);
+        ctx.quadraticCurveTo(treeX + 5, groundY - 25, treeX + 12, groundY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Bark texture streak
+        ctx.fillStyle = barkShade;
+        ctx.fillRect(treeX - 1, 80, 2, groundY - 82);
+
+        // Sweeping arching branch extending across the upper foreground
+        ctx.fillStyle = trunkCol;
+        ctx.beginPath();
+        ctx.moveTo(treeX, 82);
+        ctx.quadraticCurveTo(treeX - 22, 70, treeX - 45, 58);
+        ctx.lineTo(treeX - 42, 54);
+        ctx.quadraticCurveTo(treeX - 18, 66, treeX + 3, 76);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(treeX + 2, 78);
+        ctx.quadraticCurveTo(treeX + 28, 64, treeX + 52, 52);
+        ctx.lineTo(treeX + 50, 48);
+        ctx.quadraticCurveTo(treeX + 24, 60, treeX - 1, 72);
+        ctx.closePath();
+        ctx.fill();
+
+        // 2. Near Depth Blooming Sakura Blossom Clusters
+        const pDeep = isNight ? '#4c1d68' : '#b81e6c';
+        const pMid = isNight ? '#7e22ce' : '#ec4899';
+        const pLight = isNight ? '#a855f7' : '#f472b6';
+        const pGlaze = isNight ? '#c084fcaa' : '#fbcfe8cc';
+
+        // Left branch blossom cluster
+        ctx.fillStyle = pDeep;
+        ctx.beginPath();
+        ctx.arc(treeX - 38, 54, 16, 0, Math.PI * 2);
+        ctx.arc(treeX - 24, 48, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pMid;
+        ctx.beginPath();
+        ctx.arc(treeX - 35, 50, 13, 0, Math.PI * 2);
+        ctx.arc(treeX - 22, 44, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pLight;
+        ctx.beginPath();
+        ctx.arc(treeX - 33, 46, 9, 0, Math.PI * 2);
+        ctx.arc(treeX - 20, 40, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pGlaze;
+        ctx.beginPath();
+        ctx.arc(treeX - 22, 38, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right branch blossom cluster
+        ctx.fillStyle = pDeep;
+        ctx.beginPath();
+        ctx.arc(treeX + 36, 48, 17, 0, Math.PI * 2);
+        ctx.arc(treeX + 50, 46, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pMid;
+        ctx.beginPath();
+        ctx.arc(treeX + 38, 44, 14, 0, Math.PI * 2);
+        ctx.arc(treeX + 48, 42, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pLight;
+        ctx.beginPath();
+        ctx.arc(treeX + 40, 40, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pGlaze;
+        ctx.beginPath();
+        ctx.arc(treeX + 42, 38, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Crown central canopy
+        ctx.fillStyle = pDeep;
+        ctx.beginPath();
+        ctx.arc(treeX + 5, 42, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pMid;
+        ctx.beginPath();
+        ctx.arc(treeX + 6, 37, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pLight;
+        ctx.beginPath();
+        ctx.arc(treeX + 6, 32, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pGlaze;
+        ctx.beginPath();
+        ctx.arc(treeX + 7, 28, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Sacred Shinto Paper Streamers (Shide) hanging from branch
+        const shideFlutter = Math.sin(time * 0.12 + x) * 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(treeX - 18 + shideFlutter * 0.4, 66, 3, 3);
+        ctx.fillRect(treeX - 16 + shideFlutter * 0.6, 69, 3, 3);
+        ctx.fillRect(treeX - 18 + shideFlutter * 0.8, 72, 3, 3);
+        ctx.fillRect(treeX - 16 + shideFlutter, 75, 2.5, 3);
+        ctx.fillRect(treeX + 22 - shideFlutter * 0.4, 64, 3, 3);
+        ctx.fillRect(treeX + 24 - shideFlutter * 0.6, 67, 3, 3);
+        ctx.fillRect(treeX + 22 - shideFlutter * 0.8, 70, 3, 3);
+
+        // 4. Dense Bamboo Grove Cluster standing beside the Sakura Tree
+        const bambooBaseX = treeX + 85;
+        const bambooStalkCol = isNight ? '#052317' : '#064e3b';
+        const bambooRingCol = isNight ? '#10b98166' : '#34d39988';
+        const bambooLeafCol = isNight ? '#065f46' : '#10b981';
+
+        for (let b = 0; b < 4; b++) {
+          const bx = bambooBaseX + b * 11;
+          const bh = 58 + ((b * 17) % 18);
+          const by = groundY - bh;
+
+          // Bamboo culm
+          ctx.fillStyle = bambooStalkCol;
+          ctx.fillRect(bx, by, 3.5, bh);
+
+          // Bamboo node rings
+          ctx.fillStyle = bambooRingCol;
+          for (let ny = by + 8; ny < groundY; ny += 11) {
+            ctx.fillRect(bx - 0.5, ny, 4.5, 1.5);
+          }
+
+          // Bamboo leaf sprays
+          ctx.fillStyle = bambooLeafCol;
+          const leafSway = Math.sin(time * 0.1 + b * 1.5) * 2;
+          ctx.beginPath();
+          ctx.moveTo(bx + 3, by + 12);
+          ctx.lineTo(bx + 11 + leafSway, by + 9);
+          ctx.lineTo(bx + 4, by + 15);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(bx, by + 22);
+          ctx.lineTo(bx - 9 + leafSway, by + 20);
+          ctx.lineTo(bx - 1, by + 25);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    } else if (zone === 'jungle') {
+      // Near Forest Layer: Towering Ceiba Giants, Sprawling Palm Fronds, Hanging Lianas & Epiphytes
+      const p3Offset = (cameraX * 0.40) % 240;
+      for (let x = -p3Offset - 240; x < GAME_WIDTH + 240; x += 180) {
+        const trunkX = x + 70;
+        const groundY = 152;
+
+        // 1. Towering Jungle Giant Tree with Buttressed Roots & Aerial Drop Roots
+        const trunkDark = act === 1 ? '#031c14' : '#01120d';
+        const mossHighlight = act === 1 ? '#15803d' : '#047857';
+        ctx.fillStyle = trunkDark;
+
+        // Wide flared buttress root base
+        ctx.beginPath();
+        ctx.moveTo(trunkX - 16, groundY);
+        ctx.quadraticCurveTo(trunkX - 4, groundY - 30, trunkX - 4, 60);
+        ctx.lineTo(trunkX + 6, 60);
+        ctx.quadraticCurveTo(trunkX + 6, groundY - 30, trunkX + 18, groundY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Mossy bark highlight streak
+        ctx.fillStyle = mossHighlight;
+        ctx.fillRect(trunkX, 65, 2.5, groundY - 68);
+
+        // Aerial drop roots winding down to ground
+        ctx.fillStyle = trunkDark;
+        ctx.fillRect(trunkX - 9, groundY - 38, 2, 38);
+        ctx.fillRect(trunkX + 11, groundY - 44, 2, 44);
+
+        // 2. Hanging Jungle Lianas with Tropical Orchid Blossoms
+        const vineWave = Math.sin(time * 0.08 + x) * 3;
+        ctx.strokeStyle = act === 1 ? '#166534' : '#064e3b';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(trunkX - 22, 45);
+        ctx.quadraticCurveTo(trunkX - 24 + vineWave, 85, trunkX - 20 + vineWave * 1.5, 115);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(trunkX + 28, 48);
+        ctx.quadraticCurveTo(trunkX + 32 - vineWave, 90, trunkX + 26 - vineWave * 1.3, 122);
+        ctx.stroke();
+
+        // Exotic Orchid Blossoms on Vines
+        ctx.fillStyle = '#f43f5e';
+        ctx.beginPath();
+        ctx.arc(trunkX - 21 + vineWave * 1.3, 98, 3, 0, Math.PI * 2);
+        ctx.arc(trunkX + 28 - vineWave, 105, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(trunkX - 21.5 + vineWave * 1.3, 97.5, 1.5, 1.5);
+        ctx.fillRect(trunkX + 27.5 - vineWave, 104.5, 1.5, 1.5);
+
+        // 3. Sprawling Near Tropical Palm Fronds (Palmeras Tropicales en Primer Plano)
+        const palmCenter = trunkX - 35;
+        const palmY = 100;
+        ctx.fillStyle = act === 1 ? '#047857' : '#064e3b';
+        for (let a = 0; a < 5; a++) {
+          const angle = -Math.PI * 0.85 + a * (Math.PI * 0.38);
+          const frondLen = 28;
+          const fx = palmCenter + Math.cos(angle) * frondLen;
+          const fy = palmY + Math.sin(angle) * (frondLen * 0.65);
+          const midX = palmCenter + Math.cos(angle) * (frondLen * 0.5);
+          const midY = palmY + Math.sin(angle) * (frondLen * 0.35) - 4;
+
+          ctx.beginPath();
+          ctx.moveTo(palmCenter, palmY);
+          ctx.quadraticCurveTo(midX - 3, midY, fx, fy);
+          ctx.quadraticCurveTo(midX + 3, midY + 4, palmCenter, palmY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Leaf frond spine
+          ctx.strokeStyle = act === 1 ? '#10b981' : '#0f766e';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(palmCenter, palmY);
+          ctx.quadraticCurveTo(midX, midY, fx, fy);
+          ctx.stroke();
+        }
+
+        // 4. Monstera & Giant Jungle Fern Leaves
+        const fernX = trunkX + 38;
+        const fernY = 112;
+        ctx.fillStyle = act === 1 ? '#059669' : '#047857';
+        ctx.beginPath();
+        ctx.ellipse(fernX, fernY, 14, 22, Math.PI * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = trunkDark;
+        ctx.fillRect(fernX + 4, fernY - 6, 5, 2);
+        ctx.fillRect(fernX + 2, fernY + 3, 6, 2);
+        ctx.fillRect(fernX - 8, fernY - 2, 5, 2);
+
+        // 5. Overhead Rainforest Canopy Layer (Frames the top with dense foliage)
+        ctx.fillStyle = act === 1 ? '#064e3b' : '#022c22';
+        ctx.beginPath();
+        ctx.arc(trunkX - 15, 22, 28, 0, Math.PI * 2);
+        ctx.arc(trunkX + 25, 20, 32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = act === 1 ? '#047857' : '#033f30';
+        ctx.beginPath();
+        ctx.arc(trunkX - 10, 26, 22, 0, Math.PI * 2);
+        ctx.arc(trunkX + 22, 24, 25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = act === 1 ? '#10b981' : '#065f46';
+        ctx.beginPath();
+        ctx.arc(trunkX - 6, 30, 15, 0, Math.PI * 2);
+        ctx.arc(trunkX + 18, 28, 17, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (zone === 'blizzard') {
+      // Near Frost Layer: Close Snow-Laden Spruce Pines & Ice Spires
+      const p3Offset = (cameraX * 0.36) % 220;
+      for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 190) {
+        const treeX = x + 60;
+        const groundY = 152;
+        // Trunk
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(treeX - 2, groundY - 20, 4, 20);
+        // Near snow pine foliage
+        for (let t = 0; t < 4; t++) {
+          const tw = 26 - t * 5;
+          const ty = groundY - 18 - t * 10;
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.moveTo(treeX, ty - 10);
+          ctx.lineTo(treeX - tw / 2, ty);
+          ctx.lineTo(treeX + tw / 2, ty);
+          ctx.closePath();
+          ctx.fill();
+          // Snow blanket
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(treeX - tw / 2 + 2, ty - 3, tw - 4, 3);
+        }
+        // Glacial Ice Stalagmite
+        const iceX = treeX + 50;
+        ctx.fillStyle = '#7dd3fc88';
+        ctx.beginPath();
+        ctx.moveTo(iceX, groundY - 26);
+        ctx.lineTo(iceX - 5, groundY);
+        ctx.lineTo(iceX + 5, groundY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ffffffbb';
+        ctx.fillRect(iceX - 1, groundY - 24, 2, 8);
+      }
+    } else if (zone === 'steampunk') {
+      // Near Industrial Layer: Close Flanged Steam Pipelines & Brass Valves
+      const p3Offset = (cameraX * 0.36) % 200;
+      for (let x = -p3Offset - 200; x < GAME_WIDTH + 200; x += 170) {
+        // Heavy foreground pipe
+        ctx.fillStyle = act === 2 ? '#241006' : '#451a03';
+        ctx.fillRect(x, 122, 170, 8);
+        ctx.fillStyle = act === 2 ? '#451a03' : '#78350f';
+        ctx.fillRect(x, 123.5, 170, 2);
+        // Pipe coupling
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x + 50, 120, 8, 12);
+        // Valve wheel
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.arc(x + 54, 114, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (zone === 'desert') {
+      // Near Desert Layer: Wind-sculpted sand dunes & ancient column ruins
+      const p3Offset = (cameraX * 0.36) % 180;
+      ctx.fillStyle = act === 1 ? '#b45309' : '#4c1d95';
+      ctx.beginPath();
+      ctx.moveTo(0, 145);
+      for (let x = -p3Offset - 180; x <= GAME_WIDTH + 180; x += 40) {
+        const h = Math.sin(x * 0.03 + cameraX * 0.002) * 10;
+        ctx.lineTo(x, 130 + h);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+    }
     const count = zone === 'blizzard' ? 44 : zone === 'steampunk' ? 38 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
       const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;

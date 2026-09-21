@@ -546,7 +546,19 @@ export function recordSpecialStageCompleted(slotId: number): void {
 }
 
 export interface KronosPieceInfo {
-  id: 'neon' | 'sakura' | 'lavacliff' | 'desert' | 'krono' | 'jungle';
+  id:
+    | 'neon'
+    | 'sakura'
+    | 'lavacliff'
+    | 'desert'
+    | 'krono'
+    | 'jungle'
+    | 'blizzard'
+    | 'steampunk'
+    | 'castlesmash'
+    | 'piratestreasure'
+    | 'jurasicdraft'
+    | 'themoon';
   name: string;
   subtitle: string;
   bossName: string;
@@ -555,10 +567,11 @@ export interface KronosPieceInfo {
   levelIndex: number;
   color: string;
   accentColor: string;
-  position: 'top' | 'right' | 'bottomRight' | 'bottomLeft' | 'center' | 'topLeft';
+  position?: string;
   angle: number;
   iconName: string;
   lore: string;
+  isComingSoon?: boolean;
 }
 
 export const KRONOS_PIECES: KronosPieceInfo[] = [
@@ -588,7 +601,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     color: '#f472b6',
     accentColor: '#fb7185',
     position: 'right',
-    angle: 72,
+    angle: 30,
     iconName: 'Sparkles',
     lore: 'Oscila entre las dimensiones astrales asegurando un paso suave y preciso de los segundos.',
   },
@@ -596,29 +609,29 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     id: 'lavacliff',
     name: 'Engranaje Térmico Ígneo',
     subtitle: 'Rueda Dentada de Basalto Forjado',
-    bossName: 'Coloso Ignis',
+    bossName: 'Dragón de Magma Ignis',
     zoneName: 'Acantilados de Lava (Acto 3)',
     levelId: 'lavacliff-3',
     levelIndex: 8,
     color: '#f97316',
     accentColor: '#ef4444',
     position: 'bottomRight',
-    angle: 144,
+    angle: 60,
     iconName: 'Flame',
     lore: 'Transmite la inmensa fuerza motriz del magma primigenio para impulsar los ejes del reloj.',
   },
   {
     id: 'desert',
-    name: 'Resorte Astral de la Eternidad',
+    name: 'Escarabajo Solar del Tiempo',
     subtitle: 'Espiral Sagrada de Arena Dorada',
-    bossName: 'Faraón Akhen\'Ra',
+    bossName: "Faraón Akhen'Ra",
     zoneName: 'Santuario del Desierto (Acto 3)',
     levelId: 'desert-3',
     levelIndex: 11,
     color: '#f59e0b',
     accentColor: '#10b981',
     position: 'bottomLeft',
-    angle: 216,
+    angle: 90,
     iconName: 'Clock',
     lore: 'Mantiene la tensión cósmica para que el tiempo nunca decaiga ni se disipe en el olvido.',
   },
@@ -633,7 +646,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     color: '#a855f7',
     accentColor: '#38bdf8',
     position: 'center',
-    angle: 288,
+    angle: 120,
     iconName: 'Zap',
     lore: 'El epicentro gravitatorio que unifica todas las épocas pasadas, presentes y futuras.',
   },
@@ -648,9 +661,103 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     color: '#10b981',
     accentColor: '#eab308',
     position: 'topLeft',
-    angle: 300,
+    angle: 150,
     iconName: 'Gem',
     lore: 'Canaliza el poder del Sol cenital maya y la sabiduría de la selva ancestral para sincronizar los ciclos naturales del tiempo.',
+  },
+  {
+    id: 'blizzard',
+    name: 'Orbe Criogénico Glacial',
+    subtitle: 'Prisma de Escarcha de la Cumbre Nevada',
+    bossName: 'Coloso Yeti del Glaciar',
+    zoneName: 'Blizzard Rush (Acto 3)',
+    levelId: 'blizzard-3',
+    levelIndex: 21,
+    color: '#38bdf8',
+    accentColor: '#bae6fd',
+    position: 'bottom',
+    angle: 180,
+    iconName: 'Snowflake',
+    lore: 'Cristaliza los fragmentos temporales en una matriz de escarcha eterna para evitar fracturas en el vórtice dimensional.',
+  },
+  {
+    id: 'steampunk',
+    name: 'Núcleo de Vapor Térmico',
+    subtitle: 'Engranaje de Latón de Alta Presión',
+    bossName: 'Vulkan-Ω, Coloso del Reactor',
+    zoneName: 'Steampunk Factory (Acto 3)',
+    levelId: 'steampunk-3',
+    levelIndex: 24,
+    color: '#ea580c',
+    accentColor: '#fbbf24',
+    position: 'bottomLeft',
+    angle: 210,
+    iconName: 'Gauge',
+    lore: 'Genera el vapor hiperbárico a 1000m de altitud necesario para impulsar la rotación del portal de Kronos.',
+  },
+  {
+    id: 'castlesmash',
+    name: 'Blasón Real del Bastión',
+    subtitle: 'Emblema Feudal de Hierro Templado',
+    bossName: 'Titán Acorazado (En Desarrollo)',
+    zoneName: 'Castle Smash (Acto 3)',
+    levelId: 'castlesmash-3',
+    levelIndex: 27,
+    color: '#64748b',
+    accentColor: '#f59e0b',
+    position: 'left',
+    angle: 240,
+    iconName: 'Shield',
+    isComingSoon: true,
+    lore: 'Escudo heráldico forjado en las murallas medievales que blinda la estructura física del portal contra colapsos cuánticos.',
+  },
+  {
+    id: 'piratestreasure',
+    name: 'Brújula Dorada del Corsario',
+    subtitle: 'Astrolabio Místico de los Mares',
+    bossName: 'Kraken de las Profundidades (En Desarrollo)',
+    zoneName: "Pirate's Treasure (Acto 3)",
+    levelId: 'piratestreasure-3',
+    levelIndex: 30,
+    color: '#0284c7',
+    accentColor: '#facc15',
+    position: 'topLeft',
+    angle: 270,
+    iconName: 'Compass',
+    isComingSoon: true,
+    lore: 'Apunta inexorablemente hacia las coordenadas cardinales exactas del nexo interdimensional a través de cualquier tormenta.',
+  },
+  {
+    id: 'jurasicdraft',
+    name: 'Ámbar Fósil Primigenio',
+    subtitle: 'Gota de Resina Prehistórica Ancestral',
+    bossName: 'T-Rex Alfa de la Caldera (En Desarrollo)',
+    zoneName: 'Jurassic Draft (Acto 3)',
+    levelId: 'jurasicdraft-3',
+    levelIndex: 33,
+    color: '#15803d',
+    accentColor: '#ea580c',
+    position: 'top',
+    angle: 300,
+    iconName: 'Flame',
+    isComingSoon: true,
+    lore: 'Preserva en su interior la chispa biológica de la era mesozoica, otorgando vigor orgánico a la sincronización del reloj.',
+  },
+  {
+    id: 'themoon',
+    name: 'Esfera Celestial de Helio-3',
+    subtitle: 'Núcleo de Fusión Orbital Lunar',
+    bossName: 'Mecha Titán Lunar Helios (En Desarrollo)',
+    zoneName: 'The Moon (Acto 3)',
+    levelId: 'themoon-3',
+    levelIndex: 36,
+    color: '#818cf8',
+    accentColor: '#c084fc',
+    position: 'topRight',
+    angle: 330,
+    iconName: 'Moon',
+    isComingSoon: true,
+    lore: 'Canaliza el flujo cósmico de la gravedad reducida lunar para calibrar el salto cuántico final del casillero dimensional.',
   },
 ];
 
