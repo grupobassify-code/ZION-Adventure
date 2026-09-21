@@ -8,10 +8,6 @@ import {
   Lock,
   Unlock,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  ArrowUp,
-  Compass,
   ArrowLeft,
   Volume2,
   VolumeX,
@@ -338,32 +334,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     onStartGame(levelIndex, activeSlotId);
   };
 
-  const scrollToExplore = () => {
-    sound.playSfx('menuSelect');
-    const el = document.getElementById('explore-modes-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const scrollToTop = () => {
-    sound.playSfx('menuSelect');
-    const root = document.getElementById('main-menu-root');
-    if (root) {
-      root.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
   return (
     <div
       id="main-menu-root"
-      data-scrollable="true"
-      className={`absolute inset-0 z-50 flex flex-col items-center bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none overflow-y-auto overflow-x-hidden scrollable-touch ${
+      className={`absolute inset-0 z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none ${
         view === 'title'
-          ? 'px-2 py-2 sm:px-6 sm:py-3'
-          : 'px-2 py-2.5 sm:p-6'
+          ? 'overflow-hidden h-full max-h-screen px-2 py-1.5 sm:px-6 sm:py-3'
+          : 'overflow-y-auto overflow-x-hidden px-2 py-2.5 sm:p-6'
       }`}
     >
       {/* Dynamic Cyber Matrix Grid Background */}
@@ -457,549 +434,107 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      {/* VIEW 1: TITLE SCREEN (Mobile-scrollable with comprehensive game exploration) */}
+      {/* VIEW 1: TITLE SCREEN (Non-scrollable, fits 100% in viewport) */}
       {view === 'title' && (
-        <main className="relative z-10 w-full max-w-4xl flex flex-col items-center text-center py-2 sm:py-4 px-2 sm:px-4">
-          {/* FOLD 1: HERO & DIRECT LAUNCH */}
-          <div className="w-full flex flex-col items-center justify-center pt-1 pb-3">
-            {/* Animated Pixel Art Character Zion */}
-            <div className="relative mb-1">
-              <PixelCharacter
-                scale={typeof window !== 'undefined' && window.innerHeight < 700 ? 1.5 : typeof window !== 'undefined' && window.innerWidth < 640 ? 1.7 : 2.7}
-                interactive={true}
-              />
-              <div className="text-[8px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-6px] animate-pulse">
-                {t('tapZionToAttack')}
-              </div>
+        <main className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center text-center my-auto py-1 px-2 sm:px-4">
+          {/* Animated Pixel Art Character Zion */}
+          <div className="relative mb-1">
+            <PixelCharacter scale={typeof window !== 'undefined' && window.innerHeight < 700 ? 1.5 : typeof window !== 'undefined' && window.innerWidth < 640 ? 1.7 : 2.7} interactive={true} />
+            <div className="text-[8px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-6px] animate-pulse">
+              {t('tapZionToAttack')}
             </div>
+          </div>
 
-            {/* Epic Main Game Title: ZION ADVENTURE */}
-            <div className="relative mt-1 mb-1.5 sm:mb-2.5">
-              <div className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl -z-10 rounded-full" />
-              <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
-                {t('gameTitle')}
-              </h1>
-              <p className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.12em] sm:tracking-[0.2em] uppercase font-mono mt-1">
-                {t('gameSubtitle')}
-              </p>
-            </div>
+          {/* Epic Main Game Title: ZION ADVENTURE */}
+          <div className="relative mt-1 mb-1.5 sm:mb-2.5">
+            <div className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl -z-10 rounded-full" />
+            <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
+              {t('gameTitle')}
+            </h1>
+            <p className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.12em] sm:tracking-[0.2em] uppercase font-mono mt-1">
+              {t('gameSubtitle')}
+            </p>
+          </div>
 
-            {/* Prominent Language Selector Chips on Title Screen */}
-            <LanguageSelector variant="chips" className="mb-2 sm:mb-2.5" />
+          {/* Prominent Language Selector Chips on Title Screen */}
+          <LanguageSelector variant="chips" className="mb-2 sm:mb-2.5" />
 
-            {/* Primary Action Buttons - Highly responsive for mobile and desktop */}
-            <div className="flex flex-col gap-1.5 sm:gap-2 w-full max-w-sm sm:max-w-md">
-              <button
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  setView('slots');
-                }}
-                className="w-full group relative flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_28px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[44px]"
-              >
-                <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-                <span>{t('startGame')}</span>
-              </button>
+          {/* Primary Action Buttons - Highly responsive for mobile and desktop */}
+          <div className="flex flex-col gap-1.5 sm:gap-2 w-full max-w-sm sm:max-w-md">
+            <button
+              onClick={() => {
+                sound.playSfx('menuSelect');
+                setView('slots');
+              }}
+              className="w-full group relative flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_28px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+            >
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+              <span>{t('startGame')}</span>
+            </button>
 
-              {/* Secondary Buttons Row */}
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
-                {onOpenAchievements && (
-                  <button
-                    onClick={() => {
-                      sound.playSfx('menuSelect');
-                      onOpenAchievements();
-                    }}
-                    className="flex items-center justify-center gap-1 px-2 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-[11px] sm:text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] cursor-pointer"
-                  >
-                    <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400/30" />
-                    <span className="truncate">LOGROS</span>
-                  </button>
-                )}
-
-                {onOpenMultiplayer && (
-                  <button
-                    onClick={() => {
-                      sound.playSfx('menuSelect');
-                      onOpenMultiplayer();
-                    }}
-                    className="flex items-center justify-center gap-1 px-2 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-pink-500/10 hover:from-rose-500/30 hover:to-pink-500/20 border border-rose-500/50 hover:border-rose-400 text-rose-300 font-bold text-[11px] sm:text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] cursor-pointer"
-                  >
-                    <Swords className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                    <span className="truncate">ONLINE 1v1</span>
-                  </button>
-                )}
-
+            {/* Secondary Buttons Row: 2-columns on mobile, flex on desktop */}
+            <div className="grid grid-cols-2 gap-2 w-full">
+              {onOpenAchievements && (
                 <button
                   onClick={() => {
                     sound.playSfx('menuSelect');
-                    onOpenCredits();
+                    onOpenAchievements();
                   }}
-                  className={`flex items-center justify-center gap-1 px-2 py-1.5 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-[11px] sm:text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] ${
-                    !onOpenMultiplayer && !onOpenAchievements ? 'col-span-3' : ''
-                  }`}
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] cursor-pointer"
                 >
-                  <Award className="w-3.5 h-3.5 text-pink-400 shrink-0" />
-                  <span className="truncate">{t('credits')}</span>
+                  <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400/30" />
+                  <span>LOGROS</span>
                 </button>
-              </div>
-            </div>
+              )}
 
-            {/* Compact Feature Highlights Ribbon */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
-              <span>8 ERAS DIMENSIONALES</span>
-              <span className="text-slate-600">·</span>
-              <span>22 NIVELES</span>
-              <span className="text-slate-600">·</span>
-              <span>JEFES ÉPICOS</span>
-              <span className="text-slate-600">·</span>
-              <span>3 PARTIDAS</span>
-            </div>
-
-            {/* Dynamic Scroll Down Invitation Banner (Visible on Mobile & Desktop) */}
-            <div className="w-full flex justify-center mt-3 sm:mt-4">
               <button
-                onClick={scrollToExplore}
-                className="group inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)] active:scale-95 transition-all cursor-pointer"
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  onOpenCredits();
+                }}
+                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
               >
-                <ChevronDown className="w-4 h-4 text-cyan-400 animate-bounce" />
-                <span className="text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase">
-                  {t('scrollDownPrompt')}
-                </span>
-                <ChevronDown className="w-4 h-4 text-cyan-400 animate-bounce" />
+                <Award className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                <span>{t('credits')}</span>
               </button>
             </div>
           </div>
 
-          {/* FOLD 2: DETAILED EXPLORATION SECTION */}
-          <div id="explore-modes-section" className="w-full flex flex-col items-center gap-8 pt-4 pb-6 scroll-mt-6">
-            {/* 1. SECCIÓN DE MODOS DE JUEGO */}
-            <div className="w-full">
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-1.5">
-                  <Gamepad2 className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{t('exploreGameHeader')}</span>
-                </div>
-                <h2 className="text-xl sm:text-3xl font-black text-white font-heading tracking-wide">
-                  {t('gameModesTitle')}
-                </h2>
-                <p className="text-xs text-slate-400 mt-1 max-w-lg mx-auto">
-                  {t('exploreGameSubtitle')}
-                </p>
-              </div>
+          {/* Compact Feature Highlights Ribbon */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
+            <span>8 ERAS DIMENSIONALES</span>
+            <span className="text-slate-600">·</span>
+            <span>22 NIVELES</span>
+            <span className="text-slate-600">·</span>
+            <span>JEFES ÉPICOS</span>
+            <span className="text-slate-600">·</span>
+            <span>3 PARTIDAS</span>
+          </div>
 
-              {/* Grid of 6 Game Modes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full text-left">
-                {/* Mode 1: Main Adventure */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    setView('slots');
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(6,182,212,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 group-hover:scale-105 transition-transform">
-                        <Play className="w-4 h-4 fill-cyan-400" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 uppercase">
-                        {language === 'es' ? 'HISTORIA' : 'STORY'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-cyan-200 transition-colors">
-                      {t('modeStoryTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeStoryDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-cyan-400">
-                    <span>{t('playModeBtn')}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
+          {/* Quick Legal & Privacy Trust Bar */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[8px] sm:text-[10px]">
+            <button
+              onClick={() => {
+                sound.playSfx('menuSelect');
+                setPrivacyModalOpen(true);
+              }}
+              className="flex items-center gap-1 text-slate-400 hover:text-emerald-300 transition-colors py-0.5 px-1.5 rounded-lg hover:bg-slate-900/60"
+            >
+              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <span>{t('privacyPolicy')}</span>
+            </button>
 
-                {/* Mode 2: Only Up */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    if (onStartOnlyUp) onStartOnlyUp(activeSlotId);
-                    else setView('slots');
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-orange-500/40 hover:border-orange-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(249,115,22,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-400/50 flex items-center justify-center text-orange-400 group-hover:scale-105 transition-transform">
-                        <Flame className="w-4 h-4" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-orange-500/15 border border-orange-500/30 text-orange-400 uppercase">
-                        {language === 'es' ? 'INFINITO' : 'INFINITE'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-orange-200 transition-colors">
-                      {t('modeOnlyUpTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeOnlyUpDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-orange-400">
-                    <span>{t('playModeBtn')}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
+            <span className="text-slate-600">·</span>
 
-                {/* Mode 3: Carrera VS IA */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    setModeModal('vs_ai');
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/40 hover:border-amber-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
-                        <Bot className="w-4 h-4" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-amber-500/15 border border-amber-500/30 text-amber-400 uppercase">
-                        {language === 'es' ? 'VS IA' : 'VS BOT'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-amber-200 transition-colors">
-                      {t('modeVsAiTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeVsAiDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-amber-400">
-                    <span>{t('playModeBtn')}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-
-                {/* Mode 4: Time Attack */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    setModeModal('time_attack');
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-purple-500/40 hover:border-purple-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(168,85,247,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-400/50 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
-                        <Timer className="w-4 h-4" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-purple-500/15 border border-purple-500/30 text-purple-400 uppercase">
-                        {language === 'es' ? 'RÉCORDS' : 'RECORDS'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-purple-200 transition-colors">
-                      {t('modeTimeAttackTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeTimeAttackDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-purple-400">
-                    <span>{t('playModeBtn')}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-
-                {/* Mode 5: Multiplayer 1v1 */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    if (onOpenMultiplayer) onOpenMultiplayer();
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-rose-500/40 hover:border-rose-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(244,63,94,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform">
-                        <Swords className="w-4 h-4" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-rose-500/15 border border-rose-500/30 text-rose-400 uppercase">
-                        {language === 'es' ? 'MULTIJUGADOR' : 'ONLINE'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-rose-200 transition-colors">
-                      {t('modeOnlineTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeOnlineDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-rose-400">
-                    <span>{t('playModeBtn')}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-
-                {/* Mode 6: Reloj de Kronos & Vestidor */}
-                <div
-                  onClick={() => {
-                    sound.playSfx('menuSelect');
-                    setView('clock');
-                  }}
-                  className="group relative p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-emerald-500/40 hover:border-emerald-400 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.25)] cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-black tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 uppercase">
-                        {language === 'es' ? 'SKINS & LORE' : 'SKINS & LORE'}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-black text-white font-heading group-hover:text-emerald-200 transition-colors">
-                      {t('modeClockTitle')}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      {t('modeClockDesc')}
-                    </p>
-                  </div>
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-400">
-                    <span>{language === 'es' ? 'EXPLORAR' : 'EXPLORE'}</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. SECCIÓN: LAS 8 ERAS DIMENSIONALES */}
-            <div className="w-full pt-2">
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-1.5">
-                  <Compass className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>BIOMAS & MUNDOS</span>
-                </div>
-                <h2 className="text-xl sm:text-3xl font-black text-white font-heading tracking-wide">
-                  {t('exploreErasTitle')}
-                </h2>
-                <p className="text-xs text-slate-400 mt-1 max-w-lg mx-auto">
-                  {t('exploreErasSubtitle')}
-                </p>
-              </div>
-
-              {/* Showcase Grid of 8 Eras */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 w-full text-left">
-                {ZONES_DATA.slice(0, 8).map((z) => {
-                  return (
-                    <div
-                      key={z.id}
-                      onClick={() => {
-                        sound.playSfx('menuSelect');
-                        setSelectedZone(z.id);
-                        setView('slots');
-                      }}
-                      className="group relative flex flex-col rounded-2xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-cyan-400 overflow-hidden shadow-md hover:shadow-cyan-500/20 transition-all cursor-pointer"
-                    >
-                      <div className="relative w-full h-24 sm:h-28 overflow-hidden">
-                        <LevelPixelThumbnail
-                          zone={z.id}
-                          act={1}
-                          isLocked={false}
-                          isUnderConstruction={z.status === 'soon'}
-                          width={240}
-                          height={112}
-                        />
-                        <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-slate-950/80 backdrop-blur-sm border border-slate-700 text-[9px] font-mono font-bold text-cyan-300">
-                          {z.actsCount === 1 ? t('actsCountSingular') : t('actsCountPlural', { count: z.actsCount })}
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 flex flex-col justify-between flex-1">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-black text-white font-heading truncate group-hover:text-cyan-300 transition-colors">
-                            {getZoneName(z.id)}
-                          </h4>
-                          <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-2 leading-tight">
-                            {getZoneSubtitle(z.id)}
-                          </p>
-                        </div>
-                        <div className="mt-2 pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px] text-cyan-400 font-bold">
-                          <span>{language === 'es' ? 'Explorar' : 'Explore'}</span>
-                          <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 3. SECCIÓN: ARSENAL Y COMBATE DE ZION */}
-            <div className="w-full pt-2">
-              <div className="text-center mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold mb-1.5">
-                  <Zap className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>SISTEMA DE COMBATE</span>
-                </div>
-                <h2 className="text-xl sm:text-3xl font-black text-white font-heading tracking-wide">
-                  {t('exploreAbilitiesTitle')}
-                </h2>
-                <p className="text-xs text-slate-400 mt-1 max-w-lg mx-auto">
-                  {t('exploreAbilitiesSubtitle')}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5 w-full text-left">
-                {/* 1. Espada Cuántica */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">🗡️</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Espada de Energía' : 'Energy Blade'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Combo fluido cuerpo a cuerpo contra enemigos y jefes.' : 'Fluid melee combo attacks against hazards and bosses.'}
-                  </p>
-                </div>
-
-                {/* 2. Daga Temporal */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">🗡️✨</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Dagas Temporales' : 'Time Daggers'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Proyectil a distancia que recarga automáticamente energía.' : 'Ranged projectile that automatically recharges over time.'}
-                  </p>
-                </div>
-
-                {/* 3. Doble Salto & Trepar */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">🦘</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Doble Salto & Wall-Jump' : 'Double & Wall Jump'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Acrobacias verticales y rebote en paredes verticales.' : 'Acrobatic vertical leaps and wall climbing mechanics.'}
-                  </p>
-                </div>
-
-                {/* 4. Dash Dimensional */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">⚡</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Dash Dimensional' : 'Dimensional Dash'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Impulso veloz con invulnerabilidad temporal a proyectiles.' : 'Fast-paced dash with temporal invulnerability frames.'}
-                  </p>
-                </div>
-
-                {/* 5. Escudo de Bloqueo */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">🛡️</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Escudo de Kronos' : 'Kronos Shield'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Bloqueo reactivo que absorbe impactos frontales.' : 'Reactive block absorbing incoming frontal hits.'}
-                  </p>
-                </div>
-
-                {/* 6. Super Habilidad SP */}
-                <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-cyan-500/30">
-                  <div className="text-base sm:text-lg mb-1">💥</div>
-                  <h4 className="text-xs sm:text-sm font-black text-white font-heading">
-                    {language === 'es' ? 'Super Habilidad SP' : 'Special Blast (SP)'}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-1 leading-snug">
-                    {language === 'es' ? 'Descarga expansiva en 360° con la barra al máximo.' : 'Massive 360° radial shockwave at full energy.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. SECCIÓN: CARACTERÍSTICAS TÉCNICAS Y PRIVACIDAD */}
-            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left pt-2">
-              <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800">
-                <div className="flex items-center gap-2 mb-1.5 text-cyan-400">
-                  <Layers className="w-4 h-4" />
-                  <h4 className="text-xs font-bold text-white">{t('featureAutosaveTitle')}</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-snug">{t('featureAutosaveDesc')}</p>
-              </div>
-
-              <div
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  setSoundtrackModalOpen(true);
-                }}
-                className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-cyan-500/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2 mb-1.5 text-purple-400">
-                  <Music className="w-4 h-4" />
-                  <h4 className="text-xs font-bold text-white">{t('featureJukeboxTitle')}</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-snug">{t('featureJukeboxDesc')}</p>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800">
-                <div className="flex items-center gap-2 mb-1.5 text-emerald-400">
-                  <Gamepad2 className="w-4 h-4" />
-                  <h4 className="text-xs font-bold text-white">{t('featureMobileTitle')}</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-snug">{t('featureMobileDesc')}</p>
-              </div>
-
-              <div
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  setPrivacyModalOpen(true);
-                }}
-                className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-emerald-500/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center gap-2 mb-1.5 text-emerald-400">
-                  <ShieldCheck className="w-4 h-4" />
-                  <h4 className="text-xs font-bold text-white">{t('featureSafeTitle')}</h4>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-snug">{t('featureSafeDesc')}</p>
-              </div>
-            </div>
-
-            {/* Quick Legal & Privacy Trust Bar */}
-            <div className="flex items-center justify-center gap-2 sm:gap-3 text-[9px] sm:text-[11px] pt-1">
-              <button
-                onClick={() => {
-                  sound.playSfx('menuSelect');
-                  setPrivacyModalOpen(true);
-                }}
-                className="flex items-center gap-1 text-slate-400 hover:text-emerald-300 transition-colors py-0.5 px-2 rounded-lg hover:bg-slate-900/60"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{t('privacyPolicy')}</span>
-              </button>
-
-              <span className="text-slate-600">·</span>
-
-              <a
-                href={PRIVACY_POLICY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-slate-400 hover:text-cyan-300 transition-colors py-0.5 px-2 rounded-lg hover:bg-slate-900/60"
-              >
-                <span>{t('googleDocsLink')}</span>
-                <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
-              </a>
-            </div>
-
-            {/* Quick Back to Top Button */}
-            <div className="w-full flex justify-center pt-2">
-              <button
-                onClick={scrollToTop}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-300 text-cyan-300 font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer"
-              >
-                <ArrowUp className="w-3.5 h-3.5" />
-                <span>{t('backToTopBtn')}</span>
-              </button>
-            </div>
+            <a
+              href={PRIVACY_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-slate-400 hover:text-cyan-300 transition-colors py-0.5 px-1.5 rounded-lg hover:bg-slate-900/60"
+            >
+              <span>{t('googleDocsLink')}</span>
+              <ExternalLink className="w-3 h-3 text-cyan-400" />
+            </a>
           </div>
         </main>
       )}
