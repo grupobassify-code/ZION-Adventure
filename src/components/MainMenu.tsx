@@ -32,7 +32,6 @@ import {
   Timer,
   Ghost,
 } from 'lucide-react';
-import { PixelCharacter } from './PixelCharacter';
 import { LevelPixelThumbnail } from './LevelPixelThumbnail';
 import { KronosClockView } from './KronosClockView';
 import { CharacterLocker } from './CharacterLocker';
@@ -436,30 +435,22 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      {/* VIEW 1: TITLE SCREEN (Clean, full-screen cover on mobile, beautifully balanced) */}
+      {/* VIEW 1: TITLE SCREEN (Clean buttons and title for direct mobile access) */}
       {view === 'title' && (
-        <main className="relative z-10 w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center justify-center text-center my-auto py-2 px-3 sm:px-4">
-          {/* Animated Pixel Art Character Zion */}
-          <div className="relative mb-1 sm:mb-2">
-            <PixelCharacter scale={typeof window !== 'undefined' && window.innerHeight < 600 ? 1.4 : typeof window !== 'undefined' && window.innerWidth < 640 ? 2.0 : 2.7} interactive={true} />
-            <div className="text-[9px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-4px] animate-pulse">
-              {t('tapZionToAttack')}
-            </div>
-          </div>
-
+        <main className="relative z-10 w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center justify-center text-center my-auto py-3 px-3 sm:px-4">
           {/* Epic Main Game Title: ZION ADVENTURE */}
-          <div className="relative mt-1 mb-2 sm:mb-3">
-            <div className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl -z-10 rounded-full" />
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
+          <div className="relative mb-3 sm:mb-4">
+            <div className="absolute -inset-x-6 -inset-y-4 bg-gradient-to-r from-cyan-500/25 via-purple-500/25 to-pink-500/25 blur-2xl -z-10 rounded-full" />
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_25px_rgba(6,182,212,0.85)] leading-none">
               {t('gameTitle')}
             </h1>
-            <p className="text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.15em] sm:tracking-[0.2em] uppercase font-mono mt-1 sm:mt-1.5">
+            <p className="text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.15em] sm:tracking-[0.2em] uppercase font-mono mt-1.5 sm:mt-2">
               {t('gameSubtitle')}
             </p>
           </div>
 
           {/* Prominent Language Selector Chips on Title Screen */}
-          <LanguageSelector variant="chips" className="mb-2.5 sm:mb-3" />
+          <LanguageSelector variant="chips" className="mb-3 sm:mb-4" />
 
           {/* Primary Action Buttons - Highly responsive for mobile and desktop */}
           <div className="flex flex-col gap-2 sm:gap-2.5 w-full max-w-xs sm:max-w-sm">
