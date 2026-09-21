@@ -337,9 +337,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   return (
     <div
       id="main-menu-root"
-      className={`absolute inset-0 z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none ${
+      className={`fixed inset-0 w-full h-full min-h-[100dvh] z-50 flex flex-col items-center justify-between bg-radial from-[#0c132c] via-[#050814] to-[#020307] text-white select-none ${
         view === 'title'
-          ? 'overflow-hidden h-full max-h-screen px-2 py-1.5 sm:px-6 sm:py-3'
+          ? 'overflow-y-auto sm:overflow-hidden px-3 py-2 sm:px-6 sm:py-4'
           : 'overflow-y-auto overflow-x-hidden px-2 py-2.5 sm:p-6'
       }`}
     >
@@ -373,15 +373,17 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
         {/* Global Action Toggles */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Language Selector in Header (available across all screens) */}
-          <LanguageSelector variant="compact" />
+          {/* Header language selector only when not in title screen (title screen has big chips) */}
+          {view !== 'title' && (
+            <LanguageSelector variant="compact" />
+          )}
 
           <button
             onClick={() => {
               sound.playSfx('menuSelect');
               setSoundtrackModalOpen(true);
             }}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 transition-all flex items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
+            className="hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 transition-all items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
             title={t('jukeboxTitle')}
           >
             <Music className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 animate-bounce" />
@@ -393,7 +395,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
               sound.playSfx('menuSelect');
               setPrivacyModalOpen(true);
             }}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-emerald-500/40 hover:border-emerald-400 text-emerald-300 transition-all flex items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
+            className="hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-emerald-500/40 hover:border-emerald-400 text-emerald-300 transition-all items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
             title={t('privacyTitle')}
           >
             <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
@@ -434,41 +436,42 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         </div>
       </header>
 
-      {/* VIEW 1: TITLE SCREEN (Non-scrollable, fits 100% in viewport) */}
+      {/* VIEW 1: TITLE SCREEN (Clean, full-screen cover on mobile, beautifully balanced) */}
       {view === 'title' && (
-        <main className="relative z-10 w-full max-w-3xl flex flex-col items-center justify-center text-center my-auto py-1 px-2 sm:px-4">
+        <main className="relative z-10 w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center justify-center text-center my-auto py-2 px-3 sm:px-4">
           {/* Animated Pixel Art Character Zion */}
-          <div className="relative mb-1">
-            <PixelCharacter scale={typeof window !== 'undefined' && window.innerHeight < 700 ? 1.5 : typeof window !== 'undefined' && window.innerWidth < 640 ? 1.7 : 2.7} interactive={true} />
-            <div className="text-[8px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-6px] animate-pulse">
+          <div className="relative mb-1 sm:mb-2">
+            <PixelCharacter scale={typeof window !== 'undefined' && window.innerHeight < 600 ? 1.4 : typeof window !== 'undefined' && window.innerWidth < 640 ? 2.0 : 2.7} interactive={true} />
+            <div className="text-[9px] sm:text-[10px] font-mono text-cyan-400/80 tracking-wider mt-[-4px] animate-pulse">
               {t('tapZionToAttack')}
             </div>
           </div>
 
           {/* Epic Main Game Title: ZION ADVENTURE */}
-          <div className="relative mt-1 mb-1.5 sm:mb-2.5">
+          <div className="relative mt-1 mb-2 sm:mb-3">
             <div className="absolute -inset-x-6 -inset-y-3 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-xl -z-10 rounded-full" />
-            <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-500 font-heading drop-shadow-[0_4px_20px_rgba(6,182,212,0.8)] leading-none">
               {t('gameTitle')}
             </h1>
-            <p className="text-[9px] xs:text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.12em] sm:tracking-[0.2em] uppercase font-mono mt-1">
+            <p className="text-[10px] sm:text-xs font-bold text-cyan-300/90 tracking-[0.15em] sm:tracking-[0.2em] uppercase font-mono mt-1 sm:mt-1.5">
               {t('gameSubtitle')}
             </p>
           </div>
 
           {/* Prominent Language Selector Chips on Title Screen */}
-          <LanguageSelector variant="chips" className="mb-2 sm:mb-2.5" />
+          <LanguageSelector variant="chips" className="mb-2.5 sm:mb-3" />
 
           {/* Primary Action Buttons - Highly responsive for mobile and desktop */}
-          <div className="flex flex-col gap-1.5 sm:gap-2 w-full max-w-sm sm:max-w-md">
+          <div className="flex flex-col gap-2 sm:gap-2.5 w-full max-w-xs sm:max-w-sm">
             <button
+              id="start-game-btn"
               onClick={() => {
                 sound.playSfx('menuSelect');
                 setView('slots');
               }}
-              className="w-full group relative flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_28px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+              className="w-full group relative flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-400 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-slate-950 font-black text-base sm:text-lg tracking-wider shadow-[0_0_30px_rgba(6,182,212,0.7)] active:scale-95 transition-all cursor-pointer min-h-[48px]"
             >
-              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+              <Play className="w-5 h-5 fill-current" />
               <span>{t('startGame')}</span>
             </button>
 
@@ -476,32 +479,34 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             <div className="grid grid-cols-2 gap-2 w-full">
               {onOpenAchievements && (
                 <button
+                  id="achievements-menu-btn"
                   onClick={() => {
                     sound.playSfx('menuSelect');
                     onOpenAchievements();
                   }}
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-amber-500/50 hover:border-amber-400 text-amber-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md active:scale-95 min-h-[40px] cursor-pointer"
                 >
-                  <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0 fill-amber-400/30" />
+                  <Trophy className="w-4 h-4 text-amber-400 shrink-0 fill-amber-400/30" />
                   <span>LOGROS</span>
                 </button>
               )}
 
               <button
+                id="credits-menu-btn"
                 onClick={() => {
                   sound.playSfx('menuSelect');
                   onOpenCredits();
                 }}
-                className={`flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95 min-h-[38px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-pink-500/50 text-slate-200 hover:text-pink-300 font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md active:scale-95 min-h-[40px] ${!onOpenAchievements ? 'col-span-2' : ''}`}
               >
-                <Award className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                <Award className="w-4 h-4 text-pink-400 shrink-0" />
                 <span>{t('credits')}</span>
               </button>
             </div>
           </div>
 
           {/* Compact Feature Highlights Ribbon */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-2 sm:mt-3 py-1 px-3 rounded-full bg-slate-900/70 border border-slate-800/80 text-[9px] sm:text-[10px] font-mono text-cyan-300/80">
             <span>8 ERAS DIMENSIONALES</span>
             <span className="text-slate-600">·</span>
             <span>22 NIVELES</span>
@@ -512,7 +517,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           </div>
 
           {/* Quick Legal & Privacy Trust Bar */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 text-[8px] sm:text-[10px]">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[9px] sm:text-[10px]">
             <button
               onClick={() => {
                 sound.playSfx('menuSelect');

@@ -684,8 +684,8 @@ export default function App() {
           : 'flex items-center justify-center'
       }`}
     >
-      {/* 0. Orientation Landscape Guard Prompt */}
-      {isPortrait && !promptDismissed && (
+      {/* 0. Orientation Landscape Guard Prompt (Only during active gameplay, not over main menu) */}
+      {!inMainMenu && isPortrait && !promptDismissed && (
         <RotatePrompt 
           onDismiss={() => setPromptDismissed(true)}
           onPlayVertical={() => setPromptDismissed(true)}
