@@ -6,6 +6,7 @@ import {
   Boss,
   Checkpoint,
   Collectible,
+  DestructibleObject,
   Enemy,
   FloatingText,
   Hazard,
@@ -82,6 +83,9 @@ export class GameRenderer {
 
     // 4c. Jungle Lianas (Swinging Vines)
     this.renderLianas(engine.lianas, engine.cameraX, engine.time);
+
+    // 4d. Destructible Castle Obstacles (Castle Smash)
+    this.renderDestructibles(engine.destructibles, engine.cameraX, engine.time);
 
     // 5. Hazards & traps
     this.renderHazards(engine.hazards, engine.cameraX, engine.time);
@@ -869,6 +873,30 @@ export class GameRenderer {
         grad.addColorStop(0.85, '#ea580c'); // Intense steam flame
         grad.addColorStop(1, '#fed7aa');    // Blinding steam vent light
       }
+    } else if (zone === 'castlesmash') {
+      // Medieval Castle Smash:
+      // Act 1: Gloomy Storm Over Outer Moat & Siege Camp
+      // Act 2: Crimson Twilight Over Inner Courtyard & Armory
+      // Act 3: Royal Gothic Vault & Throne Room of Lord Malakar
+      if (act === 1) {
+        grad.addColorStop(0, '#0a0f1d');    // Stormy dark navy sky
+        grad.addColorStop(0.35, '#1e293b'); // Thundercloud charcoal
+        grad.addColorStop(0.65, '#334155'); // Wet castle stone grey
+        grad.addColorStop(0.88, '#475569'); // Mist horizon
+        grad.addColorStop(1, '#64748b');
+      } else if (act === 2) {
+        grad.addColorStop(0, '#1c1917');    // Dark gothic stone
+        grad.addColorStop(0.35, '#450a0a'); // Blood red castle twilight
+        grad.addColorStop(0.65, '#7f1d1d'); // Siege torch glow
+        grad.addColorStop(0.88, '#b45309'); // Warm ember horizon
+        grad.addColorStop(1, '#f59e0b');
+      } else {
+        grad.addColorStop(0, '#09050d');    // Royal gothic vault shadows
+        grad.addColorStop(0.35, '#3b0764'); // Imperial purple banners
+        grad.addColorStop(0.7, '#7f1d1d');  // Crimson heraldry
+        grad.addColorStop(0.9, '#b45309');  // Golden candlelight glow
+        grad.addColorStop(1, '#fef08a');
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1260,6 +1288,62 @@ export class GameRenderer {
           ctx.fill();
         }
       }
+    } else if (zone === 'castlesmash') {
+      // Medieval Castle Smash Celestial / Fortress Backdrop
+      if (act === 1) {
+        // Stormy blood moon peeking through dark clouds
+        ctx.fillStyle = '#fca5a5';
+        ctx.beginPath();
+        ctx.arc(245, 36, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fee2e2';
+        ctx.beginPath();
+        ctx.arc(245, 36, 12, 0, Math.PI * 2);
+        ctx.fill();
+        // Storm lightning flicker
+        if (Math.sin(time * 0.15) > 0.94) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
+      } else if (act === 2) {
+        // Fiery siege sun & distant catapult trails
+        ctx.fillStyle = '#ea580c';
+        ctx.beginPath();
+        ctx.arc(245, 42, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(245, 42, 14, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Act 3: Stained Glass Rose Window in Throne Room
+        const rwX = 240;
+        const rwY = 40;
+        const rRad = 26;
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(rwX, rwY, rRad, 0, Math.PI * 2);
+        ctx.stroke();
+        // Rose window glass
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+        ctx.beginPath();
+        ctx.arc(rwX, rwY, rRad - 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.45)';
+        ctx.beginPath();
+        ctx.arc(rwX, rwY, 12, 0, Math.PI * 2);
+        ctx.fill();
+        // Vault light shaft
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(rwX - 18, rwY);
+        ctx.lineTo(rwX + 18, rwY);
+        ctx.lineTo(rwX + 45, 140);
+        ctx.lineTo(rwX - 45, 140);
+        ctx.closePath();
+        ctx.fill();
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -1420,6 +1504,36 @@ export class GameRenderer {
       for (let x = -p1Offset - 200; x <= GAME_WIDTH + 200; x += 36) {
         ctx.fillRect(x + 4, 84, 5, 8);
         ctx.fillRect(x + 13, 84, 5, 8);
+      }
+    } else if (zone === 'castlesmash') {
+      // Parallax Layer 1: Distant Gothic Castle Fortress, Towers & Spires
+      const p1Offset = (cameraX * 0.06) % 220;
+      ctx.fillStyle = act === 1 ? '#0f172a' : act === 2 ? '#291206' : '#1c0a2b';
+      ctx.beginPath();
+      ctx.moveTo(0, 135);
+      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 44) {
+        // Castle towers with peaked roofs & crenels
+        ctx.lineTo(x, 110);
+        ctx.lineTo(x, 70);
+        ctx.lineTo(x + 8, 48); // Tower conical spire
+        ctx.lineTo(x + 16, 70);
+        ctx.lineTo(x + 16, 92);
+        ctx.lineTo(x + 44, 92);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Flying Banners / Pennants atop spires
+      ctx.fillStyle = act === 2 ? '#ef4444' : '#f59e0b';
+      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 44) {
+        const flagWave = Math.sin(time * 0.2 + x) * 2;
+        ctx.beginPath();
+        ctx.moveTo(x + 8, 48);
+        ctx.lineTo(x + 16 + flagWave, 51);
+        ctx.lineTo(x + 8, 54);
+        ctx.closePath();
+        ctx.fill();
       }
     } else if (zone === 'sakura') {
       // Sacred Sakura Mountain Ridge (Layer 1: Distant Misty Peaks & Mount Fuji)
@@ -1961,6 +2075,67 @@ export class GameRenderer {
         ctx.arc(lampX, lampY + 4, 12, 0, Math.PI * 2);
         ctx.fill();
       }
+    } else if (zone === 'castlesmash') {
+      // Medieval Castle Midground Layer: Stone Ramparts, Barbican Arches, Torchlight Sconces & Hanging Banners
+      const p2Offset = (cameraX * 0.18) % 180;
+      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 140) {
+        // 1. Heavy Stone Barbican Archway & Rampart
+        ctx.fillStyle = act === 1 ? '#1e293b' : act === 2 ? '#3b1206' : '#2e1065';
+        ctx.fillRect(x, 82, 140, 68);
+
+        // Crenellations atop wall
+        ctx.fillStyle = act === 1 ? '#334155' : act === 2 ? '#5c1d0a' : '#4c1d95';
+        for (let cx = x + 4; cx < x + 136; cx += 16) {
+          ctx.fillRect(cx, 74, 8, 8);
+        }
+
+        // Fortified Arched Gateway
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.arc(x + 70, 114, 18, Math.PI, 0);
+        ctx.rect(x + 52, 114, 36, 36);
+        ctx.fill();
+
+        // 2. Iron Torch Sconces with Animated Flickering Flames
+        const torchX = x + 35;
+        const torchY = 100;
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(torchX - 1, torchY, 3, 10);
+        ctx.fillRect(torchX - 3, torchY + 1, 7, 3);
+        // Flickering Torch Flame
+        const flameBob = Math.sin(time * 0.3 + x) * 1.5;
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(torchX + 0.5, torchY - 2 + flameBob, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(torchX + 0.5, torchY - 2 + flameBob, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(torchX, torchY - 3 + flameBob, 1.5, 2);
+
+        // Torchlight Warm Halos
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+        ctx.beginPath();
+        ctx.arc(torchX + 0.5, torchY - 2, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Heraldic Tapestry / Banner hanging on rampart
+        ctx.fillStyle = act === 2 ? '#991b1b' : '#1d4ed8';
+        ctx.beginPath();
+        ctx.moveTo(x + 105, 88);
+        ctx.lineTo(x + 125, 88);
+        ctx.lineTo(x + 125, 118);
+        ctx.lineTo(x + 115, 126);
+        ctx.lineTo(x + 105, 118);
+        ctx.closePath();
+        ctx.fill();
+        // Golden Lion Sigil
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x + 112, 94, 6, 8);
+        ctx.fillRect(x + 110, 97, 10, 2);
+      }
     } else {
       const p2Offset = (cameraX * 0.22) % 100;
       ctx.fillStyle = zone === 'neon'
@@ -2419,6 +2594,22 @@ export class GameRenderer {
         ctx.arc(x + 54, 114, 5, 0, Math.PI * 2);
         ctx.fill();
       }
+    } else if (zone === 'castlesmash') {
+      // Near Castle Layer: Stone battlements, arrow slits, and wooden scaffolding
+      const p3Offset = (cameraX * 0.36) % 180;
+      for (let x = -p3Offset - 180; x < GAME_WIDTH + 180; x += 160) {
+        // Wooden siege scaffolding
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(x + 20, 110, 4, 38);
+        ctx.fillRect(x + 60, 110, 4, 38);
+        ctx.fillRect(x + 18, 122, 48, 3);
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x + 22, 112);
+        ctx.lineTo(x + 62, 146);
+        ctx.stroke();
+      }
     } else if (zone === 'desert') {
       // Near Desert Layer: Wind-sculpted sand dunes & ancient column ruins
       const p3Offset = (cameraX * 0.36) % 180;
@@ -2433,9 +2624,9 @@ export class GameRenderer {
       ctx.lineTo(0, GAME_HEIGHT);
       ctx.fill();
     }
-    const count = zone === 'blizzard' ? 44 : zone === 'steampunk' ? 38 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
+    const count = zone === 'blizzard' ? 44 : zone === 'steampunk' ? 38 : zone === 'castlesmash' ? 36 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
-      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;
+      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'castlesmash' ? 0.3 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;
       const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
 
       if (zone === 'neon') {
@@ -2459,6 +2650,15 @@ export class GameRenderer {
         if (i % 5 === 0) {
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(px + 0.5, digitY + 0.5, 1, 1);
+        }
+      } else if (zone === 'castlesmash') {
+        // Floating torch sparks and castle dust motes
+        if (i % 2 === 0) {
+          ctx.fillStyle = i % 4 === 0 ? '#f59e0b' : '#ef4444';
+          ctx.fillRect(px, py, 1.5, 1.5);
+        } else {
+          ctx.fillStyle = 'rgba(203, 213, 225, 0.45)';
+          ctx.fillRect(px, py, 1.5, 1.5);
         }
       } else if (zone === 'jungle') {
         // Glowing bioluminescent fireflies (luciérnagas) and drifting jungle spores
@@ -3332,6 +3532,287 @@ export class GameRenderer {
         ctx.lineTo(x + rampW + 1, rampBaseY - rampH - 6);
         ctx.closePath();
         ctx.fill();
+      } else if (lm.type === 'castle_keep') {
+        // Grand Medieval Fortress Keep / Bastion
+        const baseY = lm.y || 148;
+        const w = lm.w || 96;
+        const h = lm.h || 110;
+        const cx = x + w / 2;
+
+        // Main Keep Stone Tower Body
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x, baseY - h, w, h);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 2, baseY - h + 2, w - 4, h - 2);
+
+        // Stone Brick Details
+        ctx.fillStyle = '#475569';
+        for (let row = 0; row < 12; row++) {
+          const by = baseY - h + 10 + row * 8;
+          const off = (row % 2) * 10;
+          for (let bx = x + 4 - off; bx < x + w - 4; bx += 20) {
+            const rx = Math.max(x + 4, bx);
+            const rw = Math.min(16, x + w - 4 - rx);
+            if (rw > 4) ctx.fillRect(rx, by, rw, 6);
+          }
+        }
+
+        // Crenellations & Machicolations atop Keep
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x - 4, baseY - h - 4, w + 8, 6);
+        ctx.fillStyle = '#64748b';
+        for (let c = x - 4; c < x + w + 8; c += 16) {
+          ctx.fillRect(c, baseY - h - 14, 10, 10);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(c, baseY - h - 14, 10, 2);
+          ctx.fillStyle = '#64748b';
+        }
+
+        // Arrow Slit Windows
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(cx - 16, baseY - h + 30, 4, 16);
+        ctx.fillRect(cx + 12, baseY - h + 30, 4, 16);
+        ctx.fillRect(cx - 2, baseY - h + 54, 4, 18);
+
+        // Heavy Fortified Arched Oak Gate
+        ctx.fillStyle = '#020617';
+        ctx.beginPath();
+        ctx.arc(cx, baseY - 24, 14, Math.PI, 0);
+        ctx.rect(cx - 14, baseY - 24, 28, 24);
+        ctx.fill();
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(cx, baseY - 24, 12, Math.PI, 0);
+        ctx.rect(cx - 12, baseY - 24, 24, 24);
+        ctx.fill();
+        // Iron gate studs
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx - 1, baseY - 24, 2, 24); // Center seam
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx - 8, baseY - 14, 2, 2);
+        ctx.fillRect(cx + 6, baseY - 14, 2, 2);
+
+        // Flying Tower Banner
+        const flagWave = Math.sin(time * 0.2 + x * 0.1) * 3;
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(cx - 1, baseY - h - 28, 2, 16); // Flagpole
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(cx + 1, baseY - h - 28);
+        ctx.lineTo(cx + 18 + flagWave, baseY - h - 22);
+        ctx.lineTo(cx + 1, baseY - h - 16);
+        ctx.closePath();
+        ctx.fill();
+      } else if (lm.type === 'siege_catapult') {
+        // Medieval Heavy Siege Trebuchet / Catapult
+        const baseY = lm.y || 148;
+        const w = lm.w || 44;
+        const h = lm.h || 36;
+
+        // Heavy Timber A-Frame Chassis
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(x + 2, baseY - 6, w - 4, 6); // Base sled
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.moveTo(x + 6, baseY - 6);
+        ctx.lineTo(x + w * 0.45, baseY - h);
+        ctx.lineTo(x + w * 0.55, baseY - h);
+        ctx.lineTo(x + w - 6, baseY - 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // Iron Pivot Axle & Winch
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(x + w / 2, baseY - h + 4, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x + w / 2 - 1, baseY - h + 3, 2, 2);
+
+        // Throwing Arm (Dynamic angle with gentle ready tension)
+        const armAngle = -0.55 + Math.sin(time * 0.05) * 0.06;
+        ctx.save();
+        ctx.translate(x + w / 2, baseY - h + 4);
+        ctx.rotate(armAngle);
+        // Long throwing beam
+        ctx.fillStyle = '#92400e';
+        ctx.fillRect(-6, -2, 28, 4);
+        // Short counterweight arm
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(-14, -2, 8, 4);
+        // Heavy Lead / Stone Counterweight Bucket
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(-18, 2, 10, 8);
+        // Boulder Sling Basket & Flaming Rock
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.arc(22, 0, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(20, -2, 3, 3);
+        ctx.restore();
+
+        // Spoke Wheels
+        ctx.fillStyle = '#291206';
+        ctx.beginPath();
+        ctx.arc(x + 8, baseY - 4, 5, 0, Math.PI * 2);
+        ctx.arc(x + w - 8, baseY - 4, 5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (lm.type === 'throne_dais') {
+        // High Gothic Throne of Bastion Malakar
+        const baseY = lm.y || 148;
+        const w = lm.w || 64;
+        const cx = x + w / 2;
+
+        // Tiered Marble / Granite Dais Steps
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, baseY - 4, w, 4);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 6, baseY - 8, w - 12, 4);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x + 12, baseY - 12, w - 24, 4);
+
+        // Crimson Throne Carpet Runner
+        ctx.fillStyle = '#991b1b';
+        ctx.fillRect(cx - 8, baseY - 12, 16, 12);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(cx - 9, baseY - 12, 1, 12);
+        ctx.fillRect(cx + 8, baseY - 12, 1, 12);
+
+        // High Backed Gothic Throne Seat
+        ctx.fillStyle = '#451a03';
+        ctx.fillRect(cx - 10, baseY - 40, 20, 28);
+        ctx.fillStyle = '#b91c1c'; // Velvet back cushion
+        ctx.fillRect(cx - 7, baseY - 38, 14, 20);
+
+        // Golden Spire Finials & Lion Heads
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx - 11, baseY - 46, 3, 8);
+        ctx.fillRect(cx + 8, baseY - 46, 3, 8);
+        ctx.beginPath();
+        ctx.moveTo(cx, baseY - 48);
+        ctx.lineTo(cx + 4, baseY - 40);
+        ctx.lineTo(cx - 4, baseY - 40);
+        ctx.closePath();
+        ctx.fill();
+
+        // Velvet Armrests
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx - 12, baseY - 22, 4, 3);
+        ctx.fillRect(cx + 8, baseY - 22, 4, 3);
+
+        // Flanking Braziers with Fire
+        for (const bx of [x + 4, x + w - 8]) {
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(bx, baseY - 18, 4, 10);
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.moveTo(bx - 3, baseY - 18);
+          ctx.lineTo(bx + 7, baseY - 18);
+          ctx.lineTo(bx + 5, baseY - 14);
+          ctx.lineTo(bx - 1, baseY - 14);
+          ctx.closePath();
+          ctx.fill();
+          // Animated Brazier Fire
+          const flameH = 4 + Math.sin(time * 0.3 + bx) * 2;
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.moveTo(bx - 1, baseY - 18);
+          ctx.lineTo(bx + 2, baseY - 18 - flameH);
+          ctx.lineTo(bx + 5, baseY - 18);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(bx + 1, baseY - 18 - flameH * 0.6, 2, 2);
+        }
+      } else if (lm.type === 'royal_banner') {
+        // Embroidered Wall Hanging Royal Bastion Banner
+        const baseY = lm.y || 80;
+        const w = lm.w || 20;
+        const h = lm.h || 42;
+
+        // Ornate Brass Hanging Rod
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x - 2, baseY, w + 4, 3);
+        ctx.beginPath();
+        ctx.arc(x - 2, baseY + 1.5, 3, 0, Math.PI * 2);
+        ctx.arc(x + w + 2, baseY + 1.5, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rich Royal Blue & Crimson Velvet Tapestry
+        const wave = Math.sin(time * 0.15 + x * 0.1) * 2;
+        ctx.fillStyle = '#1e3a8a';
+        ctx.beginPath();
+        ctx.moveTo(x, baseY + 3);
+        ctx.lineTo(x + w, baseY + 3);
+        ctx.lineTo(x + w + wave, baseY + h - 8);
+        ctx.lineTo(x + w / 2 + wave * 0.5, baseY + h);
+        ctx.lineTo(x, baseY + h - 8);
+        ctx.closePath();
+        ctx.fill();
+
+        // Crimson Split
+        ctx.fillStyle = '#991b1b';
+        ctx.fillRect(x + 2, baseY + 6, w / 2 - 2, h - 18);
+
+        // Golden Embroidered Lion Sigil
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x + w / 2 - 4 + wave * 0.3, baseY + 12, 8, 10);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x + w / 2 - 2 + wave * 0.3, baseY + 14, 4, 6);
+
+        // Golden Fringe at Bottom
+        ctx.fillStyle = '#facc15';
+        for (let fx = x; fx <= x + w; fx += 3) {
+          ctx.fillRect(fx, baseY + h - 6, 1.5, 3);
+        }
+      } else if (lm.type === 'stone_gargoyle_perch') {
+        // Carved Stone Gargoyle Sentinel Perch
+        const baseY = lm.y || 110;
+        // Stone corbel bracket jutting from wall
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(x, baseY);
+        ctx.lineTo(x + 20, baseY);
+        ctx.lineTo(x + 4, baseY + 16);
+        ctx.lineTo(x, baseY + 16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x, baseY, 20, 3);
+
+        // Crouching stone gargoyle demon
+        const gx = x + 10;
+        const gy = baseY - 6;
+        ctx.fillStyle = '#475569';
+        // Body & Haunches
+        ctx.beginPath();
+        ctx.arc(gx, gy, 5, 0, Math.PI * 2);
+        ctx.fill();
+        // Carved Wings
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.moveTo(gx - 2, gy - 2);
+        ctx.lineTo(gx - 8, gy - 12);
+        ctx.lineTo(gx + 2, gy - 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(gx + 2, gy - 2);
+        ctx.lineTo(gx + 8, gy - 12);
+        ctx.lineTo(gx - 2, gy - 6);
+        ctx.closePath();
+        ctx.fill();
+        // Head & Horns
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(gx - 2, gy - 8, 5, 4);
+        ctx.fillRect(gx - 3, gy - 11, 2, 4); // Left Horn
+        ctx.fillRect(gx + 2, gy - 11, 2, 4); // Right Horn
+        // Glowing ruby eyes
+        const eyePulse = 0.6 + Math.sin(time * 0.1) * 0.4;
+        ctx.fillStyle = `rgba(239, 68, 68, ${eyePulse})`;
+        ctx.fillRect(gx - 1, gy - 7, 1.5, 1.5);
+        ctx.fillRect(gx + 1.5, gy - 7, 1.5, 1.5);
       }
     }
   }
@@ -3346,6 +3827,7 @@ export class GameRenderer {
     const isTravel = zone === 'travel';
     const isJungle = zone === 'jungle';
     const isBlizzard = zone === 'blizzard';
+    const isCastle = zone === 'castlesmash';
 
     for (const p of platforms) {
       if (p.hidden) continue;
@@ -3435,6 +3917,97 @@ export class GameRenderer {
             ctx.lineTo(ix + 1.5, y + p.h + 4 + ((ix * 7) % 4));
             ctx.closePath();
             ctx.fill();
+          }
+        }
+        continue;
+      }
+
+      if (p.kind === 'castle_stone' || p.kind === 'castle_parapet' || p.kind === 'castle_bridge' || p.kind === 'castle_iron' || p.kind === 'crumbling_floor' || (isCastle && (p.kind === 'ground' || p.kind === 'arena'))) {
+        // Medieval Castle Stone Masonry & Parapets
+        const isParapet = p.kind === 'castle_parapet';
+        const isBridge = p.kind === 'castle_bridge';
+        const isCrumbling = p.kind === 'crumbling_floor';
+        const isIron = p.kind === 'castle_iron';
+
+        if (isBridge) {
+          // Timber drawbridge with iron cross-braces & studs
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x, y + 2, p.w, p.h - 4);
+          // Vertical planks
+          ctx.fillStyle = '#291206';
+          for (let px = x + 10; px < x + p.w; px += 12) {
+            ctx.fillRect(px, y, 1.5, p.h);
+          }
+          // Iron edge bands & studs
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillRect(x, y + p.h - 2, p.w, 2);
+          ctx.fillStyle = '#cbd5e1';
+          for (let sx = x + 4; sx < x + p.w; sx += 16) {
+            ctx.fillRect(sx, y + 1, 1.5, 1.5);
+            ctx.fillRect(sx, y + p.h - 3, 1.5, 1.5);
+          }
+        } else if (isIron) {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(x, y, p.w, 1);
+        } else {
+          // Ashlar Castle Stone Blocks
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Brick courses pattern
+          const rowH = 6;
+          let r = 0;
+          for (let by = y; by < y + p.h; by += rowH) {
+            const h = Math.min(rowH, y + p.h - by);
+            const offset = (r % 2) * 8;
+            ctx.fillStyle = '#334155';
+            for (let bx = x - offset; bx < x + p.w; bx += 16) {
+              const rx = Math.max(x + 1, bx);
+              const rw = Math.min(14, x + p.w - rx - 1);
+              if (rw > 0) {
+                ctx.fillRect(rx, by + 1, rw, h - 2);
+              }
+            }
+            r++;
+          }
+
+          // Top Stone Curb Lip & Weathered Highlights
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(x, y, p.w, 1);
+
+          // Crenellations on parapets
+          if (isParapet) {
+            ctx.fillStyle = '#475569';
+            for (let cx = x + 4; cx < x + p.w - 8; cx += 16) {
+              ctx.fillRect(cx, y - 5, 8, 5);
+              ctx.fillStyle = '#94a3b8';
+              ctx.fillRect(cx, y - 5, 8, 1);
+              ctx.fillStyle = '#475569';
+            }
+          }
+
+          // Cracks for crumbling floor
+          if (isCrumbling) {
+            ctx.strokeStyle = '#020617';
+            ctx.lineWidth = 1.5;
+            for (let cx = x + 12; cx < x + p.w; cx += 22) {
+              ctx.beginPath();
+              ctx.moveTo(cx, y);
+              ctx.lineTo(cx + 3, y + 4);
+              ctx.lineTo(cx - 2, y + p.h - 1);
+              ctx.stroke();
+            }
           }
         }
         continue;
@@ -5000,7 +5573,370 @@ export class GameRenderer {
         ctx.fillRect(-1.5, -1.5, 3, 3);
 
         ctx.restore();
+      } else if (h.type === 'swinging_mace') {
+        // Medieval Castle Giant Iron Swinging Spiked Mace
+        const pivotX = x + h.w / 2;
+        const pivotY = h.y;
+        const length = h.chainLength || 52;
+        const angle = h.bladeAngle || 0;
+        const maceX = pivotX + Math.sin(angle) * length;
+        const maceY = pivotY + Math.cos(angle) * length;
+
+        // Ceiling Mount Iron Ring
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(pivotX - 5, pivotY, 10, 4);
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(pivotX - 4, pivotY + 1, 8, 2);
+
+        // Heavy Iron Chain Links
+        const links = 9;
+        for (let l = 1; l <= links; l++) {
+          const t = l / links;
+          const lx = pivotX + (maceX - pivotX) * t;
+          const ly = pivotY + (maceY - pivotY) * t;
+          ctx.fillStyle = (l % 2 === 0) ? '#334155' : '#64748b';
+          ctx.fillRect(lx - 2, ly - 2, 4, 4);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(lx - 1, ly - 1, 2, 2);
+        }
+
+        // Spiked Iron Morningstar Mace Head
+        ctx.save();
+        ctx.translate(maceX, maceY);
+        ctx.rotate(angle * 2.5);
+
+        // 8 Razor Spikes radiating outward
+        const spikes = 8;
+        ctx.fillStyle = '#94a3b8';
+        for (let s = 0; s < spikes; s++) {
+          ctx.save();
+          ctx.rotate((s / spikes) * Math.PI * 2);
+          ctx.beginPath();
+          ctx.moveTo(-2, -9);
+          ctx.lineTo(0, -17);
+          ctx.lineTo(2, -9);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Central Spiked Heavy Iron Sphere
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(-2, -2, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      } else if (h.type === 'portcullis') {
+        // Heavy Iron Spiked Drop-Gate Portcullis
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(x, h.y, h.w, h.h);
+
+        // Vertical Iron Bars with Sharp Spikes
+        const barSpacing = 6;
+        for (let bx = x + 3; bx < x + h.w; bx += barSpacing) {
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(bx, h.y, 2, h.h);
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(bx, h.y, 1, h.h);
+          // Sharp Bottom Spike
+          ctx.fillStyle = '#94a3b8';
+          ctx.beginPath();
+          ctx.moveTo(bx - 1, h.y + h.h - 1);
+          ctx.lineTo(bx + 1, h.y + h.h + 4);
+          ctx.lineTo(bx + 3, h.y + h.h - 1);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Horizontal Iron Cross-Braces & Rivets
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x, h.y + 4, h.w, 3);
+        ctx.fillRect(x, h.y + h.h - 7, h.w, 3);
+        ctx.fillStyle = '#f59e0b';
+        for (let rx = x + 4; rx < x + h.w; rx += 12) {
+          ctx.fillRect(rx, h.y + 5, 1.5, 1.5);
+          ctx.fillRect(rx, h.y + h.h - 6, 1.5, 1.5);
+        }
+      } else if (h.type === 'catapult_boulder') {
+        // Giant Flaming Catapult Boulder
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const rad = h.w / 2;
+
+        // Fiery Ember Aura
+        const aura = ctx.createRadialGradient(cx, cy, rad * 0.5, cx, cy, rad + 4);
+        aura.addColorStop(0, 'rgba(239, 68, 68, 0.4)');
+        aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad + 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Stone Core
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#44403c';
+        ctx.beginPath();
+        ctx.arc(cx, cy, rad - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Magma Fissures
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(cx - 3, cy - 2, 6, 2);
+        ctx.fillRect(cx - 1, cy - 4, 2, 8);
       }
+    }
+  }
+
+  // =========================================================================
+  // DESTRUCTIBLE CASTLE OBJECTS RENDERING (CASTLE SMASH BASTION MECHANICS)
+  // =========================================================================
+  public renderDestructibles(destructibles: DestructibleObject[], cameraX: number, time: number) {
+    if (!destructibles || destructibles.length === 0) return;
+    const ctx = this.ctx;
+
+    for (const d of destructibles) {
+      if (d.destroyed) continue;
+      const shakeOffset = d.shake ? (Math.random() - 0.5) * d.shake * 0.6 : 0;
+      const x = Math.round(d.x - cameraX + shakeOffset);
+      const y = Math.round(d.y);
+      if (x + d.w < -20 || x > GAME_WIDTH + 20) continue;
+
+      const hpPercent = Math.max(0, d.hp / d.maxHp);
+      const isDamaged = d.hp < d.maxHp;
+
+      ctx.save();
+
+      // Hit flash white
+      if (d.hitFlash && d.hitFlash > 0) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, y, d.w, d.h);
+        ctx.restore();
+        continue;
+      }
+
+      switch (d.type) {
+        case 'wooden_barricade': {
+          // Heavy fortified wooden timber palisade with sharpened stake heads & iron bands
+          const logW = 6;
+          for (let lx = x; lx < x + d.w; lx += logW) {
+            const w = Math.min(logW, x + d.w - lx);
+            ctx.fillStyle = (lx % 12 === 0) ? '#451a03' : '#78350f';
+            ctx.fillRect(lx, y, w, d.h);
+            ctx.fillStyle = '#92400e';
+            ctx.fillRect(lx + 1, y, 1, d.h);
+            // Sharpened stake tops
+            ctx.fillStyle = '#b45309';
+            ctx.beginPath();
+            ctx.moveTo(lx, y);
+            ctx.lineTo(lx + w / 2, y - 3);
+            ctx.lineTo(lx + w, y);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Horizontal reinforcing iron bands
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, y + 4, d.w, 3);
+          ctx.fillRect(x, y + d.h - 7, d.w, 3);
+          ctx.fillStyle = '#cbd5e1';
+          for (let rx = x + 3; rx < x + d.w; rx += 8) {
+            ctx.fillRect(rx, y + 5, 1.5, 1.5);
+            ctx.fillRect(rx, y + d.h - 6, 1.5, 1.5);
+          }
+
+          // Cross-brace timber
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x + 2, y + 6);
+          ctx.lineTo(x + d.w - 2, y + d.h - 6);
+          ctx.stroke();
+
+          // Damage cracks
+          if (hpPercent < 0.6) {
+            ctx.strokeStyle = '#1c1917';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x + d.w * 0.3, y + 2);
+            ctx.lineTo(x + d.w * 0.5, y + d.h * 0.6);
+            ctx.lineTo(x + d.w * 0.4, y + d.h - 2);
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'stone_wall': {
+          // Thick Ashlar Fortress Masonry Wall
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, y, d.w, d.h);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 1, y + 1, d.w - 2, d.h - 2);
+
+          // Stone brick courses
+          ctx.fillStyle = '#475569';
+          const rowH = 6;
+          let row = 0;
+          for (let by = y; by < y + d.h; by += rowH) {
+            const h = Math.min(rowH, y + d.h - by);
+            const offset = (row % 2) * 8;
+            for (let bx = x - offset; bx < x + d.w; bx += 16) {
+              const rx = Math.max(x + 1, bx);
+              const rw = Math.min(14, x + d.w - rx - 1);
+              if (rw > 0) {
+                ctx.fillRect(rx, by + 1, rw, h - 2);
+              }
+            }
+            row++;
+          }
+
+          // Iron reinforced corner plates
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, 3, d.h);
+          ctx.fillRect(x + d.w - 3, y, 3, d.h);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(x + 1, y + 4, 1.5, 1.5);
+          ctx.fillRect(x + 1, y + d.h - 6, 1.5, 1.5);
+          ctx.fillRect(x + d.w - 2.5, y + 4, 1.5, 1.5);
+          ctx.fillRect(x + d.w - 2.5, y + d.h - 6, 1.5, 1.5);
+
+          // Deep fractures if low HP
+          if (hpPercent < 0.65) {
+            ctx.strokeStyle = '#020617';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + d.w / 2, y + 1);
+            ctx.lineTo(x + d.w * 0.4, y + d.h * 0.5);
+            ctx.lineTo(x + d.w * 0.6, y + d.h - 2);
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'drawbridge_chain': {
+          // Colossal Fortified Drawbridge Chain & Pulley Winch
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + d.w / 2 - 4, y, 8, 8);
+          // Iron winch gears
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.arc(x + d.w / 2, y + 4, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(x + d.w / 2 - 1, y + 3, 2, 2);
+
+          // Massive Heavy Chain Links
+          const numLinks = Math.max(3, Math.floor(d.h / 8));
+          for (let li = 0; li < numLinks; li++) {
+            const ly = y + 8 + li * 8;
+            ctx.fillStyle = li % 2 === 0 ? '#334155' : '#64748b';
+            ctx.fillRect(x + d.w / 2 - 3, ly, 6, 6);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(x + d.w / 2 - 1, ly + 1, 2, 4);
+          }
+          break;
+        }
+
+        case 'siege_core': {
+          // Magical bastion protective core (powers Malakar's shield)
+          // Heavy stone pedestal
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y + d.h - 6, d.w, 6);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 2, y + d.h - 5, d.w - 4, 4);
+
+          // Iron armature containment brackets
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 2, y + 4, 3, d.h - 10);
+          ctx.fillRect(x + d.w - 5, y + 4, 3, d.h - 10);
+          ctx.fillRect(x + 2, y + 2, d.w - 4, 3);
+
+          // Floating pulsating magic crystal
+          const pulse = Math.sin(time * 0.15) * 2;
+          const glow = ctx.createRadialGradient(
+            x + d.w / 2, y + d.h / 2, 2,
+            x + d.w / 2, y + d.h / 2, 14
+          );
+          glow.addColorStop(0, '#fef08a');
+          glow.addColorStop(0.5, '#f59e0b');
+          glow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(x + d.w / 2, y + d.h / 2, 14, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Crystal diamond
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(x + d.w / 2, y + 4 + pulse);
+          ctx.lineTo(x + d.w - 5, y + d.h / 2);
+          ctx.lineTo(x + d.w / 2, y + d.h - 6 - pulse);
+          ctx.lineTo(x + 5, y + d.h / 2);
+          ctx.closePath();
+          ctx.fill();
+
+          // Shield beam tether
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(x + d.w / 2, y + 4);
+          ctx.lineTo(x + d.w / 2, y - 8 + Math.sin(time * 0.3) * 3);
+          ctx.stroke();
+          break;
+        }
+
+        case 'iron_gate': {
+          // Portcullis-style heavy barred iron gate with cross-bracing
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, d.w, d.h);
+
+          // Vertical iron bars
+          const barSpacing = 5;
+          ctx.fillStyle = '#475569';
+          for (let bx = x + 3; bx < x + d.w; bx += barSpacing) {
+            ctx.fillRect(bx, y + 2, 2, d.h - 4);
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(bx, y + d.h - 3, 2, 3);
+          }
+
+          // Horizontal cross-beams
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 1, y + 6, d.w - 2, 3);
+          ctx.fillRect(x + 1, y + d.h - 8, d.w - 2, 3);
+
+          // Heavy padlock
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(x + d.w / 2 - 3, y + d.h / 2 - 3, 6, 6);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + d.w / 2 - 1, y + d.h / 2, 2, 2);
+          break;
+        }
+      }
+
+      // Floating HP gauge if damaged
+      if (isDamaged) {
+        const barW = Math.max(16, d.w);
+        const barX = x + (d.w - barW) / 2;
+        const barY = y - 6;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(barX - 1, barY - 1, barW + 2, 4);
+        ctx.fillStyle = hpPercent > 0.5 ? '#4ade80' : hpPercent > 0.25 ? '#fbbf24' : '#ef4444';
+        ctx.fillRect(barX, barY, Math.round(barW * hpPercent), 2);
+      }
+
+      ctx.restore();
     }
   }
 

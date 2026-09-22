@@ -77,6 +77,8 @@ export class BossRenderer {
       this.renderYetiBoss(boss, x, y, time);
     } else if (boss.name.includes('Vulkan') || boss.name.includes('Reactor') || boss.name.includes('Vapor')) {
       this.renderVulkanSteamColossus(boss, x, y, time);
+    } else if (boss.name.includes('Malakar') || boss.name.includes('Rompemuros') || boss.name.includes('Castillo')) {
+      this.renderLordMalakar(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -1608,6 +1610,184 @@ export class BossRenderer {
     ctx.fillRect(-9, 27, 3, 2);
     ctx.fillRect(7, 27, 3, 2);
     ctx.fillRect(13, 27, 3, 2);
+
+    ctx.restore();
+  }
+
+  // =========================================================================
+  // LORD MALAKAR · COLOSO ROMPEMUROS (CASTLE SMASH ACT 3 BOSS)
+  // =========================================================================
+  private renderLordMalakar(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const cx = x + boss.w / 2;
+    const cy = y + boss.h / 2;
+    const isFacingLeft = boss.facing < 0;
+    const isPhase2 = boss.phase >= 2;
+    const isPhase3 = boss.phase >= 3;
+    const bob = Math.sin(time * 0.12) * 1.5;
+
+    ctx.save();
+    ctx.translate(cx, cy + bob);
+    if (isFacingLeft) {
+      ctx.scale(-1, 1);
+    }
+
+    // 0. Enraged Molten Aura (Phase 2 & 3)
+    if (isPhase2) {
+      const auraPulse = Math.sin(time * 0.25) * 4;
+      const auraGrad = ctx.createRadialGradient(0, 0, 16, 0, 0, 36 + auraPulse);
+      auraGrad.addColorStop(0, isPhase3 ? 'rgba(239, 68, 68, 0.35)' : 'rgba(245, 158, 11, 0.25)');
+      auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, 36 + auraPulse, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 1. Tattered Royal Cloak (Fluttering behind back)
+    const cloakFlap = Math.sin(time * 0.2) * 3;
+    ctx.fillStyle = '#7f1d1d';
+    ctx.beginPath();
+    ctx.moveTo(-12, -16);
+    ctx.lineTo(-24 + cloakFlap, 18);
+    ctx.lineTo(-14, 22);
+    ctx.lineTo(-4, -14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#991b1b';
+    ctx.beginPath();
+    ctx.moveTo(-10, -16);
+    ctx.lineTo(-20 + cloakFlap, 16);
+    ctx.lineTo(-12, 20);
+    ctx.lineTo(-4, -14);
+    ctx.closePath();
+    ctx.fill();
+
+    // 2. Heavy Gothic Sabatons & Greaves (Legs)
+    const walkStance = boss.state === 'charging' ? Math.sin(time * 0.4) * 4 : 0;
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-14 + walkStance, 14, 10, 12);
+    ctx.fillRect(4 - walkStance, 14, 10, 12);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-13 + walkStance, 15, 8, 10);
+    ctx.fillRect(5 - walkStance, 15, 8, 10);
+    // Gilded Knee Cops
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-14 + walkStance, 13, 10, 3);
+    ctx.fillRect(4 - walkStance, 13, 10, 3);
+
+    // 3. Blackened Steel Torso Plate & Lion Crest
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(-18, -16, 36, 30);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-16, -14, 32, 26);
+    // Gilded Armor Trims
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-16, -14, 32, 2);
+    ctx.fillRect(-16, 10, 32, 2);
+    ctx.fillRect(-16, -14, 2, 26);
+    ctx.fillRect(14, -14, 2, 26);
+    // Heraldic Imperial Lion Sigil
+    ctx.fillStyle = isPhase3 ? '#ef4444' : '#fbbf24';
+    ctx.fillRect(-5, -8, 10, 12);
+    ctx.fillRect(-7, -4, 14, 4);
+
+    // 4. Spiked Gothic Pauldrons (Shoulders)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-24, -22, 12, 12);
+    ctx.fillRect(12, -22, 12, 12);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-22, -20, 8, 8);
+    ctx.fillRect(14, -20, 8, 8);
+    // Steel Pauldron Spikes
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-20, -26, 4, 4);
+    ctx.fillRect(16, -26, 4, 4);
+
+    // 5. Great Helm with Horned Crest & Visor Slit
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(-10, -28, 20, 14);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-8, -26, 16, 10);
+    // Gilded Helm Brow
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-9, -24, 18, 2);
+    // Horned Crest
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-14, -34, 4, 8);
+    ctx.fillRect(10, -34, 4, 8);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-12, -38, 2, 5);
+    ctx.fillRect(10, -38, 2, 5);
+    // Piercing Glowing Visor Slit
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(-6, -20, 13, 3);
+    ctx.fillStyle = isPhase3 ? '#ef4444' : '#f97316';
+    ctx.fillRect(-4, -20, 10, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(isFacingLeft ? -3 : 2, -19.5, 3, 1);
+
+    // 6. Giant Tower Pavise Shield (Left Arm / Front Defense)
+    ctx.save();
+    ctx.translate(-22, -4);
+    // Shield Body
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(-6, -18, 12, 38);
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-4, -16, 8, 34);
+    // Reinforced Gilded Cross & Iron Boss
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-1, -16, 2, 34);
+    ctx.fillRect(-4, 0, 8, 2);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-3, -2, 6, 6);
+    // Active Bastion Shield Aura
+    if (boss.shield) {
+      const shieldPulse = Math.sin(time * 0.2) * 2;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(-9 - shieldPulse, -22 - shieldPulse, 18 + shieldPulse * 2, 46 + shieldPulse * 2);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.fillRect(-9 - shieldPulse, -22 - shieldPulse, 18 + shieldPulse * 2, 46 + shieldPulse * 2);
+    }
+    ctx.restore();
+
+    // 7. Colossal Siege Warhammer (Right Arm / Attack Hand)
+    ctx.save();
+    let hammerAngle = 0.2;
+    if (boss.state === 'attack') {
+      hammerAngle = boss.stateTimer > 20 ? -0.8 : 0.9;
+    } else if (boss.state === 'charging') {
+      hammerAngle = -0.4;
+    }
+    ctx.translate(18, -4);
+    ctx.rotate(hammerAngle);
+    // Shaft (Reinforced Oak & Iron)
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(-2, -34, 4, 46);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-3, -30, 6, 3);
+    ctx.fillRect(-3, 6, 6, 3);
+    // Colossal Stone & Steel Hammer Head
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-14, -46, 28, 16);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-12, -44, 24, 12);
+    // Fiery Rune Cracks on Hammer (Phase 2+)
+    if (isPhase2) {
+      ctx.fillStyle = isPhase3 ? '#ef4444' : '#f59e0b';
+      ctx.fillRect(-8, -41, 16, 2);
+      ctx.fillRect(-2, -44, 4, 12);
+    }
+    // Hammer Back-Spike
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.moveTo(14, -42);
+    ctx.lineTo(24, -38);
+    ctx.lineTo(14, -34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
 
     ctx.restore();
   }

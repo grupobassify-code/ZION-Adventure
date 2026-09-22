@@ -2176,6 +2176,14 @@ export class GameEngine {
         }
       }
 
+      // Hit Destructibles (Castle Smash walls, barricades, siege cores)
+      for (const d of this.destructibles) {
+        if (!d.destroyed && this.checkAABB(attackHitbox, d)) {
+          this.damageDestructible(d, dmg);
+          this.addEnergy(4);
+        }
+      }
+
       // Hit Boss Nodes
       for (const node of this.nodes) {
         if (!node.taken && this.checkAABB(attackHitbox, node)) {
@@ -2286,6 +2294,13 @@ export class GameEngine {
         }
       }
 
+      // Damage all destructibles in radius (Castle Smash explosive demolition)
+      for (const d of this.destructibles) {
+        if (!d.destroyed && this.checkAABB(burstArea, d)) {
+          this.damageDestructible(d, specialDmg);
+        }
+      }
+
       // Damage Boss if in radius (Consistent target area)
       if (this.boss && this.boss.alive) {
         const bossTargetBox = {
@@ -2385,6 +2400,30 @@ export class GameEngine {
         return '#06b6d4'; // High-tech neon cyan
       default:
         return '#38bdf8'; // Electric blue
+    }
+  }
+
+  public damageDestructible(d: DestructibleObject, damage: number) {
+    if (d.destroyed) return;
+    d.hp -= damage;
+    d.hitFlash = 10;
+    d.shake = 8;
+    this.registerHit(damage);
+    const isStone = d.type === 'stone_wall' || d.type === 'siege_core' || d.type === 'iron_gate';
+    const burstColor = isStone ? '#94a3b8' : '#b45309';
+    this.createBurst(d.x + d.w / 2, d.y + d.h / 2, 10, burstColor);
+    sound.playSfx('hit');
+    this.addFloatingText(d.x + d.w / 2, d.y - 8, `-${damage}`, isStone ? '#cbd5e1' : '#f59e0b');
+
+    if (d.hp <= 0) {
+      d.destroyed = true;
+      this.destroyedDestructibleIds.add(d.id);
+      sound.playSfx('shieldBreak');
+      this.createBurst(d.x + d.w / 2, d.y + d.h / 2, 26, burstColor);
+      this.createBurst(d.x + d.w / 2, d.y + d.h / 2, 12, '#ffffff');
+      this.addFloatingText(d.x + d.w / 2, d.y - 14, `💥 ¡${d.name} DESTRUIDO!`, '#fbbf24');
+      this.addEnergy(12);
+      this.stats.score += 250;
     }
   }
 
@@ -3203,6 +3242,51 @@ export class GameEngine {
             color: '#f59e0b',
             size: 1.6,
           });
+        }
+      } else if (h.type === 'swinging_mace') {
+        h.bladeAngle = ((h.bladeAngle || 0) + (h.bladeSpeed || 0.038)) % (Math.PI * 2);
+        if (Math.random() < 0.2 && this.particles.length < 80) {
+          const pivotX = h.x + h.w / 2;
+          const pivotY = h.y;
+          const length = h.chainLength || 52;
+          const angle = h.bladeAngle;
+          this.particles.push({
+            x: pivotX + Math.sin(angle) * length,
+            y: pivotY + Math.cos(angle) * length,
+            vx: (Math.random() - 0.5) * 1.0,
+            vy: (Math.random() - 0.5) * 1.0,
+            life: 8,
+            maxLife: 8,
+            color: '#78716c',
+            size: 1.5,
+          });
+        }
+      } else if (h.type === 'portcullis') {
+        h.ceilingY = h.ceilingY ?? h.y;
+        h.floorY = h.floorY ?? (148 - h.h);
+        h.cycleTimer = ((h.cycleTimer || 0) + 1) % 130;
+        if (h.cycleTimer < 60) {
+          h.y = h.ceilingY;
+          h.active = false;
+        } else if (h.cycleTimer < 75) {
+          // Warning rattle
+          h.y = h.ceilingY + ((h.cycleTimer % 4 < 2) ? 1 : -1);
+          if (h.cycleTimer === 60) this.playHazardSfx(h, 'bossWarning', 80);
+          h.active = false;
+        } else if (h.cycleTimer < 85) {
+          // Rapid slam down
+          h.y = Math.min(h.floorY, h.y + 7.5);
+          h.active = true;
+          if (h.cycleTimer === 75) {
+            this.playHazardSfx(h, 'crushSlam', 85);
+            this.createBurst(h.x + h.w / 2, h.floorY + h.h, 12, '#64748b');
+          }
+        } else {
+          // Stay down briefly then slowly rise back to ceiling
+          if (h.cycleTimer > 105) {
+            h.y = Math.max(h.ceilingY, h.y - 1.2);
+          }
+          h.active = true;
         }
       }
     }
@@ -5258,6 +5342,243 @@ export class GameEngine {
         b.y = groundY;
         b.vy = 0;
       }
+    } else if (b.name.includes('Malakar')) {
+      // =========================================================================
+      // LORD MALAKAR · COLOSO ROMPEMUROS (CASTLE SMASH ACT 3 BOSS)
+      // =========================================================================
+      const p = this.player;
+      const dist = p.x - b.x;
+      const speed = b.phase === 1 ? 1.1 : b.phase === 2 ? 1.6 : 2.2;
+      const groundY = 148 - b.h;
+
+      // Shield active while any of the 3 bastion destructible shields remain (ids 301, 302, 303)
+      const activeBastions = this.destructibles.filter((d) => !d.destroyed && d.id >= 301 && d.id <= 303);
+      const hadShield = b.shield;
+      b.shield = activeBastions.length > 0;
+      if (hadShield && !b.shield) {
+        sound.playSfx('shieldBreak');
+        this.screenShake = 10;
+        this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#f59e0b');
+        this.addFloatingText(b.x + b.w / 2, b.y - 22, '🛡️ ¡ESCUDOS BALUARTE DESTRUIDOS! ¡MALAKAR VULNERABLE!', '#4ade80');
+      }
+
+      if (b.state === 'idle') {
+        b.vx += Math.sign(dist) * 0.05;
+        b.vx = Math.max(-speed, Math.min(speed, b.vx));
+        b.stateTimer--;
+
+        // Heavy armor dust particles
+        if (Math.random() < 0.25) {
+          this.particles.push({
+            x: b.x + (b.facing === 1 ? 4 : b.w - 4),
+            y: b.y + b.h - 2,
+            vx: -b.facing * (0.5 + Math.random()),
+            vy: -0.5 - Math.random(),
+            life: 12,
+            maxLife: 12,
+            color: '#78716c',
+            size: 2,
+          });
+        }
+
+        if (b.stateTimer <= 0) {
+          const absDist = Math.abs(dist);
+          const roll = Math.random();
+
+          if (absDist < 75) {
+            // Close range: Warhammer Cleave / Smash
+            b.state = 'attack';
+            b.stateTimer = 40;
+            b.telegraphTimer = 22;
+            sound.playSfx('bossWarning');
+            this.addFloatingText(b.x + b.w / 2, b.y - 16, '🔨 ¡MARTILLO DE ASEDIO!', '#ef4444');
+          } else if (roll < 0.40) {
+            // Mid/Far range: Leaping Ground Slam
+            b.state = 'jumping';
+            b.vy = -7.6;
+            b.vx = Math.sign(dist) * 3.4;
+            b.stateTimer = 60;
+            sound.playSfx('jump');
+            this.addFloatingText(b.x + b.w / 2, b.y - 16, '⚡ ¡SALTO DEMOLEDOR!', '#f59e0b');
+          } else if (roll < 0.75) {
+            // Shield-Bash Rush Charge
+            b.state = 'charging';
+            b.stateTimer = 45;
+            b.telegraphTimer = 15;
+            sound.playSfx('bossWarning');
+            this.addFloatingText(b.x + b.w / 2, b.y - 16, '🛡️ ¡EMBESTIDA DE BALUARTE!', '#fbbf24');
+          } else {
+            // Signal Catapult Artillery Barrage
+            b.state = 'catapult';
+            b.stateTimer = 50;
+            sound.playSfx('flameWhoosh');
+            this.addFloatingText(b.x + b.w / 2, b.y - 16, '☄️ ¡FUEGO DE CATAPULTA!', '#f97316');
+          }
+        }
+      } else if (b.state === 'attack') {
+        b.vx *= 0.82;
+        b.stateTimer--;
+
+        // Slam impact at frame 16
+        if (b.stateTimer === 16) {
+          sound.playSfx('crushSlam');
+          this.screenShake = 8;
+          const slamX = b.x + (b.facing === 1 ? b.w + 14 : -14);
+
+          // Impact burst & debris
+          this.createBurst(slamX, 146, 22, '#f59e0b');
+          this.createBurst(slamX, 146, 12, '#78716c');
+
+          // Ground shockwaves traveling in both directions
+          b.shockwaves.push({
+            x: slamX,
+            y: 138,
+            vx: b.facing * (3.8 + b.phase * 0.4),
+            w: 16,
+            h: 12,
+            life: 60,
+            maxLife: 60,
+            color: '#f59e0b',
+          });
+          b.shockwaves.push({
+            x: slamX,
+            y: 138,
+            vx: -b.facing * 3.0,
+            w: 14,
+            h: 12,
+            life: 45,
+            maxLife: 45,
+            color: '#78716c',
+          });
+
+          // Melee damage check on Zion
+          const hammerHitbox = {
+            x: b.facing === 1 ? b.x + b.w - 6 : b.x - 24,
+            y: b.y + 6,
+            w: 32,
+            h: b.h + 8,
+          };
+          if (this.checkAABB(p, hammerHitbox) && p.inv <= 0 && !this.settings.godMode) {
+            this.handlePlayerDamage('¡Impacto de Martillo de Asedio!');
+          }
+        }
+
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+        }
+      } else if (b.state === 'jumping') {
+        b.vy = Math.min(b.vy + GRAVITY, 8);
+        b.x += b.vx;
+        b.y += b.vy;
+
+        // Land on arena ground
+        if (b.y >= groundY) {
+          b.y = groundY;
+          b.vy = 0;
+          b.vx = 0;
+          sound.playSfx('crushSlam');
+          this.screenShake = 9;
+          this.createBurst(b.x + b.w / 2, 146, 26, '#f59e0b');
+          this.createBurst(b.x + b.w / 2, 146, 16, '#cbd5e1');
+
+          // Twin seismic shockwaves
+          b.shockwaves.push({
+            x: b.x + b.w / 2,
+            y: 138,
+            vx: -3.8 - b.phase * 0.4,
+            w: 16,
+            h: 12,
+            life: 65,
+            maxLife: 65,
+            color: '#f59e0b',
+          });
+          b.shockwaves.push({
+            x: b.x + b.w / 2,
+            y: 138,
+            vx: 3.8 + b.phase * 0.4,
+            w: 16,
+            h: 12,
+            life: 65,
+            maxLife: 65,
+            color: '#f59e0b',
+          });
+
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 30;
+        }
+      } else if (b.state === 'charging') {
+        b.stateTimer--;
+        if (b.telegraphTimer > 0) {
+          b.vx = 0;
+        } else {
+          b.vx = b.facing * (b.phase === 3 ? 4.6 : 3.6);
+          b.x += b.vx;
+
+          // Charge trail particles
+          this.particles.push({
+            x: b.x + (b.facing === 1 ? 0 : b.w),
+            y: b.y + b.h - 6,
+            vx: -b.facing * 1.5,
+            vy: -0.5,
+            life: 10,
+            maxLife: 10,
+            color: '#f59e0b',
+            size: 2.5,
+          });
+
+          // Impact on player
+          if (this.checkAABB(p, b) && p.inv <= 0 && !this.settings.godMode) {
+            this.handlePlayerDamage('¡Embestida Acorazada de Malakar!');
+            b.state = 'idle';
+            b.stateTimer = 35;
+          }
+
+          // Damage any destructible barriers in his path
+          for (const d of this.destructibles) {
+            if (!d.destroyed && this.checkAABB(b, d)) {
+              this.damageDestructible(d, 4);
+            }
+          }
+        }
+
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = 25;
+        }
+      } else if (b.state === 'catapult') {
+        b.vx *= 0.8;
+        b.stateTimer--;
+
+        // Spawn falling boulders from sky at frames 35, 25 (and 15 in Phase 3)
+        if (b.stateTimer === 35 || b.stateTimer === 25 || (b.phase === 3 && b.stateTimer === 15)) {
+          sound.playSfx('flameWhoosh');
+          const targetX = p.x + (Math.random() - 0.5) * 80;
+          this.projectiles.push({
+            x: targetX,
+            y: -20,
+            w: 16,
+            h: 16,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: 4.8 + b.phase * 0.4,
+            life: 80,
+            isHero: false,
+            kind: 'catapult_boulder',
+          });
+          this.addFloatingText(targetX, 40, '⚠️', '#ef4444');
+        }
+
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 20 : 35;
+        }
+      }
+
+      // Keep Malakar on arena ground when not leaping
+      if (b.state !== 'jumping' && b.y !== groundY) {
+        b.y = groundY;
+        b.vy = 0;
+      }
     }
 
     // Universal Relentless Boss Watchdog: Ensures the boss NEVER goes passive or stops attacking
@@ -5397,6 +5718,28 @@ export class GameEngine {
           });
         }
       }
+      if (p.kind === 'catapult_boulder') {
+        p.angle = ((p.angle || 0) + 0.1) % (Math.PI * 2);
+        if (Math.random() < 0.35 && this.particles.length < maxParticles) {
+          this.particles.push({
+            x: p.x + p.w / 2,
+            y: p.y + p.h / 2,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -0.5 - Math.random(),
+            life: 8,
+            maxLife: 8,
+            color: '#f97316',
+            size: 2,
+          });
+        }
+        if (p.y >= 144) {
+          p.life = 0;
+          this.createBurst(p.x + p.w / 2, 146, 16, '#78716c');
+          this.createBurst(p.x + p.w / 2, 146, 8, '#f59e0b');
+          sound.playSfx('crushSlam');
+          this.screenShake = Math.max(this.screenShake, 5);
+        }
+      }
       p.x += p.vx;
       p.y += p.vy;
       p.life--;
@@ -5451,6 +5794,15 @@ export class GameEngine {
             incrementAchievementProgress('dagger_sniper', 1);
           }
           proj.life = 0;
+        }
+      }
+
+      // Destructibles Hit (Castle Smash)
+      for (const d of this.destructibles) {
+        if (!d.destroyed && this.checkAABB(proj, d)) {
+          this.damageDestructible(d, proj.damage || 2);
+          proj.life = 0;
+          break;
         }
       }
 
@@ -5835,6 +6187,18 @@ export class GameEngine {
           isColliding = Math.hypot(pcx - gcx, pcy - gcy) < rad;
         } else if (h.type === 'scalding_steam') {
           isColliding = this.checkAABB(p, h);
+        } else if (h.type === 'swinging_mace') {
+          const pivotX = h.x + h.w / 2;
+          const pivotY = h.y;
+          const length = h.chainLength || 52;
+          const angle = h.bladeAngle || 0;
+          const maceX = pivotX + Math.sin(angle) * length;
+          const maceY = pivotY + Math.cos(angle) * length;
+          const playerCenterX = p.x + p.w / 2;
+          const playerCenterY = p.y + p.h / 2;
+          isColliding = Math.hypot(playerCenterX - maceX, playerCenterY - maceY) < 14;
+        } else if (h.type === 'portcullis') {
+          isColliding = h.active ? this.checkAABB(p, h) : false;
         } else {
           isColliding = this.checkAABB(p, h);
         }
@@ -6717,6 +7081,7 @@ export class GameEngine {
     this.collectedSecretIndices = new Set(this.cpSavedSecrets);
     this.collectedNodeIndices = new Set(this.cpSavedNodes);
     this.defeatedEnemyIndices = new Set(this.cpSavedEnemies);
+    this.destroyedDestructibleIds = new Set(this.cpSavedDestructibles);
 
     // Apply to current level items so they do not reappear
     this.crystals.forEach((c, idx) => {
@@ -6733,6 +7098,9 @@ export class GameEngine {
     });
     this.enemies.forEach((e, idx) => {
       if (this.defeatedEnemyIndices.has(idx)) e.alive = false;
+    });
+    this.destructibles.forEach((d) => {
+      if (this.destroyedDestructibleIds.has(d.id)) d.destroyed = true;
     });
 
     // Clear hazardous hostile projectiles near respawn point

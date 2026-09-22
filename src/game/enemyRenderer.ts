@@ -171,6 +171,23 @@ export class EnemyRenderer {
         this.renderRustGolem(anim, time, e);
         break;
 
+      // --- ZONA 9: CASTLE SMASH ---
+      case 'castle_knight':
+        this.renderCastleKnight(anim, time, e);
+        break;
+      case 'shield_guard':
+        this.renderShieldGuard(anim, time, e);
+        break;
+      case 'gargoyle':
+        this.renderGargoyle(anim, time, e);
+        break;
+      case 'siege_crossbow':
+        this.renderSiegeCrossbow(anim, time, e);
+        break;
+      case 'castle_golem':
+        this.renderCastleGolem(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -2259,5 +2276,282 @@ export class EnemyRenderer {
     ctx.fillStyle = '#78350f';
     ctx.fillRect(-11, 2 + sway, 4, 4);
     ctx.fillRect(7, 2 - sway, 4, 4);
+  }
+
+  // =========================================================================
+  // ZONA 9: CASTLE SMASH (MEDIEVAL FORTRESS ENEMIES)
+  // =========================================================================
+
+  private renderCastleKnight(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walkBob = Math.sin(anim * 0.25) * 1.5;
+
+    // Armored Greaves & Sabatons
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-5, 4 + walkBob, 4, 6);
+    ctx.fillRect(1, 4 - walkBob, 4, 6);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-6, 8 + walkBob, 5, 2);
+    ctx.fillRect(1, 8 - walkBob, 5, 2);
+
+    // Steel Cuirass & Heraldic Surcoat (Crimson & Gold)
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-6, -6 + walkBob, 12, 10);
+    ctx.fillStyle = '#991b1b'; // Crimson tabard
+    ctx.fillRect(-4, -6 + walkBob, 8, 10);
+    ctx.fillStyle = '#f59e0b'; // Golden lion emblem cross
+    ctx.fillRect(-1, -4 + walkBob, 2, 6);
+    ctx.fillRect(-3, -2 + walkBob, 6, 2);
+
+    // Great Helm with Plume & Visor Slit
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-4, -13 + walkBob, 8, 7);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(-3, -12 + walkBob, 6, 5);
+    // Dark Visor Slit with Glint
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-2, -10 + walkBob, 5, 1.5);
+    ctx.fillStyle = '#ef4444'; // Glowing red pupil in darkness
+    ctx.fillRect(1, -10 + walkBob, 1.5, 1.5);
+    // Scarlet Feather Plume
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-2, -16 + walkBob, 4, 3);
+    ctx.fillRect(-3, -15 + walkBob, 2, 2);
+
+    // Broadsword with Steel Glint
+    const swing = Math.sin(time * 0.15) * 0.1;
+    ctx.save();
+    ctx.translate(5, -2 + walkBob);
+    ctx.rotate(swing);
+    // Crossguard & Pommel
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-2, 2, 5, 2);
+    ctx.fillRect(-0.5, 4, 2, 2);
+    // Steel Blade
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-0.5, -12, 2, 14);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0.5, -11, 1, 12);
+    ctx.restore();
+  }
+
+  private renderShieldGuard(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walkBob = Math.sin(anim * 0.2) * 1.0;
+
+    // Armored Legs
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-5, 4 + walkBob, 4, 6);
+    ctx.fillRect(1, 4 - walkBob, 4, 6);
+
+    // Body
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-6, -6 + walkBob, 12, 10);
+
+    // Kettle Hat Helmet
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-5, -12 + walkBob, 10, 6);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-7, -8 + walkBob, 14, 2); // Wide brim
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-3, -8 + walkBob, 6, 1.5); // Eyes beneath brim
+
+    // Massive Iron Tower Pavise Shield (Covers most of front)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(2, -10 + walkBob, 8, 18);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(3, -9 + walkBob, 6, 16);
+    // Shield Boss & Reinforced Studs
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(5, -3 + walkBob, 3, 3);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(3, -8 + walkBob, 1.5, 1.5);
+    ctx.fillRect(3, 5 + walkBob, 1.5, 1.5);
+    ctx.fillRect(7, -8 + walkBob, 1.5, 1.5);
+    ctx.fillRect(7, 5 + walkBob, 1.5, 1.5);
+
+    // Spear Tip Protruding Above Shield
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(0, -18 + walkBob, 2, 12);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-0.5, -22 + walkBob, 3, 5);
+  }
+
+  private renderGargoyle(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const wingFlap = Math.sin(time * 0.2) * 0.4;
+    const hoverY = Math.sin(time * 0.1) * 2;
+
+    // Stone Gargoyle Wings (Flapping in parallax)
+    ctx.save();
+    ctx.translate(0, -2 + hoverY);
+    // Left Wing
+    ctx.save();
+    ctx.rotate(-0.3 + wingFlap);
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.moveTo(-4, 0);
+    ctx.lineTo(-15, -10);
+    ctx.lineTo(-12, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#475569';
+    ctx.beginPath();
+    ctx.moveTo(-4, 0);
+    ctx.lineTo(-13, -8);
+    ctx.lineTo(-10, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Right Wing
+    ctx.save();
+    ctx.rotate(0.3 - wingFlap);
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.moveTo(4, 0);
+    ctx.lineTo(15, -10);
+    ctx.lineTo(12, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#475569';
+    ctx.beginPath();
+    ctx.moveTo(4, 0);
+    ctx.lineTo(13, -8);
+    ctx.lineTo(10, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    ctx.restore();
+
+    // Clawed Talons
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-4, 4 + hoverY, 3, 4);
+    ctx.fillRect(1, 4 + hoverY, 3, 4);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-5, 7 + hoverY, 4, 2);
+    ctx.fillRect(1, 7 + hoverY, 4, 2);
+
+    // Weathered Granite Torso
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-5, -6 + hoverY, 10, 10);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-4, -5 + hoverY, 8, 8);
+    // Granite Cracks & Moss Patches
+    ctx.fillStyle = '#166534';
+    ctx.fillRect(-3, -2 + hoverY, 3, 2);
+    ctx.fillRect(1, 0 + hoverY, 2, 2);
+
+    // Horned Gargoyle Head
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-4, -13 + hoverY, 8, 7);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-3, -12 + hoverY, 6, 5);
+    // Curved Stone Horns
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-5, -16 + hoverY, 2, 4);
+    ctx.fillRect(3, -16 + hoverY, 2, 4);
+    // Glowing Amber / Sulphur Eyes
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-2, -10 + hoverY, 2, 2);
+    ctx.fillRect(1, -10 + hoverY, 2, 2);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-1.5, -9.5 + hoverY, 1, 1);
+    ctx.fillRect(1.5, -9.5 + hoverY, 1, 1);
+  }
+
+  private renderSiegeCrossbow(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walkBob = Math.sin(anim * 0.25) * 1.2;
+
+    // Leather Boots
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(-5, 4 + walkBob, 4, 6);
+    ctx.fillRect(1, 4 - walkBob, 4, 6);
+
+    // Gambeson & Brigandine Armor (Dark Brown & Rivets)
+    ctx.fillStyle = '#292524';
+    ctx.fillRect(-6, -6 + walkBob, 12, 10);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-5, -5 + walkBob, 10, 8);
+    ctx.fillStyle = '#d97706'; // Iron studs
+    ctx.fillRect(-3, -3 + walkBob, 1.5, 1.5);
+    ctx.fillRect(2, -3 + walkBob, 1.5, 1.5);
+
+    // Archer Cap / Sallet Helmet
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(-4, -12 + walkBob, 8, 6);
+    ctx.fillStyle = '#57534e';
+    ctx.fillRect(-3, -11 + walkBob, 6, 4);
+    // Piercing Visor Slit
+    ctx.fillStyle = '#0c0a09';
+    ctx.fillRect(-1, -9 + walkBob, 4, 1.5);
+    ctx.fillStyle = '#38bdf8'; // Keen blue eye
+    ctx.fillRect(1, -9 + walkBob, 1.5, 1);
+
+    // Heavy Siege Crossbow
+    ctx.fillStyle = '#78350f'; // Stock
+    ctx.fillRect(1, -4 + walkBob, 9, 3);
+    ctx.fillStyle = '#475569'; // Steel prod (bow limb)
+    ctx.fillRect(8, -8 + walkBob, 3, 11);
+    ctx.fillStyle = '#94a3b8'; // Steel bolt loaded
+    ctx.fillRect(2, -5 + walkBob, 8, 1.5);
+    ctx.fillStyle = '#ef4444'; // Red fletching
+    ctx.fillRect(2, -6 + walkBob, 2, 1);
+  }
+
+  private renderCastleGolem(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const stomp = Math.sin(time * 0.1) * 1.5;
+
+    // Hewn Fortress Stone Pillars (Legs)
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-7, 3 + stomp, 6, 8);
+    ctx.fillRect(2, 3 - stomp, 6, 8);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-6, 4 + stomp, 4, 6);
+    ctx.fillRect(3, 4 - stomp, 4, 6);
+
+    // Fortified Masonry Castle Torso
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-9, -9 + stomp * 0.5, 18, 13);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-8, -8 + stomp * 0.5, 16, 11);
+    // Stone Mortar Grid Lines
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-8, -5 + stomp * 0.5, 16, 1);
+    ctx.fillRect(-8, -2 + stomp * 0.5, 16, 1);
+    ctx.fillRect(-3, -8 + stomp * 0.5, 1, 3);
+    ctx.fillRect(2, -5 + stomp * 0.5, 1, 3);
+    ctx.fillRect(-1, -2 + stomp * 0.5, 1, 4);
+
+    // Glowing Golden Runic Castle Heart
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-3, -6 + stomp * 0.5, 6, 5);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-2, -5 + stomp * 0.5, 4, 3);
+
+    // Crenellated Battlement Head
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-6, -14 + stomp * 0.5, 12, 6);
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(-5, -13 + stomp * 0.5, 10, 4);
+    // Crenellations (Castle Merlons)
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-6, -16 + stomp * 0.5, 3, 3);
+    ctx.fillRect(-1, -16 + stomp * 0.5, 3, 3);
+    ctx.fillRect(4, -16 + stomp * 0.5, 3, 3);
+    // Glowing Red Eye Slits
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-3, -11 + stomp * 0.5, 2, 1.5);
+    ctx.fillRect(1, -11 + stomp * 0.5, 2, 1.5);
+
+    // Heavy Stone Flail / Mace Arm
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(9, -7 + stomp, 4, 11);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(8, 2 + stomp, 6, 6); // Spiked stone fist
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(10, 4 + stomp, 2, 2);
   }
 }

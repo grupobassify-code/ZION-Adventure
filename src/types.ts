@@ -65,7 +65,8 @@ export interface Platform {
     | 'castle_stone'
     | 'castle_parapet'
     | 'castle_bridge'
-    | 'castle_iron';
+    | 'castle_iron'
+    | 'crumbling_floor';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -401,7 +402,7 @@ export interface Boss {
   name: string;
   title: string;
   subtitle?: string;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack';
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;
@@ -428,7 +429,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt';
   homingTimer?: number;
   angle?: number;
   color?: string;
@@ -474,7 +475,7 @@ export interface FloatingText {
 }
 
 export interface Landmark {
-  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower';
+  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower' | 'castle_keep' | 'siege_catapult' | 'throne_dais' | 'royal_banner' | 'stone_gargoyle_perch';
   x: number;
   y?: number;
   w?: number;
