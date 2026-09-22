@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Compass, Target, ShieldAlert, X } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
+import { useLanguage, getLevelTitle, getLevelSubtitle, getZoneLocalizedName } from '../utils/i18n';
 
 interface LevelIntroBannerProps {
   levelIndex: number;
@@ -8,6 +9,7 @@ interface LevelIntroBannerProps {
 }
 
 export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, onDismiss }) => {
+  const { language } = useLanguage();
   const [visible, setVisible] = useState(true);
   const [animatingOut, setAnimatingOut] = useState(false);
 
@@ -34,18 +36,21 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
 
   if (!visible) return null;
 
-  const zoneNames: Record<string, { name: string; icon: string }> = {
-    neon: { name: 'BOSQUE NEÓN', icon: '⚡' },
-    sakura: { name: 'BOSQUE DE CEREZO', icon: '🌸' },
-    lavacliff: { name: 'ACANTILADO DE LAVA', icon: '🌋' },
-    desert: { name: 'SANTUARIO DEL DESIERTO', icon: '🏛️' },
-    krono: { name: 'KRONO CITY METRÓPOLIS', icon: '🏙️' },
-    travel: { name: 'DIMENSIÓN KRONOS TRAVEL', icon: '🌌' },
-    jungle: { name: 'JUNGLE RUN', icon: '🌴' },
-    blizzard: { name: 'BLIZZARD RUSH', icon: '❄️' },
+  const zoneIcons: Record<string, string> = {
+    neon: '⚡',
+    sakura: '🌸',
+    lavacliff: '🌋',
+    desert: '🏛️',
+    krono: '🏙️',
+    travel: '🌌',
+    jungle: '🌴',
+    blizzard: '❄️',
+    steampunk: '⚙️',
+    castlesmash: '🏰',
   };
 
-  const zoneInfo = zoneNames[config.zone] || { name: config.zone.toUpperCase(), icon: '⚔️' };
+  const zoneIcon = zoneIcons[config.zone] || '⚔️';
+  const zoneName = getZoneLocalizedName(config.zone, language).toUpperCase();
   const isBossLevel =
     config.act === 3 ||
     (config.zone === 'desert' && config.act === 2) ||
@@ -86,7 +91,7 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
         <button
           onClick={handleManualClose}
           className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-slate-900/80 text-slate-400 hover:text-white"
-          title="Cerrar banner"
+          title={language === 'es' ? 'Cerrar banner' : 'Close banner'}
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -101,8 +106,8 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
               color: themeColor,
             }}
           >
-            <span>{zoneInfo.icon}</span>
-            <span>{zoneInfo.name}</span>
+            <span>{zoneIcon}</span>
+            <span>{zoneName}</span>
           </span>
 
           <span
@@ -113,18 +118,22 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
             }`}
           >
             {isBossLevel ? <ShieldAlert className="w-3 h-3 text-rose-400" /> : <Compass className="w-3 h-3 text-amber-400" />}
-            <span>{isBossLevel ? 'DUELO DE JEFE' : `ACTO ${config.act}`}</span>
+            <span>
+              {isBossLevel
+                ? (language === 'es' ? 'DUELO DE JEFE' : 'BOSS SHOWDOWN')
+                : (language === 'es' ? `ACTO ${config.act}` : `ACT ${config.act}`)}
+            </span>
           </span>
         </div>
 
         {/* Level Title */}
         <h2 className="text-sm sm:text-xl font-black text-white font-heading tracking-wide uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.4)] leading-tight">
-          {config.title}
+          {getLevelTitle(config, language)}
         </h2>
 
         {/* Subtitle */}
         <p className="text-[10px] sm:text-xs text-slate-300 font-medium max-w-md line-clamp-1">
-          {config.subtitle}
+          {getLevelSubtitle(config, language)}
         </p>
 
         {/* Mission Directive Banner */}
@@ -132,13 +141,13 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
           <Target className="w-3 h-3 text-rose-400 shrink-0" />
           <span className="truncate">
             {isBossLevel
-              ? 'OBJETIVO: Desactiva los 3 Nodos y Derrota al Guardián'
-              : 'OBJETIVO: Recolecta Cristales y Llega al Portal'}
+              ? (language === 'es' ? 'OBJETIVO: Desactiva los 3 Nodos y Derrota al Guardián' : 'MISSION: Disable 3 Nodes & Defeat the Guardian')
+              : (language === 'es' ? 'OBJETIVO: Recolecta Cristales y Llega al Portal' : 'MISSION: Collect Crystals & Reach the Portal')}
           </span>
         </div>
 
         <span className="text-[8px] text-slate-500 font-mono -mt-0.5">
-          (Toca para continuar jugando)
+          {language === 'es' ? '(Toca para continuar jugando)' : '(Tap to continue playing)'}
         </span>
       </div>
     </div>

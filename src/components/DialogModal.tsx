@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, ArrowRight, Play, FastForward } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
+import { useLanguage, getLocalizedLore, getLevelSubtitle } from '../utils/i18n';
 
 interface DialogModalProps {
   levelIndex: number;
@@ -15,9 +16,10 @@ export const DialogModal: React.FC<DialogModalProps> = ({
   onAdvance,
   onSkip,
 }) => {
+  const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
-  const lorePages = currentConfig.lore;
-  const currentLore = lorePages[currentPage] || lorePages[0];
+  const lorePages = getLocalizedLore(currentConfig, language);
+  const currentLore = lorePages[currentPage] || lorePages[0] || currentConfig.lore[0];
 
   const isLastPage = currentPage >= lorePages.length - 1;
   const themeColor = currentConfig.themeColor || '#ec4899';
@@ -46,7 +48,7 @@ export const DialogModal: React.FC<DialogModalProps> = ({
                 style={{ color: themeColor }}
               >
                 <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span className="truncate">{currentConfig.subtitle}</span>
+                <span className="truncate">{getLevelSubtitle(currentConfig, language)}</span>
               </span>
             </div>
             <h2 className="text-base sm:text-xl font-black text-slate-100 mt-0.5 font-heading tracking-tight truncate">
@@ -81,10 +83,10 @@ export const DialogModal: React.FC<DialogModalProps> = ({
           <button
             onClick={onSkip}
             className="flex items-center gap-1 text-[11px] sm:text-xs font-mono text-slate-400 hover:text-slate-200 transition-colors px-2.5 py-1.5 rounded-lg active:scale-95"
-            title="Saltar historia e iniciar partida directamente"
+            title={t('dialogSkip')}
           >
             <FastForward className="w-3.5 h-3.5 text-slate-500" />
-            <span>Saltar historia</span>
+            <span>{t('dialogSkip')}</span>
           </button>
 
           <button
@@ -95,7 +97,7 @@ export const DialogModal: React.FC<DialogModalProps> = ({
               boxShadow: `0 0 20px ${themeColor}50`,
             }}
           >
-            <span>{isLastPage ? 'COMENZAR NIVEL' : 'CONTINUAR'}</span>
+            <span>{isLastPage ? t('dialogStartLevel') : t('dialogContinue')}</span>
             {isLastPage ? <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" /> : <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
         </div>

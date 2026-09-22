@@ -3,6 +3,7 @@ import { Heart, Volume2, VolumeX, Pause, Maximize2, ShieldAlert, Zap, Award, Shi
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameEngine } from '../game/gameEngine';
 import { formatTimeMs } from '../game/timeAttackGhost';
+import { useLanguage, getLevelTitle } from '../utils/i18n';
 
 interface GameHUDProps {
   engine: GameEngine;
@@ -24,6 +25,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   isPortrait = false,
   onToggleOrientation,
 }) => {
+  const { language, t } = useLanguage();
   const boss = engine.boss;
   const isBossActive = boss && engine.arenaActive && !engine.bossDefeated;
 
@@ -70,7 +72,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           <div className="flex items-center gap-1 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-xl border border-cyan-500/40 shadow-sm">
             <div className="flex items-center gap-0.5 text-[9px] sm:text-[11px] font-black text-cyan-300 font-mono">
               <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400" />
-              <span>NV.{p.level}</span>
+              <span>{language === 'es' ? 'NV.' : 'LV.'}{p.level}</span>
             </div>
             {/* XP Bar (shown on medium screens and up) */}
             <div className="hidden sm:block w-10 sm:w-14 h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-cyan-900/60" title={`XP: ${p.xp}/${p.xpNeeded}`}>
@@ -83,13 +85,13 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
           {/* Hearts Container / Skiing Immunity Badge */}
           {p.isSkiing ? (
-            <div className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl border border-sky-400/60 shadow-sm" title="Blizzard Rush: ¡Inmune al daño!">
+            <div className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-xl border border-sky-400/60 shadow-sm" title={language === 'es' ? 'Blizzard Rush: ¡Inmune al daño!' : 'Blizzard Rush: Immune to damage!'}>
               <span className="text-sky-300 font-black text-[9px] sm:text-[11px] font-mono tracking-wider flex items-center gap-1">
-                🎿 <span>DESCENSO</span>
+                🎿 <span>{language === 'es' ? 'DESCENSO' : 'DOWNHILL'}</span>
               </span>
             </div>
           ) : !engine.isOnlyUpMode ? (
-            <div className="flex items-center gap-0.5 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-pink-500/30 shadow-sm" title={`Vidas: ${engine.lives}/${engine.maxLives}`}>
+            <div className="flex items-center gap-0.5 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-pink-500/30 shadow-sm" title={`${language === 'es' ? 'Vidas' : 'Lives'}: ${engine.lives}/${engine.maxLives}`}>
               {Array.from({ length: engine.maxLives }).map((_, idx) => (
                 <Heart
                   key={idx}
@@ -116,7 +118,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
                 ? 'bg-cyan-950/90 border-cyan-400'
                 : 'bg-slate-950/85 border-cyan-500/40'
             }`} 
-            title={p.isShieldBroken ? '¡Escudo Roto!' : `Escudo: ${Math.round(p.shieldEnergy)}%`}
+            title={p.isShieldBroken ? (language === 'es' ? '¡Escudo Roto!' : 'Shield Broken!') : `${language === 'es' ? 'Escudo' : 'Shield'}: ${Math.round(p.shieldEnergy)}%`}
           >
             <Shield className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.isShieldBroken ? 'text-rose-400 animate-spin' : p.isBlocking ? 'text-cyan-300' : 'text-cyan-400'}`} />
             <div className="w-7 sm:w-12 h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
@@ -134,7 +136,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           </div>
 
           {/* SP Energy Gauge */}
-          <div className="flex items-center gap-1 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-amber-500/40 shadow-sm" title={`Energía SP: ${p.energy}/${p.maxEnergy}`}>
+          <div className="flex items-center gap-1 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-amber-500/40 shadow-sm" title={`${language === 'es' ? 'Energía SP' : 'SP Energy'}: ${p.energy}/${p.maxEnergy}`}>
             <Zap className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.energy >= 70 ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
             <div className="w-7 sm:w-10 h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-amber-900/60">
               <div
@@ -162,7 +164,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
                   ? 'text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]'
                   : 'text-cyan-300'
               }`}
-              title={`Cristales: ${engine.stats.crystalsCollected}/${engine.stats.totalCrystals || '?'}`}
+              title={`${language === 'es' ? 'Cristales' : 'Crystals'}: ${engine.stats.crystalsCollected}/${engine.stats.totalCrystals || '?'}`}
             >
               <Diamond className={`w-2.5 h-2.5 sm:w-3 sm:h-3 ${engine.stats.totalCrystals > 0 && engine.stats.crystalsCollected >= engine.stats.totalCrystals ? 'text-amber-400 animate-bounce' : 'text-cyan-400'}`} />
               <span>
@@ -187,7 +189,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             ) : (
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-xs font-bold text-slate-200 shadow-md backdrop-blur-md">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: currentLevelConfig.themeColor || '#06b6d4' }} />
-                <span className="truncate max-w-[120px] text-[11px]">{currentLevelConfig.title}</span>
+                <span className="truncate max-w-[120px] text-[11px]">{getLevelTitle(currentLevelConfig, language)}</span>
               </div>
             )}
           </div>
@@ -195,7 +197,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           {/* Audio Mute/Unmute */}
           <button
             onClick={onToggleAudio}
-            title={audioActive ? 'Silenciar Audio' : 'Activar Sonido y Música'}
+            title={audioActive ? (language === 'es' ? 'Silenciar Audio' : 'Mute Audio') : (language === 'es' ? 'Activar Sonido y Música' : 'Unmute Sound and Music')}
             className="p-1 sm:p-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:border-cyan-400 transition-colors shadow-sm active:scale-95 cursor-pointer"
           >
             {audioActive ? <Volume2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" /> : <VolumeX className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />}
@@ -204,7 +206,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           {/* Orientation / Fullscreen */}
           <button
             onClick={onToggleOrientation || onToggleFullscreen}
-            title={isPortrait ? 'Cambiar a horizontal' : 'Pantalla Completa'}
+            title={isPortrait ? (language === 'es' ? 'Cambiar a horizontal' : 'Switch to landscape') : (language === 'es' ? 'Pantalla Completa' : 'Fullscreen')}
             className="p-1 sm:p-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:border-cyan-400 transition-colors shadow-sm active:scale-95 cursor-pointer"
           >
             {isPortrait ? (
@@ -217,11 +219,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           {/* Pause Button */}
           <button
             onClick={onTogglePause}
-            title="Pausa (P / ESC)"
+            title={language === 'es' ? 'Pausa (P / ESC)' : 'Pause (P / ESC)'}
             className="flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-slate-200 hover:text-white hover:border-emerald-400 transition-all shadow-sm active:scale-95 text-[10px] sm:text-xs font-bold cursor-pointer"
           >
             <Pause className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span className="hidden sm:inline">PAUSA</span>
+            <span className="hidden sm:inline">{language === 'es' ? 'PAUSA' : 'PAUSE'}</span>
           </button>
         </div>
       </div>
@@ -232,11 +234,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           <div className="flex items-center justify-between text-[8px] sm:text-xs font-mono mb-0.5">
             <div className="flex items-center gap-1 text-cyan-300 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              <span>Tú ({Math.min(100, Math.round((engine.player.x / Math.max(1, engine.goal.x)) * 100))}%)</span>
+              <span>{language === 'es' ? 'Tú' : 'You'} ({Math.min(100, Math.round((engine.player.x / Math.max(1, engine.goal.x)) * 100))}%)</span>
             </div>
             <div className="flex items-center gap-0.5 text-[7px] sm:text-[9px] font-mono font-black text-amber-300 px-1 py-0.2 rounded-full bg-slate-900 border border-amber-500/30">
               <Swords className="w-2 h-2 text-amber-400" />
-              <span>{engine.player.x >= engine.aiRunner.x ? '1º' : '2º'}</span>
+              <span>{engine.player.x >= engine.aiRunner.x ? '1st' : '2nd'}</span>
             </div>
             <div className="flex items-center gap-1 text-emerald-300 font-bold">
               <span className="truncate max-w-[60px] sm:max-w-none">{engine.aiRunner.name}</span>
@@ -290,7 +292,9 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               <span className="truncate">{boss.name}</span>
             </div>
             <span className="text-slate-300 text-[9px] sm:text-[10px] shrink-0">
-              {boss.shield ? '🛡️ ESCUDO ACTIVO (3 NODOS)' : `FASE ${boss.phase} · ${boss.hp}/${boss.maxHp} HP`}
+              {boss.shield 
+                ? (language === 'es' ? '🛡️ ESCUDO ACTIVO (3 NODOS)' : '🛡️ SHIELD ACTIVE (3 NODES)') 
+                : `${language === 'es' ? 'FASE' : 'PHASE'} ${boss.phase} · ${boss.hp}/${boss.maxHp} HP`}
             </span>
           </div>
           <div className="w-full h-2 sm:h-2.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-rose-900">

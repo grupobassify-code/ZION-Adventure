@@ -64,7 +64,7 @@ import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
 import { SoundtrackModal } from './SoundtrackModal';
 import { ModeLevelSelectModal } from './ModeLevelSelectModal';
 import { Music } from 'lucide-react';
-import { useLanguage } from '../utils/i18n';
+import { useLanguage, getLevelTitle, getLevelSubtitle, getZoneLocalizedName, getZoneLocalizedSubtitle } from '../utils/i18n';
 import { LanguageSelector } from './LanguageSelector';
 
 interface MainMenuProps {
@@ -228,50 +228,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [soonToast, setSoonToast] = useState<string | null>(null);
 
   const getZoneName = (zoneId: ZoneId) => {
-    if (zoneId === 'blizzard') return 'Blizzard Rush';
-    if (zoneId === 'steampunk') return 'Steampunk';
-    if (zoneId === 'castlesmash') return 'Castle Smash';
-    if (zoneId === 'piratestreasure') return 'Pirates Treasure';
-    if (zoneId === 'jurasicdraft') return 'Jurasic draft';
-    if (zoneId === 'themoon') return 'The moon';
-    const key = `zone_${zoneId}_name` as any;
-    const val = t(key);
-    return val === key ? zoneId : val;
+    return getZoneLocalizedName(zoneId, language);
   };
   const getZoneSubtitle = (zoneId: ZoneId) => {
-    if (zoneId === 'blizzard') {
-      return language === 'es'
-        ? 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal'
-        : 'Downhill Skiing, Snowy Forest and Colossal Yeti';
-    }
-    if (zoneId === 'steampunk') {
-      return language === 'es'
-        ? 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m'
-        : 'Steam Factory, Gears and 1000m Only Up Boss';
-    }
-    if (zoneId === 'castlesmash') {
-      return language === 'es'
-        ? 'Asedio Medieval, Almenas de Piedra y Guardián de Hierro'
-        : 'Medieval Fortress, Stone Battlements and Iron Guardian';
-    }
-    if (zoneId === 'piratestreasure') {
-      return language === 'es'
-        ? 'Bahía del Corsario, Galeón Fantasma y el Kraken'
-        : 'Corsair Cove, Ghost Galleon and the Kraken';
-    }
-    if (zoneId === 'jurasicdraft') {
-      return language === 'es'
-        ? 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal'
-        : 'Mesozoic Jungle, Pterodactyls and Colossal T-Rex';
-    }
-    if (zoneId === 'themoon') {
-      return language === 'es'
-        ? 'Mar de la Tranquilidad, Baja Gravedad y Mecha Titán'
-        : 'Sea of Tranquility, Low Gravity and Mecha Titan';
-    }
-    const key = `zone_${zoneId}_sub` as any;
-    const val = t(key);
-    return val === key ? '' : val;
+    return getZoneLocalizedSubtitle(zoneId, language);
   };
   const [modeModal, setModeModal] = useState<'vs_ai' | 'time_attack' | null>(null);
   const [newSlotModal, setNewSlotModal] = useState<{ open: boolean; slotId: number; name: string }>({
@@ -1561,10 +1521,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                   <div className="p-4 flex flex-col justify-between flex-1">
                     <div>
                       <h4 className="text-base font-black text-white font-heading">
-                        {lvl.title.split('—')[1]?.trim() || lvl.title}
+                        {getLevelTitle(lvl, language).split('—')[1]?.trim() || getLevelTitle(lvl, language)}
                       </h4>
                       <p className="text-xs text-slate-400 mt-1">
-                        {lvl.subtitle}
+                        {getLevelSubtitle(lvl, language)}
                       </p>
                     </div>
 

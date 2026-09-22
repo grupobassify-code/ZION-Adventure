@@ -19,34 +19,19 @@ import { isBossLevel, isLevelUnlockedInSlot, getLevelBestTime } from '../game/sa
 import { formatTimeMs, loadGhostRecording } from '../game/timeAttackGhost';
 import { sound } from '../audio/soundEngine';
 import { LevelPixelThumbnail } from './LevelPixelThumbnail';
+import { useLanguage, getLevelTitle, getLevelSubtitle, getZoneLocalizedName } from '../utils/i18n';
 
-const ZONES: { id: ZoneId; name: string }[] = [
-  { id: 'neon', name: 'Bosque Neón' },
-  { id: 'sakura', name: 'Cerezo Espiritual' },
-  { id: 'lavacliff', name: 'Acantilados de Lava' },
-  { id: 'desert', name: 'Dunas de Arena' },
-  { id: 'krono', name: 'Templo de Kronos' },
-  { id: 'jungle', name: 'Jungle Run' },
-  { id: 'blizzard', name: 'Blizzard Rush' },
-  { id: 'steampunk', name: 'Steampunk ⚙️' },
-  { id: 'castlesmash', name: 'Castle Smash 🏰' },
+const ZONES: { id: ZoneId }[] = [
+  { id: 'neon' },
+  { id: 'sakura' },
+  { id: 'lavacliff' },
+  { id: 'desert' },
+  { id: 'krono' },
+  { id: 'jungle' },
+  { id: 'blizzard' },
+  { id: 'steampunk' },
+  { id: 'castlesmash' },
 ];
-
-const ZONE_NAMES: Record<ZoneId, string> = {
-  neon: 'Bosque Neón',
-  sakura: 'Cerezo Espiritual',
-  lavacliff: 'Acantilados de Lava',
-  desert: 'Dunas de Arena',
-  krono: 'Templo de Kronos',
-  travel: 'Viaje Cuántico',
-  jungle: 'Jungle Run',
-  blizzard: 'Blizzard Rush',
-  steampunk: 'Steampunk',
-  castlesmash: 'Castle Smash',
-  piratestreasure: 'Pirates Treasure (Próximamente)',
-  jurasicdraft: 'Jurasic draft (Próximamente)',
-  themoon: 'The moon (Próximamente)',
-};
 
 interface ModeLevelSelectModalProps {
   isOpen: boolean;
@@ -63,6 +48,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
   onClose,
   onStartLevel,
 }) => {
+  const { language, t } = useLanguage();
   const [selectedZone, setSelectedZone] = useState<ZoneId>('neon');
   const [selectedLevelIndex, setSelectedLevelIndex] = useState<number>(0);
   const [aiDifficulty, setAiDifficulty] = useState<'normal' | 'fast' | 'expert'>('normal');
@@ -126,14 +112,14 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                       : 'bg-amber-900/60 border-amber-500/40 text-amber-300'
                   }`}
                 >
-                  {isVsAi ? 'Carrera 1v1 vs Algoritmo' : 'Contrarreloj & Fantasma'}
+                  {isVsAi ? t('modeVsAiBadge') : t('modeTimeAttackBadge')}
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
-                  (Sin niveles con jefe)
+                  {t('modeNoBossWarning')}
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white mt-0.5">
-                {isVsAi ? 'SELECCIONA PISTA VS IA' : 'SELECCIONA CIRCUITO CONTRARRELOJ'}
+                {isVsAi ? t('modeSelectTrackVsAi') : t('modeSelectTrackTimeAttack')}
               </h2>
             </div>
           </div>
@@ -144,7 +130,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
               onClose();
             }}
             className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800/80 hover:bg-rose-500/20 hover:text-rose-300 text-slate-400 border border-slate-700 flex items-center justify-center transition-all cursor-pointer"
-            aria-label="Cerrar modal"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -174,7 +160,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                         : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
                     }`}
                   >
-                    <span>{z.name}</span>
+                    <span>{getZoneLocalizedName(z.id, language)}</span>
                   </button>
                 );
               })}
@@ -187,6 +173,8 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                 const isUnlocked = activeSlot ? isLevelUnlockedInSlot(activeSlot, index) : index === 0;
                 const isSelected = selectedLevelIndex === index;
                 const bestMs = activeSlot ? getLevelBestTime(activeSlot.id, index) : null;
+                const locTitle = getLevelTitle(cfg, language);
+                const locSubtitle = getLevelSubtitle(cfg, language);
 
                 return (
                   <div
@@ -225,19 +213,19 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-mono font-bold text-sm text-white">{cfg.title}</h4>
+                          <h4 className="font-mono font-bold text-sm text-white">{locTitle}</h4>
                           {isBoss && (
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300">
-                              Nivel con Jefe
+                              {t('modeBossLevelBadge')}
                             </span>
                           )}
                         </div>
                         <p className="text-xs text-slate-400 mt-0.5">
                           {isBoss
-                            ? 'No disponible en este modo (sin jefes)'
+                            ? t('modeBossExcluded')
                             : !isUnlocked
-                            ? 'Bloqueado. Desbloquea en Modo Aventura'
-                            : cfg.subtitle}
+                            ? t('modeLevelLocked')
+                            : locSubtitle}
                         </p>
                       </div>
                     </div>
@@ -247,7 +235,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                       <div className="flex items-center gap-2">
                         {!isVsAi && (
                           <div className="text-right font-mono">
-                            <span className="text-[10px] text-slate-400 block">Mejor tiempo</span>
+                            <span className="text-[10px] text-slate-400 block">{t('modeBestTime')}</span>
                             <span className="text-xs font-black text-amber-300">
                               {bestMs !== null ? formatTimeMs(bestMs) : '--:--.--'}
                             </span>
@@ -274,7 +262,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
           <div className="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-5">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <span className="text-xs font-mono uppercase text-slate-400">Detalles de la Pista</span>
+                <span className="text-xs font-mono uppercase text-slate-400">{t('modeTrackDetails')}</span>
                 <span
                   className="text-xs font-mono font-bold px-2 py-0.5 rounded-full"
                   style={{
@@ -283,14 +271,14 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                     borderColor: `${currentCfg.themeColor}50`,
                   }}
                 >
-                  {ZONE_NAMES[currentCfg.zone] || currentCfg.zone}
+                  {getZoneLocalizedName(currentCfg.zone, language)}
                 </span>
               </div>
 
               {/* Title & Description */}
               <div className="mt-3">
-                <h3 className="text-lg font-mono font-black text-white">{currentCfg.title}</h3>
-                <p className="text-xs text-slate-300 mt-1">{currentCfg.subtitle}</p>
+                <h3 className="text-lg font-mono font-black text-white">{getLevelTitle(currentCfg, language)}</h3>
+                <p className="text-xs text-slate-300 mt-1">{getLevelSubtitle(currentCfg, language)}</p>
               </div>
 
               {/* Animated Pixel Art Level Thumbnail Preview */}
@@ -304,7 +292,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                   height={150}
                 />
                 <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/85 backdrop-blur-sm border border-slate-700 text-[10px] font-mono font-bold text-cyan-300">
-                  Acto {currentCfg.act}
+                  {language === 'es' ? `Acto ${currentCfg.act}` : `Act ${currentCfg.act}`}
                 </div>
               </div>
 
@@ -313,7 +301,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                 <div className="mt-4 p-3 bg-rose-950/40 border border-rose-500/40 rounded-xl flex items-center gap-2.5 text-xs text-rose-300">
                   <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-400" />
                   <span>
-                    <strong>Restricción del Modo:</strong> Los niveles con jefe no se pueden jugar en VS IA ni Contrarreloj. Selecciona un Acto 1 o 2.
+                    {t('modeBossRestriction')}
                   </span>
                 </div>
               )}
@@ -322,13 +310,13 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
               {isVsAi && !isSelectedLevelBoss && (
                 <div className="mt-5 pt-4 border-t border-slate-800">
                   <label className="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-2">
-                    Dificultad del Rival IA:
+                    {t('modeAiDifficultyLabel')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'normal', name: 'Krono-Bot Alfa', badge: 'Normal', color: 'emerald' },
-                      { id: 'fast', name: 'Cyber-Specter Ω', badge: 'Rápido', color: 'amber' },
-                      { id: 'expert', name: 'Titan Prime', badge: 'Experto', color: 'rose' },
+                      { id: 'normal', name: 'Krono-Bot Alfa', badge: t('modeAiDiffNormal'), color: 'emerald' },
+                      { id: 'fast', name: 'Cyber-Specter Ω', badge: t('modeAiDiffFast'), color: 'amber' },
+                      { id: 'expert', name: 'Titan Prime', badge: t('modeAiDiffExpert'), color: 'rose' },
                     ].map((diff) => {
                       const isDiffSelected = aiDifficulty === diff.id;
                       return (
@@ -351,7 +339,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                     })}
                   </div>
                   <p className="text-[11px] text-slate-400 mt-2 font-mono">
-                    🤖 La IA navegará plataformas, saltará obstáculos y correrá hacia la meta en tiempo real.
+                    {t('modeAiBotDesc')}
                   </p>
                 </div>
               )}
@@ -361,24 +349,24 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                   <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-amber-400" />
-                      <span className="text-xs font-mono text-slate-300">Récord Personal:</span>
+                      <span className="text-xs font-mono text-slate-300">{t('modePersonalBest')}</span>
                     </div>
                     <span className="text-sm font-mono font-black text-amber-300">
-                      {currentBestMs !== null ? formatTimeMs(currentBestMs) : 'Sin récord aún'}
+                      {currentBestMs !== null ? formatTimeMs(currentBestMs) : t('modeNoRecordYet')}
                     </span>
                   </div>
 
                   <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Ghost className="w-4 h-4 text-cyan-400" />
-                      <span className="text-xs font-mono text-slate-300">Fantasma en Pista:</span>
+                      <span className="text-xs font-mono text-slate-300">{t('modeGhostOnTrack')}</span>
                     </div>
                     <span
                       className={`text-xs font-mono font-bold ${
                         currentHasGhost ? 'text-cyan-300' : 'text-slate-500'
                       }`}
                     >
-                      {currentHasGhost ? '✓ Activo para Carrera' : 'No grabado aún'}
+                      {currentHasGhost ? t('modeGhostActive') : t('modeGhostNone')}
                     </span>
                   </div>
                 </div>
@@ -401,12 +389,12 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                 {isVsAi ? (
                   <>
                     <Swords className="w-4 h-4" />
-                    <span>¡COMENZAR CARRERA VS IA!</span>
+                    <span>{t('modeStartVsAiBtn')}</span>
                   </>
                 ) : (
                   <>
                     <Timer className="w-4 h-4" />
-                    <span>¡INICIAR CONTRARRELOJ!</span>
+                    <span>{t('modeStartTimeAttackBtn')}</span>
                   </>
                 )}
               </button>

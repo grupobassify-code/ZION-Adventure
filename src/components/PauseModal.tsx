@@ -4,6 +4,7 @@ import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameSettings } from '../types';
 import { PrivacyModal } from './PrivacyModal';
 import { SoundtrackModal } from './SoundtrackModal';
+import { useLanguage, getLevelTitle, getLevelSubtitle } from '../utils/i18n';
 
 interface PauseModalProps {
   levelIndex: number;
@@ -24,9 +25,13 @@ export const PauseModal: React.FC<PauseModalProps> = ({
   onOpenAchievements,
   onUpdateSettings,
 }) => {
+  const { language, t } = useLanguage();
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showJukebox, setShowJukebox] = useState(false);
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
+  const locTitle = getLevelTitle(currentConfig, language);
+  const locSubtitle = getLevelSubtitle(currentConfig, language);
+
   return (
     <div className="absolute inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
       {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
@@ -37,13 +42,13 @@ export const PauseModal: React.FC<PauseModalProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-xl">⏸️</span>
             <h2 className="text-lg sm:text-xl font-black text-slate-100 font-heading tracking-wide">
-              JUEGO EN PAUSA
+              {t('pauseTitle')}
             </h2>
           </div>
           <button
             onClick={onResume}
             className="p-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition-colors"
-            title="Continuar"
+            title={t('pauseResume')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -53,39 +58,45 @@ export const PauseModal: React.FC<PauseModalProps> = ({
         <div className="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 flex flex-col gap-2">
           <h3 className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
             <Swords className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Guía de Controles & Showdown</span>
+            <span>{t('pauseControlsGuide')}</span>
           </h3>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Moverse</span>
-              <span className="font-mono font-bold text-cyan-300 bg-slate-800 px-1.5 py-0.5 rounded">A / D o Joystick</span>
+              <span className="text-slate-400">{t('ctrlMovement')}</span>
+              <span className="font-mono font-bold text-cyan-300 bg-slate-800 px-1.5 py-0.5 rounded">
+                {language === 'es' ? 'A / D o Joystick' : 'A / D or Joystick'}
+              </span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Saltar</span>
-              <span className="font-mono font-bold text-rose-300 bg-slate-800 px-1.5 py-0.5 rounded">ESPACIO / W</span>
+              <span className="text-slate-400">{t('ctrlJump')}</span>
+              <span className="font-mono font-bold text-rose-300 bg-slate-800 px-1.5 py-0.5 rounded">
+                {language === 'es' ? 'ESPACIO / W' : 'SPACE / W'}
+              </span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Ataque Combo</span>
-              <span className="font-mono font-bold text-amber-300 bg-slate-800 px-1.5 py-0.5 rounded">J / Z / Clic</span>
+              <span className="text-slate-400">{t('ctrlAttack')}</span>
+              <span className="font-mono font-bold text-amber-300 bg-slate-800 px-1.5 py-0.5 rounded">
+                {language === 'es' ? 'J / Z / Clic' : 'J / Z / Click'}
+              </span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Lanzar Daga</span>
+              <span className="text-slate-400">{t('ctrlDagger')}</span>
               <span className="font-mono font-bold text-purple-300 bg-slate-800 px-1.5 py-0.5 rounded">K / X</span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Escudo / Showdown</span>
+              <span className="text-slate-400">{t('ctrlShield')}</span>
               <span className="font-mono font-bold text-emerald-300 bg-slate-800 px-1.5 py-0.5 rounded">E / C</span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Esquiva / Dash</span>
+              <span className="text-slate-400">{t('ctrlDodge')}</span>
               <span className="font-mono font-bold text-sky-300 bg-slate-800 px-1.5 py-0.5 rounded">SHIFT / L</span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Especial SP</span>
+              <span className="text-slate-400">{t('ctrlSpecial')}</span>
               <span className="font-mono font-bold text-pink-300 bg-slate-800 px-1.5 py-0.5 rounded">Q / V (50 SP)</span>
             </div>
             <div className="flex items-center justify-between bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <span className="text-slate-400">Pausa</span>
+              <span className="text-slate-400">{t('ctrlPause')}</span>
               <span className="font-mono font-bold text-slate-300 bg-slate-800 px-1.5 py-0.5 rounded">P / ESC</span>
             </div>
           </div>
@@ -96,8 +107,8 @@ export const PauseModal: React.FC<PauseModalProps> = ({
           <div className="flex items-center gap-2">
             <Smartphone className="w-4 h-4 text-cyan-400" />
             <div>
-              <div className="text-xs font-bold text-slate-200">Control Táctil Móvil</div>
-              <div className="text-[10px] text-slate-400">Elige Joystick Virtual o Botones D-Pad</div>
+              <div className="text-xs font-bold text-slate-200">{t('pauseTouchControls')}</div>
+              <div className="text-[10px] text-slate-400">{t('pauseTouchDesc')}</div>
             </div>
           </div>
           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
@@ -130,13 +141,13 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: currentConfig.themeColor || '#06b6d4' }} />
             <div>
               <div className="text-xs font-bold text-slate-200">
-                Acto {currentConfig.act}: {currentConfig.title}
+                {locTitle}
               </div>
-              <div className="text-[10px] text-slate-400">{currentConfig.subtitle}</div>
+              <div className="text-[10px] text-slate-400">{locSubtitle}</div>
             </div>
           </div>
           <div className="text-[10px] font-mono font-semibold text-emerald-400 bg-emerald-950/40 px-2 py-1 rounded-lg border border-emerald-500/30">
-            💾 Progreso Guardado
+            💾 {t('pauseSavedProgress')}
           </div>
         </div>
 
@@ -152,7 +163,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             }`}
           >
             {settings.soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4" />}
-            <span>Efectos SFX</span>
+            <span>{t('pauseSfx')}</span>
           </button>
 
           {/* Music Toggle */}
@@ -165,7 +176,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             }`}
           >
             <Sparkles className="w-4 h-4 text-pink-400" />
-            <span>Música Chiptune</span>
+            <span>{t('pauseMusic')}</span>
           </button>
         </div>
 
@@ -175,12 +186,12 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-amber-400" />
               <div>
-                <div className="text-xs font-bold text-slate-200">Sincronización & Rendimiento 60 FPS</div>
-                <div className="text-[10px] text-slate-400">Velocidad constante y fluida en todos los dispositivos</div>
+                <div className="text-xs font-bold text-slate-200">{t('pausePerfTitle')}</div>
+                <div className="text-[10px] text-slate-400">{t('pausePerfDesc')}</div>
               </div>
             </div>
             <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
-              Física Fija 60Hz
+              {t('pauseFixedPhysics')}
             </span>
           </div>
 
@@ -194,7 +205,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               }`}
             >
               <Zap className={`w-3.5 h-3.5 ${settings.performanceMode ? 'text-amber-400' : 'text-slate-500'}`} />
-              <span>Modo Ultra Rápido</span>
+              <span>{t('pauseUltraMode')}</span>
             </button>
 
             <button
@@ -206,7 +217,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               }`}
             >
               <Gauge className={`w-3.5 h-3.5 ${settings.showFps ? 'text-emerald-400' : 'text-slate-500'}`} />
-              <span>Ver Contador FPS</span>
+              <span>{t('pauseFpsCounter')}</span>
             </button>
           </div>
         </div>
@@ -217,38 +228,38 @@ export const PauseModal: React.FC<PauseModalProps> = ({
             <button
               onClick={onQuitToTitle || onRestart}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs transition-all"
-              title="Salir al Menú Principal"
+              title={t('pauseQuit')}
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Salir</span>
+              <span>{t('pauseQuit')}</span>
             </button>
 
             <button
               onClick={() => setShowPrivacy(true)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-emerald-300 border border-slate-800 text-xs transition-all"
-              title="Ver Política de Privacidad"
+              title={t('privacyPolicy')}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Privacidad</span>
+              <span className="hidden sm:inline">{t('privacyPolicy')}</span>
             </button>
 
             <button
               onClick={() => setShowJukebox(true)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 hover:text-white border border-cyan-500/40 text-xs transition-all"
-              title="Ver Banda Sonora / Jukebox"
+              title="OST / Jukebox"
             >
               <Music className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span className="hidden sm:inline">BSO</span>
+              <span className="hidden sm:inline">OST</span>
             </button>
 
             {onOpenAchievements && (
               <button
                 onClick={onOpenAchievements}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-500/50 hover:border-amber-400 text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
-                title="Ver Logros y Medallas"
+                title={t('achievements')}
               >
                 <Trophy className="w-3.5 h-3.5 text-amber-400 fill-amber-400/30 shrink-0" />
-                <span>Logros</span>
+                <span>{t('achievements')}</span>
               </button>
             )}
           </div>
@@ -259,7 +270,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-all"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reiniciar Nivel</span>
+              <span>{t('pauseRestart')}</span>
             </button>
 
             <button
@@ -267,7 +278,7 @@ export const PauseModal: React.FC<PauseModalProps> = ({
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-cyan-900/50 active:scale-95 transition-all"
             >
               <Play className="w-4 h-4 fill-slate-950" />
-              <span>CONTINUAR</span>
+              <span>{t('pauseResume')}</span>
             </button>
           </div>
         </div>

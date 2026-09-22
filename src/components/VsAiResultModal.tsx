@@ -2,6 +2,7 @@ import React from 'react';
 import { Trophy, RotateCcw, Menu, Bot, Swords } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { sound } from '../audio/soundEngine';
+import { useLanguage, getLevelTitle } from '../utils/i18n';
 
 interface VsAiResultModalProps {
   playerWon: boolean;
@@ -22,6 +23,7 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
   onSelectOtherLevel,
   onReturnToMenu,
 }) => {
+  const { language } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
 
   const formatSeconds = (sec: number) => {
@@ -52,30 +54,38 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
               : 'bg-rose-900/60 border-rose-500/40 text-rose-300'
           }`}
         >
-          {playerWon ? '¡VICTORIA EN LA CARRERA!' : '¡DERROTA EN LA META!'}
+          {playerWon
+            ? (language === 'es' ? '¡VICTORIA EN LA CARRERA!' : 'RACE VICTORY!')
+            : (language === 'es' ? '¡DERROTA EN LA META!' : 'RACE DEFEAT!')}
         </span>
 
         <h2 className="text-lg sm:text-2xl font-black font-mono text-white tracking-tight shrink-0">
-          {playerWon ? '¡SUPERASTE A LA IA!' : `¡${aiName} LLEGÓ PRIMERO!`}
+          {playerWon
+            ? (language === 'es' ? '¡SUPERASTE A LA IA!' : 'YOU BEAT THE AI!')
+            : (language === 'es' ? `¡${aiName} LLEGÓ PRIMERO!` : `${aiName} FINISHED FIRST!`)}
         </h2>
 
         <p className="text-[11px] sm:text-xs text-slate-300 mt-1 max-w-sm line-clamp-2 shrink-0">
           {playerWon
-            ? 'Tus reflejos cuánticos y precisión de salto fueron superiores al algoritmo.'
-            : 'La IA optimizó su ruta a la meta. ¡Intenta de nuevo para vencerla!'}
+            ? (language === 'es' ? 'Tus reflejos cuánticos y precisión de salto fueron superiores al algoritmo.' : 'Your quantum reflexes and jumping precision bested the algorithm.')
+            : (language === 'es' ? 'La IA optimizó su ruta a la meta. ¡Intenta de nuevo para vencerla!' : 'The AI optimized its path to the finish. Try again to beat it!')}
         </p>
 
         {/* Stats Panel */}
         <div className="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-2 sm:p-3 my-2.5 sm:my-3.5 grid grid-cols-2 gap-2 text-left shrink-0">
           <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
-            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">Pista Superada</span>
+            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">
+              {language === 'es' ? 'Pista Superada' : 'Track'}
+            </span>
             <span className="text-xs sm:text-sm font-mono font-bold text-white truncate block mt-0.5">
-              {currentConfig.title}
+              {getLevelTitle(currentConfig, language)}
             </span>
           </div>
 
           <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
-            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">Tiempo</span>
+            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">
+              {language === 'es' ? 'Tiempo' : 'Time'}
+            </span>
             <span className="text-xs sm:text-sm font-mono font-bold text-cyan-300 block mt-0.5">
               ⏱️ {formatSeconds(playerTime)}
             </span>
@@ -92,7 +102,11 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
             className="w-full min-h-[44px] py-2.5 px-3 rounded-xl font-mono font-black text-xs sm:text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 shrink-0" />
-            <span>{playerWon ? 'CORRER DE NUEVO' : 'REINTENTAR REVANCHA'}</span>
+            <span>
+              {playerWon
+                ? (language === 'es' ? 'CORRER DE NUEVO' : 'RACE AGAIN')
+                : (language === 'es' ? 'REINTENTAR REVANCHA' : 'RETRY REMATCH')}
+            </span>
           </button>
 
           <div className="grid grid-cols-2 gap-2 w-full">
@@ -104,7 +118,7 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
               className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
               <Swords className="w-3.5 h-3.5 shrink-0" />
-              <span>OTRA PISTA</span>
+              <span>{language === 'es' ? 'OTRA PISTA' : 'OTHER TRACK'}</span>
             </button>
 
             <button
@@ -115,7 +129,7 @@ export const VsAiResultModal: React.FC<VsAiResultModalProps> = ({
               className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
               <Menu className="w-3.5 h-3.5 shrink-0" />
-              <span>MENÚ</span>
+              <span>{language === 'es' ? 'MENÚ' : 'MENU'}</span>
             </button>
           </div>
         </div>

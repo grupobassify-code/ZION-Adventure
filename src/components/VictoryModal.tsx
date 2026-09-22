@@ -3,6 +3,7 @@ import { Trophy, ArrowRight, RotateCcw, Sparkles, Clock, Skull, Zap, Gem } from 
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameStats } from '../game/gameEngine';
 import { KRONOS_PIECES } from '../game/saveManager';
+import { useLanguage, getLevelTitle, getKronosPieceLocalized } from '../utils/i18n';
 
 interface VictoryModalProps {
   levelIndex: number;
@@ -21,6 +22,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   onOpenCredits,
   onReturnToMenu,
 }) => {
+  const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
   const isFinalLevel = levelIndex >= LEVEL_CONFIGS.length - 1;
   const isSpecialStage = stats.totalCrystals === 5 && stats.totalSecrets === 0;
@@ -52,13 +54,13 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-100 font-heading tracking-tight">
             {isSpecialStage 
-              ? '🌌 ¡SPECIAL STAGE COMPLETADA!'
+              ? `🌌 ${t('victorySpecialStageComplete')}`
               : isFinalLevel 
-              ? '🏆 ¡AVENTURA COMPLETADA!' 
-              : '🌀 ¡PORTAL ABIERTO!'}
+              ? `🏆 ${t('victoryAdventureComplete')}` 
+              : `🌀 ${t('victoryTitle')}`}
           </h2>
           <p className="text-xs sm:text-sm text-cyan-300 font-medium">
-            {isSpecialStage ? 'Dimensión Cuántica Superada' : currentConfig.title}
+            {isSpecialStage ? t('victorySpecialStageSubtitle') : getLevelTitle(currentConfig, language)}
           </p>
         </div>
 
@@ -69,7 +71,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
-              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">Cristales</span>
+              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">{t('victoryCrystals')}</span>
               <p className="text-sm sm:text-base font-mono font-bold text-slate-100">
                 {stats.crystalsCollected}/{stats.totalCrystals}
               </p>
@@ -81,7 +83,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
-              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">Secretos</span>
+              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">{t('victorySecrets')}</span>
               <p className="text-sm sm:text-base font-mono font-bold text-slate-100">
                 {stats.secretsFound}/{stats.totalSecrets}
               </p>
@@ -93,7 +95,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
-              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">Tiempo</span>
+              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">{t('victoryTime')}</span>
               <p className="text-sm sm:text-base font-mono font-bold text-slate-100">{formatTime(stats.elapsedTime)}</p>
             </div>
           </div>
@@ -103,7 +105,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <Skull className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
             <div>
-              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">Enemigos</span>
+              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase">{t('victoryEnemies')}</span>
               <p className="text-sm sm:text-base font-mono font-bold text-slate-100">{stats.enemiesDefeated}</p>
             </div>
           </div>
@@ -112,15 +114,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
         {/* Rank Banner */}
         <div className="flex items-center justify-between bg-gradient-to-r from-cyan-950/60 via-slate-950/60 to-purple-950/60 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-cyan-800/40">
           <div>
-            <span className="text-[10px] sm:text-xs font-mono text-slate-400 uppercase">Rango de Desempeño</span>
+            <span className="text-[10px] sm:text-xs font-mono text-slate-400 uppercase">{t('victoryRankTitle')}</span>
             <p className="text-xs sm:text-sm font-semibold text-cyan-200">
               {rank === 'S'
-                ? '¡Maestría Legendaria!'
+                ? t('victoryRankS')
                 : rank === 'A'
-                ? '¡Excelente Exploración!'
+                ? t('victoryRankA')
                 : rank === 'B'
-                ? '¡Buen Desempeño!'
-                : '¡Nivel Superado!'}
+                ? t('victoryRankB')
+                : t('victoryRankC')}
             </p>
           </div>
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center font-black text-xl sm:text-2xl text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
@@ -136,19 +138,20 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             </div>
             <div>
               <div className="text-[10px] font-mono font-black uppercase tracking-wider text-emerald-400">
-                ¡NUEVA ZONA DESBLOQUEADA!
+                {t('victoryJungleUnlockTitle')}
               </div>
               <div className="text-xs sm:text-sm font-bold text-white">
-                Zona 6: Jungle Run (Selva Maya) ya está disponible
+                {t('victoryJungleUnlockDesc')}
               </div>
             </div>
           </div>
         )}
 
-        {/* Special Notification when defeating a Boss and obtaining a Kronos Clock Piece (including Jungle Run) */}
+        {/* Special Notification when defeating a Boss and obtaining a Kronos Clock Piece */}
         {(() => {
           const bossPiece = KRONOS_PIECES.find((p) => p.levelIndex === levelIndex);
           if (!bossPiece) return null;
+          const locPiece = getKronosPieceLocalized(bossPiece.id, language);
           return (
             <div className="w-full bg-amber-950/80 border-2 border-amber-500/60 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_25px_rgba(245,158,11,0.35)] animate-pulse">
               <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">
@@ -156,10 +159,10 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               </div>
               <div>
                 <div className="text-[10px] font-mono font-black uppercase tracking-wider text-amber-400">
-                  ¡PIEZA ANCESTRAL DE KRONOS OBTENIDA!
+                  {t('victoryKronosPieceTitle')}
                 </div>
                 <div className="text-xs sm:text-sm font-bold text-white">
-                  {bossPiece.name} ({bossPiece.bossName}) · ¡Encasíllala en el Gran Reloj!
+                  {locPiece.name} ({locPiece.bossName}) · {t('victoryKronosPieceDesc')}
                 </div>
               </div>
             </div>
@@ -174,7 +177,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 onClick={onReturnToMenu}
                 className="min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all active:scale-95 border border-cyan-500/30"
               >
-                <span>PORTAL DE NIVELES</span>
+                <span>{t('victoryLevelPortal')}</span>
               </button>
             )}
             <button
@@ -182,7 +185,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               className="min-h-[44px] flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-all active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline">Rejugar</span>
+              <span className="hidden xs:inline">{t('victoryReplay')}</span>
             </button>
           </div>
 
@@ -196,7 +199,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                     : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-900/50'
                 }`}
               >
-                <span>{currentConfig.id === 'krono-travel' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : 'SIGUIENTE ACTO'}</span>
+                <span>{currentConfig.id === 'krono-travel' ? (language === 'es' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : '🌴 ADVANCE TO JUNGLE RUN (ZONE 6)') : t('victoryNextAct')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
@@ -204,7 +207,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 onClick={onOpenCredits || onReturnToMenu || onReplayLevel}
                 className="w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-amber-400 via-pink-500 to-cyan-400 hover:from-amber-300 hover:to-cyan-300 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(251,191,36,0.5)] active:scale-95 transition-all animate-pulse"
               >
-                <span>{isSpecialStage ? 'CONTINUAR AVENTURA' : 'PORTAL A LOS CRÉDITOS'}</span>
+                <span>{isSpecialStage ? t('victoryContinueAdventure') : t('victoryCreditsPortal')}</span>
                 <Sparkles className="w-4 h-4" />
               </button>
             )}
