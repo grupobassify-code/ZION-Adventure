@@ -846,6 +846,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                             ? (language === 'es' ? 'DERROTA A BALAM (JUNGLA)' : 'DEFEAT BALAM (JUNGLE)')
                           : z.id === 'steampunk'
                             ? (language === 'es' ? 'DERROTA A YUKIO EL YETI (BLIZZARD)' : 'DEFEAT YUKIO THE YETI (BLIZZARD)')
+                          : z.id === 'castlesmash'
+                            ? (language === 'es' ? 'DERROTA A VULKAN-Ω (STEAMPUNK)' : 'DEFEAT VULKAN-Ω (STEAMPUNK)')
                           : t('beatPrevEra')}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition-all" />

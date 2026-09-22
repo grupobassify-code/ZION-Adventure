@@ -29,6 +29,7 @@ const ZONES: { id: ZoneId; name: string }[] = [
   { id: 'jungle', name: 'Jungle Run' },
   { id: 'blizzard', name: 'Blizzard Rush' },
   { id: 'steampunk', name: 'Steampunk ⚙️' },
+  { id: 'castlesmash', name: 'Castle Smash 🏰' },
 ];
 
 const ZONE_NAMES: Record<ZoneId, string> = {
@@ -40,8 +41,8 @@ const ZONE_NAMES: Record<ZoneId, string> = {
   travel: 'Viaje Cuántico',
   jungle: 'Jungle Run',
   blizzard: 'Blizzard Rush',
-  steampunk: 'Steampunk (En desarrollo)',
-  castlesmash: 'Castle Smash (Próximamente)',
+  steampunk: 'Steampunk',
+  castlesmash: 'Castle Smash',
   piratestreasure: 'Pirates Treasure (Próximamente)',
   jurasicdraft: 'Jurasic draft (Próximamente)',
   themoon: 'The moon (Próximamente)',
@@ -164,7 +165,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                       sound.playSfx('menuSelect');
                       setSelectedZone(z.id);
                       // Auto-select first non-boss level of this zone
-                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3'].includes(c.id));
+                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3'].includes(c.id));
                       if (firstInZone !== -1) setSelectedLevelIndex(firstInZone);
                     }}
                     className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border cursor-pointer ${

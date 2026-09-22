@@ -43,7 +43,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      const underConstruction = isUnderConstruction || ['castlesmash', 'piratestreasure', 'jurasicdraft', 'themoon'].includes(zone);
+      const underConstruction = isUnderConstruction || ['piratestreasure', 'jurasicdraft', 'themoon'].includes(zone);
 
       // ========================================================
       // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
@@ -346,6 +346,28 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         skyGrad.addColorStop(0.65, '#b45309');
         skyGrad.addColorStop(0.88, '#f59e0b');
         skyGrad.addColorStop(1, '#fef08a');
+      } else if (zone === 'castlesmash') {
+        if (act === 1) {
+          // Act 1: Dusky Twilight Siege Sky with Amber Torch Fire Horizon
+          skyGrad.addColorStop(0, '#090d16');
+          skyGrad.addColorStop(0.32, '#1e1b4b');
+          skyGrad.addColorStop(0.65, '#451a03');
+          skyGrad.addColorStop(0.85, '#9a3412');
+          skyGrad.addColorStop(1, '#f59e0b');
+        } else if (act === 2) {
+          // Act 2: Midnight Thunder Fortress Sky with Iron Blue Slate
+          skyGrad.addColorStop(0, '#020617');
+          skyGrad.addColorStop(0.35, '#0f172a');
+          skyGrad.addColorStop(0.7, '#1e293b');
+          skyGrad.addColorStop(1, '#475569');
+        } else {
+          // Act 3: Warlord Throne Keep with Apocalyptic Crimson & Molten Gold
+          skyGrad.addColorStop(0, '#18040a');
+          skyGrad.addColorStop(0.35, '#4c0519');
+          skyGrad.addColorStop(0.7, '#881337');
+          skyGrad.addColorStop(0.9, '#b45309');
+          skyGrad.addColorStop(1, '#f59e0b');
+        }
       } else {
         // travel
         skyGrad.addColorStop(0, '#020617');
@@ -592,6 +614,49 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.beginPath();
           ctx.arc(32 + Math.sin(tick * 0.08 + s) * 3, sy, 4 + s * 2, 0, Math.PI * 2);
           ctx.fill();
+        }
+      } else if (zone === 'castlesmash') {
+        // Medieval Fortress Harvest / Blood Moon
+        const cMoonX = w - 44;
+        const cMoonY = 25;
+        const isAct3 = act === 3;
+        // Moon Outer Radiant Aura
+        ctx.fillStyle = isAct3 ? 'rgba(239, 68, 68, 0.22)' : 'rgba(245, 158, 11, 0.2)';
+        ctx.beginPath();
+        ctx.arc(cMoonX, cMoonY, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Moon Body
+        ctx.fillStyle = isAct3 ? '#fca5a5' : '#fef08a';
+        ctx.beginPath();
+        ctx.arc(cMoonX, cMoonY, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Moon Shadow / Lunar Maria Craters
+        ctx.fillStyle = isAct3 ? '#b91c1c' : '#d97706';
+        ctx.fillRect(cMoonX - 5, cMoonY - 3, 3, 3);
+        ctx.fillRect(cMoonX + 2, cMoonY + 1, 4, 3);
+        ctx.fillRect(cMoonX - 2, cMoonY + 4, 2, 2);
+
+        // Flapping Bats silhouettes drifting across the dusky sky
+        for (let b = 0; b < 3; b++) {
+          const bx = 36 + b * 48 + Math.sin(tick * 0.05 + b) * 8;
+          const by = 20 + b * 10 + Math.cos(tick * 0.07 + b) * 4;
+          const wing = (tick + b * 4) % 12 < 6 ? -1 : 1;
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(bx, by, 3, 2);
+          ctx.fillRect(bx - 2, by + wing, 2, 1);
+          ctx.fillRect(bx + 3, by + wing, 2, 1);
+        }
+
+        // Distant siege catapult fiery smoke streak in Act 1 & 3
+        if (act !== 2) {
+          const smokeX = ((tick * 1.2) % (w + 40)) - 20;
+          const arcY = 16 + Math.sin((smokeX / w) * Math.PI) * -10;
+          ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
+          ctx.fillRect(smokeX, arcY, 3, 3);
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.9)';
+          ctx.fillRect(smokeX + 1, arcY + 1, 1.5, 1.5);
         }
       } else {
         // Quantum Hyperspace Spiral Void (Travel)
@@ -1004,6 +1069,86 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.fillRect(0, h - 42, w, 4);
         ctx.fillStyle = '#c2410c';
         ctx.fillRect(0, h - 41, w, 1.5);
+      } else if (zone === 'castlesmash') {
+        // Grand Gothic Bastion, Watchtowers, Conical Spired Roofs & Crenellated Parapets
+        ctx.fillStyle = '#0b0f19'; // Deep stone silhouette
+
+        // Distant Curtain Wall with Crenellations
+        ctx.fillRect(0, h - 56, w, 22);
+        for (let cx = 0; cx < w; cx += 14) {
+          ctx.fillRect(cx, h - 61, 7, 5); // Crenels
+        }
+
+        // Left Watchtower with Conical Spire
+        const tw1X = 22;
+        ctx.fillRect(tw1X, h - 78, 22, 44);
+        // Conical roof
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(tw1X - 2, h - 78);
+        ctx.lineTo(tw1X + 11, h - 96);
+        ctx.lineTo(tw1X + 24, h - 78);
+        ctx.closePath();
+        ctx.fill();
+        // Spire flag / pennant flapping
+        const fWave1 = Math.sin(tick * 0.15) * 3;
+        ctx.fillStyle = '#dc2626';
+        ctx.beginPath();
+        ctx.moveTo(tw1X + 11, h - 96);
+        ctx.lineTo(tw1X + 22 + fWave1, h - 94);
+        ctx.lineTo(tw1X + 11, h - 90);
+        ctx.closePath();
+        ctx.fill();
+
+        // Central Mighty Keep (Throne Tower)
+        const keepX = Math.floor(w * 0.44);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(keepX - 25, h - 86, 50, 52);
+        // Keep Crenellations
+        for (let kx = keepX - 25; kx < keepX + 25; kx += 10) {
+          ctx.fillRect(kx, h - 91, 5, 5);
+        }
+        // Grand Royal Keep Banner
+        const fWave2 = Math.sin(tick * 0.15 + 1) * 4;
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(keepX - 1, h - 104, 2, 18); // Pole
+        ctx.fillStyle = act === 3 ? '#ef4444' : '#f59e0b'; // Heraldic lion banner
+        ctx.beginPath();
+        ctx.moveTo(keepX + 1, h - 104);
+        ctx.lineTo(keepX + 16 + fWave2, h - 99);
+        ctx.lineTo(keepX + 1, h - 94);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right Sentry Tower with Arched Machicolations
+        const tw2X = w - 46;
+        ctx.fillStyle = '#0b0f19';
+        ctx.fillRect(tw2X, h - 74, 24, 40);
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(tw2X - 2, h - 74);
+        ctx.lineTo(tw2X + 12, h - 92);
+        ctx.lineTo(tw2X + 26, h - 74);
+        ctx.closePath();
+        ctx.fill();
+
+        // Glowing Gothic Stained-Glass & Arrow-Slit Windows
+        ctx.fillStyle = act === 3 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(245, 158, 11, 0.65)';
+        // Keep large central arched window
+        ctx.fillRect(keepX - 5, h - 74, 10, 16);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(keepX - 2, h - 70, 4, 8);
+
+        // Arrow slits on towers
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.55)';
+        ctx.fillRect(tw1X + 9, h - 70, 3, 9);
+        ctx.fillRect(tw2X + 10, h - 66, 3, 9);
+
+        // Timber Scaffolding / Drawbridge Winch Posts
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(keepX + 28, h - 58, 2, 24);
+        ctx.fillRect(keepX + 40, h - 58, 2, 24);
+        ctx.fillRect(keepX + 26, h - 54, 16, 2);
       } else {
         // Quantum Space Shards (Travel)
         for (let i = 0; i < 6; i++) {
@@ -1058,6 +1203,10 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platBaseColor = '#1c1208';
         platTrimColor = '#b45309';
         platHighlight = '#fbbf24';
+      } else if (zone === 'castlesmash') {
+        platBaseColor = '#0f172a';
+        platTrimColor = '#64748b';
+        platHighlight = '#cbd5e1';
       }
 
       // Draw Main Ground Block
@@ -1118,6 +1267,38 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
             ctx.fillStyle = '#180903';
           }
         }
+      } else if (zone === 'castlesmash') {
+        // Carved Ashlar Mortar Joints & Castle Crenel Lip
+        ctx.fillStyle = '#334155';
+        for (let bx = 0; bx < w; bx += 20) {
+          ctx.fillRect(bx, groundY + 4, 1, 30);
+          ctx.fillRect(bx + 10, groundY + 16, 1, 18);
+        }
+        // Wall Torch Sconces with flickering fire
+        const torches = [18, w - 24];
+        for (const tx of torches) {
+          // Iron sconce bracket
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(tx, groundY + 4, 4, 10);
+          ctx.fillRect(tx - 2, groundY + 4, 8, 2);
+          // Fire flame
+          const flameY = Math.sin(tick * 0.25 + tx) * 2;
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(tx - 1, groundY - 4 + flameY, 6, 7);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(tx, groundY - 2 + flameY, 4, 4);
+          // Warm ambient aura
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.16)';
+          ctx.beginPath();
+          ctx.arc(tx + 2, groundY, 11, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Iron Portcullis Spikes / Studs on platform edge
+        ctx.fillStyle = '#94a3b8';
+        for (let sx = 8; sx < w; sx += 16) {
+          ctx.fillRect(sx, groundY + 1, 2, 2);
+        }
       }
 
       // Floating Ledges
@@ -1170,35 +1351,73 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       const itemY = groundY - 28 - 20;
 
       if (isBoss) {
-        // Pulsing Demonic Boss Core / Skull Sigil
-        const bossPulse = Math.sin(tick * 0.15) * 2;
-        // Outer aura
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
-        ctx.beginPath();
-        ctx.arc(itemX, itemY + bossPulse, 14, 0, Math.PI * 2);
-        ctx.fill();
+        if (zone === 'castlesmash') {
+          // Lord Malakar: Warlord Horned Helm & Spiked Iron Tower Shield
+          const bossPulse = Math.sin(tick * 0.15) * 2;
+          // Outer Heraldic Crimson & Molten Gold Aura
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+          ctx.beginPath();
+          ctx.arc(itemX, itemY + bossPulse, 16, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Boss Skull Core
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.arc(itemX, itemY + bossPulse, 9, 0, Math.PI * 2);
-        ctx.fill();
+          // Spiked Tower Shield Body
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(itemX - 10, itemY - 11 + bossPulse, 20, 22);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(itemX - 8, itemY - 9 + bossPulse, 16, 18);
 
-        // Horns / Spikes
-        ctx.fillStyle = '#991b1b';
-        ctx.fillRect(itemX - 8, itemY - 6 + bossPulse, 3, 4);
-        ctx.fillRect(itemX + 5, itemY - 6 + bossPulse, 3, 4);
+          // Golden Lion Crest / Cross
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(itemX - 2, itemY - 7 + bossPulse, 4, 14);
+          ctx.fillRect(itemX - 6, itemY - 3 + bossPulse, 12, 4);
 
-        // Glowing Eyes
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(itemX - 4, itemY - 2 + bossPulse, 3, 3);
-        ctx.fillRect(itemX + 1, itemY - 2 + bossPulse, 3, 3);
+          // Warlord Horns / Steel Spikes
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(itemX - 11, itemY - 13 + bossPulse, 3, 5);
+          ctx.fillRect(itemX + 8, itemY - 13 + bossPulse, 3, 5);
+          ctx.fillRect(itemX - 2, itemY - 14 + bossPulse, 4, 3); // Top central spike
 
-        // Orbiting energy sparks
-        const orbAng = tick * 0.1;
-        ctx.fillStyle = '#ea580c';
-        ctx.fillRect(itemX + Math.cos(orbAng) * 14 - 1.5, itemY + Math.sin(orbAng) * 14 - 1.5, 3, 3);
-        ctx.fillRect(itemX - Math.cos(orbAng) * 14 - 1.5, itemY - Math.sin(orbAng) * 14 - 1.5, 3, 3);
+          // Glowing Fiery Orange Eyes / Slit
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(itemX - 5, itemY - 1 + bossPulse, 4, 2);
+          ctx.fillRect(itemX + 1, itemY - 1 + bossPulse, 4, 2);
+
+          // Orbiting ember sparks
+          const orbAng = tick * 0.12;
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(itemX + Math.cos(orbAng) * 15 - 1, itemY + Math.sin(orbAng) * 15 - 1, 2.5, 2.5);
+          ctx.fillRect(itemX - Math.cos(orbAng) * 15 - 1, itemY - Math.sin(orbAng) * 15 - 1, 2.5, 2.5);
+        } else {
+          // Pulsing Demonic Boss Core / Skull Sigil
+          const bossPulse = Math.sin(tick * 0.15) * 2;
+          // Outer aura
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+          ctx.beginPath();
+          ctx.arc(itemX, itemY + bossPulse, 14, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Boss Skull Core
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(itemX, itemY + bossPulse, 9, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Horns / Spikes
+          ctx.fillStyle = '#991b1b';
+          ctx.fillRect(itemX - 8, itemY - 6 + bossPulse, 3, 4);
+          ctx.fillRect(itemX + 5, itemY - 6 + bossPulse, 3, 4);
+
+          // Glowing Eyes
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(itemX - 4, itemY - 2 + bossPulse, 3, 3);
+          ctx.fillRect(itemX + 1, itemY - 2 + bossPulse, 3, 3);
+
+          // Orbiting energy sparks
+          const orbAng = tick * 0.1;
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(itemX + Math.cos(orbAng) * 14 - 1.5, itemY + Math.sin(orbAng) * 14 - 1.5, 3, 3);
+          ctx.fillRect(itemX - Math.cos(orbAng) * 14 - 1.5, itemY - Math.sin(orbAng) * 14 - 1.5, 3, 3);
+        }
       } else {
         // Rotating 3D Chrono Diamond / Energy Gem
         const cBob = Math.sin(tick * 0.12) * 3;

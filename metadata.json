@@ -1,6 +1,6 @@
 {
   "name": "Zion — Aventura en los Bosques",
-  "description": "Videojuego de plataformas y acción 2D retro con Zion a través de 7 biomas épicos (incluyendo la nueva zona Blizzard Rush con descenso en esquís montaña abajo, bosque polar y el jefe Yeti colosal), el modo infinito Kronos Only Up, Carrera VS IA, Contrarreloj y multijugador online 1v1.",
+  "description": "Videojuego de plataformas y acción 2D retro con Zion a través de épicos biomas temporales (incluyendo Steampunk Factory y la nueva zona Castle Smash con asedio medieval y Lord Malakar), el modo infinito Kronos Only Up, Carrera VS IA, Contrarreloj y multijugador online 1v1.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

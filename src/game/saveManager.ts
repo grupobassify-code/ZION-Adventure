@@ -107,6 +107,51 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
               hasMigrationChanges = true;
             }
           }
+
+          // Check if player has beaten Yukio el Yeti in Blizzard Rush (blizzard-3)
+          const blizzard3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-3');
+          const steampunk1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-1');
+          const isBlizzardBossBeaten =
+            blizzard3Idx !== -1 && (slot.completedLevels.includes(blizzard3Idx) || slot.completedLevels.includes('blizzard-3' as any));
+
+          if (isBlizzardBossBeaten) {
+            if (steampunk1Idx !== -1 && !slot.unlockedLevels.includes(steampunk1Idx)) {
+              slot.unlockedLevels.push(steampunk1Idx);
+              hasMigrationChanges = true;
+            }
+          } else if (steampunk1Idx !== -1) {
+            const beforeCount = slot.unlockedLevels.length;
+            slot.unlockedLevels = slot.unlockedLevels.filter((lvl) => {
+              const cfg = LEVEL_CONFIGS[lvl];
+              return !cfg || cfg.zone !== 'steampunk';
+            });
+            if (slot.unlockedLevels.length !== beforeCount) {
+              hasMigrationChanges = true;
+            }
+          }
+
+          // Check if player has beaten Vulkan-Ω in Steampunk (steampunk-3)
+          const steampunk3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-3');
+          const castle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-1');
+          const isSteampunkBossBeaten =
+            steampunk3Idx !== -1 && (slot.completedLevels.includes(steampunk3Idx) || slot.completedLevels.includes('steampunk-3' as any));
+
+          if (isSteampunkBossBeaten) {
+            if (castle1Idx !== -1 && !slot.unlockedLevels.includes(castle1Idx)) {
+              slot.unlockedLevels.push(castle1Idx);
+              hasMigrationChanges = true;
+            }
+          } else if (castle1Idx !== -1) {
+            // Remove any prematurely unlocked castlesmash levels if Steampunk boss hasn't been defeated yet
+            const beforeCount = slot.unlockedLevels.length;
+            slot.unlockedLevels = slot.unlockedLevels.filter((lvl) => {
+              const cfg = LEVEL_CONFIGS[lvl];
+              return !cfg || cfg.zone !== 'castlesmash';
+            });
+            if (slot.unlockedLevels.length !== beforeCount) {
+              hasMigrationChanges = true;
+            }
+          }
         }
         slots[i] = slot;
       }
@@ -258,9 +303,15 @@ export function recordLevelCompletion(
   const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
   const jungleFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
   const blizzard1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-1');
+  const blizzardFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'blizzard-3');
+  const steampunk1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-1');
+  const steampunkFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-3');
+  const castleSmash1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-1');
 
   // If nextLevel is jungle-1, only unlock it if Kronos Travel is beaten
   // If nextLevel is blizzard-1, only unlock it if Balam (jungle-3) is beaten
+  // If nextLevel is steampunk-1, only unlock it if Yukio el Yeti (blizzard-3) is beaten
+  // If nextLevel is castlesmash-1, only unlock it if Vulkan-Ω (steampunk-3) is beaten
   if (nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
     if (nextLevel === jungle1Idx) {
       if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
@@ -268,6 +319,14 @@ export function recordLevelCompletion(
       }
     } else if (nextLevel === blizzard1Idx) {
       if (jungleFinalBossIdx !== -1 && slot.completedLevels.includes(jungleFinalBossIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else if (nextLevel === steampunk1Idx) {
+      if (blizzardFinalBossIdx !== -1 && slot.completedLevels.includes(blizzardFinalBossIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else if (nextLevel === castleSmash1Idx) {
+      if (steampunkFinalBossIdx !== -1 && slot.completedLevels.includes(steampunkFinalBossIdx)) {
         slot.unlockedLevels.push(nextLevel);
       }
     } else {
@@ -289,6 +348,16 @@ export function recordLevelCompletion(
   // When Balam (jungle-3) is beaten, unlock Blizzard Rush (blizzard-1)
   if (levelIndex === jungleFinalBossIdx && blizzard1Idx !== -1 && !slot.unlockedLevels.includes(blizzard1Idx)) {
     slot.unlockedLevels.push(blizzard1Idx);
+  }
+
+  // When Yukio el Yeti (blizzard-3) is beaten, unlock Steampunk (steampunk-1)
+  if (levelIndex === blizzardFinalBossIdx && steampunk1Idx !== -1 && !slot.unlockedLevels.includes(steampunk1Idx)) {
+    slot.unlockedLevels.push(steampunk1Idx);
+  }
+
+  // When Vulkan-Ω (steampunk-3) is beaten, unlock Castle Smash (castlesmash-1)
+  if (levelIndex === steampunkFinalBossIdx && castleSmash1Idx !== -1 && !slot.unlockedLevels.includes(castleSmash1Idx)) {
+    slot.unlockedLevels.push(castleSmash1Idx);
   }
 
   slots[slotId] = slot;
@@ -354,6 +423,23 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`steampunk-${cfg.act - 1}` as any);
   }
+  if (cfg && cfg.zone === 'castlesmash') {
+    const steampunk3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-3');
+    const castle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isSteampunkBossDefeated =
+      steampunk3Idx !== -1 && (completedList.includes(steampunk3Idx) || completedList.includes('steampunk-3' as any));
+
+    if (!isSteampunkBossDefeated) {
+      return false; // Castle Smash is strictly locked until Vulkan-Ω (steampunk-3) is defeated!
+    }
+    if (levelIndex === castle1Idx) {
+      return true;
+    }
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`castlesmash-${cfg.act - 1}` as any);
+  }
   return slot.unlockedLevels.includes(levelIndex);
 }
 
@@ -363,7 +449,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3'].includes(cfg.id);
 }
 
 /**
@@ -498,6 +584,24 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
       blizzard3Idx !== -1 && (completedList.includes(blizzard3Idx) || completedList.includes('blizzard-3' as any));
 
     if (!isBlizzardBossDefeated) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // Castle Smash Zone requires defeating the steampunk boss Vulkan-Ω (steampunk-3)
+  if (zone === 'castlesmash') {
+    const steampunk3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-3');
+    const completedList = slot.completedLevels || [];
+
+    const isSteampunkBossDefeated =
+      steampunk3Idx !== -1 && (completedList.includes(steampunk3Idx) || completedList.includes('steampunk-3' as any));
+
+    if (!isSteampunkBossDefeated) {
       return { completed: 0, total, unlocked: false };
     }
     let completed = 0;
@@ -699,7 +803,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     id: 'castlesmash',
     name: 'Blasón Real del Bastión',
     subtitle: 'Emblema Feudal de Hierro Templado',
-    bossName: 'Titán Acorazado (En Desarrollo)',
+    bossName: 'Lord Malakar, Señor del Bastión',
     zoneName: 'Castle Smash (Acto 3)',
     levelId: 'castlesmash-3',
     levelIndex: 27,
@@ -708,7 +812,6 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     position: 'left',
     angle: 240,
     iconName: 'Shield',
-    isComingSoon: true,
     lore: 'Escudo heráldico forjado en las murallas medievales que blinda la estructura física del portal contra colapsos cuánticos.',
   },
   {
