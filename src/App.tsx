@@ -37,6 +37,7 @@ import type { RoomState } from './types/multiplayer';
 import { ZoneId } from './types';
 import { AchievementsOverlay } from './components/AchievementsOverlay';
 import { AchievementToast } from './components/AchievementToast';
+import { CONFIGURED_CREATOR_IP, isCreatorIpMatch } from './utils/adManager';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -102,6 +103,43 @@ export default function App() {
     reason: string;
     trophiesAwarded: number;
   } | null>(null);
+
+  // Logical IP Detection & AdSense Filter for Creator vs External Visitors
+  const [userClientIp, setUserClientIp] = useState<string>('');
+  const [allowAdSense, setAllowAdSense] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function evaluateIpAndAds() {
+      try {
+        const res = await fetch('/api/ad-config');
+        if (res.ok) {
+          const data = await res.json();
+          const detectedIp: string = data.clientIp || '';
+          if (isMounted) {
+            setUserClientIp(detectedIp);
+            // Logical filter: if IP matches the creator IP / router (192.168.68.1 / env), hide ads
+            const isCreator = isCreatorIpMatch(detectedIp) || data.isExcluded;
+            setAllowAdSense(!isCreator);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn('Could not query /api/ad-config from App.tsx:', err);
+      }
+
+      // Fallback: If network check fails, protect creator by default if matched
+      if (isMounted) {
+        const isCreator = isCreatorIpMatch(userClientIp);
+        setAllowAdSense(!isCreator);
+      }
+    }
+
+    evaluateIpAndAds();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Initialize Game Engine once
   if (!engineRef.current) {
@@ -756,6 +794,8 @@ export default function App() {
             setRenderTick((t) => t + 1);
           }}
           onToggleFullscreen={handleToggleFullscreen}
+          allowAds={allowAdSense}
+          userIp={userClientIp}
         />
       )}
 

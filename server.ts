@@ -34,10 +34,77 @@ const io = new SocketIOServer(httpServer, {
 // Database path for Leaderboard persistence
 const DATA_DIR = path.join(process.cwd(), 'data');
 const LEADERBOARD_FILE = path.join(DATA_DIR, 'leaderboard.json');
+const EXCLUDED_IPS_FILE = path.join(DATA_DIR, 'excluded_ips.json');
 
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// IP Exclusion Management for Google AdSense
+function loadExcludedIps(): string[] {
+  try {
+    if (fs.existsSync(EXCLUDED_IPS_FILE)) {
+      const data = fs.readFileSync(EXCLUDED_IPS_FILE, 'utf-8');
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (err) {
+    console.error('Error reading excluded IPs file:', err);
+  }
+  return [];
+}
+
+function saveExcludedIps(ips: string[]): void {
+  try {
+    fs.writeFileSync(EXCLUDED_IPS_FILE, JSON.stringify(ips, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error saving excluded IPs file:', err);
+  }
+}
+
+let excludedIpsList = loadExcludedIps();
+
+// Default creator IPs (router IP specified by creator, localhost, plus env var)
+const CREATOR_DEFAULT_IPS = [
+  '192.168.68.1',
+  '127.0.0.1',
+  process.env.VITE_CREATOR_EXCLUDED_IP,
+  process.env.CREATOR_EXCLUDED_IP,
+].filter(Boolean).map((ip) => normalizeIp(ip as string));
+
+CREATOR_DEFAULT_IPS.forEach((ip) => {
+  if (ip && !excludedIpsList.includes(ip)) {
+    excludedIpsList.push(ip);
+  }
+});
+
+function normalizeIp(ip: string | undefined): string {
+  if (!ip) return '';
+  let cleaned = ip.trim();
+  if (cleaned.startsWith('::ffff:')) {
+    cleaned = cleaned.replace('::ffff:', '');
+  }
+  if (cleaned === '::1') {
+    cleaned = '127.0.0.1';
+  }
+  return cleaned;
+}
+
+function getRequestClientIp(req: express.Request): string {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (typeof forwarded === 'string') {
+    const first = forwarded.split(',')[0].trim();
+    return normalizeIp(first);
+  }
+  if (Array.isArray(forwarded) && forwarded.length > 0) {
+    return normalizeIp(forwarded[0].trim());
+  }
+  const realIp = req.headers['x-real-ip'];
+  if (typeof realIp === 'string') {
+    return normalizeIp(realIp);
+  }
+  return normalizeIp(req.socket.remoteAddress || req.ip || '127.0.0.1');
 }
 
 // Initial Leaderboard Seed Data
@@ -245,6 +312,55 @@ app.post('/api/player/profile', (req, res) => {
   const entry = getOrCreatePlayerEntry(id, name, skin);
   saveLeaderboard(leaderboard);
   res.json(entry);
+});
+
+// ----------------------------------------------------
+// GOOGLE ADSENSE & ADS.TXT INTEGRATION
+// ----------------------------------------------------
+app.get('/ads.txt', (req, res) => {
+  res.type('text/plain').send('google.com, pub-9363587326808424, DIRECT, f08c47fec0942fa0\n');
+});
+
+app.get('/api/ad-config', (req, res) => {
+  const clientIp = getRequestClientIp(req);
+  const isExcluded = excludedIpsList.includes(clientIp) || clientIp === '127.0.0.1';
+  res.json({
+    publisherId: 'ca-pub-9363587326808424',
+    clientIp,
+    isExcluded,
+    excludedIps: excludedIpsList,
+    adsEnabled: !isExcluded,
+  });
+});
+
+app.post('/api/ad-config/exclude-ip', (req, res) => {
+  const targetIp = normalizeIp(req.body?.ip || getRequestClientIp(req));
+  if (targetIp && !excludedIpsList.includes(targetIp)) {
+    excludedIpsList.push(targetIp);
+    saveExcludedIps(excludedIpsList);
+  }
+  const clientIp = getRequestClientIp(req);
+  res.json({
+    success: true,
+    clientIp,
+    targetIp,
+    isExcluded: excludedIpsList.includes(clientIp),
+    excludedIps: excludedIpsList,
+  });
+});
+
+app.post('/api/ad-config/include-ip', (req, res) => {
+  const targetIp = normalizeIp(req.body?.ip || getRequestClientIp(req));
+  excludedIpsList = excludedIpsList.filter((ip) => ip !== targetIp);
+  saveExcludedIps(excludedIpsList);
+  const clientIp = getRequestClientIp(req);
+  res.json({
+    success: true,
+    clientIp,
+    targetIp,
+    isExcluded: excludedIpsList.includes(clientIp),
+    excludedIps: excludedIpsList,
+  });
 });
 
 // ----------------------------------------------------

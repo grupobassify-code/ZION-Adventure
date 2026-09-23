@@ -63,6 +63,8 @@ import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
 import { SoundtrackModal } from './SoundtrackModal';
 import { ModeLevelSelectModal } from './ModeLevelSelectModal';
+import { MainMenuAdBanner } from './MainMenuAdBanner';
+import { AdSettingsModal } from './AdSettingsModal';
 import { Music } from 'lucide-react';
 import { useLanguage, getLevelTitle, getLevelSubtitle, getZoneLocalizedName, getZoneLocalizedSubtitle } from '../utils/i18n';
 import { LanguageSelector } from './LanguageSelector';
@@ -81,6 +83,8 @@ interface MainMenuProps {
   onToggleFullscreen: () => void;
   initialView?: MenuView;
   initialZone?: ZoneId | null;
+  allowAds?: boolean;
+  userIp?: string;
 }
 
 type MenuView = 'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker';
@@ -219,6 +223,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onToggleFullscreen,
   initialView = 'title',
   initialZone = null,
+  allowAds = true,
+  userIp,
 }) => {
   const { language, t } = useLanguage();
   const [view, setView] = useState<MenuView>(initialView);
@@ -246,6 +252,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [resetAllConfirmModal, setResetAllConfirmModal] = useState<boolean>(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState<boolean>(false);
   const [soundtrackModalOpen, setSoundtrackModalOpen] = useState<boolean>(false);
+  const [adSettingsModalOpen, setAdSettingsModalOpen] = useState<boolean>(false);
 
   const activeSlot = slots[activeSlotId] || slots[0];
 
@@ -363,6 +370,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           <button
             onClick={() => {
               sound.playSfx('menuSelect');
+              setAdSettingsModalOpen(true);
+            }}
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 transition-all flex items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
+            title="Configuración de Anuncios AdSense y Exclusión de IP"
+          >
+            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+            <span className="hidden lg:inline">AdSense</span>
+          </button>
+
+          <button
+            onClick={() => {
+              sound.playSfx('menuSelect');
               setView('controls');
             }}
             className={`p-1.5 sm:p-2 rounded-xl border text-[10px] sm:text-xs font-bold transition-all flex items-center gap-1 ${
@@ -465,6 +484,14 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             <span className="text-slate-600">·</span>
             <span>{t('ribbonSlots')}</span>
           </div>
+
+          {/* GOOGLE ADSENSE BANNER (Exclusivo en Menú Principal, no molesto, IP-excluida para el creador) */}
+          <MainMenuAdBanner
+            onOpenAdSettings={() => setAdSettingsModalOpen(true)}
+            allowAds={allowAds}
+            userIp={userIp}
+            className="mt-2.5 mb-1"
+          />
 
           {/* Quick Legal & Privacy Trust Bar */}
           <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 text-[9px] sm:text-[10px]">
@@ -1788,6 +1815,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       {/* MODAL: JUKEBOX BANDA SONORA ORIGINAL */}
       {soundtrackModalOpen && <SoundtrackModal onClose={() => setSoundtrackModalOpen(false)} />}
 
+      {/* MODAL: CONFIGURACIÓN DE ADSENSE & EXCLUSIÓN DE IP DEL CREADOR */}
+      <AdSettingsModal isOpen={adSettingsModalOpen} onClose={() => setAdSettingsModalOpen(false)} />
+
       {/* Footer with Compliance, Credits & Privacy Link */}
       <footer className="relative z-10 text-[10px] text-slate-500 font-mono tracking-wider text-center py-2 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
         <span>{t('footerCopyright')}</span>
@@ -1801,6 +1831,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         >
           <ShieldCheck className="w-3 h-3" />
           <span>{t('footerPrivacy')}</span>
+        </button>
+        <span className="hidden sm:inline text-slate-700">|</span>
+        <button
+          onClick={() => {
+            sound.playSfx('menuSelect');
+            setAdSettingsModalOpen(true);
+          }}
+          className="text-cyan-400/90 hover:text-cyan-300 underline underline-offset-2 flex items-center gap-1 transition-colors"
+          title="Configuración de Anuncios AdSense y Exclusión de IP"
+        >
+          <Shield className="w-3 h-3" />
+          <span>AdSense / IP</span>
         </button>
         <span className="hidden sm:inline text-slate-700">|</span>
         <span className="text-slate-600">{t('footerCompliant')}</span>
