@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Skull, Trophy, ArrowUp, RotateCcw, Home, Diamond, Clock } from 'lucide-react';
 import { sound } from '../audio/soundEngine';
+import { useLanguage } from '../utils/i18n';
 
 interface OnlyUpResultsModalProps {
   altitude: number;
@@ -25,6 +26,7 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
   onRetry,
   onReturnToMenu,
 }) => {
+  const { language } = useLanguage();
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
@@ -84,7 +86,11 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
               isVictory ? 'bg-amber-500/20 border-amber-400/40 text-amber-300' : 'bg-red-500/20 border-red-400/40 text-red-300'
             } border text-[11px] font-mono font-bold mb-1`}
           >
-            <span>{isVictory ? '👑 KRONOS ONLY UP — ¡CIMA CONQUISTADA!' : 'KRONOS ONLY UP — FIN DE LA PARTIDA'}</span>
+            <span>
+              {isVictory
+                ? (language === 'es' ? '👑 KRONOS ONLY UP — ¡CIMA CONQUISTADA!' : '👑 KRONOS ONLY UP — SUMMIT CONQUERED!')
+                : (language === 'es' ? 'KRONOS ONLY UP — FIN DE LA PARTIDA' : 'KRONOS ONLY UP — GAME OVER')}
+            </span>
           </div>
 
           <h2
@@ -94,12 +100,18 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
                 : 'bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 drop-shadow-[0_2px_8px_rgba(239,68,68,0.5)]'
             }`}
           >
-            {isVictory ? '¡VICTORIA ÉPICA!' : 'GAME OVER'}
+            {isVictory
+              ? (language === 'es' ? '¡VICTORIA ÉPICA!' : 'EPIC VICTORY!')
+              : 'GAME OVER'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-sm">
             {isVictory
-              ? '¡Increíble hazaña! Has derrotado al Guardián de la Cima y completado el ascenso de 500 metros.'
-              : '¡Tu ascenso ha terminado! Puedes volver a jugar inmediatamente o regresar al menú de inicio.'}
+              ? (language === 'es'
+                  ? '¡Increíble hazaña! Has derrotado al Guardián de la Cima y completado el ascenso de 500 metros.'
+                  : 'Incredible feat! You defeated the Summit Guardian and conquered the 500m ascent.')
+              : (language === 'es'
+                  ? '¡Tu ascenso ha terminado! Puedes volver a jugar inmediatamente o regresar al menú de inicio.'
+                  : 'Your ascent has ended! You can retry immediately or return to the main menu.')}
           </p>
         </div>
 
@@ -108,14 +120,14 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
           {/* Altitude Reached */}
           <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-slate-900/80 border border-orange-500/30 text-center shadow-md">
             <span className="text-[11px] font-mono font-bold text-orange-400 flex items-center gap-1">
-              <ArrowUp className="w-3.5 h-3.5" /> ALTURA ALCANZADA
+              <ArrowUp className="w-3.5 h-3.5" /> {language === 'es' ? 'ALTURA ALCANZADA' : 'ALTITUDE REACHED'}
             </span>
             <div className="text-3xl font-black text-white font-mono mt-1">
               {altitude} <span className="text-base text-orange-400 font-bold">m</span>
             </div>
             {isNewRecord && (
               <span className="mt-1 px-2 py-0.5 rounded-md bg-yellow-500/20 border border-yellow-400/40 text-[10px] font-mono font-bold text-yellow-300 animate-pulse">
-                ¡NUEVO RÉCORD!
+                {language === 'es' ? '¡NUEVO RÉCORD!' : 'NEW RECORD!'}
               </span>
             )}
           </div>
@@ -123,13 +135,13 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
           {/* Personal Record */}
           <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-slate-900/80 border border-yellow-500/30 text-center shadow-md">
             <span className="text-[11px] font-mono font-bold text-yellow-400 flex items-center gap-1">
-              <Trophy className="w-3.5 h-3.5" /> RÉCORD PERSONAL
+              <Trophy className="w-3.5 h-3.5" /> {language === 'es' ? 'RÉCORD PERSONAL' : 'PERSONAL RECORD'}
             </span>
             <div className="text-3xl font-black text-yellow-300 font-mono mt-1">
               {record} <span className="text-base text-yellow-500 font-bold">m</span>
             </div>
             <span className="mt-1 text-[10px] font-mono text-slate-500">
-              Guardado en tu partida
+              {language === 'es' ? 'Guardado en tu partida' : 'Saved to profile'}
             </span>
           </div>
         </div>
@@ -138,7 +150,7 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
         <div className="mt-3 grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-xs">
           <div>
             <span className="text-[10px] font-mono text-slate-500 flex items-center justify-center gap-1">
-              <Clock className="w-3 h-3" /> TIEMPO
+              <Clock className="w-3 h-3" /> {language === 'es' ? 'TIEMPO' : 'TIME'}
             </span>
             <span className="text-xs font-bold text-slate-200 font-mono">
               {formatTime(timeSurvived)}
@@ -146,14 +158,14 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
           </div>
           <div>
             <span className="text-[10px] font-mono text-slate-500 flex items-center justify-center gap-1">
-              <Diamond className="w-3 h-3 text-cyan-400" /> CRISTALES
+              <Diamond className="w-3 h-3 text-cyan-400" /> {language === 'es' ? 'CRISTALES' : 'CRYSTALS'}
             </span>
             <span className="text-xs font-bold text-cyan-300 font-mono">
               +{crystals}
             </span>
           </div>
           <div>
-            <span className="text-[10px] font-mono text-slate-500">PUNTOS</span>
+            <span className="text-[10px] font-mono text-slate-500">{language === 'es' ? 'PUNTOS' : 'POINTS'}</span>
             <span className="text-xs font-bold text-amber-300 font-mono">
               {score.toLocaleString()}
             </span>
@@ -164,7 +176,10 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
         <div className="mt-3.5 px-3 py-2 rounded-xl bg-cyan-950/40 border border-cyan-500/20 flex items-center gap-2.5 text-[11px] text-cyan-200">
           <span className="text-sm">⚡</span>
           <span>
-            <strong>Pro Tip:</strong> ¡Entre más subes, mayor es tu velocidad y potencia de salto! Pero ten cuidado: los trampolines escasean y los obstáculos y enemigos aumentan drásticamente con la altitud.
+            <strong>Pro Tip:</strong>{' '}
+            {language === 'es'
+              ? '¡Entre más subes, mayor es tu velocidad y potencia de salto! Pero ten cuidado: los trampolines escasean y los obstáculos aumentan.'
+              : 'The higher you climb, the greater your speed and jump power! But beware: trampolines become scarce and hazards increase.'}
           </span>
         </div>
 
@@ -179,8 +194,8 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
             className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>JUGAR DE NUEVO</span>
-            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-black/20 font-mono opacity-80">ESPACIO</span>
+            <span>{language === 'es' ? 'JUGAR DE NUEVO' : 'PLAY AGAIN'}</span>
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-black/20 font-mono opacity-80">{language === 'es' ? 'ESPACIO' : 'SPACE'}</span>
           </button>
 
           <button
@@ -192,7 +207,7 @@ export const OnlyUpResultsModal: React.FC<OnlyUpResultsModalProps> = ({
             className="w-full sm:w-auto py-3 px-5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
             <Home className="w-4 h-4" />
-            <span>REGRESAR AL INICIO</span>
+            <span>{language === 'es' ? 'REGRESAR AL INICIO' : 'RETURN TO MENU'}</span>
             <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-black/20 font-mono opacity-80">ESC</span>
           </button>
         </div>

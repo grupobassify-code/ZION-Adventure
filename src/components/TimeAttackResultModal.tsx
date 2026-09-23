@@ -4,6 +4,7 @@ import { LEVEL_CONFIGS } from '../game/levelData';
 import { formatTimeMs, formatDeltaMs } from '../game/timeAttackGhost';
 import { sound } from '../audio/soundEngine';
 import { unlockAchievement } from '../game/achievements';
+import { useLanguage, getLevelTitle } from '../utils/i18n';
 
 interface TimeAttackResultModalProps {
   levelIndex: number;
@@ -26,6 +27,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
   onSelectOtherLevel,
   onReturnToMenu,
 }) => {
+  const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
   const delta = formatDeltaMs(deltaMs);
 
@@ -60,12 +62,12 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
           {isNewBest ? (
             <>
               <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>¡NUEVO RÉCORD PERSONAL!</span>
+              <span>{t('timeAttackNewBest')}</span>
             </>
           ) : (
             <>
               <Timer className="w-3 h-3 text-cyan-300" />
-              <span>CONTRARRELOJ COMPLETADO</span>
+              <span>{language === 'es' ? 'CONTRARRELOJ COMPLETADO' : 'TIME ATTACK COMPLETED'}</span>
             </>
           )}
         </span>
@@ -73,7 +75,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
         {/* Main Time Display */}
         <div className="my-1 shrink-0">
           <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase tracking-wider">
-            Tiempo Registrado
+            {t('timeAttackFinalTime')}
           </span>
           <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white mt-0.5 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">
             {formatTimeMs(finalTimeMs)}
@@ -83,15 +85,17 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
         {/* Delta / PB comparison */}
         <div className="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-2 sm:p-3 my-2 sm:my-3 grid grid-cols-2 gap-2 text-left shrink-0">
           <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
-            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">Circuito</span>
+            <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">
+              {language === 'es' ? 'Circuito' : 'Circuit'}
+            </span>
             <span className="text-xs sm:text-sm font-mono font-bold text-white truncate block mt-0.5">
-              {currentConfig.title}
+              {getLevelTitle(currentConfig, language)}
             </span>
           </div>
 
           <div className="bg-slate-900/80 p-2 sm:p-2.5 rounded-lg border border-slate-800">
             <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 block uppercase">
-              {prevBestMs !== null ? 'Diferencia vs PB' : 'Fantasma'}
+              {prevBestMs !== null ? (language === 'es' ? 'Diferencia vs PB' : 'Delta vs PB') : (language === 'es' ? 'Fantasma' : 'Ghost')}
             </span>
             {prevBestMs !== null ? (
               <span
@@ -103,7 +107,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
               </span>
             ) : (
               <span className="text-xs sm:text-sm font-mono font-bold text-cyan-300 block mt-0.5">
-                👻 ¡Guardado!
+                👻 {language === 'es' ? '¡Guardado!' : 'Saved!'}
               </span>
             )}
           </div>
@@ -111,8 +115,12 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
 
         <p className="text-[10px] sm:text-xs text-slate-400 mb-2 sm:mb-3 font-mono line-clamp-2 shrink-0">
           {isNewBest
-            ? 'Tu nueva mejor marca ha sido guardada. El fantasma ahora correrá con esta velocidad.'
-            : 'Tu fantasma anterior sigue siendo el más rápido. ¡Vuelve a intentarlo para batirlo!'}
+            ? (language === 'es'
+                ? 'Tu nueva mejor marca ha sido guardada. El fantasma ahora correrá con esta velocidad.'
+                : 'Your new personal best has been saved. The ghost will now race at this speed.')
+            : (language === 'es'
+                ? 'Tu fantasma anterior sigue siendo el más rápido. ¡Vuelve a intentarlo para batirlo!'
+                : 'Your previous ghost remains faster. Try again to beat it!')}
         </p>
 
         {/* Action Buttons — Touch Friendly min-h-[44px] */}
@@ -125,7 +133,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
             className="w-full min-h-[44px] py-2.5 px-3 rounded-xl font-mono font-black text-xs sm:text-sm tracking-wider uppercase bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-lg shadow-amber-950/50 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 shrink-0" />
-            <span>REINTENTAR MEJORAR TIEMPO</span>
+            <span>{t('timeAttackRetryBtn')}</span>
           </button>
 
           <div className="grid grid-cols-2 gap-2 w-full">
@@ -137,7 +145,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
               className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
               <Timer className="w-3.5 h-3.5 shrink-0" />
-              <span>OTRO CIRCUITO</span>
+              <span>{language === 'es' ? 'OTRO CIRCUITO' : 'OTHER CIRCUIT'}</span>
             </button>
 
             <button
@@ -148,7 +156,7 @@ export const TimeAttackResultModal: React.FC<TimeAttackResultModalProps> = ({
               className="min-h-[44px] py-2 px-2.5 rounded-xl font-mono text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
               <Menu className="w-3.5 h-3.5 shrink-0" />
-              <span>MENÚ</span>
+              <span>{language === 'es' ? 'MENÚ' : 'MENU'}</span>
             </button>
           </div>
         </div>

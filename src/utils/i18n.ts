@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { LevelConfig } from '../types';
 
 export type Language = 'es' | 'en';
 
@@ -241,8 +242,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     enterClockCardBtn: 'ACCEDER AL RELOJ DE KRONOS',
     enterClockBtn: 'ENTRAR AL RELOJ',
     lockerShortcut: 'CASILLERO',
-    lockerTitle: 'ARMARIO DE SKINS (ESTILO FORTNITE)',
-    lockerSub: 'Personaliza a Zion con atuendos Legendarios y Cuánticos',
+    lockerCardTitle: 'ARMARIO DE SKINS (ESTILO FORTNITE)',
+    lockerCardSub: 'Personaliza a Zion con atuendos Legendarios y Cuánticos',
     openLockerBtn: 'ABRIR CASILLERO',
 
     // Extra Modes
@@ -476,7 +477,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     vsAiSelectTrackBtn: 'Cambiar Pista',
     vsAiMenuBtn: 'Menú Principal',
 
-    timeAttackTitle: '¡TIEMPO REGISTRADO!',
+    timeAttackResultTitle: '¡TIEMPO REGISTRADO!',
     timeAttackNewBest: '¡NUEVO RÉCORD PERSONAL!',
     timeAttackFinalTime: 'Tiempo Final',
     timeAttackDelta: 'Diferencia vs Fantasma',
@@ -642,8 +643,8 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     enterClockCardBtn: 'ENTER KRONOS CLOCK',
     enterClockBtn: 'ENTER CLOCK',
     lockerShortcut: 'LOCKER',
-    lockerTitle: 'SKIN LOCKER (FORTNITE STYLE)',
-    lockerSub: 'Customize Zion with Legendary and Quantum Outfits',
+    lockerCardTitle: 'SKIN LOCKER (FORTNITE STYLE)',
+    lockerCardSub: 'Customize Zion with Legendary and Quantum Outfits',
     openLockerBtn: 'OPEN LOCKER',
 
     // Extra Modes
@@ -877,7 +878,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     vsAiSelectTrackBtn: 'Change Track',
     vsAiMenuBtn: 'Main Menu',
 
-    timeAttackTitle: 'TIME RECORDED!',
+    timeAttackResultTitle: 'TIME RECORDED!',
     timeAttackNewBest: 'NEW PERSONAL BEST!',
     timeAttackFinalTime: 'Final Time',
     timeAttackDelta: 'Delta vs Ghost',
@@ -1347,7 +1348,7 @@ export function getKronosPieceLocalized(pieceId: string, lang: Language) {
   };
 }
 
-export function getLocalizedLore(
+export function getLocalizedLoreItem(
   loreItem: { title: string; lines: string[]; author?: string },
   lang: Language
 ): { title: string; lines: string[]; author?: string } {
@@ -1406,4 +1407,12 @@ export function getLocalizedLore(
           .replace('Pergaminos Sagrados', 'Sacred Scrolls')
       : undefined,
   };
+}
+
+export function getLocalizedLore(
+  config: LevelConfig,
+  lang: Language
+): Array<{ title: string; lines: string[]; author?: string }> {
+  if (!config.lore || config.lore.length === 0) return [];
+  return config.lore.map((item) => getLocalizedLoreItem(item, lang));
 }
