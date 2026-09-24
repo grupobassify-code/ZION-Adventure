@@ -5010,6 +5010,17 @@ export function buildLevel(levelIndex: number) {
       { x: 0, y: 148, w: 1200, h: 40, kind: 'steampunk_brass' }
     );
 
+    // Trampolín catapulta de vapor inicial en la base de la caldera
+    trampolines.push({
+      x: 380,
+      y: 138,
+      w: 42,
+      h: 10,
+      bounceForce: -21.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
+
     // Paredes del tiro de la chimenea vertical gigante para saltos de pared y contención
     // (Pared izquierda en x: 180..220, Pared derecha en x: 980..1020)
     for (let py = 120; py >= -10100; py -= 200) {
@@ -5019,81 +5030,108 @@ export function buildLevel(levelIndex: number) {
       );
     }
 
-    // Generación de los 1000 METROS de plataformas y trampas de puro vapor:
+    // Generación de los 1000 METROS de plataformas, trampolines y parkour 100% pasable y fluido:
     // Altura: Y = 140 (0m) hasta Y = -9860 (1000m)
     // Cada 10 unidades de Y equivalen a 1 metro de altitud.
-    let currentY = 100;
+    let currentY = 108;
     let stepCount = 0;
 
-    while (currentY > -9800) {
+    const checkpointAltitudes = [200, 400, 600, 800, 900, 960];
+    const placedCheckpoints = new Set<number>();
+
+    while (currentY > -9820) {
       stepCount++;
       const altitudeMeters = Math.round((140 - currentY) / 10);
-      const isLeft = (stepCount % 2 === 0);
-      const px = isLeft ? 260 + ((stepCount * 73) % 240) : 560 + ((stepCount * 59) % 240);
-      const pw = 70 + (stepCount % 3) * 15;
+      const isFinalParkour = altitudeMeters >= 750; // Tramo final de parkour (750m - 1000m)
 
+      // Distribución armónica y continua en zigzag suave para que todos los saltos sean alcanzables
+      // Rango entre x: 260 y x: 780 (amplitud interior cómoda)
+      const centerOffset = 570 + Math.sin(stepCount * 0.35) * 220;
+      const pw = isFinalParkour ? 95 + (stepCount % 3) * 15 : 82 + (stepCount % 3) * 12;
+      const px = Math.round(centerOffset - pw / 2);
+
+      // 1. Plataforma principal del paso
       if (stepCount % 4 === 0) {
-        // Engranaje giratorio como plataforma de salto
+        // Engranaje giratorio como plataforma de salto móvil
         platforms.push({
           x: px,
           y: currentY,
-          w: 70,
-          h: 70,
+          w: Math.max(76, pw),
+          h: 76,
           kind: 'gear_rotating',
           rotationSpeed: stepCount % 2 === 0 ? 0.02 : -0.02,
-          gearRadius: 35
+          gearRadius: 38
         });
       } else {
-        // Pasarela de latón o tubería de alta resistencia
+        // Pasarela reforzada de latón o tubería de vapor
         platforms.push({
           x: px,
           y: currentY,
           w: pw,
           h: 12,
-          kind: (stepCount % 3 === 0) ? 'steampunk_pipe' : 'steampunk_brass'
+          kind: stepCount % 3 === 0 ? 'steampunk_pipe' : 'steampunk_brass'
         });
       }
 
-      // TRAMPAS DE PURO VAPOR: Chorros de vapor de alta presión que cruzan el tiro de la chimenea
-      if (stepCount % 3 === 1) {
-        hazards.push({
-          x: isLeft ? 220 : 940,
-          y: currentY - 14,
-          w: 36,
-          h: 26,
-          type: 'steam_jet',
-          cycleTimer: (stepCount * 25) % 90,
-          maxCycle: 90
-        });
-      }
-
-      // Válvulas de vapor explosivo en las plataformas
-      if (stepCount % 5 === 2) {
-        hazards.push({
-          x: px + pw / 2 - 12,
-          y: currentY - 24,
-          w: 24,
-          h: 24,
-          type: 'steam_pipe_burst',
-          cycleTimer: (stepCount * 30) % 80,
-          maxCycle: 80
-        });
-      }
-
-      // Respiraderos de vapor catapultas (Steam Boost) que impulsan hasta 80 metros verticales
-      if (stepCount % 7 === 0) {
+      // 2. TRAMPOLINES DE VAPOR FRECUENTES:
+      // En el tramo normal: cada 3 o 4 pasos hay un trampolín catapulta
+      // En el parkour final (>= 750m): ¡cada 2 pasos hay un trampolín para dinamismo total!
+      const shouldHaveTrampoline = isFinalParkour ? (stepCount % 2 === 0) : (stepCount % 3 === 0);
+      if (shouldHaveTrampoline) {
         trampolines.push({
-          x: px + pw / 2 - 18,
+          x: px + Math.round(pw / 2) - 19,
           y: currentY - 10,
-          w: 36,
+          w: 38,
           h: 10,
-          bounceForce: -21.5,
+          bounceForce: isFinalParkour ? -23.0 : -21.8,
           springAnim: 0,
           type: 'steam_boost'
         });
       }
 
-      // Cristales de energía
+      // 3. VIGAS DE SEGURIDAD INTERMEDIAS (Safety Catchers):
+      // Cada 9 pasos (~300px verticales), se añade una viga amplia de contención para que un resbalón nunca sea fatal
+      if (stepCount % 9 === 0 && !isFinalParkour) {
+        platforms.push({
+          x: 230,
+          y: currentY + 20,
+          w: 680,
+          h: 10,
+          kind: 'steampunk_pipe'
+        });
+      }
+
+      // 4. TRAMPAS DE VAPOR EQUILIBRADAS Y JUSTAS:
+      // Solo en plataformas que NO tengan trampolín
+      if (!shouldHaveTrampoline) {
+        // Chorro lateral de la chimenea
+        if (stepCount % 5 === 1) {
+          const isLeft = (stepCount % 2 === 0);
+          hazards.push({
+            x: isLeft ? 220 : 940,
+            y: currentY - 12,
+            w: 34,
+            h: 22,
+            type: 'steam_jet',
+            cycleTimer: (stepCount * 25) % 90,
+            maxCycle: 90
+          });
+        }
+        // Pequeña válvula telegrafiada
+        else if (stepCount % 7 === 4 && !isFinalParkour) {
+          hazards.push({
+            x: px + pw - 24,
+            y: currentY - 20,
+            w: 20,
+            h: 20,
+            type: 'steam_pipe_burst',
+            cycleTimer: (stepCount * 30) % 85,
+            maxCycle: 85
+          });
+        }
+      }
+
+      // 5. Cristales coleccionables
       if (stepCount % 2 === 0) {
         crystals.push({
           x: px + pw / 2 - 4,
@@ -5104,40 +5142,43 @@ export function buildLevel(levelIndex: number) {
         });
       }
 
-      // Checkpoints a los 250m, 500m y 750m
-      if (Math.abs(altitudeMeters - 250) < 15 && !checkpoints.some(c => c.spawn.y < -2000 && c.spawn.y > -3000)) {
-        checkpoints.push({
-          x: px + pw / 2 - 10,
-          y: currentY - 32,
-          w: 20,
-          h: 32,
-          active: false,
-          spawn: { x: px + pw / 2, y: currentY - 10 }
-        });
-        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
-      } else if (Math.abs(altitudeMeters - 500) < 15 && !checkpoints.some(c => c.spawn.y < -4500 && c.spawn.y > -5500)) {
-        checkpoints.push({
-          x: px + pw / 2 - 10,
-          y: currentY - 32,
-          w: 20,
-          h: 32,
-          active: false,
-          spawn: { x: px + pw / 2, y: currentY - 10 }
-        });
-        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
-      } else if (Math.abs(altitudeMeters - 750) < 15 && !checkpoints.some(c => c.spawn.y < -7000 && c.spawn.y > -8000)) {
-        checkpoints.push({
-          x: px + pw / 2 - 10,
-          y: currentY - 32,
-          w: 20,
-          h: 32,
-          active: false,
-          spawn: { x: px + pw / 2, y: currentY - 10 }
-        });
-        heals.push({ x: px + 10, y: currentY - 18, w: 10, h: 10, taken: false });
+      // 6. CHECKPOINTS EQUILIBRADOS CADA 200M Y EN EL PARKOUR FINAL (800m, 900m, 960m):
+      for (const targetAlt of checkpointAltitudes) {
+        if (!placedCheckpoints.has(targetAlt) && Math.abs(altitudeMeters - targetAlt) <= 15) {
+          placedCheckpoints.add(targetAlt);
+          // Plataforma amplia de santuario para el checkpoint
+          platforms.push({
+            x: px - 15,
+            y: currentY,
+            w: pw + 30,
+            h: 14,
+            kind: 'steampunk_brass'
+          });
+          checkpoints.push({
+            x: px + pw / 2 - 10,
+            y: currentY - 32,
+            w: 20,
+            h: 32,
+            active: false,
+            spawn: { x: px + pw / 2, y: currentY - 10 }
+          });
+          heals.push({ x: px + 8, y: currentY - 18, w: 10, h: 10, taken: false });
+          // Trampolín catapulta al lado del checkpoint para salir disparado
+          trampolines.push({
+            x: px + pw - 24,
+            y: currentY - 10,
+            w: 36,
+            h: 10,
+            bounceForce: -22.5,
+            springAnim: 0,
+            type: 'steam_boost'
+          });
+          break;
+        }
       }
 
-      currentY -= 38; // Escalón vertical suave y alcanzable
+      // Avance vertical suave para que el parkour sea 100% alcanzable (34-36px)
+      currentY -= (isFinalParkour ? 34 : 36);
     }
 
     // =============================================================
@@ -5146,13 +5187,65 @@ export function buildLevel(levelIndex: number) {
     // Plataforma de la Cima y Balcones
     platforms.push(
       { x: 240, y: -9860, w: 720, h: 36, kind: 'steampunk_brass' },
-      { x: 280, y: -9925, w: 120, h: 12, kind: 'steampunk_pipe' },
-      { x: 800, y: -9925, w: 120, h: 12, kind: 'steampunk_pipe' },
-      { x: 540, y: -9950, w: 120, h: 12, kind: 'steampunk_brass' },
+      { x: 280, y: -9925, w: 130, h: 12, kind: 'steampunk_pipe' },
+      { x: 790, y: -9925, w: 130, h: 12, kind: 'steampunk_pipe' },
+      { x: 535, y: -9950, w: 130, h: 12, kind: 'steampunk_brass' },
       // Paredes de confinamiento para no caer al abismo durante el combate
       { x: 220, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' },
       { x: 960, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' }
     );
+
+    // TRAMPOLINES EN LA ARENA DEL JEFE FINAL VULKAN-Ω (Para esquivar y alcanzar válvulas altas)
+    // 1. Trampolín izquierdo del suelo
+    trampolines.push({
+      x: 305,
+      y: -9870,
+      w: 42,
+      h: 10,
+      bounceForce: -20.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
+    // 2. Trampolín derecho del suelo
+    trampolines.push({
+      x: 850,
+      y: -9870,
+      w: 42,
+      h: 10,
+      bounceForce: -20.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
+    // 3. Trampolín central de alta propulsión al núcleo superior
+    trampolines.push({
+      x: 578,
+      y: -9870,
+      w: 44,
+      h: 10,
+      bounceForce: -22.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
+    // 4. Catapulta en balcón izquierdo (alcanza puente superior)
+    trampolines.push({
+      x: 325,
+      y: -9935,
+      w: 38,
+      h: 10,
+      bounceForce: -19.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
+    // 5. Catapulta en balcón derecho (alcanza puente superior)
+    trampolines.push({
+      x: 835,
+      y: -9935,
+      w: 38,
+      h: 10,
+      bounceForce: -19.5,
+      springAnim: 0,
+      type: 'steam_boost'
+    });
 
     // Checkpoint de la Cima (1000m)
     checkpoints.push({

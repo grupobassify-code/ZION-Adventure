@@ -87,6 +87,11 @@ export class GameRenderer {
     // 4d. Destructible Castle Obstacles (Castle Smash)
     this.renderDestructibles(engine.destructibles, engine.cameraX, engine.time);
 
+    // 4e. Steampunk Ascending Superheated Pressure Floor
+    if (config.id === 'steampunk-3') {
+      this.renderSteampunkRisingFloor(engine);
+    }
+
     // 5. Hazards & traps
     this.renderHazards(engine.hazards, engine.cameraX, engine.time);
 
@@ -156,7 +161,23 @@ export class GameRenderer {
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(barX + 3, barY + 3, 6, barH - 6);
 
-      // Mercury / Steam Pressure Column
+      // Rising Floor Steam Pressure Column (Lava/Floor Level)
+      const floorMeters = Math.max(0, Math.min(1000, Math.round((134 - engine.steampunkRisingFloorY) / 10)));
+      const floorFillH = Math.round((floorMeters / 1000) * (barH - 6));
+      const floorMarkerY = barY + barH - 3 - floorFillH;
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+      ctx.fillRect(barX + 3, floorMarkerY, 6, Math.max(0, barH - 3 - floorMarkerY + barY));
+
+      // Rising floor indicator arrow (red chevron on left of altimeter)
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(barX - 1, floorMarkerY);
+      ctx.lineTo(barX - 4, floorMarkerY - 2.5);
+      ctx.lineTo(barX - 4, floorMarkerY + 2.5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Mercury / Steam Pressure Column (Player Level)
       const fillH = Math.round((altMeters / 1000) * (barH - 6));
       ctx.fillStyle = '#ea580c';
       ctx.fillRect(barX + 3, barY + barH - 3 - fillH, 6, fillH);
@@ -184,6 +205,16 @@ export class GameRenderer {
       ctx.fillStyle = '#fef08a';
       ctx.font = 'bold 7px sans-serif';
       ctx.fillText(`${altMeters}m`, barX - 6, playerMarkerY + 2.5);
+
+      // Proximity Warning Alert if rising floor is close to player
+      const distFromFloor = engine.steampunkRisingFloorY - (engine.player.y + engine.player.h);
+      if (distFromFloor < 85 && distFromFloor > -30 && engine.steampunkRisingFloorActive) {
+        const pulse = 0.6 + Math.sin(engine.time * 0.25) * 0.4;
+        ctx.fillStyle = `rgba(239, 68, 68, ${pulse.toFixed(2)})`;
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠️ ¡PISO SUBIENDO! ¡CUIDADO CON EL APLASTE!', GAME_WIDTH / 2, 38);
+      }
     }
 
     // 13. Boss intro cinematic banner & combo HUD
@@ -633,6 +664,51 @@ export class GameRenderer {
         ctx.moveTo(mcx, padY - 4 + arrowBob);
         ctx.lineTo(mcx - 4, padY + arrowBob);
         ctx.lineTo(mcx + 4, padY + arrowBob);
+        ctx.closePath();
+        ctx.fill();
+        continue;
+      }
+
+      if (t.type === 'steam_boost') {
+        // Steampunk Brass Pneumatic Catapult Pad
+        // Base mount: Heavy riveted iron flange
+        ctx.fillStyle = '#1c140e';
+        ctx.fillRect(rx - 1, t.y + t.h - 3, t.w + 2, 4);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(rx, t.y + t.h - 2, t.w, 3);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(rx + 2, t.y + t.h - 1, 2, 2);
+        ctx.fillRect(rx + t.w - 4, t.y + t.h - 1, 2, 2);
+
+        // High-pressure brass piston cylinder
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(rx + t.w / 2 - 3, padY + 2, 6, Math.max(1, padH - 1));
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(rx + t.w / 2 - 1, padY + 2, 2, Math.max(1, padH - 1));
+
+        // Brass pneumatic catapult pad
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(rx, padY, t.w, 5);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(rx, padY, t.w, 3);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(rx + 2, padY, t.w - 4, 1.5);
+
+        // Animated steam vent puff
+        const steamPulse = t.springAnim > 0 ? 3 : Math.sin(time * 0.2 + rx) * 1.5;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.beginPath();
+        const mcx = rx + t.w / 2;
+        ctx.arc(mcx, padY - 2 + steamPulse, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glowing white upward chevron indicating catapult direction
+        const arrowBob = t.springAnim > 0 ? 0 : Math.sin(time * 0.18) * 1.5;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(mcx, padY - 3 + arrowBob);
+        ctx.lineTo(mcx - 3, padY + arrowBob);
+        ctx.lineTo(mcx + 3, padY + arrowBob);
         ctx.closePath();
         ctx.fill();
         continue;
@@ -7324,6 +7400,98 @@ export class GameRenderer {
     ctx.fillStyle = fps >= 55 ? '#4ade80' : fps >= 30 ? '#fde047' : '#f87171';
     ctx.textAlign = 'center';
     ctx.fillText(`${fps} FPS (60Hz)`, GAME_WIDTH - 36, 13);
+    ctx.restore();
+  }
+
+  public renderSteampunkRisingFloor(engine: GameEngine) {
+    const ctx = this.ctx;
+    const floorY = Math.round(engine.steampunkRisingFloorY);
+    const cameraX = engine.cameraX;
+    const time = engine.time;
+
+    // Only render if floor is in or near visible viewport
+    if (floorY < engine.cameraY - 40 || floorY > engine.cameraY + GAME_HEIGHT + 100) {
+      return;
+    }
+
+    const startX = Math.round(180 - cameraX);
+    const endX = Math.round(1020 - cameraX);
+    const w = endX - startX;
+
+    ctx.save();
+
+    // 1. Scalding Steam Vapor Plumes rising above the plate
+    for (let i = 0; i < 8; i++) {
+      const vx = startX + 20 + ((i * 97 + time * 1.2) % (w - 40));
+      const vPulse = Math.sin(time * 0.18 + i * 2) * 6;
+      const vHeight = 22 + ((i * 13) % 18) + vPulse;
+      const vAlpha = 0.35 + Math.sin(time * 0.15 + i) * 0.2;
+
+      const grad = ctx.createLinearGradient(vx, floorY, vx, floorY - vHeight);
+      grad.addColorStop(0, `rgba(234, 88, 12, ${vAlpha})`);
+      grad.addColorStop(0.4, `rgba(251, 191, 36, ${vAlpha * 0.8})`);
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(vx - 8, floorY - vHeight, 16, vHeight);
+    }
+
+    // 2. Heavy Pneumatic Crushing Floor Plate
+    // Base dark cast iron
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(startX, floorY, w, 24);
+
+    // Superheated brass rim
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(startX, floorY, w, 6);
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(startX, floorY, w, 2);
+
+    // Hazard warning diagonal stripes (amber & charcoal)
+    for (let sx = startX; sx < endX; sx += 20) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(sx, floorY + 2);
+      ctx.lineTo(sx + 10, floorY + 2);
+      ctx.lineTo(sx + 6, floorY + 10);
+      ctx.lineTo(sx - 4, floorY + 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Glowing heating core grate
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(startX + 4, floorY + 10, w - 8, 4);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(startX + 6, floorY + 11, w - 12, 2);
+
+    // Steam vents along the plate with red warning indicators
+    for (let vx = startX + 16; vx < endX; vx += 36) {
+      ctx.fillStyle = '#1c140e';
+      ctx.fillRect(vx, floorY + 3, 12, 4);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(vx + 4, floorY + 4, 4, 2);
+    }
+
+    // 3. Dense Superheated Furnace Sea underneath
+    const seaGrad = ctx.createLinearGradient(startX, floorY + 24, startX, floorY + 140);
+    seaGrad.addColorStop(0, '#991b1b');
+    seaGrad.addColorStop(0.3, '#7f1d1d');
+    seaGrad.addColorStop(0.7, '#450a0a');
+    seaGrad.addColorStop(1, '#1c0505');
+    ctx.fillStyle = seaGrad;
+    ctx.fillRect(startX, floorY + 24, w, 140);
+
+    // Heavy hydraulic piston columns extending down
+    for (let px = startX + 60; px < endX; px += 140) {
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(px - 6, floorY + 24, 12, 100);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(px - 4, floorY + 24, 4, 100);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(px - 7, floorY + 24, 14, 4);
+    }
+
     ctx.restore();
   }
 }

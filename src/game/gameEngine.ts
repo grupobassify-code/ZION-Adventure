@@ -176,6 +176,12 @@ export class GameEngine {
   public destroyedDestructibleIds = new Set<number>();
   private cpSavedDestructibles = new Set<number>();
 
+  // Steampunk Chimney Ascent (steampunk-3) Rising Floor & Crush Mechanics
+  public steampunkRisingFloorY: number = 158;
+  public steampunkFloorSpeed: number = 0.38;
+  public steampunkFloorGraceTimer: number = 180;
+  public steampunkRisingFloorActive: boolean = false;
+
   // Online Multiplayer (1v1 Matchmaking & Duels)
   public remotePlayer: RemotePlayerState | null = null;
   public isMultiplayerMatch: boolean = false;
@@ -437,6 +443,10 @@ export class GameEngine {
         this.lastSafeGround = { x: startX, y: startGroundY };
         this.player.x = startX;
         this.player.y = startGroundY;
+        this.steampunkRisingFloorY = 158;
+        this.steampunkFloorGraceTimer = 180;
+        this.steampunkRisingFloorActive = false;
+        this.steampunkFloorSpeed = 0.38;
       } else {
         const startPlat = this.platforms.find((p) => p.x <= 35 && p.x + p.w >= 35 && p.y >= 80);
         const startGroundY = startPlat ? startPlat.y - this.player.h : 138;
@@ -480,6 +490,13 @@ export class GameEngine {
       this.destructibles.forEach((d) => {
         if (this.destroyedDestructibleIds.has(d.id)) d.destroyed = true;
       });
+    }
+
+    if (lvl.config.id === 'steampunk-3') {
+      this.steampunkRisingFloorY = fromCheckpoint ? Math.min(158, this.spawnPoint.y + 160) : 158;
+      this.steampunkFloorGraceTimer = fromCheckpoint ? 200 : 180;
+      this.steampunkRisingFloorActive = false;
+      this.steampunkFloorSpeed = 0.38;
     }
 
     this.player.vx = 0;
@@ -1261,6 +1278,10 @@ export class GameEngine {
         this.updateEffects();
         return;
       }
+    }
+
+    if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
+      this.updateSteampunkRisingFloor();
     }
 
     // Carrera VS IA: Update AI competitor & simulate physics navigation
@@ -7029,6 +7050,13 @@ export class GameEngine {
     this.createBurst(respawnTarget.x, respawnTarget.y, 24, '#38bdf8');
     this.createBurst(respawnTarget.x, respawnTarget.y, 16, '#4ade80');
 
+    if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
+      this.steampunkRisingFloorY = hasCheckpoint ? Math.min(158, respawnTarget.y + 160) : 158;
+      this.steampunkFloorGraceTimer = 220;
+      this.steampunkRisingFloorActive = false;
+      this.steampunkFloorSpeed = 0.38;
+    }
+
     // If player died during a boss arena battle, reset the boss state for an immediate, fair retry inside the arena
     if (this.arenaActive && this.boss && this.boss.alive) {
       this.boss.hp = this.boss.maxHp;
@@ -7536,6 +7564,149 @@ export class GameEngine {
       this.heals = this.heals.filter((h) => !h.taken && h.y < cleanupY);
       this.enemies = this.enemies.filter((e) => e.alive && e.y < cleanupY);
       this.trampolines = this.trampolines.filter((t) => t.y < cleanupY);
+    }
+  }
+
+  private updateSteampunkRisingFloor() {
+    const config = LEVEL_CONFIGS[this.levelIndex];
+    if (config?.id !== 'steampunk-3') return;
+    if (this.bossDefeated || this.isLevelWon) return;
+
+    // 1. Grace Period at Level Start or after Checkpoint Respawn
+    if (this.steampunkFloorGraceTimer > 0) {
+      this.steampunkFloorGraceTimer--;
+      this.steampunkRisingFloorActive = false;
+      if (this.steampunkFloorGraceTimer === 179) {
+        sound.playSfx('warningAlarm');
+        this.addFloatingText(this.player.x, this.player.y - 20, '⚠️ ¡CALDERA EN SOBREPRESIÓN! EL PISO SUBIRÁ PRONTO', '#f97316');
+      } else if (this.steampunkFloorGraceTimer === 1) {
+        sound.playSfx('flameWhoosh');
+        this.screenShake = 6;
+        this.addFloatingText(this.player.x, this.player.y - 20, '🔥 ¡EL PISO DE VAPOR COMIENZA A SUBIR! ¡SUBE RÁPIDO!', '#ef4444');
+      }
+      return;
+    }
+
+    this.steampunkRisingFloorActive = true;
+
+    // 2. Ascend upward until just below the summit boss arena
+    const summitFloorLimit = -9830;
+    if (this.steampunkRisingFloorY > summitFloorLimit) {
+      // Base upward speed: 0.38px/frame
+      const distAbove = this.steampunkRisingFloorY - this.player.y;
+      let speed = this.steampunkFloorSpeed;
+      if (distAbove > 280) {
+        speed += 0.08;
+      }
+      this.steampunkRisingFloorY -= speed;
+    }
+
+    // 3. Ambient steam and fire particles rising from the hot floor
+    if (this.time % 8 === 0) {
+      const pX = 220 + Math.random() * 740;
+      this.particles.push({
+        x: pX,
+        y: this.steampunkRisingFloorY - 2,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -2 - Math.random() * 2.5,
+        life: 25 + Math.floor(Math.random() * 20),
+        maxLife: 45,
+        color: Math.random() > 0.4 ? '#f97316' : '#ffffffcc',
+        size: 2 + Math.floor(Math.random() * 3),
+      });
+    }
+
+    if (this.settings.godMode) return;
+
+    // 4. CRUSH MECHANIC DETECTION ("si este te aplasta contra una plataforma pierdes")
+    const p = this.player;
+    const playerBottom = p.y + p.h;
+    const playerTop = p.y;
+    const playerLeft = p.x;
+    const playerRight = p.x + p.w;
+
+    // Check if player is on or inside the rising floor
+    const isFloorTouchingPlayer = playerBottom >= this.steampunkRisingFloorY - 2;
+
+    if (isFloorTouchingPlayer) {
+      // Check if there is a ceiling platform directly above Zion
+      let isCrushed = false;
+
+      for (const plat of this.platforms) {
+        if (plat.hidden || plat.slopeEndY !== undefined) continue;
+        // Don't consider vertical chimney walls (w <= 40 && h >= 100)
+        if (plat.w <= 40 && plat.h >= 100) continue;
+
+        const platBottom = plat.y + plat.h;
+        const platLeft = plat.x;
+        const platRight = plat.x + plat.w;
+
+        // Horizontal overlap with tolerance
+        const hOverlap = playerRight > platLeft + 3 && playerLeft < platRight - 3;
+        if (!hOverlap) continue;
+
+        // Gap between the bottom of ceiling platform and top of rising floor
+        const gap = this.steampunkRisingFloorY - platBottom;
+        // If the gap is smaller than or equal to player's height (plus tolerance)
+        if (gap <= p.h + 2 && gap >= -8) {
+          // Player is caught in between the platform and rising floor
+          if (playerTop <= platBottom + 4 && playerBottom >= this.steampunkRisingFloorY - 4) {
+            isCrushed = true;
+            break;
+          }
+        }
+      }
+
+      if (isCrushed) {
+        // INSTANT CRUSH DEFEAT!
+        sound.playSfx('explosion');
+        sound.playSfx('metalHit');
+        this.screenShake = 18;
+        this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 30, '#ef4444');
+        this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 20, '#fbbf24');
+        this.createBurst(p.x + p.w / 2, this.steampunkRisingFloorY, 24, '#f97316');
+        this.addFloatingText(p.x, p.y - 20, '💥 ¡APLASTADO CONTRA LA PLATAFORMA! 💀', '#ef4444');
+        this.addFloatingText(p.x, p.y - 8, '⚠️ EL PISO ASCENDENTE TE HA TRITURADO', '#fbbf24');
+        this.lives = 0;
+        this.handlePlayerDamage('💥 ¡Aplastado contra una plataforma por el piso ascendente!');
+        return;
+      }
+
+      // If NOT crushed against a platform ceiling, the rising floor supports and lifts Zion upward
+      p.y = this.steampunkRisingFloorY - p.h;
+      p.ground = true;
+      p.vy = -this.steampunkFloorSpeed;
+
+      // If submerged deeply into the scalding hot boiler floor:
+      if (playerBottom > this.steampunkRisingFloorY + 8) {
+        if (p.inv <= 0) {
+          sound.playSfx('lava');
+          this.createBurst(p.x + p.w / 2, this.steampunkRisingFloorY, 18, '#ef4444');
+          this.handlePlayerDamage('♨️ ¡Caída en el piso de vapor hirviente!');
+        }
+      }
+    }
+
+    // 5. Fall into abyss below the rising floor check
+    if (p.y > this.steampunkRisingFloorY + 12) {
+      if (p.inv <= 0) {
+        sound.playSfx('lava');
+        this.handlePlayerDamage('♨️ ¡Caída en la caldera hirviente!');
+        if (this.lives > 0) {
+          p.x = this.spawnPoint.x;
+          p.y = this.spawnPoint.y;
+          p.vx = 0;
+          p.vy = 0;
+          p.inv = 120;
+          this.lastSafeGround = { x: this.spawnPoint.x, y: this.spawnPoint.y };
+          this.cameraX = Math.max(0, p.x - GAME_WIDTH * 0.45);
+          this.cameraY = this.spawnPoint.y - GAME_HEIGHT * 0.55;
+          this.steampunkRisingFloorY = Math.min(158, this.spawnPoint.y + 160);
+          this.steampunkFloorGraceTimer = 180;
+          this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#38bdf8');
+          this.addFloatingText(p.x, p.y - 18, `⚠️ ¡CAÍDA A LA CALDERA! RETORNO A CHECKPOINT -1 ❤ [${this.lives}/${this.maxLives}]`, '#f43f5e');
+        }
+      }
     }
   }
 
