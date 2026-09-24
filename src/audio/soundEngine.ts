@@ -26,6 +26,9 @@ export type MusicTrackName =
   | 'steampunkBoss'
   | 'castleAct1'
   | 'castleBoss'
+  | 'pirateBeach'
+  | 'pirateUnderwater'
+  | 'pirateBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -60,6 +63,9 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'steampunkBoss', title: 'Ascenso 1000m: Evasión de Vapor Colosal', zone: 'Fábrica Steampunk · Jefe Only Up', tag: 'Only Up 1000m · Boiler Meltdown Rush' },
   { id: 'castleAct1', title: 'Murallas de Asedio y Almenas de Piedra', zone: 'Castle Smash · Acto 1 y 2', tag: 'Marcha Medieval · Gothic Battle Chiptune' },
   { id: 'castleBoss', title: 'Lord Malakar: Furia del Martillo Rompemuros', zone: 'Castle Smash · Jefe', tag: 'Duelo de Bastión · Heavy Siege Metal' },
+  { id: 'pirateBeach', title: 'Cala del Corsario: Palmeras y Mareas', zone: 'Pirates Treasure · Acto 1', tag: 'Pirate Sea Shanty · Tropical Chiptune' },
+  { id: 'pirateUnderwater', title: 'Fosa Abisal: Susurros del Océano Azul', zone: 'Pirates Treasure · Acto 2', tag: 'Bajo el Agua · Ambient Deep Sea' },
+  { id: 'pirateBoss', title: 'El Cofre Maldito del Naufragio', zone: 'Pirates Treasure · Jefe', tag: 'Duelo Mímico · Sea Monster Metal' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -492,6 +498,19 @@ class SoundEngine {
       case 'iceShatter':
         [1800, 2400, 3200, 1200].forEach((f, i) => this.tone(f, 0.09, 'sine', 0.03, i * 0.02, f * 0.5));
         this.noise(0.08, 0.03);
+        break;
+      case 'bubble':
+        this.tone(380, 0.08, 'sine', 0.03, 0, 720);
+        this.tone(540, 0.06, 'triangle', 0.02, 0.02, 980);
+        break;
+      case 'splash':
+        this.noise(0.12, 0.04);
+        this.tone(220, 0.14, 'sine', 0.03, 0, 110);
+        this.tone(480, 0.09, 'triangle', 0.02, 0.02, 240);
+        break;
+      case 'coin':
+        this.tone(988, 0.06, 'sine', 0.04, 0, 1318);
+        this.tone(1318, 0.12, 'triangle', 0.035, 0.04, 1760);
         break;
       default:
         this.tone(440, 0.08, 'triangle', 0.03, 0);
@@ -1336,6 +1355,105 @@ class SoundEngine {
         2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0,
         2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
         2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
+      ],
+    },
+
+    // PIRATE'S TREASURE · ACTO 1: CALA DEL CORSARIO Y PLAYA TROPICAL (128 BPM Sea Shanty Bouncy Groove)
+    pirateBeach: {
+      tempo: 128,
+      leadWave: 'square',
+      harmonyWave: 'triangle',
+      bassWave: 'triangle',
+      arpWave: 'square',
+      leadNotes: [
+        N.A4, N.D5, N.D5, N.E5, N.F5, N.D5, N.D5, N.REST,  N.F5, N.G5, N.A5, N.F5, N.E5, N.C5, N.A4, N.REST,
+        N.A4, N.D5, N.D5, N.E5, N.F5, N.G5, N.A5, N.D5,   N.F5, N.E5, N.D5, N.Cs5, N.D5, N.REST, N.D5, N.REST,
+        N.F5, N.A5, N.A5, N.G5, N.F5, N.G5, N.A5, N.F5,   N.G5, N.F5, N.E5, N.D5, N.E5, N.C5, N.A4, N.C5,
+        N.D5, N.F5, N.A5, N.G5, N.F5, N.E5, N.D5, N.Cs5,  N.D5, N.F5, N.A5, N.D6, N.D5, N.REST, N.D5, N.REST
+      ],
+      harmonyNotes: [
+        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.D4, N.REST, N.F4, N.REST, N.C4, N.REST, N.E4, N.REST,
+        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.D4, N.REST,
+        N.A4, N.REST, N.C5, N.REST, N.D5, N.REST, N.A4, N.REST, N.C5, N.REST, N.B4, N.REST, N.A4, N.REST, N.C5, N.REST,
+        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.F4, N.REST, N.A4, N.REST, N.D5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.D2, N.D2, N.A1, N.D2, N.D2, N.D2, N.A1, N.D2,  N.F2, N.F2, N.C2, N.F2, N.A1, N.A1, N.E1, N.A1,
+        N.D2, N.D2, N.A1, N.D2, N.D2, N.D2, N.A1, N.D2,  N.G2, N.G2, N.A1, N.A1, N.D2, N.D2, N.A1, N.D2,
+        N.F2, N.F2, N.C2, N.F2, N.D2, N.D2, N.A1, N.D2,  N.C2, N.C2, N.G1, N.C2, N.A1, N.A1, N.E1, N.A1,
+        N.D2, N.D2, N.A1, N.D2, N.G2, N.G2, N.A1, N.A1,  N.D2, N.F2, N.A2, N.D3, N.D2, N.REST, N.D2, N.REST
+      ],
+      drumPattern: [
+        2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1,
+        2, 1, 3, 1, 2, 1, 3, 4, 2, 1, 3, 1, 4, 4, 5, 1,
+        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
+        2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 3, 5, 1
+      ],
+    },
+
+    // PIRATE'S TREASURE · ACTO 2: ARRECIFE SUBMARINO (106 BPM Atmospheric Deep Blue Aqua Synth)
+    pirateUnderwater: {
+      tempo: 106,
+      leadWave: 'sine',
+      harmonyWave: 'triangle',
+      bassWave: 'sine',
+      arpWave: 'sine',
+      leadNotes: [
+        N.E4, N.G4, N.B4, N.E5, N.D5, N.B4, N.A4, N.G4,   N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4, N.REST,
+        N.F4, N.A4, N.C5, N.F5, N.E5, N.C5, N.A4, N.F4,   N.B4, N.D5, N.Fs5, N.E5, N.D5, N.B4, N.REST, N.REST,
+        N.G4, N.B4, N.D5, N.G5, N.Fs5, N.D5, N.C5, N.B4,  N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.D5, N.C5,
+        N.B4, N.D5, N.G5, N.Fs5, N.E5, N.D5, N.B4, N.A4,  N.E4, N.G4, N.B4, N.E5, N.E5, N.REST, N.REST, N.REST
+      ],
+      harmonyNotes: [
+        N.B3, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.C4, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST,
+        N.A3, N.REST, N.C4, N.REST, N.F4, N.REST, N.C4, N.REST, N.Ds4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Fs4, N.REST,
+        N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.C5, N.REST, N.G4, N.REST,
+        N.Ds4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.B3, N.REST, N.E4, N.REST, N.REST, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.E1, N.REST, N.B1, N.REST, N.E2, N.REST, N.B1, N.REST, N.A1, N.REST, N.E1, N.REST, N.A2, N.REST, N.E1, N.REST,
+        N.F1, N.REST, N.C2, N.REST, N.F2, N.REST, N.C2, N.REST, N.B0, N.REST, N.Fs1, N.REST, N.B1, N.REST, N.Fs1, N.REST,
+        N.G1, N.REST, N.D2, N.REST, N.G2, N.REST, N.D2, N.REST, N.C1, N.REST, N.G1, N.REST, N.C2, N.REST, N.G1, N.REST,
+        N.B0, N.REST, N.Fs1, N.REST, N.B1, N.REST, N.Fs1, N.REST, N.E1, N.REST, N.B1, N.REST, N.E2, N.REST, N.REST, N.REST
+      ],
+      drumPattern: [
+        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
+        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
+      ],
+    },
+
+    // PIRATE'S TREASURE · ACTO 3 JEFE: EL COFRE MALDITO (150 BPM Sunken Galleon Metal Mimic Battle)
+    pirateBoss: {
+      tempo: 150,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'sawtooth',
+      leadNotes: [
+        N.C4, N.Ds4, N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.REST, N.C4, N.Ds4, N.G4, N.Fs4, N.G4, N.As4, N.C5, N.REST,
+        N.C5, N.As4, N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.Ds4, N.F4, N.Fs4, N.G4, N.As4, N.B4, N.C5, N.Ds5, N.REST,
+        N.C5, N.C5, N.Ds5, N.D5, N.C5, N.As4, N.G4, N.Fs4,  N.F4, N.G4, N.As4, N.C5, N.Ds5, N.D5, N.C5, N.As4,
+        N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.Ds4, N.F4, N.Fs4, N.G4, N.C5, N.G4, N.Ds4, N.C4, N.REST, N.C4, N.REST
+      ],
+      harmonyNotes: [
+        N.G4, N.REST, N.C5, N.REST, N.Ds5, N.REST, N.C5, N.REST, N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.Ds5, N.REST,
+        N.Ds5, N.REST, N.D5, N.REST, N.C5, N.REST, N.G4, N.REST, N.F4, N.REST, N.G4, N.REST, N.As4, N.REST, N.C5, N.REST,
+        N.Ds5, N.REST, N.G5, N.REST, N.F5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.Ds5, N.REST,
+        N.C5, N.REST, N.As4, N.REST, N.G4, N.REST, N.Ds4, N.REST, N.C4, N.REST, N.Ds4, N.REST, N.G4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.C1, N.C1, N.C2, N.C1, N.G1, N.C1, N.As1, N.C2,
+        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.As0, N.C1, N.D1, N.Ds1, N.F1, N.G1, N.As1, N.C2,
+        N.C2, N.C2, N.As1, N.G1, N.Fs1, N.F1, N.Ds1, N.D1,  N.C1, N.C1, N.Ds1, N.F1, N.Fs1, N.G1, N.F1, N.Ds1,
+        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.C1, N.Ds1, N.C1, N.G1, N.C1, N.C1, N.G0, N.C1
+      ],
+      drumPattern: [
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
+        4, 2, 5, 4, 4, 4, 5, 2, 4, 2, 5, 4, 4, 4, 5, 5,
+        4, 4, 5, 4, 4, 5, 5, 4, 4, 4, 5, 5, 2, 2, 5, 5
       ],
     },
   };

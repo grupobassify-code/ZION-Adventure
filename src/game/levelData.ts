@@ -650,10 +650,20 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'piratestreasure-1',
     zone: 'piratestreasure',
     act: 1,
-    title: 'Zona 10 · Acto 1 — Bahía del Corsario (Próximamente)',
-    subtitle: 'Cala Caribeña, Muelle de Madera y Palmeras',
-    lore: [{ title: '⚓ TIERRA A LA VISTA', lines: ['Próximamente: Navegando los mares dimensionales en busca de tesoros perdidos.'], author: 'Bitácora del Corsario' }],
-    worldWidth: 3000,
+    title: 'Zona 10 · Acto 1 — Bahía del Corsario y Playa del Tesoro',
+    subtitle: 'Costas de Arena Dorada, Palmeras Tropicales y Piratas Malditos',
+    lore: [
+      {
+        title: '⚓ DESEMBARCO EN LA COSTA PIRATA',
+        lines: [
+          'Las corrientes dimensionales transportan a Zion a una deslumbrante costa caribeña bañada por un mar turquesa.',
+          'Entre palmeras tropicales, muelles de madera flotante y acantilados de coral, una tripulación esquelética y cangrejos acorazados montan guardia.',
+          '¡Cruza las arenas, esquiva los cocos y bombas, y prepárate para descender hacia las profundidades del océano!'
+        ],
+        author: 'Bitácora del Corsario'
+      }
+    ],
+    worldWidth: 7200,
     themeColor: '#0284c7',
     accentColor: '#facc15'
   },
@@ -661,21 +671,41 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'piratestreasure-2',
     zone: 'piratestreasure',
     act: 2,
-    title: 'Zona 10 · Acto 2 — Cubierta del Galeón Fantasma (Próximamente)',
-    subtitle: 'Mástiles, Velas Negras y Fuego de Cañones',
-    lore: [{ title: '🏴‍☠️ EL GALEÓN NEGRO', lines: ['Próximamente: Batalla en cubierta entre cañonazos y olas bravías.'], author: 'Bitácora del Corsario' }],
-    worldWidth: 3200,
+    title: 'Zona 10 · Acto 2 — Arrecife Submarino y Fosa Abisal',
+    subtitle: 'Inmersión Oceánica · Menor Gravedad, Medusas Eléctricas y Géiseres',
+    lore: [
+      {
+        title: '🌊 EL REINO DE LA BAJA GRAVEDAD',
+        lines: [
+          'Zion se sumerge en las profundidades del océano. En este entorno acuático la gravedad se reduce notablemente, permitiendo saltos flotantes y brazadas ligeras.',
+          'Aprovecha las corrientes ascendentes de los géiseres de burbujas para esquivar medusas eléctricas, minas de profundidad y voraces peces abisales.',
+          'En el fondo del abismo se vislumbra la silueta de un legendario galeón pirata naufragado...'
+        ],
+        author: 'Bitácora de las Profundidades'
+      }
+    ],
+    worldWidth: 7000,
     themeColor: '#0369a1',
-    accentColor: '#f59e0b'
+    accentColor: '#38bdf8'
   },
   {
     id: 'piratestreasure-3',
     zone: 'piratestreasure',
     act: 3,
-    title: 'Zona 10 · Acto 3 — La Cueva del Kraken (Próximamente)',
-    subtitle: 'Templo Sumergido · Jefe Kraken de los Mares',
-    lore: [{ title: '🦑 TERROR DE LAS PROFUNDIDADES', lines: ['Próximamente: Enfréntate a los tentáculos descomunales del Kraken.'], author: 'Bitácora del Corsario' }],
-    worldWidth: 2600,
+    title: 'Zona 10 · Acto 3 — El Naufragio y el Cofre Maldito',
+    subtitle: 'Fosa Abisal · Batalla contra el Titánico Mímico del Naufragio',
+    lore: [
+      {
+        title: '🏴‍☠️ EL ENIGMA DEL COFRE DEL NAUFRAGIO',
+        lines: [
+          'En el lecho abisal yace el colosal naufragio de un galeón pirata cubierto de corales, cañones sumergidos y doblones de oro.',
+          'En la cubierta rota aguarda el Cofre Maldito: un titánico mímico poseído por espíritus corsarios y bendecido con colmillos de oro.',
+          '¡Lucha en el agua con baja gravedad, esquiva sus embestidas sísmicas y reclama el décimo fragmento del Reloj Cuántico!'
+        ],
+        author: 'Bitácora del Corsario Fantasma'
+      }
+    ],
+    worldWidth: 3800,
     themeColor: '#0c4a6e',
     accentColor: '#ef4444'
   },
@@ -831,6 +861,18 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 4, xp: 65, score: 280 };
     case 'castle_golem':
       return { hp: 8, xp: 110, score: 460 };
+    case 'pirate_skeleton':
+      return { hp: 5, xp: 75, score: 320 };
+    case 'pirate_crab':
+      return { hp: 6, xp: 85, score: 360 };
+    case 'parrot_bomber':
+      return { hp: 3, xp: 55, score: 240 };
+    case 'anglerfish':
+      return { hp: 4, xp: 70, score: 300 };
+    case 'electric_jellyfish':
+      return { hp: 4, xp: 65, score: 280 };
+    case 'shark_corsair':
+      return { hp: 7, xp: 95, score: 400 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -877,6 +919,24 @@ function createEnemy(
   } else if (type === 'castle_golem') {
     enemyW = 26;
     enemyH = 28;
+  } else if (type === 'pirate_skeleton') {
+    enemyW = 18;
+    enemyH = 24;
+  } else if (type === 'pirate_crab') {
+    enemyW = 22;
+    enemyH = 18;
+  } else if (type === 'parrot_bomber') {
+    enemyW = 18;
+    enemyH = 16;
+  } else if (type === 'anglerfish') {
+    enemyW = 22;
+    enemyH = 18;
+  } else if (type === 'electric_jellyfish') {
+    enemyW = 18;
+    enemyH = 22;
+  } else if (type === 'shark_corsair') {
+    enemyW = 26;
+    enemyH = 18;
   }
   return {
     id: _enemyGlobalId++,
@@ -5826,15 +5886,15 @@ export function buildLevel(levelIndex: number) {
 
     // MECÁNICA DE DESTRUCCIÓN DEL JEFE:
     // Lord Malakar cuenta con 3 Escudos-Baluarte Destructibles en su arena.
-    // Mientras alguno esté en pie, Malakar es invulnerable a ataques frontales.
+    // Se encuentran sobre las plataformas elevadas para permitir libre movimiento en el suelo.
     // ¡Zion debe demoler los 3 baluartes para derribar su defensa!
     destructibles.push(
       {
         id: 301,
-        x: 2920,
-        y: 106,
+        x: 2855,
+        y: 64,
         w: 26,
-        h: 44,
+        h: 41,
         hp: 4,
         maxHp: 4,
         type: 'siege_core',
@@ -5843,10 +5903,10 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 302,
-        x: 3200,
-        y: 106,
+        x: 3085,
+        y: 34,
         w: 26,
-        h: 44,
+        h: 41,
         hp: 4,
         maxHp: 4,
         type: 'siege_core',
@@ -5855,10 +5915,10 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 303,
-        x: 3480,
-        y: 106,
+        x: 3520,
+        y: 37,
         w: 26,
-        h: 44,
+        h: 41,
         hp: 4,
         maxHp: 4,
         type: 'siege_core',
@@ -5930,6 +5990,421 @@ export function buildLevel(levelIndex: number) {
       h: 14,
       taken: false,
       name: '👑 Blasón Real de Hierro de Lord Malakar'
+    });
+
+    goal = { x: 3660, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'piratestreasure-1') {
+    // -------------------------------------------------------------
+    // ZONA 10 · ACTO 1 — BAHÍA DEL CORSARIO Y PLAYA DEL TESORO (7200px)
+    // -------------------------------------------------------------
+    // Playas de arena dorada, muelles de madera flotante, palmeras y cocos
+    platforms.push(
+      // Suelos principales de arena
+      { x: 0, y: 148, w: 1250, h: 32, kind: 'sand' },
+      { x: 1350, y: 148, w: 1100, h: 32, kind: 'sand' },
+      { x: 2550, y: 148, w: 1200, h: 32, kind: 'sand' },
+      { x: 3850, y: 148, w: 1150, h: 32, kind: 'sand' },
+      { x: 5100, y: 148, w: 1050, h: 32, kind: 'sand' },
+      { x: 6250, y: 148, w: 950, h: 32, kind: 'sand' },
+
+      // Muelles rústicos, pasarelas de madera de palmera y promontorios
+      { x: 220, y: 112, w: 85, h: 12, kind: 'palm_wood' },
+      { x: 360, y: 82, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 520, y: 106, w: 90, h: 12, kind: 'palm_wood' },
+      { x: 680, y: 78, w: 110, h: 12, kind: 'sand' },
+      { x: 860, y: 105, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 1020, y: 74, w: 120, h: 12, kind: 'palm_wood' },
+      { x: 1220, y: 98, w: 100, h: 12, kind: 'coral' },
+
+      // Tramo 2: Muelle Pesquero y Caleta de Contrabandistas (1350 - 2500)
+      { x: 1440, y: 110, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 1600, y: 78, w: 110, h: 12, kind: 'palm_wood' },
+      { x: 1780, y: 106, w: 90, h: 12, kind: 'sand' },
+      { x: 1940, y: 76, w: 115, h: 12, kind: 'palm_wood' },
+      { x: 2120, y: 104, w: 100, h: 12, kind: 'palm_wood' },
+      { x: 2280, y: 74, w: 120, h: 12, kind: 'coral' },
+      { x: 2460, y: 98, w: 95, h: 12, kind: 'palm_wood' },
+
+      // Tramo 3: Arrecife de Marea y Dunas Costeras (2550 - 3800)
+      { x: 2680, y: 112, w: 90, h: 12, kind: 'sand' },
+      { x: 2840, y: 80, w: 110, h: 12, kind: 'coral' },
+      { x: 3020, y: 108, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 3180, y: 76, w: 120, h: 12, kind: 'palm_wood' },
+      { x: 3380, y: 104, w: 100, h: 12, kind: 'sand' },
+      { x: 3560, y: 74, w: 115, h: 12, kind: 'coral' },
+      { x: 3740, y: 98, w: 95, h: 12, kind: 'palm_wood' },
+
+      // Tramo 4: Acantilados de Madera y Plataformas Elevadas (3850 - 5000)
+      { x: 3960, y: 110, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 4120, y: 78, w: 110, h: 12, kind: 'palm_wood' },
+      { x: 4300, y: 106, w: 90, h: 12, kind: 'coral' },
+      { x: 4460, y: 74, w: 125, h: 12, kind: 'palm_wood' },
+      { x: 4660, y: 104, w: 100, h: 12, kind: 'sand' },
+      { x: 4840, y: 72, w: 115, h: 12, kind: 'palm_wood' },
+      { x: 5020, y: 96, w: 95, h: 12, kind: 'coral' },
+
+      // Tramo 5: Descenso hacia el Faro y el Mar Abierto (5100 - 7200)
+      { x: 5240, y: 112, w: 90, h: 12, kind: 'sand' },
+      { x: 5400, y: 80, w: 110, h: 12, kind: 'palm_wood' },
+      { x: 5580, y: 108, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 5740, y: 76, w: 120, h: 12, kind: 'coral' },
+      { x: 5940, y: 104, w: 100, h: 12, kind: 'palm_wood' },
+      { x: 6120, y: 74, w: 115, h: 12, kind: 'sand' },
+      { x: 6320, y: 106, w: 95, h: 12, kind: 'palm_wood' },
+      { x: 6500, y: 76, w: 120, h: 12, kind: 'coral' },
+      { x: 6720, y: 104, w: 110, h: 12, kind: 'palm_wood' },
+      { x: 6920, y: 78, w: 120, h: 12, kind: 'sand' }
+    );
+
+    // Peligros de la costa: Cocos que caen de palmeras y espinas de coral
+    hazards.push(
+      // Cocos cayendo
+      { x: 480, y: 30, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 1120, y: 25, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 1860, y: 28, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 2620, y: 30, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 3450, y: 26, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 4220, y: 28, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 5050, y: 26, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 5880, y: 30, w: 12, h: 12, type: 'falling_coconut' },
+      { x: 6650, y: 26, w: 12, h: 12, type: 'falling_coconut' },
+
+      // Espinas de coral en los fosos de agua entre bancos de arena
+      { x: 1250, y: 156, w: 100, h: 20, type: 'coral_spikes' },
+      { x: 2450, y: 156, w: 100, h: 20, type: 'coral_spikes' },
+      { x: 3750, y: 156, w: 100, h: 20, type: 'coral_spikes' },
+      { x: 5000, y: 156, w: 100, h: 20, type: 'coral_spikes' },
+      { x: 6150, y: 156, w: 100, h: 20, type: 'coral_spikes' }
+    );
+
+    // Enemigos de la Playa del Tesoro
+    enemies.push(
+      // Tramo 1
+      createEnemy(320, 126, 'pirate_skeleton', 240, 420),
+      createEnemy(580, 130, 'pirate_crab', 500, 700),
+      createEnemy(820, 50, 'parrot_bomber', 760, 960),
+      createEnemy(1050, 126, 'pirate_skeleton', 980, 1180),
+
+      // Tramo 2
+      createEnemy(1500, 130, 'pirate_crab', 1420, 1600),
+      createEnemy(1720, 52, 'parrot_bomber', 1660, 1860),
+      createEnemy(1980, 126, 'pirate_skeleton', 1900, 2100),
+      createEnemy(2220, 130, 'pirate_crab', 2140, 2340),
+
+      // Tramo 3
+      createEnemy(2740, 126, 'pirate_skeleton', 2660, 2860),
+      createEnemy(2960, 50, 'parrot_bomber', 2900, 3100),
+      createEnemy(3240, 130, 'pirate_crab', 3160, 3360),
+      createEnemy(3500, 126, 'pirate_skeleton', 3420, 3620),
+
+      // Tramo 4
+      createEnemy(4020, 130, 'pirate_crab', 3940, 4140),
+      createEnemy(4240, 52, 'parrot_bomber', 4180, 4380),
+      createEnemy(4520, 126, 'pirate_skeleton', 4440, 4640),
+      createEnemy(4780, 130, 'pirate_crab', 4700, 4900),
+
+      // Tramo 5
+      createEnemy(5300, 126, 'pirate_skeleton', 5220, 5420),
+      createEnemy(5520, 50, 'parrot_bomber', 5460, 5660),
+      createEnemy(5800, 130, 'pirate_crab', 5720, 5920),
+      createEnemy(6060, 126, 'pirate_skeleton', 5980, 6180),
+      createEnemy(6400, 130, 'pirate_crab', 6320, 6520),
+      createEnemy(6680, 52, 'parrot_bomber', 6600, 6800),
+      createEnemy(6960, 126, 'pirate_skeleton', 6880, 7080)
+    );
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 1780, y: 116, w: 20, h: 32, active: false, spawn: { x: 1790, y: 125 } },
+      { x: 3560, y: 116, w: 20, h: 32, active: false, spawn: { x: 3570, y: 125 } },
+      { x: 5360, y: 116, w: 20, h: 32, active: false, spawn: { x: 5370, y: 125 } }
+    );
+
+    // Cristales y Botiquines
+    for (let cx = 150; cx < 7000; cx += 140) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 620, y: 64, w: 10, h: 10, taken: false },
+      { x: 1840, y: 60, w: 10, h: 10, taken: false },
+      { x: 3080, y: 62, w: 10, h: 10, taken: false },
+      { x: 4520, y: 60, w: 10, h: 10, taken: false },
+      { x: 5800, y: 62, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto oculto sobre una palmera alta
+    secrets.push({
+      x: 4850,
+      y: 44,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🦜 Amuleto Dorado del Corsario'
+    });
+
+    goal = { x: 7050, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'piratestreasure-2') {
+    // -------------------------------------------------------------
+    // ZONA 10 · ACTO 2 — ARRECIFE SUBMARINO Y FOSA ABISAL (7000px)
+    // -------------------------------------------------------------
+    // Entorno acuático de baja gravedad: saltos flotantes, brazadas y géiseres
+    platforms.push(
+      // Lecho marino de arena y corales
+      { x: 0, y: 148, w: 1200, h: 32, kind: 'sand' },
+      { x: 1320, y: 148, w: 1100, h: 32, kind: 'sand' },
+      { x: 2540, y: 148, w: 1150, h: 32, kind: 'sand' },
+      { x: 3820, y: 148, w: 1100, h: 32, kind: 'sand' },
+      { x: 5040, y: 148, w: 1050, h: 32, kind: 'sand' },
+      { x: 6200, y: 148, w: 800, h: 32, kind: 'sand' },
+
+      // Repisas de coral viviente, maderas de navíos hundidos y esponjas
+      { x: 240, y: 110, w: 90, h: 12, kind: 'coral' },
+      { x: 390, y: 78, w: 110, h: 12, kind: 'coral' },
+      { x: 560, y: 104, w: 95, h: 12, kind: 'sunken_deck' },
+      { x: 720, y: 74, w: 115, h: 12, kind: 'coral' },
+      { x: 900, y: 102, w: 100, h: 12, kind: 'sunken_deck' },
+      { x: 1080, y: 72, w: 120, h: 12, kind: 'coral' },
+
+      // Tramo 2: Bosque de Coral de Fuego (1320 - 2500)
+      { x: 1420, y: 108, w: 95, h: 12, kind: 'coral' },
+      { x: 1580, y: 76, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 1760, y: 104, w: 95, h: 12, kind: 'coral' },
+      { x: 1920, y: 72, w: 120, h: 12, kind: 'coral' },
+      { x: 2100, y: 102, w: 100, h: 12, kind: 'sunken_deck' },
+      { x: 2280, y: 70, w: 120, h: 12, kind: 'coral' },
+
+      // Tramo 3: Fosa Abisal de las Medusas (2540 - 3800)
+      { x: 2660, y: 110, w: 95, h: 12, kind: 'coral' },
+      { x: 2820, y: 78, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 3000, y: 106, w: 95, h: 12, kind: 'coral' },
+      { x: 3160, y: 74, w: 120, h: 12, kind: 'coral' },
+      { x: 3360, y: 102, w: 100, h: 12, kind: 'sunken_deck' },
+      { x: 3540, y: 70, w: 120, h: 12, kind: 'coral' },
+
+      // Tramo 4: Cañón Submarino y Corrientes Fuertes (3820 - 5000)
+      { x: 3940, y: 108, w: 95, h: 12, kind: 'coral' },
+      { x: 4100, y: 76, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 4280, y: 104, w: 95, h: 12, kind: 'coral' },
+      { x: 4440, y: 72, w: 120, h: 12, kind: 'coral' },
+      { x: 4640, y: 100, w: 100, h: 12, kind: 'sunken_deck' },
+      { x: 4820, y: 68, w: 120, h: 12, kind: 'coral' },
+
+      // Tramo 5: Entrada a la Fosa del Naufragio (5040 - 7000)
+      { x: 5160, y: 110, w: 95, h: 12, kind: 'coral' },
+      { x: 5320, y: 78, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 5500, y: 106, w: 95, h: 12, kind: 'coral' },
+      { x: 5660, y: 74, w: 120, h: 12, kind: 'coral' },
+      { x: 5860, y: 102, w: 100, h: 12, kind: 'sunken_deck' },
+      { x: 6040, y: 70, w: 120, h: 12, kind: 'coral' },
+      { x: 6280, y: 102, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 6500, y: 74, w: 120, h: 12, kind: 'coral' },
+      { x: 6720, y: 104, w: 100, h: 12, kind: 'sunken_deck' }
+    );
+
+    // Peligros submarinos: Géiseres de burbujas, minas de profundidad y erizos
+    hazards.push(
+      // Géiseres de burbujas (impulsan hacia arriba)
+      { x: 620, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+      { x: 1840, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+      { x: 3080, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+      { x: 4360, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+      { x: 5580, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+
+      // Minas marinas flotantes
+      { x: 820, y: 55, w: 16, h: 16, type: 'sea_mine' },
+      { x: 2020, y: 50, w: 16, h: 16, type: 'sea_mine' },
+      { x: 3260, y: 52, w: 16, h: 16, type: 'sea_mine' },
+      { x: 4520, y: 48, w: 16, h: 16, type: 'sea_mine' },
+      { x: 5760, y: 54, w: 16, h: 16, type: 'sea_mine' },
+      { x: 6420, y: 50, w: 16, h: 16, type: 'sea_mine' },
+
+      // Erizos venenosos en los fondos abisales
+      { x: 1200, y: 154, w: 120, h: 20, type: 'sea_urchin' },
+      { x: 2420, y: 154, w: 120, h: 20, type: 'sea_urchin' },
+      { x: 3690, y: 154, w: 130, h: 20, type: 'sea_urchin' },
+      { x: 4920, y: 154, w: 120, h: 20, type: 'sea_urchin' },
+      { x: 6090, y: 154, w: 110, h: 20, type: 'sea_urchin' }
+    );
+
+    // Fauna submarina enemiga
+    enemies.push(
+      // Tramo 1
+      createEnemy(300, 60, 'electric_jellyfish', 240, 420),
+      createEnemy(480, 126, 'pirate_crab', 420, 620),
+      createEnemy(740, 70, 'anglerfish', 680, 880),
+      createEnemy(960, 65, 'shark_corsair', 880, 1100),
+
+      // Tramo 2
+      createEnemy(1480, 60, 'electric_jellyfish', 1400, 1600),
+      createEnemy(1660, 126, 'pirate_skeleton', 1600, 1800),
+      createEnemy(1840, 70, 'anglerfish', 1780, 1980),
+      createEnemy(2160, 65, 'shark_corsair', 2080, 2300),
+
+      // Tramo 3
+      createEnemy(2720, 60, 'electric_jellyfish', 2640, 2840),
+      createEnemy(2900, 126, 'pirate_crab', 2820, 3020),
+      createEnemy(3100, 70, 'anglerfish', 3020, 3220),
+      createEnemy(3420, 65, 'shark_corsair', 3340, 3560),
+
+      // Tramo 4
+      createEnemy(4000, 60, 'electric_jellyfish', 3920, 4120),
+      createEnemy(4180, 126, 'pirate_skeleton', 4100, 4300),
+      createEnemy(4360, 70, 'anglerfish', 4280, 4480),
+      createEnemy(4680, 65, 'shark_corsair', 4600, 4820),
+
+      // Tramo 5
+      createEnemy(5220, 60, 'electric_jellyfish', 5140, 5340),
+      createEnemy(5400, 126, 'pirate_crab', 5320, 5520),
+      createEnemy(5620, 70, 'anglerfish', 5540, 5740),
+      createEnemy(5920, 65, 'shark_corsair', 5840, 6060),
+      createEnemy(6360, 60, 'electric_jellyfish', 6280, 6480),
+      createEnemy(6600, 65, 'shark_corsair', 6520, 6740)
+    );
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 1760, y: 116, w: 20, h: 32, active: false, spawn: { x: 1770, y: 125 } },
+      { x: 3540, y: 116, w: 20, h: 32, active: false, spawn: { x: 3550, y: 125 } },
+      { x: 5320, y: 116, w: 20, h: 32, active: false, spawn: { x: 5330, y: 125 } }
+    );
+
+    // Cristales y Botiquines
+    for (let cx = 160; cx < 6800; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 740, y: 58, w: 10, h: 10, taken: false },
+      { x: 1960, y: 56, w: 10, h: 10, taken: false },
+      { x: 3180, y: 58, w: 10, h: 10, taken: false },
+      { x: 4460, y: 54, w: 10, h: 10, taken: false },
+      { x: 5680, y: 58, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 4200,
+      y: 38,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🪸 Perla Negra de las Profundidades'
+    });
+
+    goal = { x: 6850, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'piratestreasure-3') {
+    // -------------------------------------------------------------
+    // ZONA 10 · ACTO 3 — EL NAUFRAGIO Y EL COFRE MALDITO (3800px)
+    // -------------------------------------------------------------
+    // Batalla submarina en el galeón hundido contra el titánico cofre mímico
+    platforms.push(
+      // Cubierta exterior y casco del navío naufragado
+      { x: 0, y: 148, w: 1300, h: 32, kind: 'sunken_deck' },
+      { x: 1360, y: 148, w: 1290, h: 32, kind: 'shipwreck_hull' },
+      // Gran Cubierta del Naufragio: Arena del Jefe Cofre Maldito (2700 - 3750)
+      { x: 2700, y: 148, w: 1050, h: 32, kind: 'sunken_deck' }
+    );
+
+    // Mástiles partidos, vergas del barco y arrecifes de soporte
+    platforms.push(
+      // Camino de aproximación
+      { x: 220, y: 110, w: 90, h: 12, kind: 'shipwreck_hull' },
+      { x: 380, y: 78, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 550, y: 106, w: 95, h: 12, kind: 'coral' },
+      { x: 720, y: 74, w: 115, h: 12, kind: 'sunken_deck' },
+      { x: 900, y: 104, w: 100, h: 12, kind: 'shipwreck_hull' },
+      { x: 1100, y: 76, w: 120, h: 12, kind: 'sunken_deck' },
+      { x: 1320, y: 106, w: 100, h: 12, kind: 'coral' },
+      { x: 1540, y: 76, w: 110, h: 12, kind: 'sunken_deck' },
+      { x: 1740, y: 104, w: 95, h: 12, kind: 'shipwreck_hull' },
+      { x: 1940, y: 72, w: 120, h: 12, kind: 'sunken_deck' },
+      { x: 2160, y: 104, w: 100, h: 12, kind: 'coral' },
+      { x: 2360, y: 74, w: 110, h: 12, kind: 'sunken_deck' },
+
+      // Plataformas tácticas elevadas dentro de la Arena del Jefe (x: 2700 - 3750)
+      { x: 2840, y: 105, w: 95, h: 12, kind: 'shipwreck_hull' },
+      { x: 3040, y: 75, w: 120, h: 12, kind: 'sunken_deck' },
+      { x: 3260, y: 105, w: 95, h: 12, kind: 'shipwreck_hull' },
+      { x: 3480, y: 76, w: 110, h: 12, kind: 'sunken_deck' }
+    );
+
+    // Peligros
+    hazards.push(
+      { x: 800, y: 55, w: 16, h: 16, type: 'sea_mine' },
+      { x: 1800, y: 50, w: 16, h: 16, type: 'sea_mine' },
+      { x: 1300, y: 154, w: 60, h: 20, type: 'sea_urchin' },
+      { x: 2650, y: 154, w: 50, h: 20, type: 'sea_urchin' },
+      { x: 1240, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
+      { x: 2440, y: 136, w: 24, h: 32, type: 'bubble_geyser' }
+    );
+
+    // Checkpoint previo al jefe
+    checkpoints.push(
+      { x: 2550, y: 116, w: 20, h: 32, active: false, spawn: { x: 2560, y: 125 }, arena: true }
+    );
+
+    // JEFE DE PIRATES TREASURE: EL COFRE MALDITO DEL NAUFRAGIO
+    boss = {
+      x: 3280,
+      y: 116,
+      w: 48,
+      h: 32,
+      vx: 0,
+      vy: 0,
+      hp: 75,
+      maxHp: 75,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 80,
+      shotTimer: 55,
+      stateTimer: 65,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 70,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'El Cofre Maldito del Naufragio',
+      title: 'EL COFRE MALDITO · MÍMICO DEL NAUFRAGIO',
+      subtitle: 'Guardián Abisal de los Doblones y Espíritu Corsario',
+      state: 'idle'
+    };
+
+    // Enemigos en el camino de aproximación al jefe
+    enemies.push(
+      createEnemy(360, 60, 'electric_jellyfish', 280, 460),
+      createEnemy(740, 65, 'shark_corsair', 680, 860),
+      createEnemy(960, 126, 'pirate_skeleton', 900, 1060),
+      createEnemy(1180, 70, 'anglerfish', 1120, 1260),
+      createEnemy(1420, 65, 'shark_corsair', 1360, 1540),
+      createEnemy(1660, 60, 'electric_jellyfish', 1600, 1760),
+      createEnemy(1920, 126, 'pirate_skeleton', 1860, 2020),
+      createEnemy(2200, 70, 'anglerfish', 2140, 2300),
+      createEnemy(2440, 65, 'shark_corsair', 2380, 2520)
+    );
+
+    // Cristales & Botiquines
+    for (let cx = 160; cx < 2650; cx += 160) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 460, y: 60, w: 10, h: 10, taken: false },
+      { x: 1200, y: 58, w: 10, h: 10, taken: false },
+      { x: 1900, y: 54, w: 10, h: 10, taken: false },
+      // Botiquines dentro de la Arena del Jefe
+      { x: 2850, y: 85, w: 10, h: 10, taken: false },
+      { x: 3500, y: 56, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 3560,
+      y: 48,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🪙 Doblón Maldito de Barbanegra'
     });
 
     goal = { x: 3660, y: 88, w: 36, h: 62 };

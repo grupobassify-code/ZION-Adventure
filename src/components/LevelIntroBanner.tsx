@@ -47,6 +47,7 @@ export const LevelIntroBanner: React.FC<LevelIntroBannerProps> = ({ levelIndex, 
     blizzard: '❄️',
     steampunk: '⚙️',
     castlesmash: '🏰',
+    piratestreasure: '🏴‍☠️',
   };
 
   const zoneIcon = zoneIcons[config.zone] || '⚔️';

@@ -368,6 +368,23 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           skyGrad.addColorStop(0.9, '#b45309');
           skyGrad.addColorStop(1, '#f59e0b');
         }
+      } else if (zone === 'piratestreasure') {
+        if (act === 1) {
+          skyGrad.addColorStop(0, '#0284c7');
+          skyGrad.addColorStop(0.4, '#38bdf8');
+          skyGrad.addColorStop(0.75, '#7dd3fc');
+          skyGrad.addColorStop(1, '#fde047');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#0369a1');
+          skyGrad.addColorStop(0.35, '#075985');
+          skyGrad.addColorStop(0.7, '#0c4a6e');
+          skyGrad.addColorStop(1, '#021e30');
+        } else {
+          skyGrad.addColorStop(0, '#021e30');
+          skyGrad.addColorStop(0.4, '#082f49');
+          skyGrad.addColorStop(0.75, '#042f2e');
+          skyGrad.addColorStop(1, '#020617');
+        }
       } else {
         // travel
         skyGrad.addColorStop(0, '#020617');
@@ -657,6 +674,36 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillRect(smokeX, arcY, 3, 3);
           ctx.fillStyle = 'rgba(254, 240, 138, 0.9)';
           ctx.fillRect(smokeX + 1, arcY + 1, 1.5, 1.5);
+        }
+      } else if (zone === 'piratestreasure') {
+        if (act === 1) {
+          // Caribbean Golden Sun
+          const sunX = w - 44;
+          const sunY = 24;
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.3)';
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 9, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (act === 2) {
+          // Underwater light shafts & bubbles
+          ctx.fillStyle = 'rgba(186, 230, 253, 0.15)';
+          ctx.beginPath();
+          ctx.moveTo(w - 60, 0);
+          ctx.lineTo(w - 30, 0);
+          ctx.lineTo(w - 10, h);
+          ctx.lineTo(w - 50, h);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Bioluminescent ocean abyss glow
+          ctx.fillStyle = 'rgba(45, 212, 191, 0.2)';
+          ctx.beginPath();
+          ctx.arc(w - 40, 30, 22, 0, Math.PI * 2);
+          ctx.fill();
         }
       } else {
         // Quantum Hyperspace Spiral Void (Travel)
@@ -1149,6 +1196,36 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         ctx.fillRect(keepX + 28, h - 58, 2, 24);
         ctx.fillRect(keepX + 40, h - 58, 2, 24);
         ctx.fillRect(keepX + 26, h - 54, 16, 2);
+      } else if (zone === 'piratestreasure') {
+        if (act === 1) {
+          // Tropical Beach: Distant palm silhouettes & pirate galleon
+          ctx.fillStyle = '#0369a1';
+          ctx.fillRect(0, h - 50, w, 20);
+          const sx = w * 0.7;
+          ctx.fillStyle = '#0c4a6e';
+          ctx.fillRect(sx - 10, h - 54, 20, 5);
+          ctx.fillRect(sx - 2, h - 66, 2, 12);
+          ctx.fillRect(sx + 4, h - 68, 2, 14);
+        } else if (act === 2) {
+          // Coral Reef Arch & Kelp
+          ctx.fillStyle = '#075985';
+          ctx.beginPath();
+          ctx.arc(w * 0.45, h - 45, 26, Math.PI, 0);
+          ctx.fill();
+        } else {
+          // Sunken Galleon Hull & Broken Mast
+          ctx.fillStyle = '#021e30';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.2, h - 40);
+          ctx.lineTo(w * 0.35, h - 75);
+          ctx.lineTo(w * 0.8, h - 75);
+          ctx.lineTo(w * 0.95, h - 40);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#082f49';
+          ctx.fillRect(w * 0.55, h - 92, 3, 22);
+          ctx.fillRect(w * 0.45, h - 84, 24, 2);
+        }
       } else {
         // Quantum Space Shards (Travel)
         for (let i = 0; i < 6; i++) {
@@ -1207,6 +1284,10 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platBaseColor = '#0f172a';
         platTrimColor = '#64748b';
         platHighlight = '#cbd5e1';
+      } else if (zone === 'piratestreasure') {
+        platBaseColor = act === 1 ? '#b45309' : act === 2 ? '#4c0519' : '#0f172a';
+        platTrimColor = act === 1 ? '#d97706' : act === 2 ? '#9f1239' : '#1e293b';
+        platHighlight = act === 1 ? '#fde047' : act === 2 ? '#f43f5e' : '#38bdf8';
       }
 
       // Draw Main Ground Block
@@ -1387,6 +1468,36 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillStyle = '#fbbf24';
           ctx.fillRect(itemX + Math.cos(orbAng) * 15 - 1, itemY + Math.sin(orbAng) * 15 - 1, 2.5, 2.5);
           ctx.fillRect(itemX - Math.cos(orbAng) * 15 - 1, itemY - Math.sin(orbAng) * 15 - 1, 2.5, 2.5);
+        } else if (zone === 'piratestreasure') {
+          // El Cofre Maldito: Sunken Cursed Mimic Chest with gold trim, fangs and tentacles
+          const bossPulse = Math.sin(tick * 0.15) * 2;
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.3)';
+          ctx.beginPath();
+          ctx.arc(itemX, itemY + bossPulse, 16, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Wooden chest body
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(itemX - 10, itemY - 6 + bossPulse, 20, 14);
+          // Gold iron trim
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(itemX - 8, itemY - 6 + bossPulse, 3, 14);
+          ctx.fillRect(itemX + 5, itemY - 6 + bossPulse, 3, 14);
+          ctx.fillRect(itemX - 10, itemY - 1 + bossPulse, 20, 2);
+
+          // Glowing red demonic eyes & sharp fangs
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(itemX - 5, itemY - 4 + bossPulse, 3, 2);
+          ctx.fillRect(itemX + 2, itemY - 4 + bossPulse, 3, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(itemX - 6, itemY + 1 + bossPulse, 2, 3);
+          ctx.fillRect(itemX - 2, itemY + 1 + bossPulse, 2, 3);
+          ctx.fillRect(itemX + 2, itemY + 1 + bossPulse, 2, 3);
+
+          // Bubbles rising from chest
+          const bAng = tick * 0.1;
+          ctx.fillStyle = '#bae6fd';
+          ctx.fillRect(itemX + Math.cos(bAng) * 13 - 1, itemY + Math.sin(bAng) * 13 - 1, 2, 2);
         } else {
           // Pulsing Demonic Boss Core / Skull Sigil
           const bossPulse = Math.sin(tick * 0.15) * 2;

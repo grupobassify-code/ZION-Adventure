@@ -139,6 +139,8 @@ export class GameEngine {
   public lastSafeGround = { x: 35, y: 100 };
   public hasActiveCheckpoint = false;
   public arenaActive = false;
+  public arenaLeft = 0;
+  public arenaRight = 0;
   public bossDefeated = false;
   public isLevelWon = false;
   public isGameOver = false;
@@ -1085,6 +1087,15 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('castleAct1');
       }
+    } else if (currentConfig.zone === 'piratestreasure') {
+      // Pirates Treasure Caribbean Beach & Deep Ocean Zone
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('pirateBoss');
+      } else if (currentConfig.act === 1) {
+        sound.setMusicTrack('pirateBeach');
+      } else {
+        sound.setMusicTrack('pirateUnderwater');
+      }
     }
   }
 
@@ -1565,23 +1576,48 @@ export class GameEngine {
         }
         p.jumpHeld = inputs.jump;
 
-        // Execute Jump with Dynamic Altitude Boost in Only Up mode
+        const currentConfig = LEVEL_CONFIGS[this.levelIndex];
+        const isUnderwater = !this.isOnlyUpMode && currentConfig?.zone === 'piratestreasure' && (currentConfig.act === 2 || currentConfig.act === 3);
+
+        // Execute Jump with Dynamic Altitude Boost in Only Up mode or underwater buoyancy
         if (p.jumpBufferTimer > 0 && p.coyoteTimer > 0) {
-          p.vy = this.isOnlyUpMode ? agility.jumpForce : JUMP_FORCE;
+          p.vy = this.isOnlyUpMode ? agility.jumpForce : (isUnderwater ? -4.4 : JUMP_FORCE);
           p.ground = false;
           p.coyoteTimer = 0;
           p.jumpBufferTimer = 0;
-          sound.playSfx('jump');
-          this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : '#e2e8f0');
+          sound.playSfx(isUnderwater ? 'bubble' : 'jump');
+          this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : (isUnderwater ? '#67e8f9' : '#e2e8f0'));
+        } else if (isUnderwater && inputs.jump && !p.jumpHeld && p.vy > -2.2) {
+          // Underwater light swimming stroke when tapping jump mid-water
+          p.vy = Math.max(p.vy - 1.8, -3.2);
+          sound.playSfx('bubble');
+          this.createBurst(p.x + p.w / 2, p.y + p.h, 4, '#bae6fd');
         }
 
         // Variable jump height release cut
         if (!inputs.jump && p.vy < 0) {
-          p.vy += GRAVITY * VARIABLE_JUMP_FALL_MULTIPLIER;
+          const grav = isUnderwater ? 0.08 : GRAVITY;
+          p.vy += grav * VARIABLE_JUMP_FALL_MULTIPLIER;
         }
 
-        // Gravity
-        p.vy = Math.min(p.vy + GRAVITY, MAX_FALL_SPEED);
+        // Gravity - Significantly reduced underwater (Menos gravedad bajo el agua)
+        const activeGravity = isUnderwater ? 0.08 : GRAVITY;
+        const activeMaxFall = isUnderwater ? 2.4 : MAX_FALL_SPEED;
+        p.vy = Math.min(p.vy + activeGravity, activeMaxFall);
+
+        // Underwater bubble particles trail
+        if (isUnderwater && (Math.abs(p.vx) > 0.5 || Math.abs(p.vy) > 0.5) && Math.random() < 0.2) {
+          this.particles.push({
+            x: p.x + Math.random() * p.w,
+            y: p.y + Math.random() * p.h,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -0.6 - Math.random() * 0.8,
+            life: 20,
+            maxLife: 20,
+            color: '#bae6fd',
+            size: 1.5,
+          });
+        }
       }
     }
 
@@ -1603,8 +1639,8 @@ export class GameEngine {
       ? this.platforms.filter((pl) => pl.w <= 40 && pl.h >= 100)
       : [...this.platforms];
     if (this.boss && this.arenaActive && !this.bossDefeated) {
-      const arenaLeft = this.boss.x - 360;
-      const arenaRight = this.boss.x + 360;
+      const arenaLeft = this.arenaLeft || (this.boss.x - 360);
+      const arenaRight = this.arenaRight || (this.boss.x + 360);
       const arenaY = isVerticalSteampunk ? this.boss.y - 120 : 0;
       const arenaH = isVerticalSteampunk ? 260 : 180;
       walls.push({ x: arenaLeft, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
@@ -3329,6 +3365,48 @@ export class GameEngine {
           }
           h.active = true;
         }
+      } else if (h.type === 'bubble_geyser') {
+        // Effervescent bubble vent launches player upwards
+        if (p.x + p.w > h.x && p.x < h.x + h.w && p.y + p.h >= h.y - 120 && p.y <= h.y + h.h) {
+          p.vy = Math.min(p.vy, -5.4);
+          p.ground = false;
+          if (this.time % 4 === 0) {
+            sound.playSfx('bubble');
+          }
+        }
+        // Continuous upward bubble stream
+        if (Math.random() < 0.45) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + h.h,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -2.5 - Math.random() * 2,
+            life: 25,
+            maxLife: 25,
+            color: '#bae6fd',
+            size: 2,
+          });
+        }
+      } else if (h.type === 'sea_mine') {
+        h.bobAngle = (h.bobAngle || 0) + 0.04;
+        h.y = (h.floorY ?? h.y) + Math.sin(h.bobAngle) * 0.35;
+      } else if (h.type === 'falling_coconut') {
+        if (!h.falling && Math.abs(p.x - (h.x + h.w / 2)) < 40 && p.y > h.y && (p.y - h.y) < 130) {
+          h.falling = true;
+          h.vy = 0;
+          this.playHazardSfx(h, 'bossWarning', 90);
+        }
+        if (h.falling) {
+          h.vy = Math.min((h.vy || 0) + 0.35, 7.5);
+          h.y += h.vy;
+          const floorY = h.floorY ?? 144;
+          if (h.y >= floorY) {
+            h.falling = false;
+            h.y = floorY;
+            this.playHazardSfx(h, 'hit', 90);
+            this.createBurst(h.x + h.w / 2, floorY, 8, '#78350f');
+          }
+        }
       }
     }
   }
@@ -3905,6 +3983,107 @@ export class GameEngine {
             color: '#38bdf8',
           });
         }
+      } else if (e.type === 'pirate_skeleton') {
+        // Skeletal pirate guard patrols and slashes with cutlass
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        if (absDist < 100 && absYDist < 45) {
+          e.facing = (dist >= 0 ? 1 : -1);
+          e.alertTimer = (e.alertTimer || 0) + 1;
+          if (e.alertTimer === 20) {
+            sound.playSfx('slash');
+            e.vx = (dist >= 0 ? 1 : -1) * 2.6;
+          }
+        } else {
+          e.alertTimer = 0;
+        }
+      } else if (e.type === 'pirate_crab') {
+        // Armored crab: walks back and forth, raises defensive claws, hops
+        e.x += e.vx * 0.75;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        if (absDist < 70 && absYDist < 35) {
+          e.alertTimer = 15;
+          e.facing = (dist >= 0 ? 1 : -1);
+        } else if (e.alertTimer && e.alertTimer > 0) {
+          e.alertTimer--;
+        }
+      } else if (e.type === 'parrot_bomber') {
+        // Flying aerial pirate parrot, drops ticking pirate bombs
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.08;
+        e.y = e.home + Math.sin(e.t) * 10;
+        e.x += e.vx;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        e.facing = (e.vx >= 0 ? 1 : -1);
+        e.cool = (e.cool || 80) - 1;
+        if (Math.abs(p.x - e.x) < 50 && p.y > e.y && e.cool <= 0) {
+          e.cool = 90;
+          e.alertTimer = 20;
+          sound.playSfx('explosion');
+          this.projectiles.push({
+            x: e.x + e.w / 2 - 4,
+            y: e.y + e.h,
+            w: 8,
+            h: 8,
+            vx: e.vx * 0.5,
+            vy: 1.8,
+            life: 65,
+            isHero: false,
+            kind: 'catapult_boulder',
+            color: '#0f172a',
+          });
+        }
+      } else if (e.type === 'anglerfish') {
+        // Abyssal lurking predator with glowing lure, lunges towards player
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.05;
+        e.y = e.home + Math.sin(e.t) * 8;
+        e.facing = (dist >= 0 ? 1 : -1);
+        if (absDist < 120 && absYDist < 60) {
+          e.x += (dist >= 0 ? 1 : -1) * 1.8;
+          e.y += Math.sign(p.y - e.y) * 0.8;
+          if (this.time % 25 === 0) {
+            sound.playSfx('bubble');
+          }
+        } else {
+          e.x += e.vx * 0.6;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        }
+      } else if (e.type === 'electric_jellyfish') {
+        // Phosphorescent jellyfish undulating vertically in currents
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.04;
+        e.y = e.home + Math.sin(e.t) * 20;
+        e.x += e.vx * 0.4;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        if (this.time % 40 === 0 && absDist < 100) {
+          this.playEnemySfx(e, 'laserFire');
+        }
+      } else if (e.type === 'shark_corsair') {
+        // Sleek hunter shark with pirate eyepatch, charges at high speed
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.06;
+        e.y = e.home + Math.sin(e.t) * 6;
+        if (absDist < 140 && absYDist < 45) {
+          e.facing = (dist >= 0 ? 1 : -1);
+          e.x += (dist >= 0 ? 1 : -1) * 2.8;
+          if (this.time % 15 === 0) {
+            this.particles.push({
+              x: e.x + (e.facing === 1 ? 0 : e.w),
+              y: e.y + e.h / 2,
+              vx: -e.facing * 0.8,
+              vy: -0.4,
+              life: 15,
+              maxLife: 15,
+              color: '#bae6fd',
+              size: 1.5,
+            });
+          }
+        } else {
+          e.x += e.vx * 1.2;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = (e.vx >= 0 ? 1 : -1);
+        }
       }
 
       // Gravity for ground enemies
@@ -3918,9 +4097,14 @@ export class GameEngine {
         e.type !== 'gravity_orb' &&
         e.type !== 'giant_hornet' &&
         e.type !== 'frost_bat' &&
-        e.type !== 'cyberturret'
+        e.type !== 'cyberturret' &&
+        e.type !== 'parrot_bomber' &&
+        e.type !== 'anglerfish' &&
+        e.type !== 'electric_jellyfish' &&
+        e.type !== 'shark_corsair'
       ) {
-        e.vy = Math.min(e.vy + GRAVITY, 6);
+        const isUnderwater = !this.isOnlyUpMode && LEVEL_CONFIGS[this.levelIndex]?.zone === 'piratestreasure' && LEVEL_CONFIGS[this.levelIndex]?.act !== 1;
+        e.vy = Math.min(e.vy + (isUnderwater ? 0.08 : GRAVITY), isUnderwater ? 2.5 : 6);
         e.y += e.vy;
         for (const p of this.platforms) {
           if (p.hidden) continue;
@@ -3950,6 +4134,17 @@ export class GameEngine {
 
     if (inArenaRange && !this.arenaActive) {
       this.arenaActive = true;
+      const currentConfig = LEVEL_CONFIGS[this.levelIndex];
+      if (currentConfig?.id === 'castlesmash-3') {
+        this.arenaLeft = 2690;
+        this.arenaRight = 3750;
+      } else if (currentConfig?.id === 'piratestreasure-3') {
+        this.arenaLeft = 2700;
+        this.arenaRight = 3750;
+      } else {
+        this.arenaLeft = b.x - 360;
+        this.arenaRight = b.x + 360;
+      }
       const cp = this.checkpoints.find((c) => c.arena) || this.checkpoints[this.checkpoints.length - 1];
       if (cp) {
         cp.active = true;
@@ -5616,6 +5811,171 @@ export class GameEngine {
       }
 
       // Keep Malakar on arena ground when not leaping
+      if (b.state !== 'jumping' && b.y !== groundY) {
+        b.y = groundY;
+        b.vy = 0;
+      }
+    } else if (b.name.includes('Cofre') || b.name.includes('Tesoro') || b.name.includes('Maldito') || b.name.includes('Barbanegra')) {
+      // ---------------------------------------------------------------------
+      // JEFE DE PIRATES TREASURE: EL COFRE MALDITO DEL NAUFRAGIO
+      // ---------------------------------------------------------------------
+      // Mímico titánico poseído por espíritus piratas en la cubierta del navío hundido.
+      // Entorno submarino de baja gravedad.
+      // - Fase 1: Saltos acuáticos flotantes, mordiscos trampas y escupitajos de doblones dorados.
+      // - Fase 2: Cañonazos de galeón sumergido con metralla de burbujas y saltos sísmicos.
+      // - Fase 3 (Frenesí): Le brotan patas esqueléticas/doradas de cangrejo, embiste a toda velocidad y desata tormentas de doblones malditos.
+      const p = this.player;
+      const groundY = 148 - b.h;
+      const dist = p.x - b.x;
+      const absDist = Math.abs(dist);
+      b.facing = p.x < b.x ? -1 : 1;
+
+      // Update Phase based on HP thresholds
+      if (b.hp <= b.maxHp * 0.35) {
+        b.phase = 3;
+      } else if (b.hp <= b.maxHp * 0.7) {
+        b.phase = 2;
+      } else {
+        b.phase = 1;
+      }
+
+      // Bubbles leaking from the treasure chest into the water
+      if (Math.random() < 0.3) {
+        this.particles.push({
+          x: b.x + Math.random() * b.w,
+          y: b.y + 4,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: -1.2 - Math.random() * 1.5,
+          life: 25,
+          maxLife: 25,
+          color: '#bae6fd',
+          size: 1.5,
+        });
+      }
+
+      if (b.state === 'idle') {
+        b.stateTimer--;
+        b.x += b.facing * (b.phase === 3 ? 1.6 : 0.9);
+        b.x = Math.max(2740, Math.min(3700 - b.w, b.x));
+
+        if (b.stateTimer <= 0) {
+          const rand = Math.random();
+          if (absDist < 90 && rand < 0.4) {
+            // Jaws snap bite attack
+            b.state = 'attack';
+            b.stateTimer = 35;
+            sound.playSfx('slash');
+          } else if (rand < 0.7) {
+            // Low-gravity leaping water slam!
+            b.state = 'jumping';
+            b.stateTimer = 60;
+            b.vy = b.phase === 3 ? -5.0 : -4.2;
+            b.vx = b.facing * (b.phase === 3 ? 3.2 : 2.2);
+            sound.playSfx('bubble');
+            this.createBurst(b.x + b.w / 2, b.y + b.h, 12, '#bae6fd');
+          } else if (b.phase >= 2 && rand < 0.88) {
+            // Sunken galleon cannonball shot
+            b.state = 'shooting';
+            b.stateTimer = 45;
+            sound.playSfx('explosion');
+            this.screenShake = 5;
+            this.projectiles.push({
+              x: b.x + (b.facing === 1 ? b.w : -12),
+              y: b.y + 8,
+              w: 12,
+              h: 12,
+              vx: b.facing * 3.6,
+              vy: -0.8,
+              life: 70,
+              isHero: false,
+              kind: 'catapult_boulder',
+              color: '#0f172a',
+            });
+          } else {
+            // Spitting barrage of cursed gold doubloons
+            b.state = 'charging';
+            b.stateTimer = 40;
+            sound.playSfx('coin');
+            for (let i = -1; i <= 1; i++) {
+              this.projectiles.push({
+                x: b.x + b.w / 2,
+                y: b.y + 6,
+                w: 8,
+                h: 8,
+                vx: b.facing * 3.0 + i * 0.8,
+                vy: -1.2 + i * 0.6,
+                life: 60,
+                isHero: false,
+                kind: 'plasma',
+                color: '#facc15',
+              });
+            }
+          }
+        }
+      } else if (b.state === 'jumping') {
+        b.x += b.vx;
+        b.x = Math.max(2740, Math.min(3700 - b.w, b.x));
+        // Underwater low gravity applies to the boss too!
+        b.vy += 0.12;
+        b.y += b.vy;
+
+        if (b.y >= groundY) {
+          b.y = groundY;
+          b.vy = 0;
+          b.vx = 0;
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+          this.screenShake = 6;
+          sound.playSfx('explosion');
+          this.createBurst(b.x + b.w / 2, groundY + b.h, 18, '#38bdf8');
+          // Emit two underwater shockwaves along the deck
+          b.shockwaves.push(
+            {
+              x: b.x - 10,
+              y: groundY + b.h - 8,
+              vx: -3.5,
+              w: 18,
+              h: 10,
+              life: 40,
+              maxLife: 40,
+              color: '#38bdf8'
+            },
+            {
+              x: b.x + b.w + 10,
+              y: groundY + b.h - 8,
+              vx: 3.5,
+              w: 18,
+              h: 10,
+              life: 40,
+              maxLife: 40,
+              color: '#38bdf8'
+            }
+          );
+        }
+      } else if (b.state === 'attack') {
+        b.stateTimer--;
+        b.vx = b.facing * 2.2;
+        b.x += b.vx;
+        b.x = Math.max(2740, Math.min(3700 - b.w, b.x));
+        if (this.checkAABB(p, b) && p.inv <= 0 && !this.settings.godMode) {
+          this.handlePlayerDamage('¡Mordisco Trampa del Cofre Maldito!');
+          b.state = 'idle';
+          b.stateTimer = 30;
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = 20;
+        }
+      } else if (b.state === 'shooting' || b.state === 'charging') {
+        b.stateTimer--;
+        b.vx *= 0.85;
+        b.x += b.vx;
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+        }
+      }
+
       if (b.state !== 'jumping' && b.y !== groundY) {
         b.y = groundY;
         b.vy = 0;

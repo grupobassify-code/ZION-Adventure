@@ -188,6 +188,26 @@ export class EnemyRenderer {
         this.renderCastleGolem(anim, time, e);
         break;
 
+      // --- ZONA 10: PIRATES TREASURE ---
+      case 'pirate_skeleton':
+        this.renderPirateSkeleton(anim, time, e);
+        break;
+      case 'pirate_crab':
+        this.renderPirateCrab(anim, time, e);
+        break;
+      case 'parrot_bomber':
+        this.renderParrotBomber(anim, time, e);
+        break;
+      case 'anglerfish':
+        this.renderAnglerfish(anim, time, e);
+        break;
+      case 'electric_jellyfish':
+        this.renderElectricJellyfish(anim, time, e);
+        break;
+      case 'shark_corsair':
+        this.renderSharkCorsair(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -218,7 +238,11 @@ export class EnemyRenderer {
       e.type === 'flame_wisp' ||
       e.type === 'desert_vulture' ||
       e.type === 'cyber_drone' ||
-      e.type === 'gravity_orb';
+      e.type === 'gravity_orb' ||
+      e.type === 'parrot_bomber' ||
+      e.type === 'anglerfish' ||
+      e.type === 'electric_jellyfish' ||
+      e.type === 'shark_corsair';
 
     const shadowY = isAirborne ? y + e.h + 14 : y + e.h;
     const shadowW = isAirborne ? e.w * 0.75 : e.w * 0.9;
@@ -2553,5 +2577,370 @@ export class EnemyRenderer {
     ctx.fillRect(8, 2 + stomp, 6, 6); // Spiked stone fist
     ctx.fillStyle = '#f59e0b';
     ctx.fillRect(10, 4 + stomp, 2, 2);
+  }
+
+  // ===========================================================================
+  // ZONA 10: PIRATES TREASURE ENEMIES
+  // ===========================================================================
+
+  // 1. Pirate Skeleton: Undead swashbuckler with tricorn hat & curved scimitar
+  private renderPirateSkeleton(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walk = Math.sin(anim * 0.25) * 3;
+    const isAttacking = e.alertTimer && e.alertTimer > 0;
+
+    // Legs (Bleached Bone & Tattered Sailor Pants)
+    ctx.fillStyle = '#0f766e'; // Tattered teal breeches
+    ctx.fillRect(-5, 0, 4, 7);
+    ctx.fillRect(1, 0, 4, 7);
+    ctx.fillStyle = '#e2e8f0'; // Bone shins
+    ctx.fillRect(-4, 7 + walk * 0.5, 2.5, 5);
+    ctx.fillRect(2, 7 - walk * 0.5, 2.5, 5);
+    // Peg leg or pirate boots
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(-5, 11 + walk * 0.5, 4, 2);
+    ctx.fillStyle = '#92400e'; // Peg leg
+    ctx.fillRect(2, 11 - walk * 0.5, 2, 2.5);
+
+    // Ribcage & Spine
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(-1, -7, 2, 8); // Spine
+    ctx.fillRect(-5, -6, 10, 1.5); // Rib 1
+    ctx.fillRect(-4, -4, 8, 1.5);  // Rib 2
+    ctx.fillRect(-3, -2, 6, 1.5);  // Rib 3
+
+    // Skull Head
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(-4, -15, 8, 7);
+    ctx.fillRect(-2, -8, 4, 2); // Jaw
+    // Dark Eye Sockets
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-3, -13, 2.5, 2.5);
+    ctx.fillRect(1, -13, 2.5, 2.5);
+    // Cursed Gaze Glow
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(-2.5, -12.5, 1.5, 1.5);
+    ctx.fillRect(1.5, -12.5, 1.5, 1.5);
+
+    // Gold Hoop Earring
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-5.5, -12, 1.5, 2.5);
+
+    // Pirate Tricorn Hat
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-7, -17, 14, 3);
+    ctx.fillRect(-5, -20, 10, 3);
+    // Gold Trim & Cockade
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(-7, -15, 14, 1);
+    ctx.fillStyle = '#ef4444'; // Red feather/ribbon
+    ctx.fillRect(-6, -21, 2, 3);
+
+    // Curved Cutlass / Scimitar Sword (Arm)
+    ctx.save();
+    const swordAngle = isAttacking ? -0.8 + Math.sin(time * 0.4) * 0.5 : 0.3 + walk * 0.05;
+    ctx.translate(5, -4);
+    ctx.rotate(swordAngle);
+    // Bone Arm
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(-1, 0, 2, 6);
+    // Brass Hilt
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-2, 5, 5, 2);
+    // Steel Curved Blade
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(0, 7, 2, 9);
+    ctx.beginPath();
+    ctx.moveTo(0, 16);
+    ctx.lineTo(4, 13);
+    ctx.lineTo(1, 10);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // 2. Pirate Crab: Armored beach crab with massive pinching claws
+  private renderPirateCrab(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walk = Math.sin(anim * 0.3) * 3;
+    const isBlocking = (e.hp < e.maxHp && e.alertTimer && e.alertTimer > 0);
+
+    // Four Skittering Legs
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(-10, 4 + walk, 2, 5);
+    ctx.fillRect(-6, 5 - walk, 2, 5);
+    ctx.fillRect(4, 5 + walk, 2, 5);
+    ctx.fillRect(8, 4 - walk, 2, 5);
+
+    // Scarlet Armored Carapace Body
+    ctx.fillStyle = '#b91c1c';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 9, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.ellipse(0, -1, 7, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Carapace spikes & barnacles
+    ctx.fillStyle = '#14b8a6';
+    ctx.fillRect(-3, -4, 2, 2);
+    ctx.fillRect(3, -3, 2, 2);
+
+    // Stalk Eyes
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-4, -8, 2, 3);
+    ctx.fillRect(2, -8, 2, 3);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-4, -9, 2.5, 2.5);
+    ctx.fillRect(2, -9, 2.5, 2.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-3.5, -9, 1, 1);
+    ctx.fillRect(2.5, -9, 1, 1);
+
+    // Giant Claws (Pincers)
+    const clawOffset = isBlocking ? -4 : Math.sin(anim * 0.2) * 2;
+    // Front Left Claw
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(-12 + clawOffset, -4, 5, 5);
+    ctx.fillStyle = '#fef08a'; // Pincer tip
+    ctx.fillRect(-14 + clawOffset, -6, 2, 4);
+    ctx.fillRect(-14 + clawOffset, -2, 2, 4);
+
+    // Front Right Claw (Main Crusher)
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(7 - clawOffset, -5, 6, 6);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(12 - clawOffset, -7, 3, 5);
+    ctx.fillRect(12 - clawOffset, -3, 3, 5);
+  }
+
+  // 3. Parrot Bomber: Flying tropical pirate parrot dropping lit bombs
+  private renderParrotBomber(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const flap = Math.sin(anim * 0.35) * 5;
+
+    // Body (Tropical Scarlet)
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 7, 5, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Long Tail Feathers (Azure & Gold)
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(-9, 1, 6, 2);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-11, 2, 4, 1.5);
+
+    // Flapping Wings (Emerald & Blue)
+    ctx.fillStyle = '#059669';
+    ctx.beginPath();
+    ctx.moveTo(-2, -2);
+    ctx.lineTo(4, -8 + flap);
+    ctx.lineTo(-4, -6 + flap);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(0, -7 + flap, 3, 2);
+
+    // Head with Pirate Bandana
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(6, -2, 4, 0, Math.PI * 2);
+    ctx.fill();
+    // Red Bandana with knot
+    ctx.fillStyle = '#991b1b';
+    ctx.fillRect(4, -6, 5, 2);
+    ctx.fillRect(2, -7, 2, 3); // Knot tail
+    // Curved Yellow Beak
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.moveTo(9, -3);
+    ctx.lineTo(13, -1);
+    ctx.lineTo(9, 1);
+    ctx.closePath();
+    ctx.fill();
+    // Eye with black pupil
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(6.5, -4, 2, 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(7, -3.5, 1, 1);
+
+    // Held Pirate Bomb (In Talons)
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(1, 6, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Bomb Cap & Fuse
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(0, 2, 2, 1.5);
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(1, 0, 1.5, 2);
+    // Sizzling Fuse Spark
+    ctx.fillStyle = Math.sin(time * 0.5) > 0 ? '#facc15' : '#ef4444';
+    ctx.fillRect(1.5, -1, 1.5, 1.5);
+  }
+
+  // 4. Anglerfish: Abyssal predator with glowing yellow lure & needle teeth
+  private renderAnglerfish(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const finWiggle = Math.sin(anim * 0.25) * 3;
+
+    // Dark Abyssal Body
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 9, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.ellipse(-1, 0, 7, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Caudal Tail Fin
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(-8, 0);
+    ctx.lineTo(-13, -5 + finWiggle);
+    ctx.lineTo(-13, 5 + finWiggle);
+    ctx.closePath();
+    ctx.fill();
+
+    // Jagged Needle Teeth in open jaw
+    ctx.fillStyle = '#020617';
+    ctx.fillRect(2, -2, 6, 6); // Mouth cavity
+    ctx.fillStyle = '#e2e8f0';
+    // Upper Teeth
+    ctx.fillRect(3, -2, 1, 3);
+    ctx.fillRect(5, -2, 1, 2.5);
+    ctx.fillRect(7, -2, 1, 3);
+    // Lower Teeth
+    ctx.fillRect(4, 2, 1, 2.5);
+    ctx.fillRect(6, 2, 1, 3);
+
+    // Glowing Bioluminescent Esca (Lure) Stalk
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(3, -6);
+    ctx.quadraticCurveTo(8, -12, 10, -9 + Math.sin(time * 0.2) * 1.5);
+    ctx.stroke();
+
+    // Glowing Yellow Lure Bulb
+    const lureY = -9 + Math.sin(time * 0.2) * 1.5;
+    const glowPulse = 4 + Math.sin(time * 0.3) * 1.5;
+    ctx.fillStyle = 'rgba(250, 204, 21, 0.3)';
+    ctx.beginPath();
+    ctx.arc(10, lureY, glowPulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.arc(10, lureY, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pearly Pale Eye
+    ctx.fillStyle = '#67e8f9';
+    ctx.fillRect(3, -5, 2, 2);
+  }
+
+  // 5. Electric Jellyfish: Phosphorescent drifting jellyfish with electric spark pulses
+  private renderElectricJellyfish(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const pulse = Math.sin(anim * 0.2) * 2;
+
+    // Translucent Glowing Bell Dome
+    const grad = ctx.createRadialGradient(0, -3, 2, 0, -3, 8 + pulse);
+    grad.addColorStop(0, '#67e8f9');
+    grad.addColorStop(0.7, '#06b6d4');
+    grad.addColorStop(1, 'rgba(168, 85, 247, 0.8)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, -3, 7 + pulse * 0.5, Math.PI, 0);
+    ctx.fill();
+
+    // Inner Core Glow
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, -4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Undulating Tentacles Trailing Down
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 1.2;
+    for (let i = -2; i <= 2; i++) {
+      const wave = Math.sin(time * 0.25 + i) * 3;
+      ctx.beginPath();
+      ctx.moveTo(i * 2.8, -2);
+      ctx.quadraticCurveTo(i * 2.8 + wave, 4, i * 2.8 - wave * 0.5, 9);
+      ctx.stroke();
+    }
+
+    // Electric Arcs (Sparks)
+    if (Math.sin(time * 0.4) > 0.3) {
+      ctx.strokeStyle = '#fef08a';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-4, 2);
+      ctx.lineTo(-2, 4);
+      ctx.lineTo(2, 3);
+      ctx.stroke();
+    }
+  }
+
+  // 6. Shark Corsair: Sleek hunter shark with pirate eyepatch
+  private renderSharkCorsair(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const swim = Math.sin(anim * 0.3) * 3;
+
+    // Sleek Torpedo Shark Body (Slate Blue / White belly)
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#f8fafc'; // White belly
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 10, 3, 0, 0, Math.PI);
+    ctx.fill();
+
+    // Dorsal Fin
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(-1, -5);
+    ctx.lineTo(1, -11);
+    ctx.lineTo(5, -5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Tail Fin (Caudal)
+    ctx.beginPath();
+    ctx.moveTo(-11, 0);
+    ctx.lineTo(-16, -7 + swim);
+    ctx.lineTo(-13, 0);
+    ctx.lineTo(-16, 7 + swim);
+    ctx.closePath();
+    ctx.fill();
+
+    // Pectoral Fin
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.moveTo(2, 2);
+    ctx.lineTo(0, 8);
+    ctx.lineTo(6, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Sharp Teeth Grin
+    ctx.fillStyle = '#ffffff';
+    for (let tx = 6; tx <= 10; tx += 2) {
+      ctx.fillRect(tx, 2, 1, 1.5);
+    }
+
+    // Leather Pirate Eyepatch
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(7, -3, 3, 3); // Eyepatch
+    ctx.strokeStyle = '#171717';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(5, -4);
+    ctx.lineTo(11, -1);
+    ctx.stroke(); // Strap
   }
 }

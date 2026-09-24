@@ -66,7 +66,12 @@ export interface Platform {
     | 'castle_parapet'
     | 'castle_bridge'
     | 'castle_iron'
-    | 'crumbling_floor';
+    | 'crumbling_floor'
+    | 'sand'
+    | 'palm_wood'
+    | 'coral'
+    | 'sunken_deck'
+    | 'shipwreck_hull';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -123,7 +128,13 @@ export type EnemyType =
   | 'shield_guard'
   | 'gargoyle'
   | 'siege_crossbow'
-  | 'castle_golem';
+  | 'castle_golem'
+  | 'pirate_skeleton'
+  | 'pirate_crab'
+  | 'parrot_bomber'
+  | 'anglerfish'
+  | 'electric_jellyfish'
+  | 'shark_corsair';
 
 export interface Enemy {
   id: number;
@@ -207,7 +218,12 @@ export interface Hazard {
     | 'swinging_mace'
     | 'portcullis'
     | 'catapult_boulder'
-    | 'crumbling_floor';
+    | 'crumbling_floor'
+    | 'sea_mine'
+    | 'sea_urchin'
+    | 'bubble_geyser'
+    | 'coral_spikes'
+    | 'falling_coconut';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -263,6 +279,7 @@ export interface Hazard {
   liftPower?: number;
   targetX?: number;
   targetY?: number;
+  bobAngle?: number;
 }
 
 export interface Collectible {
@@ -402,7 +419,7 @@ export interface Boss {
   name: string;
   title: string;
   subtitle?: string;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult';
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult' | 'shooting';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;

@@ -31,6 +31,7 @@ const ZONES: { id: ZoneId }[] = [
   { id: 'blizzard' },
   { id: 'steampunk' },
   { id: 'castlesmash' },
+  { id: 'piratestreasure' },
 ];
 
 interface ModeLevelSelectModalProps {
@@ -151,7 +152,7 @@ export const ModeLevelSelectModal: React.FC<ModeLevelSelectModalProps> = ({
                       sound.playSfx('menuSelect');
                       setSelectedZone(z.id);
                       // Auto-select first non-boss level of this zone
-                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3'].includes(c.id));
+                      const firstInZone = LEVEL_CONFIGS.findIndex((c) => c.zone === z.id && !['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3'].includes(c.id));
                       if (firstInZone !== -1) setSelectedLevelIndex(firstInZone);
                     }}
                     className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 border cursor-pointer ${

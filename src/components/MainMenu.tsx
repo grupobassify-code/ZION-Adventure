@@ -182,11 +182,10 @@ const ZONES_DATA: ZoneMeta[] = [
   {
     id: 'piratestreasure',
     name: 'Pirates Treasure',
-    subtitle: 'Bahía del Corsario, Galeón Fantasma y el Kraken',
+    subtitle: 'Playa Tropical, Arrecife Submarino y Naufragio del Cofre Maldito',
     themeColor: '#0284c7',
     accentColor: '#facc15',
     actsCount: 3,
-    status: 'soon',
   },
   {
     id: 'jurasicdraft',
@@ -835,6 +834,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                             ? (language === 'es' ? 'DERROTA A YUKIO EL YETI (BLIZZARD)' : 'DEFEAT YUKIO THE YETI (BLIZZARD)')
                           : z.id === 'castlesmash'
                             ? (language === 'es' ? 'DERROTA A VULKAN-Ω (STEAMPUNK)' : 'DEFEAT VULKAN-Ω (STEAMPUNK)')
+                          : z.id === 'piratestreasure'
+                            ? (language === 'es' ? 'DERROTA A LORD MALAKAR (CASTILLO)' : 'DEFEAT LORD MALAKAR (CASTLE)')
                           : t('beatPrevEra')}
                       </span>
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-cyan-300 group-hover:translate-x-1 transition-all" />

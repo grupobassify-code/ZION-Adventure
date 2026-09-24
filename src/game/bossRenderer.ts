@@ -79,6 +79,8 @@ export class BossRenderer {
       this.renderVulkanSteamColossus(boss, x, y, time);
     } else if (boss.name.includes('Malakar') || boss.name.includes('Rompemuros') || boss.name.includes('Castillo')) {
       this.renderLordMalakar(boss, x, y, time);
+    } else if (boss.name.includes('Cofre') || boss.name.includes('Tesoro') || boss.name.includes('Maldito') || boss.name.includes('Pirata') || boss.name.includes('Corsario')) {
+      this.renderCursedChest(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -1790,6 +1792,243 @@ export class BossRenderer {
     ctx.restore();
 
     ctx.restore();
+  }
+
+  // ===========================================================================
+  // 10. EL COFRE MALDITO DEL NAUFRAGIO (PIRATE'S TREASURE ACT 3 BOSS)
+  // Masterpiece Pixel-Art Animated Mimic Treasure Chest:
+  // - Weathered pirate oak wood & forged brass bands with rivets
+  // - Hinged animated jaw lid opening with razor gold teeth & glowing red ruby eyes
+  // - Abyssal water bubbles, spectral tentacle aura, and flying cursed doubloons
+  // - Animated mimic crab/skeleton legs in Phase 3
+  // ===========================================================================
+  private renderCursedChest(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const isPhase2 = boss.phase >= 2;
+    const isPhase3 = boss.phase === 3;
+    const isStaggered = boss.isStaggered;
+    const facing = boss.facing;
+    const cx = x + boss.w / 2;
+    const cy = y + boss.h / 2;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(facing, 1);
+
+    // Underwater ambient float bobbing
+    const waterBob = Math.sin(time * 0.12) * 2;
+    ctx.translate(0, waterBob);
+
+    // 1. Abyssal / Cursed Water Aura (Phase 2 & 3)
+    if (isPhase2) {
+      const auraR = 34 + Math.sin(time * 0.2) * 4;
+      const auraGrad = ctx.createRadialGradient(0, 0, 10, 0, 0, auraR);
+      auraGrad.addColorStop(0, isPhase3 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(168, 85, 247, 0.22)');
+      auraGrad.addColorStop(0.6, 'rgba(6, 182, 212, 0.15)');
+      auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = auraGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Spectral floating cursed runes/bubbles around chest
+      for (let i = 0; i < 4; i++) {
+        const bubbleAngle = time * 0.08 + (i * Math.PI) / 2;
+        const bx = Math.cos(bubbleAngle) * (26 + i * 2);
+        const by = Math.sin(bubbleAngle * 1.2) * 18 - 8;
+        ctx.fillStyle = isPhase3 ? '#facc15' : '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // 2. Animated Mimic Legs / Skeletal Claws (Phase 3 Frenzy or leaping)
+    if (isPhase3 || boss.state === 'jumping' || boss.state === 'charging') {
+      const legWalk = Math.sin(time * 0.35) * 6;
+      ctx.fillStyle = '#f59e0b'; // Gilded crab/skeletal claws
+      // Left Front Leg
+      ctx.beginPath();
+      ctx.moveTo(-18, 14);
+      ctx.lineTo(-26, 22 + legWalk);
+      ctx.lineTo(-22, 26 + legWalk);
+      ctx.lineTo(-14, 18);
+      ctx.fill();
+      // Right Front Leg
+      ctx.beginPath();
+      ctx.moveTo(18, 14);
+      ctx.lineTo(26, 22 - legWalk);
+      ctx.lineTo(22, 26 - legWalk);
+      ctx.lineTo(14, 18);
+      ctx.fill();
+      // Mid claw tips
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-27, 21 + legWalk, 3, 3);
+      ctx.fillRect(25, 21 - legWalk, 3, 3);
+    }
+
+    // 3. Lower Chest Base (Body / Jaw)
+    const baseW = 44;
+    const baseH = 22;
+    const baseX = -baseW / 2;
+    const baseY = -2;
+
+    // Dark Sunken Oak Wood Body
+    ctx.fillStyle = '#2d1808';
+    ctx.fillRect(baseX, baseY, baseW, baseH);
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(baseX + 2, baseY + 2, baseW - 4, baseH - 4);
+
+    // Weathered Wood Horizontal Planks
+    ctx.fillStyle = '#1c0e04';
+    ctx.fillRect(baseX + 2, baseY + 8, baseW - 4, 1.5);
+    ctx.fillRect(baseX + 2, baseY + 15, baseW - 4, 1.5);
+
+    // Heavy Forged Brass / Tarnished Gold Corner Bands
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(baseX, baseY, 6, baseH);
+    ctx.fillRect(baseX + baseW - 6, baseY, 6, baseH);
+    ctx.fillRect(baseX + baseW / 2 - 3, baseY, 6, baseH);
+    // Golden Highlight on bands
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(baseX + 1, baseY + 1, 3, baseH - 2);
+    ctx.fillRect(baseX + baseW - 4, baseY + 1, 3, baseH - 2);
+    ctx.fillRect(baseX + baseW / 2 - 1, baseY + 1, 2, baseH - 2);
+
+    // Iron Rivets on bands
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(baseX + 2, baseY + 4, 2, 2);
+    ctx.fillRect(baseX + 2, baseY + 12, 2, 2);
+    ctx.fillRect(baseX + baseW - 4, baseY + 4, 2, 2);
+    ctx.fillRect(baseX + baseW - 4, baseY + 12, 2, 2);
+
+    // Barnacles & Deep-Sea Seaweed clinging to wood
+    ctx.fillStyle = '#14b8a6';
+    ctx.fillRect(baseX + 8, baseY + 13, 3, 3);
+    ctx.fillRect(baseX + 13, baseY + 16, 2, 2);
+    ctx.fillRect(baseX + 28, baseY + 14, 3, 2);
+
+    // 4. Mimic Mouth & Teeth (Inside the Chest)
+    // Lid open angle depends on state:
+    let openHeight = 3;
+    if (isStaggered) {
+      openHeight = 16;
+    } else if (boss.state === 'attack' || boss.state === 'charging') {
+      openHeight = 18;
+    } else if (boss.state === 'shooting' || isPhase3) {
+      openHeight = 12 + Math.sin(time * 0.3) * 4;
+    } else if (isPhase2) {
+      openHeight = 6 + Math.sin(time * 0.15) * 3;
+    }
+
+    // Abyssal Dark Maw Void Inside
+    if (openHeight > 2) {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(baseX + 4, baseY - openHeight + 4, baseW - 8, openHeight);
+      // Cursed Void Glow
+      ctx.fillStyle = isPhase3 ? '#ef4444' : '#a855f7';
+      ctx.fillRect(baseX + 8, baseY - openHeight / 2, baseW - 16, Math.max(2, openHeight * 0.4));
+
+      // Razor Sharp Golden / Bone Teeth (Lower Jaw)
+      ctx.fillStyle = '#fef08a';
+      for (let tx = baseX + 7; tx < baseX + baseW - 8; tx += 5) {
+        ctx.beginPath();
+        ctx.moveTo(tx, baseY + 2);
+        ctx.lineTo(tx + 2.5, baseY - 3);
+        ctx.lineTo(tx + 5, baseY + 2);
+        ctx.fill();
+      }
+
+      // Upper Jaw Teeth (Hanging from lid)
+      for (let tx = baseX + 7; tx < baseX + baseW - 8; tx += 5) {
+        ctx.beginPath();
+        ctx.moveTo(tx, baseY - openHeight + 2);
+        ctx.lineTo(tx + 2.5, baseY - openHeight + 7);
+        ctx.lineTo(tx + 5, baseY - openHeight + 2);
+        ctx.fill();
+      }
+
+      // Glowing Cursed Ruby Eyes inside the open maw!
+      const eyeBob = Math.sin(time * 0.25) * 1.5;
+      ctx.fillStyle = '#dc2626';
+      ctx.beginPath();
+      ctx.arc(-8, baseY - openHeight / 2 + eyeBob, 2.8, 0, Math.PI * 2);
+      ctx.arc(8, baseY - openHeight / 2 + eyeBob, 2.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(-9, baseY - openHeight / 2 + eyeBob - 1, 1.5, 2);
+      ctx.fillRect(7, baseY - openHeight / 2 + eyeBob - 1, 1.5, 2);
+
+      // Gold Doubloons spilling / hovering in mouth
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(-14, baseY - openHeight / 3, 2, 0, Math.PI * 2);
+      ctx.arc(14, baseY - openHeight / 3, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 5. Upper Chest Hinged Lid
+    ctx.save();
+    ctx.translate(0, baseY - openHeight);
+    const lidW = 46;
+    const lidH = 14;
+    const lidX = -lidW / 2;
+    const lidY = -lidH;
+
+    // Arched Lid Top
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.moveTo(lidX, lidY + lidH);
+    ctx.lineTo(lidX, lidY + 4);
+    ctx.quadraticCurveTo(0, lidY - 4, lidX + lidW, lidY + 4);
+    ctx.lineTo(lidX + lidW, lidY + lidH);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dark Oak Rim
+    ctx.fillStyle = '#2d1808';
+    ctx.fillRect(lidX, lidY + lidH - 2, lidW, 2);
+
+    // Brass Arch Straps & Rivets on Lid
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(lidX, lidY + 2, 6, lidH - 2);
+    ctx.fillRect(lidX + lidW - 6, lidY + 2, 6, lidH - 2);
+    ctx.fillRect(lidX + lidW / 2 - 3, lidY, 6, lidH);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(lidX + 1, lidY + 2, 3, lidH - 3);
+    ctx.fillRect(lidX + lidW - 4, lidY + 2, 3, lidH - 3);
+    ctx.fillRect(lidX + lidW / 2 - 1, lidY, 2, lidH);
+
+    // 6. Cursed Pirate Skull & Crossbones Keyhole Lock Plate
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-6, lidY + lidH - 5, 12, 10);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-5, lidY + lidH - 4, 10, 8);
+    // Skull Emblem
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(0, lidY + lidH - 1, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(-1.5, lidY + lidH + 1, 3, 2);
+    // Skull glowing red eyes
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(-1.2, lidY + lidH - 1.5, 1, 1);
+    ctx.fillRect(0.4, lidY + lidH - 1.5, 1, 1);
+
+    ctx.restore(); // Lid
+
+    // 7. Water Bubble Exhalations (Rising from chest seams)
+    if (Math.random() < 0.35) {
+      const bubbleX = (Math.random() - 0.5) * 36;
+      const bubbleY = -12 - Math.random() * 10;
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(bubbleX, bubbleY, 1.5 + Math.random() * 2, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.restore(); // Base transform
   }
 }
 

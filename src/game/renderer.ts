@@ -973,6 +973,30 @@ export class GameRenderer {
         grad.addColorStop(0.9, '#b45309');  // Golden candlelight glow
         grad.addColorStop(1, '#fef08a');
       }
+    } else if (zone === 'piratestreasure') {
+      // Pirates Treasure Caribbean Coast & Deep Ocean:
+      // Act 1: Tropical Beach & Pirate Bay (Turquoise waters & golden dawn)
+      // Act 2: Submerged Coral Reef & Abyssal Trench (Low gravity ocean depths)
+      // Act 3: Underwater Galleon Shipwreck & Cursed Mimic Abyss (Low gravity)
+      if (act === 1) {
+        grad.addColorStop(0, '#0284c7');    // Caribbean azure sky
+        grad.addColorStop(0.35, '#38bdf8'); // Tropical sea breeze
+        grad.addColorStop(0.68, '#7dd3fc'); // Distant turquoise sea haze
+        grad.addColorStop(0.88, '#fef08a'); // Warm golden sand reflection
+        grad.addColorStop(1, '#fde047');
+      } else if (act === 2) {
+        grad.addColorStop(0, '#0369a1');    // Surface sunlight filtered through ocean water
+        grad.addColorStop(0.3, '#075985');  // Deep turquoise ocean tier
+        grad.addColorStop(0.65, '#0c4a6e'); // Abyssal twilight
+        grad.addColorStop(0.88, '#082f49'); // Oceanic seabed
+        grad.addColorStop(1, '#021e30');
+      } else {
+        grad.addColorStop(0, '#021e30');    // Sunken galleon depths
+        grad.addColorStop(0.35, '#082f49'); // Ghostly navy waters
+        grad.addColorStop(0.7, '#042f2e');  // Bioluminescent coral teal
+        grad.addColorStop(0.88, '#0f172a'); // Sunken ship seabed shadows
+        grad.addColorStop(1, '#020617');
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1420,6 +1444,59 @@ export class GameRenderer {
         ctx.closePath();
         ctx.fill();
       }
+    } else if (zone === 'piratestreasure') {
+      // Pirates Treasure Celestial & Horizon Atmosphere
+      if (act === 1) {
+        // Radiant Caribbean Tropical Sun with Light Flares
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
+        ctx.beginPath();
+        ctx.arc(245, 36, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(245, 36, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(245, 36, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Fluffy tropical clouds drifting across the blue sky
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+        const cOffset = (time * 0.15) % (GAME_WIDTH + 80);
+        ctx.beginPath();
+        ctx.arc(cOffset - 40, 24, 14, 0, Math.PI * 2);
+        ctx.arc(cOffset - 26, 20, 18, 0, Math.PI * 2);
+        ctx.arc(cOffset - 10, 24, 13, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (act === 2) {
+        // Underwater: Light Rays (crepuscular rays) streaming down from surface
+        ctx.save();
+        ctx.globalAlpha = 0.12 + Math.sin(time * 0.05) * 0.04;
+        ctx.fillStyle = '#bae6fd';
+        for (let rayX = 20; rayX < GAME_WIDTH; rayX += 55) {
+          const sway = Math.sin(time * 0.03 + rayX) * 12;
+          ctx.beginPath();
+          ctx.moveTo(rayX, 0);
+          ctx.lineTo(rayX + 18, 0);
+          ctx.lineTo(rayX + 45 + sway, GAME_HEIGHT);
+          ctx.lineTo(rayX + 10 + sway, GAME_HEIGHT);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      } else {
+        // Act 3: Deep Abyssal trench with bioluminescent algae flares
+        ctx.save();
+        ctx.globalAlpha = 0.15 + Math.sin(time * 0.04) * 0.05;
+        ctx.fillStyle = '#2dd4bf';
+        for (let fx = 40; fx < GAME_WIDTH; fx += 70) {
+          ctx.beginPath();
+          ctx.arc(fx + Math.sin(time * 0.02 + fx) * 10, 40 + Math.cos(time * 0.03 + fx) * 15, 22, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -1610,6 +1687,67 @@ export class GameRenderer {
         ctx.lineTo(x + 8, 54);
         ctx.closePath();
         ctx.fill();
+      }
+    } else if (zone === 'piratestreasure') {
+      // Parallax Layer 1: Distant Islands, Ocean Horizon & Sunken Galleon Silhouette
+      const p1Offset = (cameraX * 0.06) % 220;
+      if (act === 1) {
+        // Distant tropical sea horizon with rolling ocean waves & palm islands
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(0, 95, GAME_WIDTH, GAME_HEIGHT - 95);
+        ctx.fillStyle = '#0369a1';
+        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 32) {
+          const wave = Math.sin(time * 0.1 + x * 0.05) * 2;
+          ctx.fillRect(x, 95 + wave, 20, 3);
+        }
+        // Distant pirate galleon silhouette sailing on horizon
+        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 180) {
+          const shipX = x + 60;
+          const shipY = 88;
+          ctx.fillStyle = '#075985';
+          ctx.beginPath();
+          ctx.moveTo(shipX - 12, shipY + 4);
+          ctx.lineTo(shipX + 14, shipY + 4);
+          ctx.lineTo(shipX + 10, shipY + 8);
+          ctx.lineTo(shipX - 10, shipY + 8);
+          ctx.closePath();
+          ctx.fill();
+          // Masts & sails
+          ctx.fillRect(shipX - 4, shipY - 10, 2, 14);
+          ctx.fillRect(shipX + 4, shipY - 12, 2, 16);
+          ctx.fillStyle = '#bae6fd';
+          ctx.fillRect(shipX - 8, shipY - 8, 4, 6);
+          ctx.fillRect(shipX + 6, shipY - 10, 4, 7);
+        }
+      } else if (act === 2) {
+        // Underwater: Distant oceanic trench seamounts and giant coral arches
+        ctx.fillStyle = '#075985';
+        ctx.beginPath();
+        ctx.moveTo(0, 140);
+        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 40) {
+          const ch = Math.sin(x * 0.03) * 25 + Math.cos(x * 0.05) * 12;
+          ctx.lineTo(x, 80 + ch);
+        }
+        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+        ctx.lineTo(0, GAME_HEIGHT);
+        ctx.fill();
+      } else {
+        // Act 3: Colossal sunken shipwreck hull silhouette deep in the abyss
+        ctx.fillStyle = '#021e30';
+        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 220) {
+          const sx = x + 40;
+          ctx.beginPath();
+          ctx.moveTo(sx, 140);
+          ctx.lineTo(sx + 30, 75);
+          ctx.lineTo(sx + 120, 75);
+          ctx.lineTo(sx + 150, 140);
+          ctx.closePath();
+          ctx.fill();
+          // Broken mast tilted in the current
+          ctx.fillStyle = '#032c45';
+          ctx.fillRect(sx + 70, 30, 4, 50);
+          ctx.fillRect(sx + 50, 45, 45, 3);
+        }
       }
     } else if (zone === 'sakura') {
       // Sacred Sakura Mountain Ridge (Layer 1: Distant Misty Peaks & Mount Fuji)
@@ -2212,6 +2350,98 @@ export class GameRenderer {
         ctx.fillRect(x + 112, 94, 6, 8);
         ctx.fillRect(x + 110, 97, 10, 2);
       }
+    } else if (zone === 'piratestreasure') {
+      // Pirates Treasure Midground Layer
+      const p2Offset = (cameraX * 0.18) % 180;
+      if (act === 1) {
+        // Beach: Swaying Palm Trees, Coconut clusters & Driftwood pirate lookouts
+        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 130) {
+          const palmBaseX = x + 40;
+          const sway = Math.sin(time * 0.05 + x) * 6;
+          // Curved palm trunk
+          ctx.strokeStyle = '#78350f';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(palmBaseX, 145);
+          ctx.quadraticCurveTo(palmBaseX - 8, 110, palmBaseX + sway, 75);
+          ctx.stroke();
+
+          // Palm fronds canopy
+          const topX = palmBaseX + sway;
+          const topY = 75;
+          ctx.fillStyle = '#15803d';
+          for (let f = -2; f <= 2; f++) {
+            ctx.beginPath();
+            ctx.ellipse(topX + f * 12, topY + Math.abs(f) * 4, 14, 5, (f * 0.35), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.fillStyle = '#22c55e';
+          ctx.beginPath();
+          ctx.arc(topX, topY, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Coconuts
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(topX - 2, topY + 2, 3, 3);
+          ctx.fillRect(topX + 2, topY + 2, 3, 3);
+        }
+      } else if (act === 2) {
+        // Deep Underwater: Swaying Giant Kelp Forest & Colorful Coral Brains
+        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 85) {
+          const kelpX = x + 30;
+          ctx.strokeStyle = '#047857';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(kelpX, 150);
+          for (let ky = 140; ky >= 60; ky -= 20) {
+            const kSway = Math.sin(time * 0.06 + ky * 0.08 + x) * 8;
+            ctx.lineTo(kelpX + kSway, ky);
+          }
+          ctx.stroke();
+
+          // Kelp blades
+          ctx.fillStyle = '#10b981';
+          for (let ky = 130; ky >= 70; ky -= 22) {
+            const kSway = Math.sin(time * 0.06 + ky * 0.08 + x) * 8;
+            ctx.beginPath();
+            ctx.ellipse(kelpX + kSway + 8, ky, 9, 3, 0.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Sea Anemone & Coral formation at seabed
+          ctx.fillStyle = '#db2777';
+          ctx.beginPath();
+          ctx.arc(kelpX - 10, 146, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#f472b6';
+          ctx.fillRect(kelpX - 12, 140, 2, 5);
+          ctx.fillRect(kelpX - 10, 138, 2, 7);
+          ctx.fillRect(kelpX - 8, 140, 2, 5);
+        }
+      } else {
+        // Sunken Galleon Deck Midground: Heavy Oak Timbers, Iron Anchor Chains, Cannon Ports
+        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 140) {
+          // Deck beam arches
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, 90, 140, 60);
+          // Dark oak wooden siding planks
+          ctx.fillStyle = '#0f172a';
+          for (let dy = 94; dy < 150; dy += 12) {
+            ctx.fillRect(x, dy, 140, 2);
+          }
+          // Sunken cannon ports with mossy green iron cannons
+          const portX = x + 60;
+          ctx.fillStyle = '#020617';
+          ctx.fillRect(portX, 106, 18, 14);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(portX + 2, 110, 22, 6);
+          // Anchor chain links hanging down
+          ctx.fillStyle = '#475569';
+          for (let ly = 90; ly < 140; ly += 7) {
+            ctx.strokeRect(x + 20, ly, 4, 6);
+          }
+        }
+      }
     } else {
       const p2Offset = (cameraX * 0.22) % 100;
       ctx.fillStyle = zone === 'neon'
@@ -2776,6 +3006,31 @@ export class GameRenderer {
           ctx.beginPath();
           ctx.arc(px, py, puffRadius, 0, Math.PI * 2);
           ctx.fill();
+        }
+      } else if (zone === 'piratestreasure') {
+        if (act === 1) {
+          // Golden sand glints and salty ocean spray
+          ctx.fillStyle = i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#bae6fd' : '#ffffff';
+          ctx.fillRect(px, py, i % 2 === 0 ? 1.5 : 1, i % 2 === 0 ? 1.5 : 1);
+        } else {
+          // Underwater bubbles rising steadily toward surface and bioluminescent plankton
+          const bubbleY = (GAME_HEIGHT - ((time * 1.1 + i * 20) % (GAME_HEIGHT + 10)));
+          if (i % 2 === 0) {
+            // Hollow rising air/oxygen bubble
+            ctx.strokeStyle = '#bae6fd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(px, bubbleY, i % 4 === 0 ? 2.5 : 1.5, 0, Math.PI * 2);
+            ctx.stroke();
+            // Tiny bubble highlight reflection
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(px - 0.5, bubbleY - 0.5, 1, 1);
+          } else {
+            // Bioluminescent deep-sea glowing plankton speck
+            const planktonGlow = 0.5 + Math.sin(time * 0.1 + i) * 0.4;
+            ctx.fillStyle = i % 3 === 0 ? `rgba(94, 234, 212, ${planktonGlow})` : `rgba(56, 189, 248, ${planktonGlow})`;
+            ctx.fillRect(px, py, 1.5, 1.5);
+          }
         }
       } else {
         // Golden swirling sand dust & hieroglyphic sparkle specks
@@ -3904,6 +4159,7 @@ export class GameRenderer {
     const isJungle = zone === 'jungle';
     const isBlizzard = zone === 'blizzard';
     const isCastle = zone === 'castlesmash';
+    const isPirate = zone === 'piratestreasure';
 
     for (const p of platforms) {
       if (p.hidden) continue;
@@ -4084,6 +4340,81 @@ export class GameRenderer {
               ctx.lineTo(cx - 2, y + p.h - 1);
               ctx.stroke();
             }
+          }
+        }
+        continue;
+      }
+
+      if (p.kind === 'palm_wood' || p.kind === 'coral' || p.kind === 'sand' || p.kind === 'shipwreck_hull' || p.kind === 'sunken_deck' || (isPirate && (p.kind === 'ground' || p.kind === 'arena'))) {
+        // Pirates Treasure Themed Platforms
+        if (p.kind === 'sand' || (isPirate && act === 1 && p.kind === 'ground')) {
+          // Golden Tropical Sand Dunes
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#d97706';
+          ctx.fillRect(x, y + 2, p.w, p.h - 2);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(x, y, p.w, 1);
+          // Small seashells and beach pebbles
+          ctx.fillStyle = '#ffffff';
+          for (let sx = x + 12; sx < x + p.w - 8; sx += 28) {
+            ctx.fillRect(sx, y + 1, 2, 2);
+            ctx.fillStyle = '#fed7aa';
+            ctx.fillRect(sx + 8, y + 2, 2, 1.5);
+            ctx.fillStyle = '#ffffff';
+          }
+        } else if (p.kind === 'coral') {
+          // Living Coral Reef Shelves (Vibrant pink, purple & orange coral)
+          ctx.fillStyle = '#4c0519';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#9f1239';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#fda4af';
+          ctx.fillRect(x, y, p.w, 1);
+          // Coral polyps & sea anemone buds
+          for (let cx = x + 6; cx < x + p.w - 6; cx += 14) {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(cx, y - 2, 3, 2);
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(cx + 6, y - 3, 3, 3);
+          }
+        } else if (p.kind === 'shipwreck_hull') {
+          // Sunken Ship Hull & Ribs (Weathered dark oak with iron bolts)
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x, y, p.w, 2);
+          // Barnacles encrusted on hull
+          ctx.fillStyle = '#64748b';
+          for (let bx = x + 8; bx < x + p.w - 6; bx += 18) {
+            ctx.fillRect(bx, y + 1, 3, 3);
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillRect(bx + 1, y + 1, 1, 1);
+            ctx.fillStyle = '#64748b';
+          }
+        } else {
+          // Palm Wood / Sunken Wooden Galleon Decking (Planks with brass nails)
+          ctx.fillStyle = '#291206';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#d97706';
+          ctx.fillRect(x, y, p.w, 1);
+          // Wood grain planks & brass nails
+          for (let px = x + 16; px < x + p.w; px += 24) {
+            ctx.fillStyle = '#1c0a00';
+            ctx.fillRect(px, y + 1, 1, p.h - 1);
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(px - 6, y + 2, 1.5, 1.5);
+            ctx.fillRect(px + 4, y + 2, 1.5, 1.5);
           }
         }
         continue;
@@ -5771,6 +6102,110 @@ export class GameRenderer {
         ctx.fillStyle = '#ea580c';
         ctx.fillRect(cx - 3, cy - 2, 6, 2);
         ctx.fillRect(cx - 1, cy - 4, 2, 8);
+      } else if (h.type === 'bubble_geyser') {
+        // Effervescent deep-sea hydrothermal bubble vent
+        const ventBaseY = h.y + h.h;
+        // Volcanic coral vent chimney
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(x + 2, ventBaseY);
+        ctx.lineTo(x + 6, h.y + h.h - 10);
+        ctx.lineTo(x + h.w - 6, h.y + h.h - 10);
+        ctx.lineTo(x + h.w - 2, ventBaseY);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x + 6, h.y + h.h - 12, h.w - 12, 3);
+
+        // Translucent ascending bubble column
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+        ctx.fillRect(x + 4, h.y, h.w - 8, h.h - 10);
+
+        // Rising water bubbles
+        ctx.fillStyle = '#ffffff';
+        for (let b = 0; b < 6; b++) {
+          const by = (h.y + h.h - 12) - ((time * 2.5 + b * 20) % (h.h - 12));
+          const bx = x + h.w / 2 + Math.sin(time * 0.2 + b) * 5;
+          ctx.beginPath();
+          ctx.arc(bx, by, b % 2 === 0 ? 2 : 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (h.type === 'sea_mine') {
+        // Floating spiked naval sea-mine tethered with an iron chain
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const radius = Math.min(h.w, h.h) / 2;
+
+        // Sea floor anchor & chain
+        if (h.floorY) {
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy + radius);
+          ctx.lineTo(cx, h.floorY);
+          ctx.stroke();
+        }
+
+        // Spikes projecting outwards in 8 directions
+        ctx.fillStyle = '#0f172a';
+        for (let a = 0; a < 8; a++) {
+          const angle = (a * Math.PI) / 4;
+          const sx = cx + Math.cos(angle) * (radius + 4);
+          const sy = cy + Math.sin(angle) * (radius + 4);
+          ctx.beginPath();
+          ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Heavy dark naval iron hull
+        ctx.fillStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Flashing blinking red pressure fuse beacon
+        const beaconPulse = Math.sin(time * 0.3) > 0 ? '#ef4444' : '#7f1d1d';
+        ctx.fillStyle = beaconPulse;
+        ctx.beginPath();
+        ctx.arc(cx, cy - radius * 0.4, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (h.type === 'falling_coconut') {
+        // Tropical palm coconut with fibrous husk
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.arc(cx - 2, cy - 2, 2, 0, Math.PI * 2);
+        ctx.arc(cx + 2, cy - 2, 2, 0, Math.PI * 2);
+        ctx.arc(cx, cy + 2, 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (h.type === 'coral_spikes' || h.type === 'sea_urchin') {
+        // Toxic sharp purple coral spikes or sea urchin spines
+        const count = Math.max(3, Math.floor(h.w / 8));
+        const step = h.w / count;
+        ctx.fillStyle = h.type === 'sea_urchin' ? '#581c87' : '#e11d48';
+        for (let i = 0; i < count; i++) {
+          const sx = x + i * step;
+          ctx.beginPath();
+          ctx.moveTo(sx, h.y + h.h);
+          ctx.lineTo(sx + step / 2, h.y);
+          ctx.lineTo(sx + step, h.y + h.h);
+          ctx.closePath();
+          ctx.fill();
+          // Glowing poison tip
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(sx + step / 2 - 1, h.y, 2, 3);
+          ctx.fillStyle = h.type === 'sea_urchin' ? '#581c87' : '#e11d48';
+        }
       }
     }
   }
