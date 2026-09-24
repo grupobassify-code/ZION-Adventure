@@ -2570,7 +2570,20 @@ export class GameEngine {
       sound.playSfx('win');
       this.addXp(600);
       this.addFloatingText(b.x + b.w / 2, b.y - 25, '🏆 ¡JEFE DERROTADO! +600 XP', '#facc15');
-      if (this.goal) {
+
+      // Nivel Steampunk: Al matar al jefe aparece el portal dimensional en el centro de la arena
+      if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
+        const portalX = 580;
+        const portalY = -9860 - 62;
+        this.goal = { x: portalX, y: portalY, w: 42, h: 62 };
+        sound.playSfx('warp');
+        sound.playSfx('special');
+        this.createBurst(portalX + 21, portalY + 31, 60, '#38bdf8');
+        this.createBurst(portalX + 21, portalY + 31, 45, '#f59e0b');
+        this.createBurst(portalX + 21, portalY + 31, 35, '#c084fc');
+        this.addFloatingText(portalX + 21, portalY - 26, '🌀 ¡PORTAL DIMENSIONAL DE VICTORIA! 🌀', '#38bdf8');
+        this.addFloatingText(portalX + 21, portalY - 12, '✦ ¡Entra al portal para completar los 1000m! ✦', '#fbbf24');
+      } else if (this.goal) {
         this.createBurst(this.goal.x + this.goal.w / 2, this.goal.y + this.goal.h / 2, 40, '#a855f7');
         this.addFloatingText(this.goal.x + this.goal.w / 2, this.goal.y - 30, '🌀 ¡PORTAL DESBLOQUEADO! ➔', '#38bdf8');
       }

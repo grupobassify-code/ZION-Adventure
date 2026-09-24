@@ -5073,17 +5073,17 @@ export function buildLevel(levelIndex: number) {
         });
       }
 
-      // 2. TRAMPOLINES DE VAPOR FRECUENTES:
-      // En el tramo normal: cada 3 o 4 pasos hay un trampolín catapulta
-      // En el parkour final (>= 750m): ¡cada 2 pasos hay un trampolín para dinamismo total!
-      const shouldHaveTrampoline = isFinalParkour ? (stepCount % 2 === 0) : (stepCount % 3 === 0);
+      // 2. TRAMPOLINES DE VAPOR:
+      // Solo en los tramos inferiores/medios (< 750m) para acelerar la subida
+      // En la última parte (>= 750m y arena final) NO hay trampolines, es parkour puro de precisión
+      const shouldHaveTrampoline = !isFinalParkour && (stepCount % 3 === 0);
       if (shouldHaveTrampoline) {
         trampolines.push({
           x: px + Math.round(pw / 2) - 19,
           y: currentY - 10,
           w: 38,
           h: 10,
-          bounceForce: isFinalParkour ? -23.0 : -21.8,
+          bounceForce: -21.8,
           springAnim: 0,
           type: 'steam_boost'
         });
@@ -5163,16 +5163,18 @@ export function buildLevel(levelIndex: number) {
             spawn: { x: px + pw / 2, y: currentY - 10 }
           });
           heals.push({ x: px + 8, y: currentY - 18, w: 10, h: 10, taken: false });
-          // Trampolín catapulta al lado del checkpoint para salir disparado
-          trampolines.push({
-            x: px + pw - 24,
-            y: currentY - 10,
-            w: 36,
-            h: 10,
-            bounceForce: -22.5,
-            springAnim: 0,
-            type: 'steam_boost'
-          });
+          // Trampolines solo antes de los 750m; en la última parte no hay trampolines
+          if (!isFinalParkour) {
+            trampolines.push({
+              x: px + pw - 24,
+              y: currentY - 10,
+              w: 36,
+              h: 10,
+              bounceForce: -22.5,
+              springAnim: 0,
+              type: 'steam_boost'
+            });
+          }
           break;
         }
       }
@@ -5184,68 +5186,27 @@ export function buildLevel(levelIndex: number) {
     // =============================================================
     // CIMA A LOS 1000 METROS (Y = -9860): ARENA DEL JEFE DE VAPOR
     // =============================================================
-    // Plataforma de la Cima y Balcones
+    // Plataforma de la Cima, Balcones y Escalones de Salto Preciso (SIN TRAMPOLINES)
     platforms.push(
+      // Suelo principal del reactor (1000m)
       { x: 240, y: -9860, w: 720, h: 36, kind: 'steampunk_brass' },
-      { x: 280, y: -9925, w: 130, h: 12, kind: 'steampunk_pipe' },
-      { x: 790, y: -9925, w: 130, h: 12, kind: 'steampunk_pipe' },
-      { x: 535, y: -9950, w: 130, h: 12, kind: 'steampunk_brass' },
+      // Escalones inferiores de acceso fluido (salto natural y cómodo de 35px)
+      { x: 410, y: -9895, w: 85, h: 12, kind: 'steampunk_brass' },
+      { x: 705, y: -9895, w: 85, h: 12, kind: 'steampunk_brass' },
+      // Balcones laterales donde se ubican las válvulas 1 y 3
+      { x: 270, y: -9930, w: 140, h: 12, kind: 'steampunk_pipe' },
+      { x: 790, y: -9930, w: 140, h: 12, kind: 'steampunk_pipe' },
+      // Conectores intermedios hacia el puente central
+      { x: 440, y: -9942, w: 65, h: 10, kind: 'steampunk_pipe' },
+      { x: 695, y: -9942, w: 65, h: 10, kind: 'steampunk_pipe' },
+      // Puente central superior (válvula 2 y combate aéreo)
+      { x: 520, y: -9960, w: 160, h: 14, kind: 'steampunk_brass' },
       // Paredes de confinamiento para no caer al abismo durante el combate
       { x: 220, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' },
       { x: 960, y: -9990, w: 20, h: 140, kind: 'steampunk_pipe' }
     );
 
-    // TRAMPOLINES EN LA ARENA DEL JEFE FINAL VULKAN-Ω (Para esquivar y alcanzar válvulas altas)
-    // 1. Trampolín izquierdo del suelo
-    trampolines.push({
-      x: 305,
-      y: -9870,
-      w: 42,
-      h: 10,
-      bounceForce: -20.5,
-      springAnim: 0,
-      type: 'steam_boost'
-    });
-    // 2. Trampolín derecho del suelo
-    trampolines.push({
-      x: 850,
-      y: -9870,
-      w: 42,
-      h: 10,
-      bounceForce: -20.5,
-      springAnim: 0,
-      type: 'steam_boost'
-    });
-    // 3. Trampolín central de alta propulsión al núcleo superior
-    trampolines.push({
-      x: 578,
-      y: -9870,
-      w: 44,
-      h: 10,
-      bounceForce: -22.5,
-      springAnim: 0,
-      type: 'steam_boost'
-    });
-    // 4. Catapulta en balcón izquierdo (alcanza puente superior)
-    trampolines.push({
-      x: 325,
-      y: -9935,
-      w: 38,
-      h: 10,
-      bounceForce: -19.5,
-      springAnim: 0,
-      type: 'steam_boost'
-    });
-    // 5. Catapulta en balcón derecho (alcanza puente superior)
-    trampolines.push({
-      x: 835,
-      y: -9935,
-      w: 38,
-      h: 10,
-      bounceForce: -19.5,
-      springAnim: 0,
-      type: 'steam_boost'
-    });
+    // En la arena del jefe no hay trampolines para máximo control y habilidad del jugador
 
     // Checkpoint de la Cima (1000m)
     checkpoints.push({
@@ -5258,14 +5219,15 @@ export function buildLevel(levelIndex: number) {
       arena: true
     });
 
-    // 3 Válvulas de Alivio de Presión (Equilibradas para ser alcanzables y justas)
+    // 3 Válvulas de Alivio de Presión (1 toque para desactivar cada una, rápido y satisfactorio)
     nodes.push(
-      { id: 1, x: 340, y: -9945, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true },
-      { id: 2, x: 590, y: -9970, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true },
-      { id: 3, x: 840, y: -9945, w: 20, h: 20, taken: false, hp: 3, maxHp: 3, active: true }
+      { id: 1, x: 340, y: -9950, w: 20, h: 20, taken: false, hp: 1, maxHp: 1, active: true },
+      { id: 2, x: 600, y: -9980, w: 20, h: 20, taken: false, hp: 1, maxHp: 1, active: true },
+      { id: 3, x: 840, y: -9950, w: 20, h: 20, taken: false, hp: 1, maxHp: 1, active: true }
     );
 
     // JEFE ÚNICO: VULKAN-Ω, COLOSO DEL REACTOR DE VAPOR (JEFE ONLY UP 1000M)
+    // Vida reducida a 24 HP (desde 55 HP) para un combate ágil, dinámico y justo
     boss = {
       x: 570,
       y: -9915,
@@ -5273,8 +5235,8 @@ export function buildLevel(levelIndex: number) {
       h: 56,
       vx: 0,
       vy: 0,
-      hp: 55,
-      maxHp: 55,
+      hp: 24,
+      maxHp: 24,
       alive: true,
       inv: 0,
       flash: 0,
@@ -5284,7 +5246,7 @@ export function buildLevel(levelIndex: number) {
       stateTimer: 60,
       telegraphTimer: 0,
       stagger: 0,
-      maxStagger: 75,
+      maxStagger: 45,
       isStaggered: false,
       facing: -1,
       shockwaves: [],
@@ -5309,7 +5271,8 @@ export function buildLevel(levelIndex: number) {
       name: '⭐ Regulador Maestro de 1000 Metros'
     });
 
-    goal = { x: 860, y: -9925, w: 36, h: 62 };
+    // El portal de victoria aparece al derrotar al jefe Vulkan-Ω
+    goal = null;
   } else if (config.id === 'castlesmash-1') {
     // -------------------------------------------------------------
     // ZONA 9 · ACTO 1 — MURALLAS DEL BASTIÓN (CASTLE SMASH)

@@ -6234,6 +6234,14 @@ export class GameRenderer {
           vortexC2 = '#f43f5e';
           vortexCore = '#fef08a';
           beaconText = 'FISURA DIMENSIONAL';
+        } else if (zone === 'steampunk') {
+          outerGlow = 'rgba(245, 158, 11, 0.48)';
+          frameDark = '#1c1208';
+          frameTrim = '#f59e0b';
+          vortexC1 = '#ea580c';
+          vortexC2 = '#38bdf8';
+          vortexCore = '#fef08a';
+          beaconText = '🌀 PORTAL DE VAPOR';
         }
 
         // 1. Radiant Outer Energy Aura
