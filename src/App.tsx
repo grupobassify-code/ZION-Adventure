@@ -953,6 +953,11 @@ export default function App() {
           levelIndex={engine.levelIndex}
           stats={engine.stats}
           onNextLevel={() => {
+            const currLvl = LEVEL_CONFIGS[engine.levelIndex];
+            if (currLvl?.id === 'castlesmash-3') {
+              setIsCreditsOpen(true);
+              return;
+            }
             const nextLvl = (engine.levelIndex + 1) % LEVEL_CONFIGS.length;
             triggerLevelTransition(nextLvl, true);
           }}

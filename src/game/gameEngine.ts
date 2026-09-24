@@ -1078,6 +1078,13 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('steampunkBoss');
       }
+    } else if (currentConfig.zone === 'castlesmash') {
+      // Castle Smash Medieval Fortress Zone
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('castleBoss');
+      } else {
+        sound.setMusicTrack('castleAct1');
+      }
     }
   }
 

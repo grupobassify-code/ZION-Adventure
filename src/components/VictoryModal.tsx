@@ -24,7 +24,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 }) => {
   const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
-  const isFinalLevel = levelIndex >= LEVEL_CONFIGS.length - 1;
+  const isFinalLevel = levelIndex >= LEVEL_CONFIGS.length - 1 || currentConfig.id === 'castlesmash-3';
   const isSpecialStage = stats.totalCrystals === 5 && stats.totalSecrets === 0;
 
   // Calculate Performance Rank (With Special Stage tolerance of up to 3 crystals)

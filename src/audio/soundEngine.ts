@@ -24,6 +24,8 @@ export type MusicTrackName =
   | 'steampunkAct1'
   | 'steampunkAct2'
   | 'steampunkBoss'
+  | 'castleAct1'
+  | 'castleBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -56,6 +58,8 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'steampunkAct1', title: 'Engranes de Cobre y Vapor Caliente', zone: 'Fábrica Steampunk · Acto 1', tag: 'Victorian Clockwork · Brass Chiptune' },
   { id: 'steampunkAct2', title: 'Fábrica Oxidada y Calderas Corroídas', zone: 'Fábrica Oxidada · Acto 2', tag: 'Industrial Rust · Grinding Machinery' },
   { id: 'steampunkBoss', title: 'Ascenso 1000m: Evasión de Vapor Colosal', zone: 'Fábrica Steampunk · Jefe Only Up', tag: 'Only Up 1000m · Boiler Meltdown Rush' },
+  { id: 'castleAct1', title: 'Murallas de Asedio y Almenas de Piedra', zone: 'Castle Smash · Acto 1 y 2', tag: 'Marcha Medieval · Gothic Battle Chiptune' },
+  { id: 'castleBoss', title: 'Lord Malakar: Furia del Martillo Rompemuros', zone: 'Castle Smash · Jefe', tag: 'Duelo de Bastión · Heavy Siege Metal' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -1200,6 +1204,72 @@ class SoundEngine {
         2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
         2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
         2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
+      ],
+    },
+
+    // CASTLE SMASH · ACTO 1 Y 2: MURALLAS DEL BASTIÓN Y MAZMORRAS (130 BPM Gothic Siege March)
+    castleAct1: {
+      tempo: 130,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'triangle',
+      leadNotes: [
+        N.D4, N.F4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4,  N.F4, N.G4, N.A4, N.D5, N.E5, N.F5, N.E5, N.Cs5,
+        N.D4, N.F4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4,  N.A4, N.As4, N.C5, N.D5, N.E5, N.F5, N.E5, N.D5,
+        N.F5, N.E5, N.D5, N.A4, N.As4, N.C5, N.D5, N.F5,  N.G5, N.F5, N.E5, N.C5, N.D5, N.E5, N.F5, N.G5,
+        N.A5, N.G5, N.F5, N.E5, N.D5, N.Cs5, N.D5, N.E5,  N.F5, N.E5, N.D5, N.Cs5, N.D5, N.REST, N.D5, N.REST
+      ],
+      harmonyNotes: [
+        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.E5, N.REST,
+        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.A5, N.REST, N.F5, N.REST,
+        N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.F5, N.REST, N.E5, N.REST, N.G5, N.REST, N.F5, N.REST, N.E5, N.REST,
+        N.F5, N.REST, N.E5, N.REST, N.F5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.F5, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.C2, N.C3,  N.As1, N.As2, N.C2, N.C3, N.A1, N.A2, N.Cs2, N.A1,
+        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.C2, N.C3,  N.G1, N.G2, N.A1, N.A2, N.As1, N.As2, N.C2, N.C3,
+        N.D2, N.D3, N.F2, N.D3, N.G2, N.G3, N.F2, N.D3,  N.C2, N.C3, N.E2, N.C3, N.D2, N.D3, N.E2, N.C3,
+        N.F2, N.F3, N.E2, N.E3, N.D2, N.D3, N.Cs2, N.Cs3, N.D2, N.A2, N.F2, N.A2, N.D2, N.D2, N.A1, N.D2
+      ],
+      drumPattern: [
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 3, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
+        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 3, 5,
+        4, 4, 5, 4, 4, 4, 5, 4, 2, 4, 5, 5, 2, 2, 5, 5
+      ],
+    },
+
+    // CASTLE SMASH · ACTO 3 JEFE: LORD MALAKAR (152 BPM Heavy Siege Warlord Metal Chiptune)
+    castleBoss: {
+      tempo: 152,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'sawtooth',
+      leadNotes: [
+        N.D4, N.D4, N.F4, N.G4, N.Gs4, N.G4, N.F4, N.D4,  N.D4, N.F4, N.G4, N.Gs4, N.A4, N.Gs4, N.G4, N.F4,
+        N.D4, N.D4, N.F4, N.G4, N.Gs4, N.G4, N.F4, N.D4,  N.Cs4, N.D4, N.E4, N.F4, N.G4, N.A4, N.As4, N.Cs5,
+        N.D5, N.REST, N.D5, N.C5, N.As4, N.A4, N.Gs4, N.G4, N.F4, N.G4, N.Gs4, N.A4, N.D5, N.C5, N.As4, N.A4,
+        N.Gs4, N.G4, N.F4, N.D4, N.F4, N.G4, N.Gs4, N.A4,  N.D5, N.A4, N.F4, N.Cs4, N.D4, N.REST, N.D4, N.REST
+      ],
+      harmonyNotes: [
+        N.A4, N.REST, N.D5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST,
+        N.A4, N.REST, N.D5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.E4, N.REST, N.F4, N.REST, N.A4, N.REST, N.Cs5, N.REST,
+        N.F5, N.REST, N.F5, N.E5, N.D5, N.C5, N.B4, N.As4, N.A4, N.As4, N.B4, N.C5, N.F5, N.E5, N.D5, N.Cs5,
+        N.B4, N.As4, N.A4, N.F4, N.A4, N.B4, N.C5, N.Cs5,  N.D5, N.A4, N.F4, N.E4, N.D4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.D1, N.D1, N.D2, N.D1, N.A1, N.D1, N.G1, N.F1,
+        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.Cs1, N.D1, N.E1, N.F1, N.G1, N.A1, N.As1, N.Cs2,
+        N.D2, N.D2, N.C2, N.As1, N.A1, N.G1, N.F1, N.E1,  N.D1, N.D1, N.F1, N.G1, N.Gs1, N.A1, N.G1, N.F1,
+        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.D1, N.F1, N.D1, N.A1, N.D1, N.D1, N.A0, N.D1
+      ],
+      drumPattern: [
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
+        4, 4, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5, 4, 4, 5, 5
       ],
     },
 

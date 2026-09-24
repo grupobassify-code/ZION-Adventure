@@ -312,7 +312,9 @@ export function recordLevelCompletion(
   // If nextLevel is blizzard-1, only unlock it if Balam (jungle-3) is beaten
   // If nextLevel is steampunk-1, only unlock it if Yukio el Yeti (blizzard-3) is beaten
   // If nextLevel is castlesmash-1, only unlock it if Vulkan-Ω (steampunk-3) is beaten
-  if (nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
+  // Once Castle Smash (castlesmash-3) is completed, the player has conquered the full campaign: no further levels are unlocked.
+  const isCastleSmashFinal = LEVEL_CONFIGS[levelIndex]?.id === 'castlesmash-3';
+  if (!isCastleSmashFinal && nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
     if (nextLevel === jungle1Idx) {
       if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
         slot.unlockedLevels.push(nextLevel);
@@ -439,6 +441,9 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
       return true;
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`castlesmash-${cfg.act - 1}` as any);
+  }
+  if (cfg && (cfg.zone === 'piratestreasure' || cfg.zone === 'jurasicdraft' || cfg.zone === 'themoon')) {
+    return false; // Progression capped at Castle Smash; future zones are not unlocked
   }
   return slot.unlockedLevels.includes(levelIndex);
 }

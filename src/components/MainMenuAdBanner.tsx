@@ -54,42 +54,9 @@ export const MainMenuAdBanner: React.FC<MainMenuAdBannerProps> = ({
     return () => clearTimeout(timer);
   }, [effectiveIsExcluded]);
 
-  // If Creator's IP is detected & excluded: show reassurance pill without any ads
+  // If Creator's IP is detected & excluded: completely invisible, zero visual footprint
   if (effectiveIsExcluded) {
-    return (
-      <aside aria-label="Información de Anuncios y Modo Creador" className={`w-full max-w-xl mx-auto my-1.5 px-2 ${className}`}>
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-950/70 border border-emerald-500/30 text-[11px] font-mono shadow-sm">
-          <div className="flex items-center gap-2 truncate">
-            <span className="flex h-2 w-2 relative shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-emerald-400 font-bold shrink-0">
-              {language === 'es' ? '🛡️ MODO CREADOR' : '🛡️ CREATOR SAFE'}
-            </span>
-            <span className="text-slate-400 truncate hidden xs:inline">
-              {language === 'es'
-                ? `Anuncios desactivados para tu IP (${displayIp})`
-                : `Ads excluded for your IP (${displayIp})`}
-            </span>
-            <span className="text-slate-400 truncate xs:hidden">
-              {displayIp}
-            </span>
-          </div>
-
-          {onOpenAdSettings && (
-            <button
-              onClick={onOpenAdSettings}
-              className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-[10px] shrink-0 border border-slate-700 transition-colors cursor-pointer"
-              title="Configuración de IP y AdSense"
-            >
-              <Settings className="w-3 h-3 text-cyan-400" />
-              <span className="hidden sm:inline">{language === 'es' ? 'Gestionar IP' : 'Manage IP'}</span>
-            </button>
-          )}
-        </div>
-      </aside>
-    );
+    return null;
   }
 
   // Regular Visitor: Render Google AdSense Unit

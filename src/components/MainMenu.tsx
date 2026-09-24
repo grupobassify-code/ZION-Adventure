@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Play,
@@ -14,7 +14,6 @@ import {
   Maximize2,
   Gamepad2,
   Award,
-  Shield,
   Zap,
   Clock,
   Skull,
@@ -299,6 +298,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     onStartGame(levelIndex, activeSlotId);
   };
 
+  // Secret creator mode shortcut (Ctrl + Shift + C or Alt + C)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) || (e.altKey && (e.key === 'c' || e.key === 'C'))) {
+        e.preventDefault();
+        sound.playSfx('menuSelect');
+        setAdSettingsModalOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div
       id="main-menu-root"
@@ -365,18 +377,6 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           >
             <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
             <span className="hidden md:inline">{t('privacy')}</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playSfx('menuSelect');
-              setAdSettingsModalOpen(true);
-            }}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 transition-all flex items-center gap-1 text-[10px] sm:text-xs font-bold shadow-md active:scale-95"
-            title="Configuración de Anuncios AdSense y Exclusión de IP"
-          >
-            <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-            <span className="hidden lg:inline">AdSense</span>
           </button>
 
           <button
@@ -1820,7 +1820,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
       {/* Footer with Compliance, Credits & Privacy Link */}
       <footer className="relative z-10 text-[10px] text-slate-500 font-mono tracking-wider text-center py-2 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
-        <span>{t('footerCopyright')}</span>
+        {/* Invisible discreet trigger: clicking copyright */}
+        <button
+          onClick={() => {
+            sound.playSfx('menuSelect');
+            setAdSettingsModalOpen(true);
+          }}
+          className="text-slate-500 hover:text-slate-400 transition-colors cursor-default select-none focus:outline-none"
+          tabIndex={-1}
+          title=""
+        >
+          {t('footerCopyright')}
+        </button>
         <span className="hidden sm:inline text-slate-700">|</span>
         <button
           onClick={() => {
@@ -1833,19 +1844,18 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           <span>{t('footerPrivacy')}</span>
         </button>
         <span className="hidden sm:inline text-slate-700">|</span>
+        <span className="text-slate-600">{t('footerCompliant')}</span>
+
+        {/* Super hidden invisible hotspot in the bottom right corner */}
         <button
           onClick={() => {
             sound.playSfx('menuSelect');
             setAdSettingsModalOpen(true);
           }}
-          className="text-cyan-400/90 hover:text-cyan-300 underline underline-offset-2 flex items-center gap-1 transition-colors"
-          title="Configuración de Anuncios AdSense y Exclusión de IP"
-        >
-          <Shield className="w-3 h-3" />
-          <span>AdSense / IP</span>
-        </button>
-        <span className="hidden sm:inline text-slate-700">|</span>
-        <span className="text-slate-600">{t('footerCompliant')}</span>
+          aria-hidden="true"
+          tabIndex={-1}
+          className="fixed bottom-0 right-0 w-8 h-8 opacity-0 pointer-events-auto cursor-default z-30 select-none focus:outline-none"
+        />
       </footer>
     </div>
   );

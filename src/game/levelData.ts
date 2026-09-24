@@ -600,7 +600,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Crónicas de los Guardianes'
       }
     ],
-    worldWidth: 3200,
+    worldWidth: 7600,
     themeColor: '#64748b',
     accentColor: '#f59e0b'
   },
@@ -621,7 +621,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Crónicas de los Guardianes'
       }
     ],
-    worldWidth: 3400,
+    worldWidth: 7400,
     themeColor: '#475569',
     accentColor: '#fbbf24'
   },
@@ -642,7 +642,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Crónicas de los Guardianes'
       }
     ],
-    worldWidth: 2600,
+    worldWidth: 3800,
     themeColor: '#334155',
     accentColor: '#ef4444'
   },
@@ -5275,50 +5275,83 @@ export function buildLevel(levelIndex: number) {
     goal = null;
   } else if (config.id === 'castlesmash-1') {
     // -------------------------------------------------------------
-    // ZONA 9 · ACTO 1 — MURALLAS DEL BASTIÓN (CASTLE SMASH)
+    // ZONA 9 · ACTO 1 — MURALLAS DEL BASTIÓN (CASTLE SMASH - 7600px)
     // -------------------------------------------------------------
-    // Plataformas base del exterior del castillo y fosos
+    // Plataformas base del exterior del castillo, fosos y barbacanas
     platforms.push(
-      { x: 0, y: 148, w: 820, h: 32, kind: 'castle_stone' },
-      // Foso de asedio con puente de madera
-      { x: 860, y: 148, w: 820, h: 32, kind: 'castle_stone' },
-      { x: 1720, y: 148, w: 630, h: 32, kind: 'castle_stone' },
-      { x: 2400, y: 148, w: 800, h: 32, kind: 'castle_stone' }
+      // Sección 1: Asedio a las Almenas Exteriores y Foso (0 - 1860)
+      { x: 0, y: 148, w: 860, h: 32, kind: 'castle_stone' },
+      { x: 920, y: 148, w: 940, h: 32, kind: 'castle_stone' },
+
+      // Sección 2: Patio de Justas y Gran Barbacana (1940 - 3840)
+      { x: 1940, y: 148, w: 920, h: 32, kind: 'castle_stone' },
+      { x: 2930, y: 148, w: 910, h: 32, kind: 'castle_stone' },
+
+      // Sección 3: Las Altas Almenas y Torres de Artillería (3920 - 5800)
+      { x: 3920, y: 148, w: 900, h: 32, kind: 'castle_stone' },
+      { x: 4900, y: 148, w: 900, h: 32, kind: 'castle_stone' },
+
+      // Sección 4: Ciudadela Fortificada y Muralla Real (5880 - 7600)
+      { x: 5880, y: 148, w: 900, h: 32, kind: 'castle_stone' },
+      { x: 6860, y: 148, w: 740, h: 32, kind: 'castle_stone' }
     );
 
-    // Almenas y torres elevadas
+    // Almenas, puentes levadizos y plataformas de asedio
     platforms.push(
-      // Almena 1 (Inicio)
+      // --- SECCIÓN 1 (x: 200 - 1800) ---
       { x: 220, y: 112, w: 90, h: 12, kind: 'castle_parapet' },
       { x: 360, y: 84, w: 110, h: 12, kind: 'castle_stone' },
       { x: 520, y: 108, w: 95, h: 12, kind: 'castle_parapet' },
       { x: 670, y: 78, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 860, y: 106, w: 90, h: 12, kind: 'castle_stone' },
+      { x: 1000, y: 76, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 1150, y: 104, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 1300, y: 72, w: 115, h: 12, kind: 'castle_bridge' },
+      { x: 1480, y: 102, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 1640, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
 
-      // Torre de Guardia Exterior (x: 950 - 1300)
-      { x: 960, y: 110, w: 90, h: 12, kind: 'castle_parapet' },
-      { x: 1090, y: 76, w: 100, h: 12, kind: 'castle_stone' },
-      { x: 1240, y: 104, w: 90, h: 12, kind: 'castle_parapet' },
-      { x: 1380, y: 72, w: 110, h: 12, kind: 'castle_bridge' },
-      { x: 1530, y: 102, w: 100, h: 12, kind: 'castle_stone' },
+      // --- SECCIÓN 2 (x: 1950 - 3700) ---
+      { x: 2020, y: 110, w: 90, h: 12, kind: 'castle_parapet' },
+      { x: 2160, y: 80, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 2320, y: 48, w: 90, h: 12, kind: 'castle_stone' }, // Torre Secreta del Estandarte
+      { x: 2470, y: 104, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 2620, y: 74, w: 115, h: 12, kind: 'castle_bridge' },
+      { x: 2800, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 3000, y: 78, w: 105, h: 12, kind: 'castle_parapet' },
+      { x: 3160, y: 110, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 3320, y: 76, w: 115, h: 12, kind: 'castle_bridge' },
+      { x: 3500, y: 104, w: 100, h: 12, kind: 'castle_parapet' },
 
-      // Patio Intermedio y Muralla Central (x: 1750 - 2300)
-      { x: 1780, y: 114, w: 95, h: 12, kind: 'castle_parapet' },
-      { x: 1920, y: 80, w: 110, h: 12, kind: 'castle_stone' },
-      { x: 2080, y: 108, w: 95, h: 12, kind: 'castle_parapet' },
-      { x: 2220, y: 76, w: 100, h: 12, kind: 'castle_bridge' },
+      // --- SECCIÓN 3 (x: 3900 - 5500) ---
+      { x: 3980, y: 112, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 4120, y: 80, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 4280, y: 108, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 4440, y: 74, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 4620, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 4800, y: 76, w: 105, h: 12, kind: 'castle_parapet' },
+      { x: 4980, y: 104, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 5140, y: 74, w: 110, h: 12, kind: 'castle_bridge' },
+      { x: 5240, y: 44, w: 90, h: 12, kind: 'castle_stone' }, // Torre Secreta del Mandoble
+      { x: 5380, y: 104, w: 100, h: 12, kind: 'castle_parapet' },
 
-      // Puente Levadizo Principal y Patio del Portal
-      { x: 2500, y: 110, w: 100, h: 12, kind: 'castle_parapet' },
-      { x: 2650, y: 80, w: 120, h: 12, kind: 'castle_stone' },
-      { x: 2820, y: 105, w: 110, h: 12, kind: 'castle_stone' }
+      // --- SECCIÓN 4 (x: 5800 - 7450) ---
+      { x: 5940, y: 110, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 6100, y: 78, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 6260, y: 106, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 6420, y: 72, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 6600, y: 104, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 6780, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 6950, y: 108, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 7120, y: 78, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 7300, y: 105, w: 110, h: 12, kind: 'castle_stone' }
     );
 
     // OBSTÁCULOS DESTRUIBLES (Mecánica Castle Smash: destruye para avanzar)
     destructibles.push(
       {
         id: 101,
-        x: 820,
-        y: 106,
+        x: 870,
+        y: 104,
         w: 26,
         h: 44,
         hp: 3,
@@ -5329,8 +5362,8 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 102,
-        x: 1680,
-        y: 94,
+        x: 1880,
+        y: 92,
         w: 26,
         h: 56,
         hp: 4,
@@ -5341,8 +5374,8 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 103,
-        x: 2350,
-        y: 104,
+        x: 2870,
+        y: 102,
         w: 24,
         h: 46,
         hp: 4,
@@ -5350,124 +5383,230 @@ export function buildLevel(levelIndex: number) {
         type: 'drawbridge_chain',
         destroyed: false,
         name: 'Cadena de Contención del Puente'
+      },
+      {
+        id: 104,
+        x: 3860,
+        y: 92,
+        w: 26,
+        h: 56,
+        hp: 4,
+        maxHp: 4,
+        type: 'wooden_barricade',
+        destroyed: false,
+        name: 'Barricada de la Gran Almena'
+      },
+      {
+        id: 105,
+        x: 4830,
+        y: 94,
+        w: 28,
+        h: 54,
+        hp: 5,
+        maxHp: 5,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Muro de la Torre de Artillería'
+      },
+      {
+        id: 106,
+        x: 5820,
+        y: 102,
+        w: 24,
+        h: 46,
+        hp: 4,
+        maxHp: 4,
+        type: 'drawbridge_chain',
+        destroyed: false,
+        name: 'Cadena del Bastión Interior'
+      },
+      {
+        id: 107,
+        x: 6800,
+        y: 92,
+        w: 28,
+        h: 56,
+        hp: 5,
+        maxHp: 5,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Muralla de la Ciudadela Real'
       }
     );
 
     // ENEMIGOS MEDIEVALES
     enemies.push(
+      // Sección 1
       createEnemy(320, 126, 'castle_knight', 250, 420),
       createEnemy(680, 56, 'siege_crossbow', 660, 780),
       createEnemy(1100, 54, 'gargoyle', 1040, 1220),
-      createEnemy(1300, 126, 'castle_knight', 1220, 1420),
-      createEnemy(1540, 80, 'siege_crossbow', 1520, 1630),
-      createEnemy(1850, 126, 'castle_knight', 1780, 1960),
-      createEnemy(2100, 86, 'gargoyle', 2040, 2220),
-      createEnemy(2680, 58, 'castle_knight', 2640, 2760),
-      createEnemy(2850, 126, 'castle_golem', 2800, 2980)
+      createEnemy(1320, 126, 'castle_knight', 1240, 1440),
+      createEnemy(1540, 80, 'siege_crossbow', 1510, 1640),
+
+      // Sección 2
+      createEnemy(2100, 126, 'shield_guard', 2020, 2220),
+      createEnemy(2480, 80, 'siege_crossbow', 2440, 2580),
+      createEnemy(2700, 54, 'gargoyle', 2620, 2800),
+      createEnemy(3120, 126, 'castle_knight', 3040, 3240),
+      createEnemy(3380, 126, 'castle_golem', 3300, 3480),
+
+      // Sección 3
+      createEnemy(4050, 126, 'shield_guard', 3960, 4160),
+      createEnemy(4300, 86, 'gargoyle', 4240, 4420),
+      createEnemy(4640, 82, 'siege_crossbow', 4600, 4740),
+      createEnemy(5020, 126, 'castle_knight', 4940, 5140),
+      createEnemy(5400, 126, 'castle_golem', 5320, 5520),
+
+      // Sección 4
+      createEnemy(6020, 126, 'shield_guard', 5940, 6140),
+      createEnemy(6300, 84, 'gargoyle', 6240, 6420),
+      createEnemy(6620, 80, 'siege_crossbow', 6580, 6720),
+      createEnemy(7000, 126, 'castle_knight', 6920, 7120),
+      createEnemy(7240, 126, 'castle_golem', 7160, 7380)
     );
 
-    // TRAMPAS MEDIEVALES (Péndulo maza con púas y rocas de catapulta)
+    // TRAMPAS MEDIEVALES (Péndulos maza con púas, rocas de catapulta y rejas)
     hazards.push(
+      // Sección 1
+      { x: 580, y: 110, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 0, maxCycle: 90 },
+      { x: 1440, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 30, maxCycle: 90 },
+
+      // Sección 2
+      { x: 2240, y: 100, w: 28, h: 28, type: 'catapult_boulder', cycleTimer: 20, maxCycle: 95 },
+      { x: 3240, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 45, maxCycle: 85 },
+
+      // Sección 3
+      { x: 4200, y: 100, w: 28, h: 28, type: 'catapult_boulder', cycleTimer: 40, maxCycle: 100 },
+      { x: 4720, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 15, maxCycle: 90 },
+      { x: 5280, y: 95, w: 28, h: 30, type: 'portcullis', cycleTimer: 10, maxCycle: 80 },
+
+      // Sección 4
+      { x: 6180, y: 100, w: 28, h: 28, type: 'catapult_boulder', cycleTimer: 30, maxCycle: 95 },
+      { x: 6700, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 50, maxCycle: 85 },
+      { x: 7080, y: 95, w: 28, h: 30, type: 'portcullis', cycleTimer: 0, maxCycle: 80 }
+    );
+
+    // Checkpoints bien distribuidos a lo largo del nivel normal (7600px)
+    checkpoints.push(
+      { x: 1820, y: 116, w: 20, h: 32, active: false, spawn: { x: 1830, y: 125 } },
+      { x: 3700, y: 116, w: 20, h: 32, active: false, spawn: { x: 3710, y: 125 } },
+      { x: 5520, y: 116, w: 20, h: 32, active: false, spawn: { x: 5530, y: 125 } }
+    );
+
+    // Cristales a lo largo de los 7600px
+    for (let cx = 150; cx < 7400; cx += 155) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+
+    // Botiquines
+    heals.push(
+      { x: 420, y: 64, w: 10, h: 10, taken: false },
+      { x: 1720, y: 84, w: 10, h: 10, taken: false },
+      { x: 3180, y: 60, w: 10, h: 10, taken: false },
+      { x: 4680, y: 82, w: 10, h: 10, taken: false },
+      { x: 6080, y: 58, w: 10, h: 10, taken: false },
+      { x: 7180, y: 60, w: 10, h: 10, taken: false }
+    );
+
+    // Secretos
+    secrets.push(
       {
-        x: 580,
-        y: 110,
-        w: 24,
-        h: 24,
-        type: 'swinging_mace',
-        cycleTimer: 0,
-        maxCycle: 90
+        x: 2350,
+        y: 28,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🛡️ Estandarte Real del León de Plata'
       },
       {
-        x: 1440,
-        y: 105,
-        w: 24,
-        h: 24,
-        type: 'swinging_mace',
-        cycleTimer: 30,
-        maxCycle: 90
-      },
-      {
-        x: 2000,
-        y: 100,
-        w: 28,
-        h: 28,
-        type: 'catapult_boulder',
-        cycleTimer: 45,
-        maxCycle: 100
+        x: 5270,
+        y: 24,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '⚔️ Mandoble Antiguo de los Reyes'
       }
     );
 
-    // Checkpoints
-    checkpoints.push(
-      { x: 1050, y: 116, w: 20, h: 32, active: false, spawn: { x: 1060, y: 125 } },
-      { x: 2150, y: 116, w: 20, h: 32, active: false, spawn: { x: 2160, y: 125 } }
-    );
-
-    // Cristales & Botiquines
-    for (let cx = 150; cx < 3000; cx += 160) {
-      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
-    }
-    heals.push(
-      { x: 420, y: 64, w: 10, h: 10, taken: false },
-      { x: 1280, y: 84, w: 10, h: 10, taken: false },
-      { x: 2260, y: 56, w: 10, h: 10, taken: false }
-    );
-
-    // Secreto
-    secrets.push({
-      x: 1390,
-      y: 42,
-      w: 14,
-      h: 14,
-      taken: false,
-      name: '🛡️ Estandarte Real del León de Plata'
-    });
-
-    goal = { x: 3020, y: 88, w: 36, h: 62 };
+    goal = { x: 7420, y: 88, w: 36, h: 62 };
   } else if (config.id === 'castlesmash-2') {
     // -------------------------------------------------------------
-    // ZONA 9 · ACTO 2 — MAZMORRAS Y PATIO DE ARMAS (CASTLE SMASH)
+    // ZONA 9 · ACTO 2 — MAZMORRAS Y PATIO DE ARMAS (CASTLE SMASH - 7400px)
     // -------------------------------------------------------------
-    // Mazmorras subterráneas y patio de armas fortificado
+    // Mazmorras subterráneas, catacumbas y patio fortificado
     platforms.push(
-      { x: 0, y: 148, w: 750, h: 32, kind: 'castle_stone' },
-      { x: 790, y: 148, w: 740, h: 32, kind: 'castle_stone' },
-      { x: 1580, y: 148, w: 890, h: 32, kind: 'castle_stone' },
-      { x: 2520, y: 148, w: 880, h: 32, kind: 'castle_stone' }
+      // Sección 1: Mazmorras y Celdas de Piedra (0 - 1800)
+      { x: 0, y: 148, w: 820, h: 32, kind: 'castle_stone' },
+      { x: 880, y: 148, w: 900, h: 32, kind: 'castle_stone' },
+
+      // Sección 2: Catacumbas Profundas y Criptas de Huesos (1860 - 3680)
+      { x: 1860, y: 148, w: 880, h: 32, kind: 'castle_stone' },
+      { x: 2800, y: 148, w: 880, h: 32, kind: 'castle_stone' },
+
+      // Sección 3: El Gran Patio de Armas y Fosas de Asedio (3760 - 5580)
+      { x: 3760, y: 148, w: 880, h: 32, kind: 'castle_stone' },
+      { x: 4700, y: 148, w: 880, h: 32, kind: 'castle_stone' },
+
+      // Sección 4: Escalera Real a las Torres del Trono (5660 - 7400)
+      { x: 5660, y: 148, w: 880, h: 32, kind: 'castle_stone' },
+      { x: 6600, y: 148, w: 800, h: 32, kind: 'castle_stone' }
     );
 
-    // Pasadizos de mazmorra, rejas elevadas y plataformas de piedra
+    // Pasadizos elevados, rejas de hierro y plataformas góticas
     platforms.push(
+      // --- SECCIÓN 1 (x: 180 - 1750) ---
       { x: 180, y: 110, w: 90, h: 12, kind: 'castle_stone' },
       { x: 320, y: 78, w: 100, h: 12, kind: 'castle_parapet' },
       { x: 470, y: 108, w: 95, h: 12, kind: 'castle_stone' },
       { x: 620, y: 74, w: 110, h: 12, kind: 'castle_iron' },
+      { x: 800, y: 106, w: 90, h: 12, kind: 'castle_stone' },
+      { x: 960, y: 72, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 1120, y: 102, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 1280, y: 70, w: 110, h: 12, kind: 'castle_iron' },
+      { x: 1440, y: 100, w: 85, h: 12, kind: 'castle_stone' },
+      { x: 1600, y: 74, w: 105, h: 12, kind: 'castle_parapet' },
 
-      // Zona de Catacumbas (x: 880 - 1500)
-      { x: 890, y: 106, w: 90, h: 12, kind: 'castle_stone' },
-      { x: 1030, y: 72, w: 100, h: 12, kind: 'castle_parapet' },
-      { x: 1180, y: 102, w: 95, h: 12, kind: 'castle_stone' },
-      { x: 1320, y: 70, w: 110, h: 12, kind: 'castle_iron' },
-      { x: 1460, y: 100, w: 80, h: 12, kind: 'castle_stone' },
+      // --- SECCIÓN 2 (x: 1900 - 3600) ---
+      { x: 1940, y: 108, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 2100, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 2260, y: 105, w: 95, h: 12, kind: 'castle_bridge' },
+      { x: 2420, y: 72, w: 105, h: 12, kind: 'castle_iron' },
+      { x: 2560, y: 42, w: 90, h: 12, kind: 'castle_stone' }, // Cripta Secreta de la Llave Maestra
+      { x: 2700, y: 104, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 2880, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 3060, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 3240, y: 74, w: 115, h: 12, kind: 'castle_bridge' },
+      { x: 3420, y: 104, w: 95, h: 12, kind: 'castle_parapet' },
 
-      // El Gran Patio de Armas (x: 1680 - 2450)
-      { x: 1720, y: 110, w: 100, h: 12, kind: 'castle_parapet' },
-      { x: 1880, y: 78, w: 110, h: 12, kind: 'castle_stone' },
-      { x: 2040, y: 105, w: 95, h: 12, kind: 'castle_bridge' },
-      { x: 2200, y: 74, w: 105, h: 12, kind: 'castle_parapet' },
-      { x: 2360, y: 102, w: 90, h: 12, kind: 'castle_stone' },
+      // --- SECCIÓN 3 (x: 3800 - 5500) ---
+      { x: 3850, y: 110, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 4020, y: 78, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 4190, y: 106, w: 95, h: 12, kind: 'castle_bridge' },
+      { x: 4360, y: 74, w: 105, h: 12, kind: 'castle_parapet' },
+      { x: 4530, y: 104, w: 90, h: 12, kind: 'castle_stone' },
+      { x: 4720, y: 76, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 4900, y: 105, w: 95, h: 12, kind: 'castle_bridge' },
+      { x: 5080, y: 44, w: 90, h: 12, kind: 'castle_stone' }, // Alcoba Secreta de la Corona Real
+      { x: 5200, y: 74, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 5370, y: 104, w: 95, h: 12, kind: 'castle_stone' },
 
-      // Escalera a la Torre del Trono
-      { x: 2620, y: 108, w: 100, h: 12, kind: 'castle_parapet' },
-      { x: 2780, y: 78, w: 110, h: 12, kind: 'castle_stone' },
-      { x: 2950, y: 105, w: 100, h: 12, kind: 'castle_stone' }
+      // --- SECCIÓN 4 (x: 5700 - 7200) ---
+      { x: 5750, y: 108, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 5920, y: 76, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 6100, y: 106, w: 95, h: 12, kind: 'castle_bridge' },
+      { x: 6280, y: 74, w: 105, h: 12, kind: 'castle_iron' },
+      { x: 6460, y: 104, w: 95, h: 12, kind: 'castle_stone' },
+      { x: 6640, y: 78, w: 110, h: 12, kind: 'castle_parapet' },
+      { x: 6820, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 7000, y: 78, w: 110, h: 12, kind: 'castle_bridge' },
+      { x: 7150, y: 105, w: 100, h: 12, kind: 'castle_stone' }
     );
 
     // OBSTÁCULOS DESTRUIBLES (Muros agrietados y rejas de asedio)
     destructibles.push(
       {
         id: 201,
-        x: 750,
+        x: 830,
         y: 102,
         w: 28,
         h: 48,
@@ -5475,11 +5614,11 @@ export function buildLevel(levelIndex: number) {
         maxHp: 4,
         type: 'stone_wall',
         destroyed: false,
-        name: 'Muro de Piedra Agrietado'
+        name: 'Muro de Piedra de las Celdas'
       },
       {
         id: 202,
-        x: 1530,
+        x: 1800,
         y: 92,
         w: 26,
         h: 58,
@@ -5487,11 +5626,11 @@ export function buildLevel(levelIndex: number) {
         maxHp: 5,
         type: 'iron_gate',
         destroyed: false,
-        name: 'Reja de Hierro Corroída'
+        name: 'Reja de Hierro de las Catacumbas'
       },
       {
         id: 203,
-        x: 2470,
+        x: 2740,
         y: 88,
         w: 30,
         h: 62,
@@ -5499,104 +5638,167 @@ export function buildLevel(levelIndex: number) {
         maxHp: 5,
         type: 'stone_wall',
         destroyed: false,
-        name: 'Muralla de Piedra Fortificada'
+        name: 'Muralla de la Cripta Olvidada'
+      },
+      {
+        id: 204,
+        x: 3710,
+        y: 92,
+        w: 26,
+        h: 58,
+        hp: 5,
+        maxHp: 5,
+        type: 'iron_gate',
+        destroyed: false,
+        name: 'Reja del Gran Patio de Armas'
+      },
+      {
+        id: 205,
+        x: 4650,
+        y: 88,
+        w: 30,
+        h: 62,
+        hp: 5,
+        maxHp: 5,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Muro Fortificado del Arsenal'
+      },
+      {
+        id: 206,
+        x: 5610,
+        y: 92,
+        w: 26,
+        h: 58,
+        hp: 5,
+        maxHp: 5,
+        type: 'iron_gate',
+        destroyed: false,
+        name: 'Reja de la Escalera Real'
+      },
+      {
+        id: 207,
+        x: 6540,
+        y: 88,
+        w: 30,
+        h: 62,
+        hp: 5,
+        maxHp: 5,
+        type: 'stone_wall',
+        destroyed: false,
+        name: 'Pared Gótica del Campanario'
       }
     );
 
-    // ENEMIGOS: Guardia con Escudo Torre, Caballeros y Golem de Piedra
+    // ENEMIGOS: Guardia con Escudo Torre, Caballeros, Golems y Francotiradores
     enemies.push(
+      // Sección 1
       createEnemy(280, 126, 'shield_guard', 220, 360),
       createEnemy(540, 126, 'castle_knight', 480, 620),
-      createEnemy(960, 126, 'shield_guard', 900, 1040),
-      createEnemy(1050, 50, 'gargoyle', 1010, 1150),
-      createEnemy(1340, 48, 'siege_crossbow', 1310, 1430),
-      createEnemy(1800, 126, 'castle_golem', 1740, 1920),
-      createEnemy(2120, 126, 'shield_guard', 2050, 2200),
-      createEnemy(2250, 52, 'gargoyle', 2180, 2320),
-      createEnemy(2720, 126, 'castle_knight', 2650, 2800),
-      createEnemy(2880, 126, 'castle_golem', 2820, 3050)
+      createEnemy(980, 126, 'shield_guard', 920, 1060),
+      createEnemy(1080, 50, 'gargoyle', 1040, 1180),
+      createEnemy(1380, 48, 'siege_crossbow', 1340, 1460),
+
+      // Sección 2
+      createEnemy(2000, 126, 'castle_golem', 1940, 2120),
+      createEnemy(2280, 126, 'shield_guard', 2220, 2380),
+      createEnemy(2480, 52, 'gargoyle', 2420, 2560),
+      createEnemy(2920, 126, 'castle_knight', 2850, 3020),
+      createEnemy(3280, 126, 'castle_golem', 3200, 3420),
+
+      // Sección 3
+      createEnemy(3920, 126, 'shield_guard', 3860, 4020),
+      createEnemy(4120, 50, 'gargoyle', 4060, 4220),
+      createEnemy(4400, 54, 'siege_crossbow', 4360, 4500),
+      createEnemy(4820, 126, 'castle_knight', 4750, 4950),
+      createEnemy(5220, 126, 'castle_golem', 5150, 5350),
+
+      // Sección 4
+      createEnemy(5840, 126, 'shield_guard', 5780, 5940),
+      createEnemy(6140, 52, 'gargoyle', 6080, 6240),
+      createEnemy(6480, 56, 'siege_crossbow', 6440, 6580),
+      createEnemy(6760, 126, 'castle_knight', 6700, 6900),
+      createEnemy(7040, 126, 'castle_golem', 6980, 7180)
     );
 
     // TRAMPAS: Reja Levadiza Aplastante y Mazas Oscilantes
     hazards.push(
+      // Sección 1
+      { x: 480, y: 110, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 15, maxCycle: 85 },
+      { x: 1160, y: 105, w: 28, h: 30, type: 'portcullis', cycleTimer: 0, maxCycle: 80 },
+
+      // Sección 2
+      { x: 2180, y: 100, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 45, maxCycle: 90 },
+      { x: 3120, y: 95, w: 28, h: 30, type: 'portcullis', cycleTimer: 25, maxCycle: 80 },
+
+      // Sección 3
+      { x: 4100, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 30, maxCycle: 85 },
+      { x: 4980, y: 95, w: 28, h: 30, type: 'portcullis', cycleTimer: 10, maxCycle: 80 },
+
+      // Sección 4
+      { x: 6020, y: 105, w: 24, h: 24, type: 'swinging_mace', cycleTimer: 50, maxCycle: 85 },
+      { x: 6720, y: 95, w: 28, h: 30, type: 'portcullis', cycleTimer: 15, maxCycle: 80 }
+    );
+
+    // Checkpoints bien distribuidos a lo largo del nivel normal (7400px)
+    checkpoints.push(
+      { x: 1760, y: 116, w: 20, h: 32, active: false, spawn: { x: 1770, y: 125 } },
+      { x: 3600, y: 116, w: 20, h: 32, active: false, spawn: { x: 3610, y: 125 } },
+      { x: 5460, y: 116, w: 20, h: 32, active: false, spawn: { x: 5470, y: 125 } }
+    );
+
+    // Cristales a lo largo de los 7400px
+    for (let cx = 160; cx < 7200; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+
+    // Botiquines
+    heals.push(
+      { x: 380, y: 58, w: 10, h: 10, taken: false },
+      { x: 1650, y: 82, w: 10, h: 10, taken: false },
+      { x: 3080, y: 54, w: 10, h: 10, taken: false },
+      { x: 4520, y: 82, w: 10, h: 10, taken: false },
+      { x: 5920, y: 56, w: 10, h: 10, taken: false },
+      { x: 6980, y: 58, w: 10, h: 10, taken: false }
+    );
+
+    // Secretos
+    secrets.push(
       {
-        x: 480,
-        y: 110,
-        w: 24,
-        h: 24,
-        type: 'swinging_mace',
-        cycleTimer: 15,
-        maxCycle: 85
+        x: 2580,
+        y: 26,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🗝️ Llave Maestra de las Catacumbas'
       },
       {
-        x: 1120,
-        y: 105,
-        w: 28,
-        h: 30,
-        type: 'portcullis',
-        cycleTimer: 0,
-        maxCycle: 80
-      },
-      {
-        x: 1960,
-        y: 100,
-        w: 24,
-        h: 24,
-        type: 'swinging_mace',
-        cycleTimer: 45,
-        maxCycle: 90
-      },
-      {
-        x: 2300,
-        y: 95,
-        w: 28,
-        h: 30,
-        type: 'portcullis',
-        cycleTimer: 20,
-        maxCycle: 80
+        x: 5100,
+        y: 26,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '👑 Corona de Zafiro del Rey Olvidado'
       }
     );
 
-    // Checkpoints
-    checkpoints.push(
-      { x: 1100, y: 116, w: 20, h: 32, active: false, spawn: { x: 1110, y: 125 } },
-      { x: 2200, y: 116, w: 20, h: 32, active: false, spawn: { x: 2210, y: 125 } }
-    );
-
-    // Cristales & Botiquines
-    for (let cx = 160; cx < 3200; cx += 150) {
-      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
-    }
-    heals.push(
-      { x: 380, y: 58, w: 10, h: 10, taken: false },
-      { x: 1240, y: 82, w: 10, h: 10, taken: false },
-      { x: 2240, y: 54, w: 10, h: 10, taken: false }
-    );
-
-    // Secreto
-    secrets.push({
-      x: 1330,
-      y: 42,
-      w: 14,
-      h: 14,
-      taken: false,
-      name: '🗝️ Llave Maestra de las Catacumbas'
-    });
-
-    goal = { x: 3200, y: 88, w: 36, h: 62 };
+    goal = { x: 7220, y: 88, w: 36, h: 62 };
   } else if (config.id === 'castlesmash-3') {
     // -------------------------------------------------------------
-    // ZONA 9 · ACTO 3 — SALA DEL TRONO: LORD MALAKAR (CASTLE SMASH)
+    // ZONA 9 · ACTO 3 — SALA DEL TRONO: LORD MALAKAR (CASTLE SMASH - 3800px)
     // -------------------------------------------------------------
     // Gran sala gótica del trono con columnas, alfombras reales y almenas
     platforms.push(
-      { x: 0, y: 148, w: 1600, h: 32, kind: 'castle_stone' },
-      // Gran Arena del Trono de Lord Malakar (x: 1650 a 2550)
-      { x: 1650, y: 148, w: 900, h: 32, kind: 'castle_stone' }
+      // Pasillo procesional hacia la sala del trono (0 a 2650)
+      { x: 0, y: 148, w: 1300, h: 32, kind: 'castle_stone' },
+      { x: 1360, y: 148, w: 1290, h: 32, kind: 'castle_stone' },
+      // Gran Arena del Trono de Lord Malakar (x: 2700 a 3750)
+      { x: 2700, y: 148, w: 1050, h: 32, kind: 'castle_stone' }
     );
 
-    // Pasarela de entrada y columnas del trono
+    // Pasarela de entrada, columnas procesionales y plataformas de arena
     platforms.push(
+      // Camino procesional
       { x: 220, y: 112, w: 90, h: 12, kind: 'castle_parapet' },
       { x: 380, y: 80, w: 110, h: 12, kind: 'castle_stone' },
       { x: 550, y: 108, w: 95, h: 12, kind: 'castle_stone' },
@@ -5604,17 +5806,22 @@ export function buildLevel(levelIndex: number) {
       { x: 900, y: 106, w: 100, h: 12, kind: 'castle_stone' },
       { x: 1100, y: 78, w: 120, h: 12, kind: 'castle_bridge' },
       { x: 1320, y: 108, w: 100, h: 12, kind: 'castle_parapet' },
+      { x: 1540, y: 78, w: 110, h: 12, kind: 'castle_stone' },
+      { x: 1740, y: 106, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 1940, y: 74, w: 120, h: 12, kind: 'castle_bridge' },
+      { x: 2160, y: 106, w: 100, h: 12, kind: 'castle_stone' },
+      { x: 2360, y: 76, w: 110, h: 12, kind: 'castle_parapet' },
 
-      // Plataformas tácticas elevadas dentro de la Arena del Jefe
-      { x: 1740, y: 105, w: 90, h: 12, kind: 'castle_parapet' },
-      { x: 1950, y: 75, w: 110, h: 12, kind: 'castle_stone' },
-      { x: 2180, y: 105, w: 90, h: 12, kind: 'castle_parapet' },
-      { x: 2360, y: 78, w: 100, h: 12, kind: 'castle_bridge' }
+      // Plataformas tácticas elevadas dentro de la Arena del Jefe (x: 2700 - 3700)
+      { x: 2820, y: 105, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 3040, y: 75, w: 115, h: 12, kind: 'castle_stone' },
+      { x: 3260, y: 105, w: 95, h: 12, kind: 'castle_parapet' },
+      { x: 3480, y: 78, w: 105, h: 12, kind: 'castle_bridge' }
     );
 
-    // Checkpoint previo al jefe
+    // Checkpoint previo al jefe que activa la arena
     checkpoints.push(
-      { x: 1480, y: 116, w: 20, h: 32, active: false, spawn: { x: 1490, y: 125 }, arena: true }
+      { x: 2520, y: 116, w: 20, h: 32, active: false, spawn: { x: 2530, y: 125 }, arena: true }
     );
 
     // MECÁNICA DE DESTRUCCIÓN DEL JEFE:
@@ -5624,7 +5831,7 @@ export function buildLevel(levelIndex: number) {
     destructibles.push(
       {
         id: 301,
-        x: 1840,
+        x: 2920,
         y: 106,
         w: 26,
         h: 44,
@@ -5636,7 +5843,7 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 302,
-        x: 2060,
+        x: 3200,
         y: 106,
         w: 26,
         h: 44,
@@ -5648,7 +5855,7 @@ export function buildLevel(levelIndex: number) {
       },
       {
         id: 303,
-        x: 2280,
+        x: 3480,
         y: 106,
         w: 26,
         h: 44,
@@ -5662,7 +5869,7 @@ export function buildLevel(levelIndex: number) {
 
     // JEFE DE CASTLE SMASH: LORD MALAKAR, COLOSO ROMPEMUROS
     boss = {
-      x: 2100,
+      x: 3200,
       y: 92,
       w: 64,
       h: 58,
@@ -5689,30 +5896,35 @@ export function buildLevel(levelIndex: number) {
       state: 'idle'
     };
 
-    // Enemigos en el camino al trono
+    // Enemigos en el camino procesional al trono
     enemies.push(
       createEnemy(340, 126, 'castle_knight', 260, 440),
       createEnemy(740, 56, 'siege_crossbow', 720, 840),
-      createEnemy(940, 126, 'shield_guard', 880, 1020),
-      createEnemy(1150, 58, 'gargoyle', 1100, 1220),
-      createEnemy(1360, 126, 'castle_golem', 1300, 1440)
+      createEnemy(960, 126, 'shield_guard', 880, 1040),
+      createEnemy(1160, 58, 'gargoyle', 1100, 1240),
+      createEnemy(1380, 126, 'castle_golem', 1320, 1460),
+      createEnemy(1620, 126, 'castle_knight', 1550, 1720),
+      createEnemy(1880, 54, 'siege_crossbow', 1840, 1980),
+      createEnemy(2180, 126, 'shield_guard', 2120, 2280),
+      createEnemy(2420, 126, 'castle_golem', 2360, 2500)
     );
 
     // Cristales & Botiquines
-    for (let cx = 160; cx < 1600; cx += 160) {
+    for (let cx = 160; cx < 2600; cx += 160) {
       crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
     }
     heals.push(
       { x: 440, y: 60, w: 10, h: 10, taken: false },
       { x: 1140, y: 58, w: 10, h: 10, taken: false },
+      { x: 1840, y: 56, w: 10, h: 10, taken: false },
       // Botiquines dentro de la Arena del Jefe
-      { x: 1760, y: 85, w: 10, h: 10, taken: false },
-      { x: 2380, y: 58, w: 10, h: 10, taken: false }
+      { x: 2840, y: 85, w: 10, h: 10, taken: false },
+      { x: 3500, y: 58, w: 10, h: 10, taken: false }
     );
 
     // Secreto
     secrets.push({
-      x: 2420,
+      x: 3550,
       y: 50,
       w: 14,
       h: 14,
@@ -5720,7 +5932,7 @@ export function buildLevel(levelIndex: number) {
       name: '👑 Blasón Real de Hierro de Lord Malakar'
     });
 
-    goal = { x: 2500, y: 88, w: 36, h: 62 };
+    goal = { x: 3660, y: 88, w: 36, h: 62 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(
