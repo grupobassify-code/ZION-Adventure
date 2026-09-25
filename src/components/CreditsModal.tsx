@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Trophy, Sparkles, RotateCcw, Cpu, Home, Award, X, ChevronDown, Music2, Shield, Heart } from 'lucide-react';
 import { sound } from '../audio/soundEngine';
 import { GameStats } from '../game/gameEngine';
+import { useLanguage } from '../utils/i18n';
 
 interface CreditsModalProps {
   stats: GameStats;
@@ -16,6 +17,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
   onSelectLevel,
   onClose,
 }) => {
+  const { language } = useLanguage();
   const [easterEggUnlocked, setEasterEggUnlocked] = useState<boolean>(false);
   const [easterEggClicks, setEasterEggClicks] = useState<number>(0);
   const [dragY, setDragY] = useState<number>(0);
@@ -108,7 +110,8 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
         <div className="pt-3 pb-1 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing">
           <div className="w-12 h-1.5 rounded-full bg-cyan-400/50" />
           <span className="text-[9px] font-mono text-cyan-300/70 tracking-widest mt-1 flex items-center gap-1">
-            <ChevronDown className="w-3 h-3 animate-bounce" /> DESLIZA PARA EXPLORAR O SALIR
+            <ChevronDown className="w-3 h-3 animate-bounce" />
+            {language === 'es' ? 'DESLIZA PARA EXPLORAR O SALIR' : 'SWIPE TO EXPLORE OR DISMISS'}
           </span>
         </div>
 
@@ -116,7 +119,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
         <button
           onClick={handleExit}
           className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-slate-800/90 hover:bg-rose-900/80 border border-slate-700 hover:border-rose-400 text-slate-300 hover:text-white flex items-center justify-center transition-all active:scale-90"
-          title="Cerrar créditos"
+          title={language === 'es' ? 'Cerrar créditos' : 'Close credits'}
         >
           <X className="w-4 h-4" />
         </button>
@@ -130,23 +133,25 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
           <div className="text-center flex flex-col items-center gap-2">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-cyan-500/20 border border-amber-400/40 text-amber-300 text-[11px] font-mono font-bold tracking-widest uppercase shadow-md shadow-amber-950/50 animate-pulse">
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              ¡Victoria Definitiva — Aventura Completada!
+              {language === 'es' ? '¡Victoria Definitiva — Aventura Completada!' : 'Ultimate Victory — Adventure Completed!'}
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-amber-300 font-heading tracking-tight">
-              CRÉDITOS FINALES
+              {language === 'es' ? 'CRÉDITOS FINALES' : 'FINAL CREDITS'}
             </h1>
 
             {/* CREATOR BADGE: Dmn */}
             <div className="mt-1 flex flex-col items-center bg-slate-950/80 border-2 border-cyan-500/60 rounded-2xl px-5 py-3.5 shadow-[0_0_25px_rgba(6,182,212,0.3)] w-full max-w-md">
               <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest font-semibold flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> CREADO Y DISEÑADO POR
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {language === 'es' ? 'CREADO Y DISEÑADO POR' : 'CREATED & DESIGNED BY'}
               </span>
               <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-300 to-cyan-300 font-heading tracking-wider mt-0.5 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]">
                 Dmn
               </div>
               <p className="text-xs text-slate-300 mt-1 max-w-sm text-center font-medium">
-                Arquitecto del mundo de Zion Adventure: diseño de niveles, combate de espadas, jefes titánicos y sistemas de juego.
+                {language === 'es'
+                  ? 'Arquitecto del mundo de Zion Adventure: diseño de niveles, combate de espadas, jefes titánicos y sistemas de juego.'
+                  : 'Architect of Zion Adventure: level design, sword combat mechanics, colossal bosses, and game systems.'}
               </p>
             </div>
           </div>
@@ -154,22 +159,22 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
           {/* Global Adventure Stats & Score */}
           <div className="grid grid-cols-4 gap-2 bg-slate-950/70 p-3 rounded-2xl border border-slate-800 text-center">
             <div>
-              <span className="text-[10px] font-mono text-slate-400 uppercase">Puntuación</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">{language === 'es' ? 'Puntuación' : 'Score'}</span>
               <p className="text-sm font-black text-cyan-300 font-mono flex items-center justify-center gap-1">
                 <Award className="w-3.5 h-3.5 text-yellow-400" />
                 {stats.score.toLocaleString()}
               </p>
             </div>
             <div>
-              <span className="text-[10px] font-mono text-slate-400 uppercase">Tiempo Total</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">{language === 'es' ? 'Tiempo Total' : 'Total Time'}</span>
               <p className="text-sm font-bold text-slate-200 font-mono">{formatTime(stats.elapsedTime)}</p>
             </div>
             <div>
-              <span className="text-[10px] font-mono text-slate-400 uppercase">Enemigos</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">{language === 'es' ? 'Enemigos' : 'Enemies'}</span>
               <p className="text-sm font-bold text-slate-200 font-mono">{stats.enemiesDefeated}</p>
             </div>
             <div>
-              <span className="text-[10px] font-mono text-slate-400 uppercase">Secretos</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">{language === 'es' ? 'Secretos' : 'Secrets'}</span>
               <p className="text-sm font-bold text-amber-400 font-mono">{stats.secretsFound}/{stats.totalSecrets}</p>
             </div>
           </div>
@@ -178,18 +183,24 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 flex flex-col items-center text-center">
               <Music2 className="w-4 h-4 text-cyan-400 mb-1" />
-              <span className="text-[10px] font-mono uppercase text-cyan-300 font-bold">Banda Sonora</span>
-              <p className="text-[11px] text-slate-300 mt-0.5">12 Temas Originales Chiptune y Sintetizador</p>
+              <span className="text-[10px] font-mono uppercase text-cyan-300 font-bold">{language === 'es' ? 'Banda Sonora' : 'Soundtrack'}</span>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                {language === 'es' ? 'Temas Originales Chiptune y Sintetizador' : 'Original Chiptune & Synthesizer Themes'}
+              </p>
             </div>
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 flex flex-col items-center text-center">
               <Shield className="w-4 h-4 text-amber-400 mb-1" />
-              <span className="text-[10px] font-mono uppercase text-amber-300 font-bold">Sistema de Combate</span>
-              <p className="text-[11px] text-slate-300 mt-0.5">Espada de luz, parry, dagas y poderes SP</p>
+              <span className="text-[10px] font-mono uppercase text-amber-300 font-bold">{language === 'es' ? 'Sistema de Combate' : 'Combat System'}</span>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                {language === 'es' ? 'Espada de luz, parry, dagas y poderes SP' : 'Light sword, parry, daggers and SP powers'}
+              </p>
             </div>
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 flex flex-col items-center text-center">
               <Heart className="w-4 h-4 text-rose-400 mb-1" />
-              <span className="text-[10px] font-mono uppercase text-rose-300 font-bold">Clasificación</span>
-              <p className="text-[11px] text-slate-300 mt-0.5">+10 Años (Aventura sin violencia gráfica)</p>
+              <span className="text-[10px] font-mono uppercase text-rose-300 font-bold">{language === 'es' ? 'Clasificación' : 'Age Rating'}</span>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                {language === 'es' ? '+10 Años (Aventura sin violencia gráfica)' : 'Everyone 10+ (Family-friendly adventure)'}
+              </p>
             </div>
           </div>
 
@@ -205,7 +216,9 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
             <div className="flex items-center justify-center gap-2 text-xs font-mono font-bold tracking-widest uppercase">
               <Cpu className="w-4 h-4 text-cyan-400" />
               <span className={easterEggUnlocked ? 'text-amber-300' : 'text-slate-500'}>
-                {easterEggUnlocked ? '⚡ SECRETO DESBLOQUEADO — PROTOCOLO KRONOS ⚡' : 'TERMINAL DE ANOMALÍA TEMPORAL'}
+                {easterEggUnlocked
+                  ? (language === 'es' ? '⚡ SECRETO DESBLOQUEADO — PROTOCOLO KRONOS ⚡' : '⚡ SECRET UNLOCKED — KRONOS PROTOCOL ⚡')
+                  : (language === 'es' ? 'TERMINAL DE ANOMALÍA TEMPORAL' : 'TEMPORAL ANOMALY TERMINAL')}
               </span>
             </div>
 
@@ -216,12 +229,16 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
                     “Kronos”
                   </span>
                   <p className="text-[11px] font-mono text-cyan-300">
-                    «El bucle temporal ha sido sellado por Dmn. El guardián supremo de las eras ha despertado.»
+                    {language === 'es'
+                      ? '«El bucle temporal ha sido sellado por Dmn. El guardián supremo de las eras ha despertado.»'
+                      : '«The temporal loop has been sealed by Dmn. The supreme guardian of eras has awakened.»'}
                   </p>
                 </div>
               ) : (
                 <div className="text-[11px] font-mono text-slate-500">
-                  [ Toca 3 veces para revelar el Easter Egg ({easterEggClicks}/3) ]
+                  {language === 'es'
+                    ? `[ Toca 3 veces para revelar el Easter Egg (${easterEggClicks}/3) ]`
+                    : `[ Tap 3 times to reveal the Easter Egg (${easterEggClicks}/3) ]`}
                 </div>
               )}
             </div>
@@ -232,18 +249,20 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
                 <Sparkles className="w-3 h-3 text-amber-400" />
-                DESAFÍO SUPREMO
+                {language === 'es' ? 'DESAFÍO SUPREMO' : 'SUPREME CHALLENGE'}
               </div>
               <h4 className="text-base font-black text-white font-heading tracking-wide">
-                🌌 Kronos Travel: La Fusión Dimensional
+                🌌 {language === 'es' ? 'Kronos Travel: La Fusión Dimensional' : 'Kronos Travel: Dimensional Fusion'}
               </h4>
               <p className="text-xs text-slate-300 mt-0.5">
-                Todas las eras, enemigos, trampas y jefes combinados en un desafío final legendario.
+                {language === 'es'
+                  ? 'Todas las eras, enemigos, trampas y jefes combinados en un desafío final legendario.'
+                  : 'All eras, enemies, hazards, and bosses fused into a legendary ultimate run.'}
               </p>
             </div>
 
             <div className="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-cyan-400/40 text-[11px] font-mono text-cyan-300 font-semibold">
-              🔒 Desbloqueable al completar la campaña
+              {language === 'es' ? '🔒 Desbloqueable al completar la campaña' : '🔒 Unlocked upon campaign completion'}
             </div>
           </div>
         </div>
@@ -256,7 +275,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-lg shadow-cyan-900/40"
             >
               <Home className="w-4 h-4" />
-              <span>Volver al Menú</span>
+              <span>{language === 'es' ? 'Volver al Menú' : 'Back to Menu'}</span>
             </button>
           ) : (
             <button
@@ -264,7 +283,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-lg shadow-cyan-900/40"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Volver al Inicio (Acto 1)</span>
+              <span>{language === 'es' ? 'Volver al Inicio (Acto 1)' : 'Back to Start (Act 1)'}</span>
             </button>
           )}
         </div>

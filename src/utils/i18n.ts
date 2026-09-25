@@ -231,6 +231,12 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     zone_jungle_sub: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam',
     zone_blizzard_name: 'Blizzard Rush',
     zone_blizzard_sub: 'Montaña Nevada, Esquís y el Coloso Yeti',
+    zone_steampunk_name: 'Steampunk',
+    zone_steampunk_sub: 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m',
+    zone_castlesmash_name: 'Castle Smash',
+    zone_castlesmash_sub: 'Asedio Medieval, Almenas de Piedra y Lord Malakar',
+    zone_piratestreasure_name: "Pirate's Treasure",
+    zone_piratestreasure_sub: 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ PORTAL & RELOJ RESTAURADO',
@@ -632,6 +638,12 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     zone_jungle_sub: 'Mayan Pyramid, Tree Canopies and Jaguar Balam',
     zone_blizzard_name: 'Blizzard Rush',
     zone_blizzard_sub: 'Snowy Mountain, Downhill Skiing and Colossal Yeti',
+    zone_steampunk_name: 'Steampunk',
+    zone_steampunk_sub: 'Steam Factory, Gears and 1000m Vertical Ascent',
+    zone_castlesmash_name: 'Castle Smash',
+    zone_castlesmash_sub: 'Medieval Siege, Stone Battlements and Lord Malakar',
+    zone_piratestreasure_name: "Pirate's Treasure",
+    zone_piratestreasure_sub: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ PORTAL & CLOCK RESTORED',
@@ -1169,7 +1181,7 @@ export function getZoneLocalizedSubtitle(zoneId: string, lang: Language): string
   if (zoneId === 'blizzard') return 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal';
   if (zoneId === 'steampunk') return 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m';
   if (zoneId === 'castlesmash') return 'Asedio Medieval, Almenas de Piedra y Lord Malakar';
-  if (zoneId === 'piratestreasure') return 'Bahía del Corsario, Galeón Fantasma y el Kraken';
+  if (zoneId === 'piratestreasure') return 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito';
   if (zoneId === 'jurasicdraft') return 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal';
   if (zoneId === 'themoon') return 'Mar de la Tranquilidad, Baja Gravedad y Mecha Titán';
   const key = `zone_${zoneId}_subtitle` as TranslationKey;
@@ -1382,7 +1394,14 @@ export function getLocalizedLoreItem(
     .replace(/LA SELVA MAYA/i, 'THE MAYAN JUNGLE')
     .replace(/LA CIMA HELADA/i, 'THE FROZEN SUMMIT')
     .replace(/LA FUNDICIÓN DE VAPOR/i, 'THE STEAM FOUNDRY')
-    .replace(/EL BASTIÓN MEDIEVAL/i, 'THE MEDIEVAL BASTION');
+    .replace(/EL BASTIÓN MEDIEVAL/i, 'THE MEDIEVAL BASTION')
+    .replace(/SOBRECARGA EN LA CALDERA COLOSAL \(1000 METROS\)/i, 'OVERLOAD AT THE COLOSSAL BOILER (1000 METERS)')
+    .replace(/EL ASEDIO AL BASTIÓN DE HIERRO/i, 'THE SIEGE OF THE IRON BASTION')
+    .replace(/EL PATIO DE ARMAS Y LAS CATACUMBAS/i, 'THE COURTYARD AND CATACOMBS')
+    .replace(/EL DESAFÍO DE LORD MALAKAR/i, 'THE DUEL WITH LORD MALAKAR')
+    .replace(/DESEMBARCO EN LA COSTA PIRATA/i, 'LANDFALL ON THE CORSAIR COAST')
+    .replace(/EL REINO DE LA BAJA GRAVEDAD/i, 'THE REALM OF LOW GRAVITY')
+    .replace(/EL NAUFRAGIO DEL GALÉON MALDITO/i, 'THE SHIPWRECK OF THE CURSED GALLEON');
 
   const translatedLines = loreItem.lines.map((line) => {
     if (line.includes('A/D o Joystick')) {
@@ -1412,6 +1431,57 @@ export function getLocalizedLoreItem(
     if (line.includes('Zion empuña su espada de luz')) {
       return 'Zion wields his blade of light and daggers to enter the glowing grove.';
     }
+    if (line.includes('Frente a Zion se alzan los muros ciclópeos')) {
+      return 'Before Zion rise the cyclopean walls of the Feudal Bastion in Castle Smash.';
+    }
+    if (line.includes('Los soldados de Lord Malakar han fortificado')) {
+      return 'Lord Malakar\'s forces fortified every gateway with heavy oak barricades and iron chains.';
+    }
+    if (line.includes('Para avanzar hacia el interior de la fortaleza')) {
+      return 'To breach the fortress interior, you must destroy these defensive barriers with your sword and daggers.';
+    }
+    if (line.includes('Las mazmorras subterráneas del castillo')) {
+      return 'The subterranean castle dungeons are guarded by stone golems and armored shield knights.';
+    }
+    if (line.includes('Péndulos gigantes con púas oscilan')) {
+      return 'Giant spiked pendulums swing over drop-pits while crumbling walls block upper watchtowers.';
+    }
+    if (line.includes('Derrumba los muros de piedra')) {
+      return 'Demolish cracked masonry and dodge iron portcullises to breach the inner throne room!';
+    }
+    if (line.includes('En la cúspide de la torre fortaleza aguarda Lord Malakar')) {
+      return 'At the summit of the fortress waits Lord Malakar, the warlord of the Demolisher Hammer.';
+    }
+    if (line.includes('Protegido tras escudos-baluarte destructibles')) {
+      return 'Shielded behind fortified barricades, this titan crushes ramparts and summons fortress catapults.';
+    }
+    if (line.includes('Destruye sus barricadas defensivas')) {
+      return 'Smash his defensive bastions, evade crushing hammer blows, and claim the 9th Quantum Clock piece!';
+    }
+    if (line.includes('Las corrientes dimensionales transportan a Zion a una deslumbrante')) {
+      return 'Dimensional currents carry Zion to a dazzling Caribbean coastline bathed in turquoise tides.';
+    }
+    if (line.includes('Entre palmeras tropicales, muelles de madera flotante')) {
+      return 'Among tropical palms, driftwood piers, and coral bluffs, skeletal corsairs and armored crabs stand guard.';
+    }
+    if (line.includes('Cruza las arenas, esquiva los cocos')) {
+      return 'Sprint across the sands, dodge falling coconuts and bombs, and prepare to dive into the ocean trench!';
+    }
+    if (line.includes('Zion se sumerge en las profundidades del océano')) {
+      return 'Zion dives into the abyssal ocean. Gravity is heavily reduced, allowing buoyant leaps and graceful glides.';
+    }
+    if (line.includes('Corales luminosos, medusas flotantes')) {
+      return 'Luminous corals, floating electric jellyfish, and sea geysers define this submerged reef.';
+    }
+    if (line.includes('En el fondo de la fosa descansa el galeón pirata')) {
+      return 'At the trench bed rests the ghost galleon, guarding the fabled Cursed Mimic Chest!';
+    }
+    if (line.includes('El cofre cobra vida con afiladas fauces')) {
+      return 'The mimic chest springs to life with razor fangs, unleashing energy orbs and whirlpool surges.';
+    }
+    if (line.includes('Desactiva sus defensas, vence a la bestia')) {
+      return 'Disable its defenses, vanquish the beast, and claim the 10th ancestral piece: Corsair\'s Golden Astrolabe!';
+    }
     return line;
   });
 
@@ -1423,6 +1493,10 @@ export function getLocalizedLoreItem(
           .replace('Crónicas de los Bosques', 'Chronicles of the Groves')
           .replace('Manual de Combate', 'Combat Manual')
           .replace('Pergaminos Sagrados', 'Sacred Scrolls')
+          .replace('Crónicas de los Guardianes', 'Chronicles of the Guardians')
+          .replace('Bitácora del Corsario', "Corsair's Logbook")
+          .replace('Archivo de la Zona Abandonada', 'Abandoned Zone Archives')
+          .replace('Protocolo de Emergencia Térmica', 'Thermal Emergency Protocol')
       : undefined,
   };
 }

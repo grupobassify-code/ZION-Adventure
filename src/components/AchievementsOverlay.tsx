@@ -218,7 +218,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                 </div>
                 <p className="hidden md:block text-xs text-slate-400 mt-0.5 truncate font-normal">
                   {language === 'es'
-                    ? 'Supera hazañas legendarias a través de las 8 zonas para ganar medallas y puntos'
+                    ? 'Supera hazañas legendarias a través de todas las zonas para ganar medallas y puntos'
                     : 'Overcome legendary feats across all zones to earn medals and points'}
                 </p>
               </div>

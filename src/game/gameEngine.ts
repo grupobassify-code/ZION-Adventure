@@ -2482,6 +2482,7 @@ export class GameEngine {
     if (d.hp <= 0) {
       d.destroyed = true;
       this.destroyedDestructibleIds.add(d.id);
+      incrementAchievementProgress('castle_wall_breaker', 1);
       sound.playSfx('shieldBreak');
       this.createBurst(d.x + d.w / 2, d.y + d.h / 2, 26, burstColor);
       this.createBurst(d.x + d.w / 2, d.y + d.h / 2, 12, '#ffffff');
@@ -6007,6 +6008,7 @@ export class GameEngine {
         if (this.player.isBlocking) {
           if (this.player.perfectParryTimer > 0) {
             sound.playSfx('parry');
+            incrementAchievementProgress('parry_master', 1);
             this.addEnergy(20);
             this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#facc15');
             this.addFloatingText(this.player.x, this.player.y - 18, '✦ PARRY DE ONDA!', '#facc15');
@@ -6741,6 +6743,7 @@ export class GameEngine {
             if (p.isBlocking && !p.isShieldBroken) {
               if (p.perfectParryTimer > 0) {
                 sound.playSfx('parry');
+                incrementAchievementProgress('parry_master', 1);
                 this.addEnergy(25);
                 p.shieldEnergy = Math.min(p.maxShieldEnergy, p.shieldEnergy + 30);
                 this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 18, '#facc15');

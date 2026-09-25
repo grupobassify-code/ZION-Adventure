@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Music, Play, Square, Volume2, VolumeX, Sparkles, X, Disc3, Radio, Flame, ShieldAlert, Award } from 'lucide-react';
 import { sound, SOUND_TRACKS_CATALOG, MusicTrackName, SoundTrackInfo } from '../audio/soundEngine';
+import { useLanguage } from '../utils/i18n';
 
 interface SoundtrackModalProps {
   onClose: () => void;
 }
 
 export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => {
+  const { language } = useLanguage();
   const [playingTrack, setPlayingTrack] = useState<MusicTrackName | null>(null);
   const [volume, setVolume] = useState<number>(sound.masterVolume);
   const [isMuted, setIsMuted] = useState<boolean>(!sound.musicEnabled);
@@ -89,11 +91,13 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
               <h2 className="text-lg sm:text-xl font-black text-white font-heading tracking-wide flex items-center gap-2">
                 JUKEBOX ORIGINAL SOUNDTRACK
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
-                  ESTILO 16-BIT RETRO
+                  {language === 'es' ? 'ESTILO 16-BIT RETRO' : '16-BIT RETRO STYLE'}
                 </span>
               </h2>
               <p className="text-[11px] text-cyan-400/90 font-mono">
-                Sintetizador FM polifónico con melodías contagiosas y líneas de bajo retro 16-bits clásicas
+                {language === 'es'
+                  ? 'Sintetizador FM polifónico con melodías contagiosas y líneas de bajo retro 16-bits clásicas'
+                  : 'Polyphonic FM chiptune synthesizer with catchy melodies and classic 16-bit basslines'}
               </p>
             </div>
           </div>
@@ -102,7 +106,7 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
               onClose();
             }}
             className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-all active:scale-95"
-            title="Cerrar Jukebox"
+            title={language === 'es' ? 'Cerrar Jukebox' : 'Close Jukebox'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -114,21 +118,23 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
             <button
               onClick={handleStop}
               className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 shrink-0"
-              title="Detener música"
+              title={language === 'es' ? 'Detener música' : 'Stop music'}
             >
               <Square className="w-3.5 h-3.5 text-red-400" />
-              <span>Detener</span>
+              <span>{language === 'es' ? 'Detener' : 'Stop'}</span>
             </button>
 
             <div className="flex flex-col min-w-0 flex-1">
               <div className="text-[10px] text-slate-400 font-mono uppercase tracking-wider flex items-center gap-1">
                 <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
-                <span>Pista actual:</span>
+                <span>{language === 'es' ? 'Pista actual:' : 'Current track:'}</span>
               </div>
               <div className="text-xs font-bold text-emerald-300 truncate">
                 {playingTrack
                   ? SOUND_TRACKS_CATALOG.find((t) => t.id === playingTrack)?.title || playingTrack
-                  : 'Ninguna pista en reproducción — Selecciona una canción abajo'}
+                  : (language === 'es'
+                    ? 'Ninguna pista en reproducción — Selecciona una canción abajo'
+                    : 'No track playing — Select a soundtrack below')}
               </div>
             </div>
           </div>
@@ -137,7 +143,7 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
             <button
               onClick={handleToggleMute}
               className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300"
-              title={isMuted ? 'Activar sonido' : 'Silenciar'}
+              title={isMuted ? (language === 'es' ? 'Activar sonido' : 'Unmute') : (language === 'es' ? 'Silenciar' : 'Mute')}
             >
               {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
             </button>
@@ -164,10 +170,10 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
         <div className="flex gap-2 border-b border-slate-800 pb-2">
           {(
             [
-              { id: 'all', label: 'Todas (14)' },
-              { id: 'levels', label: 'Niveles & Zonas' },
-              { id: 'bosses', label: 'Jefes Épicos' },
-              { id: 'special', label: 'Especiales & Himno' },
+              { id: 'all', labelEs: `Todas (${SOUND_TRACKS_CATALOG.length})`, labelEn: `All (${SOUND_TRACKS_CATALOG.length})` },
+              { id: 'levels', labelEs: 'Niveles & Zonas', labelEn: 'Levels & Zones' },
+              { id: 'bosses', labelEs: 'Jefes Épicos', labelEn: 'Epic Bosses' },
+              { id: 'special', labelEs: 'Especiales & Himno', labelEn: 'Specials & Theme' },
             ] as const
           ).map((tab) => (
             <button
@@ -179,7 +185,7 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
                   : 'bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
-              {tab.label}
+              {language === 'es' ? tab.labelEs : tab.labelEn}
             </button>
           ))}
         </div>
@@ -246,12 +252,12 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
                     {isCurrent ? (
                       <>
                         <Square className="w-3 h-3 fill-current" />
-                        <span>Pausar</span>
+                        <span>{language === 'es' ? 'Pausar' : 'Pause'}</span>
                       </>
                     ) : (
                       <>
                         <Play className="w-3 h-3 fill-current ml-0.5" />
-                        <span>Escuchar</span>
+                        <span>{language === 'es' ? 'Escuchar' : 'Play'}</span>
                       </>
                     )}
                   </button>
@@ -265,16 +271,21 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
         <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[10px] text-slate-500 font-mono">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>MÚSICA POLIFÓNICA DINÁMICA · SINTETIZADA EN TIEMPO REAL</span>
+            <span>
+              {language === 'es'
+                ? 'MÚSICA POLIFÓNICA DINÁMICA · SINTETIZADA EN TIEMPO REAL'
+                : 'DYNAMIC POLYPHONIC CHIPTUNE · SYNTHESIZED IN REAL-TIME'}
+            </span>
           </div>
           <button
             onClick={onClose}
             className="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all"
           >
-            Cerrar
+            {language === 'es' ? 'Cerrar' : 'Close'}
           </button>
         </div>
       </div>
     </div>
   );
 };
+
