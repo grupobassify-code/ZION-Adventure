@@ -196,10 +196,18 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                 className={`w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl font-black text-xs sm:text-sm active:scale-95 transition-all ${
                   currentConfig.id === 'krono-travel'
                     ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse'
+                    : currentConfig.id === 'castlesmash-3'
+                    ? 'bg-gradient-to-r from-amber-400 via-sky-400 to-cyan-400 hover:from-amber-300 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(2,132,199,0.6)] animate-pulse'
                     : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-900/50'
                 }`}
               >
-                <span>{currentConfig.id === 'krono-travel' ? (language === 'es' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : '🌴 ADVANCE TO JUNGLE RUN (ZONE 6)') : t('victoryNextAct')}</span>
+                <span>
+                  {currentConfig.id === 'krono-travel'
+                    ? (language === 'es' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : '🌴 ADVANCE TO JUNGLE RUN (ZONE 6)')
+                    : currentConfig.id === 'castlesmash-3'
+                    ? (language === 'es' ? '⚓ AVANZAR A PIRATES TREASURE (ZONA 10)' : '⚓ ADVANCE TO PIRATES TREASURE (ZONE 10)')
+                    : t('victoryNextAct')}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (

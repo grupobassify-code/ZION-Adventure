@@ -954,7 +954,7 @@ export default function App() {
           stats={engine.stats}
           onNextLevel={() => {
             const currLvl = LEVEL_CONFIGS[engine.levelIndex];
-            if (currLvl?.id === 'castlesmash-3') {
+            if (currLvl?.id === 'piratestreasure-3') {
               setIsCreditsOpen(true);
               return;
             }
@@ -974,6 +974,10 @@ export default function App() {
               // Direct player straight to newly unlocked Jungle Run acts!
               setMainMenuView('acts');
               setMainMenuZone('jungle');
+            } else if (currLvl?.id === 'castlesmash-3') {
+              // Direct player straight to newly unlocked Pirates Treasure acts!
+              setMainMenuView('acts');
+              setMainMenuZone('piratestreasure');
             } else {
               const currZone = currLvl?.zone || null;
               setMainMenuView(currZone ? 'acts' : 'zones');

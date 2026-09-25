@@ -152,6 +152,29 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
               hasMigrationChanges = true;
             }
           }
+
+          // Check if player has beaten Lord Malakar in Castle Smash (castlesmash-3)
+          const castle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-3');
+          const pirate1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
+          const isCastleSmashBossBeaten =
+            castle3Idx !== -1 && (slot.completedLevels.includes(castle3Idx) || slot.completedLevels.includes('castlesmash-3' as any));
+
+          if (isCastleSmashBossBeaten) {
+            if (pirate1Idx !== -1 && !slot.unlockedLevels.includes(pirate1Idx)) {
+              slot.unlockedLevels.push(pirate1Idx);
+              hasMigrationChanges = true;
+            }
+          } else if (pirate1Idx !== -1) {
+            // Remove any prematurely unlocked piratestreasure levels if Castle Smash boss hasn't been defeated yet
+            const beforeCount = slot.unlockedLevels.length;
+            slot.unlockedLevels = slot.unlockedLevels.filter((lvl) => {
+              const cfg = LEVEL_CONFIGS[lvl];
+              return !cfg || cfg.zone !== 'piratestreasure';
+            });
+            if (slot.unlockedLevels.length !== beforeCount) {
+              hasMigrationChanges = true;
+            }
+          }
         }
         slots[i] = slot;
       }
@@ -307,14 +330,17 @@ export function recordLevelCompletion(
   const steampunk1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-1');
   const steampunkFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'steampunk-3');
   const castleSmash1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-1');
+  const castleSmashFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-3');
+  const pirateTreasure1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
 
   // If nextLevel is jungle-1, only unlock it if Kronos Travel is beaten
   // If nextLevel is blizzard-1, only unlock it if Balam (jungle-3) is beaten
   // If nextLevel is steampunk-1, only unlock it if Yukio el Yeti (blizzard-3) is beaten
   // If nextLevel is castlesmash-1, only unlock it if Vulkan-Ω (steampunk-3) is beaten
-  // Once Castle Smash (castlesmash-3) is completed, the player has conquered the full campaign: no further levels are unlocked.
-  const isCastleSmashFinal = LEVEL_CONFIGS[levelIndex]?.id === 'castlesmash-3';
-  if (!isCastleSmashFinal && nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
+  // If nextLevel is piratestreasure-1, only unlock it if Lord Malakar (castlesmash-3) is beaten
+  // Once Pirate's Treasure (piratestreasure-3) is completed, the player has conquered the full campaign: no further levels are unlocked.
+  const isPirateTreasureFinal = LEVEL_CONFIGS[levelIndex]?.id === 'piratestreasure-3';
+  if (!isPirateTreasureFinal && nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
     if (nextLevel === jungle1Idx) {
       if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
         slot.unlockedLevels.push(nextLevel);
@@ -329,6 +355,10 @@ export function recordLevelCompletion(
       }
     } else if (nextLevel === castleSmash1Idx) {
       if (steampunkFinalBossIdx !== -1 && slot.completedLevels.includes(steampunkFinalBossIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else if (nextLevel === pirateTreasure1Idx) {
+      if (castleSmashFinalBossIdx !== -1 && slot.completedLevels.includes(castleSmashFinalBossIdx)) {
         slot.unlockedLevels.push(nextLevel);
       }
     } else {
@@ -360,6 +390,11 @@ export function recordLevelCompletion(
   // When Vulkan-Ω (steampunk-3) is beaten, unlock Castle Smash (castlesmash-1)
   if (levelIndex === steampunkFinalBossIdx && castleSmash1Idx !== -1 && !slot.unlockedLevels.includes(castleSmash1Idx)) {
     slot.unlockedLevels.push(castleSmash1Idx);
+  }
+
+  // When Lord Malakar (castlesmash-3) is beaten, unlock Pirate's Treasure (piratestreasure-1)
+  if (levelIndex === castleSmashFinalBossIdx && pirateTreasure1Idx !== -1 && !slot.unlockedLevels.includes(pirateTreasure1Idx)) {
+    slot.unlockedLevels.push(pirateTreasure1Idx);
   }
 
   slots[slotId] = slot;
@@ -442,8 +477,25 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`castlesmash-${cfg.act - 1}` as any);
   }
-  if (cfg && (cfg.zone === 'piratestreasure' || cfg.zone === 'jurasicdraft' || cfg.zone === 'themoon')) {
-    return false; // Progression capped at Castle Smash; future zones are not unlocked
+  if (cfg && cfg.zone === 'piratestreasure') {
+    const castle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-3');
+    const pirate1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isCastleBossDefeated =
+      castle3Idx !== -1 && (completedList.includes(castle3Idx) || completedList.includes('castlesmash-3' as any));
+
+    if (!isCastleBossDefeated && !unlockedList.includes(levelIndex)) {
+      return false; // Pirate's Treasure is locked until Castle Smash (castlesmash-3) is defeated!
+    }
+    if (levelIndex === pirate1Idx) {
+      return true;
+    }
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`piratestreasure-${cfg.act - 1}` as any);
+  }
+  if (cfg && (cfg.zone === 'jurasicdraft' || cfg.zone === 'themoon')) {
+    return false; // Progression capped at Pirate's Treasure; future zones are not unlocked
   }
   return slot.unlockedLevels.includes(levelIndex);
 }
@@ -454,7 +506,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3'].includes(cfg.id);
 }
 
 /**
@@ -607,6 +659,28 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
       steampunk3Idx !== -1 && (completedList.includes(steampunk3Idx) || completedList.includes('steampunk-3' as any));
 
     if (!isSteampunkBossDefeated) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // Pirate's Treasure Zone requires defeating Castle Smash boss Lord Malakar (castlesmash-3)
+  if (zone === 'piratestreasure') {
+    const castle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-3');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isCastleBossDefeated =
+      castle3Idx !== -1 && (completedList.includes(castle3Idx) || completedList.includes('castlesmash-3' as any));
+
+    const pirate1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
+    const isUnlocked = isCastleBossDefeated || (pirate1Idx !== -1 && unlockedList.includes(pirate1Idx));
+
+    if (!isUnlocked) {
       return { completed: 0, total, unlocked: false };
     }
     let completed = 0;
@@ -823,7 +897,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     id: 'piratestreasure',
     name: 'Brújula Dorada del Corsario',
     subtitle: 'Astrolabio Místico de los Mares',
-    bossName: 'Kraken de las Profundidades (En Desarrollo)',
+    bossName: 'El Cofre Maldito del Naufragio',
     zoneName: "Pirate's Treasure (Acto 3)",
     levelId: 'piratestreasure-3',
     levelIndex: 30,
@@ -832,7 +906,6 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     position: 'topLeft',
     angle: 270,
     iconName: 'Compass',
-    isComingSoon: true,
     lore: 'Apunta inexorablemente hacia las coordenadas cardinales exactas del nexo interdimensional a través de cualquier tormenta.',
   },
   {

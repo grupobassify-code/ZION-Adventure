@@ -43,7 +43,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      const underConstruction = isUnderConstruction || ['piratestreasure', 'jurasicdraft', 'themoon'].includes(zone);
+      const underConstruction = isUnderConstruction || ['jurasicdraft', 'themoon'].includes(zone);
 
       // ========================================================
       // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
@@ -1380,6 +1380,51 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         for (let sx = 8; sx < w; sx += 16) {
           ctx.fillRect(sx, groundY + 1, 2, 2);
         }
+      } else if (zone === 'piratestreasure') {
+        if (act === 1) {
+          // Golden sand grains, driftwood texture & crimson starfish
+          ctx.fillStyle = '#fef08a';
+          for (let sx = 12; sx < w; sx += 26) {
+            ctx.fillRect(sx, groundY + 1, 2, 2);
+          }
+          // Crimson Starfish on beach rock
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(22, groundY + 1, 3, 3);
+          ctx.fillRect(21, groundY + 2, 5, 1);
+          ctx.fillRect(23, groundY, 1, 5);
+          // Sea shell
+          ctx.fillStyle = '#fde68a';
+          ctx.fillRect(w - 36, groundY + 1, 4, 3);
+        } else if (act === 2) {
+          // Submerged coral branches & rising luminous bubbles
+          ctx.fillStyle = '#f43f5e';
+          for (let cx = 14; cx < w; cx += 38) {
+            ctx.fillRect(cx, groundY - 4, 3, 6);
+            ctx.fillRect(cx - 2, groundY - 2, 7, 2);
+          }
+          // Rising bubbles stream
+          ctx.fillStyle = '#bae6fd';
+          for (let bx = 26; bx < w; bx += 32) {
+            const bY = groundY - 6 - ((tick * 1.2 + bx * 2) % 44);
+            ctx.fillRect(bx, bY, 2, 2);
+          }
+        } else {
+          // Sunken Gold Doubloons & Barnacles on wrecked galleon planks
+          ctx.fillStyle = '#facc15';
+          for (let gx = 16; gx < w; gx += 26) {
+            ctx.fillRect(gx, groundY + 1, 3, 2);
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(gx + 1, groundY + 1, 1, 1);
+            ctx.fillStyle = '#facc15';
+          }
+          // Deep sea barnacles
+          ctx.fillStyle = '#38bdf8';
+          for (let bx = 30; bx < w; bx += 36) {
+            ctx.fillRect(bx, groundY + 6, 3, 3);
+            ctx.fillStyle = '#0284c7';
+            ctx.fillRect(bx + 1, groundY + 7, 1, 1);
+          }
+        }
       }
 
       // Floating Ledges
@@ -1624,7 +1669,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [zone, act, isLocked, isBoss]);
+  }, [zone, act, isLocked, isBoss, isUnderConstruction]);
 
   return (
     <div

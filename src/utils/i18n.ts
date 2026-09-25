@@ -1083,6 +1083,24 @@ export const LEVEL_LOCALIZATION: Record<string, { titleEs: string; titleEn: stri
     subtitleEs: 'El Coloso Rompemuros · El Blasón Real de Hierro',
     subtitleEn: 'The Wall-Breaker Warlord & The Royal Iron Crest',
   },
+  'piratestreasure-1': {
+    titleEs: 'Zona 10 · Acto 1 — Bahía del Corsario y Playa del Tesoro',
+    titleEn: 'Zone 10 · Act 1 — Corsair Bay & Treasure Beach',
+    subtitleEs: 'Costas de Arena Dorada, Palmeras Tropicales y Piratas Malditos',
+    subtitleEn: 'Golden Sand Shores, Tropical Palms & Cursed Pirates',
+  },
+  'piratestreasure-2': {
+    titleEs: 'Zona 10 · Acto 2 — Arrecife Submarino y Fosa Abisal',
+    titleEn: 'Zone 10 · Act 2 — Submerged Reef & Abyssal Trench',
+    subtitleEs: 'Inmersión Oceánica · Menor Gravedad, Medusas Eléctricas y Géiseres',
+    subtitleEn: 'Ocean Dive · Low Gravity, Electric Jellyfish & Geysers',
+  },
+  'piratestreasure-3': {
+    titleEs: 'Zona 10 · Acto 3 — El Naufragio y el Cofre Maldito',
+    titleEn: 'Zone 10 · Act 3 — The Shipwreck & Cursed Chest',
+    subtitleEs: 'Fosa Abisal · Batalla contra el Titánico Mímico del Naufragio',
+    subtitleEn: 'Abyssal Trench · Battle against the Titanic Shipwreck Mimic',
+  },
 };
 
 export function getLevelTitle(configOrId: { id: string; title: string; act?: number } | string, lang: Language): string {
@@ -1125,7 +1143,7 @@ export const ZONE_NAMES_EN: Record<string, { name: string; subtitle: string }> =
   blizzard: { name: 'Blizzard Rush', subtitle: 'Downhill Skiing, Snowy Forest and Colossal Yeti' },
   steampunk: { name: 'Steampunk', subtitle: 'Steam Factory, Gears and 1000m Only Up Boss' },
   castlesmash: { name: 'Castle Smash', subtitle: 'Medieval Siege, Stone Battlements and Lord Malakar' },
-  piratestreasure: { name: 'Pirates Treasure', subtitle: 'Corsair Cove, Ghost Galleon and the Kraken' },
+  piratestreasure: { name: 'Pirates Treasure', subtitle: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck' },
   jurasicdraft: { name: 'Jurassic Draft', subtitle: 'Mesozoic Jungle, Pterodactyls and Colossal T-Rex' },
   themoon: { name: 'The Moon', subtitle: 'Sea of Tranquility, Low Gravity and Mecha Titan' },
 };
@@ -1295,8 +1313,8 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     nameEn: "Corsair's Golden Astrolabe",
     subtitleEs: 'Brújula Mística de Altamar',
     subtitleEn: 'Mystic High Seas Compass',
-    bossNameEs: 'Kraken del Abismo',
-    bossNameEn: 'Kraken of the Abyss',
+    bossNameEs: 'El Cofre Maldito del Naufragio',
+    bossNameEn: 'The Cursed Mimic Chest of the Shipwreck',
     zoneNameEs: "Pirate's Treasure (Act 3)",
     zoneNameEn: "Pirate's Treasure (Act 3)",
     loreEs: 'Guía las corrientes oceánicas y revela rutas sumergidas en el tiempo.',
