@@ -997,6 +997,30 @@ export class GameRenderer {
         grad.addColorStop(0.88, '#0f172a'); // Sunken ship seabed shadows
         grad.addColorStop(1, '#020617');
       }
+    } else if (zone === 'jurasicdraft') {
+      // Jurassic Draft Mesozoic Dinosaur Era:
+      // Act 1: Mesozoic Jungle (Primordial canopy green & golden dawn)
+      // Act 2: Pterosaur Canyon & Lava Fissures (Fiery terracotta & volcanic smoke)
+      // Act 3: Caldera of Titan Rex (Apocalyptic volcanic obsidian & magma crimson)
+      if (act === 1) {
+        grad.addColorStop(0, '#064e3b');    // Deep primordial canopy green
+        grad.addColorStop(0.35, '#047857'); // Rainforest morning mist
+        grad.addColorStop(0.68, '#10b981'); // Emerald horizon
+        grad.addColorStop(0.88, '#f59e0b'); // Prehistoric golden dawn glow
+        grad.addColorStop(1, '#fde047');
+      } else if (act === 2) {
+        grad.addColorStop(0, '#451a03');    // Volcanic ash & sulfur smoke
+        grad.addColorStop(0.35, '#7c2d12'); // Deep terracotta canyon tier
+        grad.addColorStop(0.65, '#ea580c'); // Fiery dusk horizon
+        grad.addColorStop(0.88, '#f97316'); // Molten fissure glow
+        grad.addColorStop(1, '#fed7aa');
+      } else {
+        grad.addColorStop(0, '#1c070c');    // Ash-black apocalyptic sky
+        grad.addColorStop(0.3, '#450a0a');  // Magma smoke plumes
+        grad.addColorStop(0.65, '#991b1b'); // Erupting volcano crimson
+        grad.addColorStop(0.88, '#ea580c'); // Blazing caldera rim
+        grad.addColorStop(1, '#facc15');
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1497,6 +1521,103 @@ export class GameRenderer {
         }
         ctx.restore();
       }
+    } else if (zone === 'jurasicdraft') {
+      // Jurassic Draft Prehistoric Atmosphere & Celestial Bodies
+      if (act === 1) {
+        // Mesozoic Golden Dawn Sun & Humid Canopy Light Rays
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
+        ctx.beginPath();
+        ctx.arc(235, 34, 38, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.45)';
+        ctx.beginPath();
+        ctx.arc(235, 34, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.arc(235, 34, 12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sunlight crepuscular beams through primeval canopy
+        ctx.save();
+        ctx.globalAlpha = 0.08 + Math.sin(time * 0.04) * 0.03;
+        ctx.fillStyle = '#fef08a';
+        for (let ray = 40; ray < GAME_WIDTH; ray += 75) {
+          ctx.beginPath();
+          ctx.moveTo(ray, 0);
+          ctx.lineTo(ray + 24, 0);
+          ctx.lineTo(ray + 65, GAME_HEIGHT);
+          ctx.lineTo(ray + 20, GAME_HEIGHT);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // Silhouettes of high-altitude pterosaurs gliding in the thermals
+        ctx.fillStyle = '#064e3b';
+        for (let p = 0; p < 3; p++) {
+          const px = ((time * 0.4 + p * 110) % (GAME_WIDTH + 80)) - 40;
+          const py = 20 + p * 12 + Math.sin(time * 0.05 + p) * 4;
+          ctx.beginPath();
+          ctx.moveTo(px, py);
+          ctx.lineTo(px - 6, py - 3);
+          ctx.lineTo(px - 1, py + 1);
+          ctx.lineTo(px + 6, py - 3);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (act === 2) {
+        // Distant smoking volcanic crater & thermal haze
+        const volX = 220;
+        const volY = 48;
+        // Rising billowing sulfur smoke plume
+        for (let sp = 0; sp < 7; sp++) {
+          const sOffset = (time * 0.35 + sp * 14) % 70;
+          const sRadius = 6 + sOffset * 0.22;
+          const sAlpha = Math.max(0, 0.45 - sOffset * 0.006);
+          const drift = Math.sin(time * 0.04 + sp) * 8 - sOffset * 0.2;
+          ctx.fillStyle = `rgba(120, 53, 15, ${sAlpha})`;
+          ctx.beginPath();
+          ctx.arc(volX + drift, volY - sOffset, sRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Glowing magma rim of crater
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(volX - 10, volY, 20, 3);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(volX - 5, volY + 1, 10, 1.5);
+      } else {
+        // Act 3: Colossal Erupting Titan Volcano Peak & Magma Geysers
+        const volX = 160;
+        const volY = 44;
+        // Apocalyptic red/orange ash cloud covering top of sky
+        ctx.save();
+        ctx.globalAlpha = 0.35 + Math.sin(time * 0.08) * 0.1;
+        const ashGrad = ctx.createRadialGradient(volX, volY - 15, 10, volX, volY - 15, 120);
+        ashGrad.addColorStop(0, '#dc2626');
+        ashGrad.addColorStop(0.5, '#7f1d1d');
+        ashGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = ashGrad;
+        ctx.beginPath();
+        ctx.arc(volX, volY - 15, 120, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Incandescent lava fountain arcs shooting out of caldera
+        for (let lava = 0; lava < 4; lava++) {
+          const lT = (time * 0.12 + lava * 0.8) % (Math.PI);
+          const lx = volX + Math.cos(lT + lava) * (20 + lava * 8);
+          const ly = volY - Math.sin(lT) * (26 + lava * 6);
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(lx, ly, 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.arc(lx - 1, ly + 2, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -1748,6 +1869,57 @@ export class GameRenderer {
           ctx.fillRect(sx + 70, 30, 4, 50);
           ctx.fillRect(sx + 50, 45, 45, 3);
         }
+      }
+    } else if (zone === 'jurasicdraft') {
+      // Prehistoric Mountain Ridge & Sauropod Silhouettes (Parallax Layer 1)
+      const p1Offset = (cameraX * 0.06) % 240;
+      ctx.fillStyle = act === 1 ? '#042f1a' : act === 2 ? '#3b1204' : '#260404';
+      ctx.beginPath();
+      ctx.moveTo(0, 125);
+      for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 35) {
+        const peak = Math.sin(x * 0.02) * 20 + Math.cos(x * 0.035) * 12;
+        ctx.lineTo(x, 78 + peak);
+      }
+      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+      ctx.lineTo(0, GAME_HEIGHT);
+      ctx.fill();
+
+      // Monumental Sauropod (Brachiosaurus) Silhouettes in the distant mist
+      for (let bx = -p1Offset - 240; bx <= GAME_WIDTH + 240; bx += 220) {
+        const sauroX = bx + 90;
+        const sauroY = 82;
+        ctx.fillStyle = act === 1 ? '#032012' : act === 2 ? '#240802' : '#180202';
+
+        // Massive Sauropod Torso
+        ctx.beginPath();
+        ctx.ellipse(sauroX, sauroY, 18, 9, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 4 Pillar Legs
+        ctx.fillRect(sauroX - 14, sauroY + 4, 4, 18);
+        ctx.fillRect(sauroX - 7, sauroY + 4, 4, 18);
+        ctx.fillRect(sauroX + 6, sauroY + 4, 4, 18);
+        ctx.fillRect(sauroX + 13, sauroY + 4, 4, 18);
+
+        // Long Arching Neck reaching high into the sky
+        const neckSway = Math.sin(time * 0.03 + bx) * 3;
+        ctx.beginPath();
+        ctx.moveTo(sauroX + 10, sauroY - 4);
+        ctx.quadraticCurveTo(sauroX + 22, sauroY - 24 + neckSway, sauroX + 18, sauroY - 42 + neckSway);
+        ctx.lineTo(sauroX + 22, sauroY - 42 + neckSway); // Head
+        ctx.lineTo(sauroX + 25, sauroY - 40 + neckSway);
+        ctx.quadraticCurveTo(sauroX + 26, sauroY - 22 + neckSway, sauroX + 16, sauroY - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Long tapering tail trailing behind
+        ctx.beginPath();
+        ctx.moveTo(sauroX - 16, sauroY - 2);
+        ctx.quadraticCurveTo(sauroX - 32, sauroY + 2, sauroX - 44, sauroY + 8);
+        ctx.lineTo(sauroX - 42, sauroY + 10);
+        ctx.quadraticCurveTo(sauroX - 28, sauroY + 6, sauroX - 14, sauroY + 4);
+        ctx.closePath();
+        ctx.fill();
       }
     } else if (zone === 'sakura') {
       // Sacred Sakura Mountain Ridge (Layer 1: Distant Misty Peaks & Mount Fuji)
@@ -2442,6 +2614,92 @@ export class GameRenderer {
           }
         }
       }
+    } else if (zone === 'jurasicdraft') {
+      // Jurassic Draft Midground: Ancient Cycads, Gigantic Tree Ferns & Volcanic Basalt Crags
+      const p2Offset = (cameraX * 0.18) % 180;
+      if (act === 1) {
+        // Mesozoic Jungle: Giant Cycad Trees & Tree Fern Canopies
+        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 120) {
+          const cycadX = x + 45;
+          const cycadY = 150;
+          const sway = Math.sin(time * 0.05 + x) * 5;
+
+          // Thick fibrous trunk with diamond scale bark
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.moveTo(cycadX - 6, cycadY);
+          ctx.lineTo(cycadX - 4, 75);
+          ctx.lineTo(cycadX + 4, 75);
+          ctx.lineTo(cycadX + 6, cycadY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Trunk texture
+          ctx.fillStyle = '#78350f';
+          for (let ty = 85; ty < cycadY - 5; ty += 8) {
+            ctx.fillRect(cycadX - 3, ty, 6, 2);
+          }
+
+          // Giant arching fern fronds radiating from top
+          const topX = cycadX + sway * 0.3;
+          const topY = 75;
+          const fronds = 7;
+          for (let f = 0; f < fronds; f++) {
+            const angle = (f / (fronds - 1) - 0.5) * 2.2;
+            const endX = topX + Math.sin(angle) * 38 + sway;
+            const endY = topY - Math.cos(angle) * 16 + Math.abs(angle) * 18;
+            ctx.strokeStyle = f % 2 === 0 ? '#15803d' : '#166534';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(topX, topY);
+            ctx.quadraticCurveTo((topX + endX) / 2, topY - 14, endX, endY);
+            ctx.stroke();
+
+            // Leaflets on frond
+            ctx.fillStyle = '#22c55e';
+            for (let l = 0.2; l < 0.95; l += 0.2) {
+              const lx = topX + (endX - topX) * l;
+              const ly = topY - 10 + (endY - topY) * l;
+              ctx.fillRect(lx - 2, ly, 4, 2);
+            }
+          }
+        }
+      } else {
+        // Volcanic Basalt Crags, Steam Fumaroles & Molten Fissures
+        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 130) {
+          const cragX = x + 30;
+          // Basalt rock column
+          ctx.fillStyle = act === 3 ? '#1c070c' : '#291004';
+          ctx.beginPath();
+          ctx.moveTo(cragX - 18, 150);
+          ctx.lineTo(cragX - 10, 85);
+          ctx.lineTo(cragX + 15, 78);
+          ctx.lineTo(cragX + 26, 150);
+          ctx.closePath();
+          ctx.fill();
+
+          // Magma fissure running down crag
+          ctx.fillStyle = '#ea580c';
+          ctx.beginPath();
+          ctx.moveTo(cragX + 2, 85);
+          ctx.lineTo(cragX - 2, 105);
+          ctx.lineTo(cragX + 4, 125);
+          ctx.lineTo(cragX, 150);
+          ctx.lineTo(cragX + 2, 150);
+          ctx.lineTo(cragX + 6, 125);
+          ctx.lineTo(cragX, 105);
+          ctx.lineTo(cragX + 4, 85);
+          ctx.closePath();
+          ctx.fill();
+
+          // Steam vent at top of crag
+          const puff = (time * 0.3 + x) % 40;
+          ctx.fillStyle = 'rgba(254, 215, 170, 0.25)';
+          ctx.beginPath();
+          ctx.arc(cragX + 3, 78 - puff * 0.6, 3 + puff * 0.15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     } else {
       const p2Offset = (cameraX * 0.22) % 100;
       ctx.fillStyle = zone === 'neon'
@@ -3031,6 +3289,24 @@ export class GameRenderer {
             ctx.fillStyle = i % 3 === 0 ? `rgba(94, 234, 212, ${planktonGlow})` : `rgba(56, 189, 248, ${planktonGlow})`;
             ctx.fillRect(px, py, 1.5, 1.5);
           }
+        }
+      } else if (zone === 'jurasicdraft') {
+        if (act === 1) {
+          // Prehistoric drifting spores & glowing Cretaceous amber fireflies
+          const glow = 0.4 + Math.sin(time * 0.1 + i * 1.5) * 0.4;
+          if (i % 2 === 0) {
+            ctx.fillStyle = `rgba(74, 222, 128, ${glow * 0.4})`;
+            ctx.beginPath();
+            ctx.arc(px + 1, py + 1, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.fillStyle = i % 3 === 0 ? `rgba(250, 204, 21, ${glow})` : `rgba(74, 222, 128, ${glow})`;
+          ctx.fillRect(px, py, 1.5, 1.5);
+        } else {
+          // Volcanic ash specks and incandescent magma sparks
+          const emberY = (GAME_HEIGHT - ((time * 0.9 + i * 26) % (GAME_HEIGHT + 10)));
+          ctx.fillStyle = i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#f97316' : '#ef4444';
+          ctx.fillRect(px, emberY, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
         }
       } else {
         // Golden swirling sand dust & hieroglyphic sparkle specks
@@ -4160,6 +4436,7 @@ export class GameRenderer {
     const isBlizzard = zone === 'blizzard';
     const isCastle = zone === 'castlesmash';
     const isPirate = zone === 'piratestreasure';
+    const isJurassic = zone === 'jurasicdraft';
 
     for (const p of platforms) {
       if (p.hidden) continue;
@@ -4415,6 +4692,91 @@ export class GameRenderer {
             ctx.fillStyle = '#facc15';
             ctx.fillRect(px - 6, y + 2, 1.5, 1.5);
             ctx.fillRect(px + 4, y + 2, 1.5, 1.5);
+          }
+        }
+        continue;
+      }
+
+      if (
+        p.kind === 'prehistoric_earth' ||
+        p.kind === 'petrified_wood' ||
+        p.kind === 'dino_fossil_rock' ||
+        p.kind === 'volcanic_basalt' ||
+        (isJurassic && (p.kind === 'ground' || p.kind === 'arena'))
+      ) {
+        // Prehistoric Dinosaur Era Platforms
+        if (p.kind === 'petrified_wood') {
+          // Ancient Petrified Wood Trunk
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          // Concentric growth rings & amber bands
+          ctx.fillStyle = '#d97706';
+          for (let rx = x + 12; rx < x + p.w; rx += 20) {
+            ctx.fillRect(rx, y + 2, 2, p.h - 4);
+          }
+          // Ancient moss cap
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#4ade80';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'dino_fossil_rock') {
+          // Sedimentary Rock with Embedded Dinosaur Bones & Fossils
+          ctx.fillStyle = '#1c1917';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#44403c';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#78716c';
+          ctx.fillRect(x, y, p.w, 2);
+
+          // Embedded Dinosaur Fossil Bones (Ribs, vertebrae, teeth)
+          ctx.fillStyle = '#fef3c7';
+          for (let fx = x + 10; fx < x + p.w - 10; fx += 26) {
+            // Fossil rib curve
+            ctx.fillRect(fx, y + 4, 6, 2);
+            ctx.fillRect(fx + 5, y + 6, 2, 4);
+            ctx.fillRect(fx + 2, y + 7, 2, 2);
+            // Amber resin droplet
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(fx + 14, y + 4, 3, 3);
+            ctx.fillStyle = '#fef3c7';
+          }
+        } else if (p.kind === 'volcanic_basalt' || (isJurassic && act >= 2 && p.kind === 'ground')) {
+          // Dark Volcanic Basalt with Molten Magma Veins
+          ctx.fillStyle = '#0c0a09';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1c1917';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Glowing magma fissures between rock plates
+          ctx.fillStyle = '#ea580c';
+          for (let vx = x + 14; vx < x + p.w - 14; vx += 30) {
+            ctx.fillRect(vx, y + 3, 10, 1.5);
+            ctx.fillRect(vx + 4, y + 4.5, 2, 6);
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(vx + 3, y + 3, 3, 1);
+            ctx.fillStyle = '#ea580c';
+          }
+
+          // Chiseled obsidian edge highlight
+          ctx.fillStyle = '#57534e';
+          ctx.fillRect(x, y, p.w, 1.5);
+        } else {
+          // Prehistoric Earth: Primordial soil, moss & ferns
+          ctx.fillStyle = '#052e16';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#14532d';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Lush emerald moss and tiny fern shoots along top surface
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(x, y, p.w, 1.5);
+          for (let tx = x + 6; tx < x + p.w - 6; tx += 12) {
+            ctx.fillRect(tx, y - 2, 2, 2);
+            ctx.fillRect(tx + 1, y - 4, 1.5, 2);
           }
         }
         continue;
@@ -6206,6 +6568,165 @@ export class GameRenderer {
           ctx.fillRect(sx + step / 2 - 1, h.y, 2, 3);
           ctx.fillStyle = h.type === 'sea_urchin' ? '#581c87' : '#e11d48';
         }
+      } else if (h.type === 'tar_pit') {
+        // Prehistoric Bubbling Tar Pit Hazard with Fossilized Bones
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(x + 1, h.y + 1, h.w - 2, h.h - 1);
+
+        // Viscous pitch ripples & rainbow hydrocarbon sheen
+        ctx.fillStyle = '#27272a';
+        ctx.fillRect(x, h.y, h.w, 2);
+        for (let bx = x + 4; bx < x + h.w - 4; bx += 10) {
+          const bWave = Math.sin(time * 0.1 + bx * 0.3) * 1.5;
+          ctx.fillStyle = (bx % 20 === 0) ? '#15803d44' : '#eab30833';
+          ctx.fillRect(bx, h.y + 1 + bWave, 6, 1.5);
+        }
+
+        // Bubbling tar blisters rising & bursting
+        for (let b = 0; b < 3; b++) {
+          const bPhase = (time * 0.15 + b * 2) % 3;
+          const bX = x + 8 + (b * (h.w / 3.2));
+          const bY = h.y + 2;
+          ctx.fillStyle = '#09090b';
+          ctx.beginPath();
+          ctx.arc(bX, bY - bPhase * 1.2, 2.5 + bPhase, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#71717a';
+          ctx.fillRect(bX - 1, bY - bPhase * 1.2 - 1, 1, 1);
+        }
+
+        // Protruding fossilized dinosaur ribs & bone spikes
+        ctx.fillStyle = '#fef3c7';
+        for (let fx = x + 6; fx < x + h.w - 6; fx += 18) {
+          ctx.beginPath();
+          ctx.moveTo(fx - 2, h.y + 6);
+          ctx.lineTo(fx, h.y - 4);
+          ctx.lineTo(fx + 2, h.y + 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (h.type === 'pterodactyl_nest') {
+        // Prehistoric Dinosaur Nest with Speckled Eggs & Sharp Bone Spikes
+        ctx.fillStyle = '#451a03';
+        ctx.beginPath();
+        ctx.ellipse(x + h.w / 2, h.y + h.h - 2, h.w / 2, h.h / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#78350f';
+        ctx.beginPath();
+        ctx.ellipse(x + h.w / 2, h.y + h.h - 3, h.w / 2 - 2, h.h / 2 - 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Speckled Dinosaur Eggs nestled inside
+        const eggX = x + h.w / 2;
+        const eggY = h.y + h.h / 2 + 1;
+        // Egg 1 (Golden raptor egg)
+        ctx.fillStyle = '#fef08a';
+        ctx.beginPath();
+        ctx.ellipse(eggX - 4, eggY, 3, 4, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(eggX - 5, eggY - 1, 1, 1);
+        ctx.fillRect(eggX - 3, eggY + 1, 1, 1);
+
+        // Egg 2 (Teal pterosaur egg)
+        ctx.fillStyle = '#99f6e4';
+        ctx.beginPath();
+        ctx.ellipse(eggX + 4, eggY, 3.2, 4.2, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#0f766e';
+        ctx.fillRect(eggX + 3, eggY - 1, 1, 1);
+
+        // Sharp defensive thorn/bone perimeter spikes
+        ctx.fillStyle = '#fde68a';
+        ctx.beginPath();
+        ctx.moveTo(x + 1, h.y + h.h - 2);
+        ctx.lineTo(x - 2, h.y);
+        ctx.lineTo(x + 4, h.y + 4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + h.w - 1, h.y + h.h - 2);
+        ctx.lineTo(x + h.w + 2, h.y);
+        ctx.lineTo(x + h.w - 4, h.y + 4);
+        ctx.closePath();
+        ctx.fill();
+      } else if (h.type === 'lava_fissure') {
+        // Glowing Volcanic Basalt Magma Fissure Hazard
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#292524';
+        ctx.fillRect(x + 1, h.y + 1, h.w - 2, h.h - 1);
+
+        // Incandescent molten magma pit
+        const magPulse = 0.8 + Math.sin(time * 0.15) * 0.2;
+        const fGrad = ctx.createLinearGradient(x, h.y, x, h.y + h.h);
+        fGrad.addColorStop(0, '#fef08a');
+        fGrad.addColorStop(0.3, '#f97316');
+        fGrad.addColorStop(0.8, '#ef4444');
+        fGrad.addColorStop(1, '#991b1b');
+        ctx.fillStyle = fGrad;
+        ctx.fillRect(x + 2, h.y + 2, h.w - 4, h.h - 2);
+
+        // Lava crust bubbling
+        ctx.fillStyle = '#451a03';
+        for (let cx = x + 4; cx < x + h.w - 4; cx += 8) {
+          const crustWave = Math.sin(time * 0.2 + cx) * 1.5;
+          ctx.fillRect(cx, h.y + 2 + crustWave, 4, 1.5);
+        }
+
+        // Floating magma embers
+        ctx.fillStyle = '#ffffff';
+        const emberX = x + h.w / 2 + Math.sin(time * 0.3) * (h.w / 3);
+        ctx.fillRect(emberX, h.y - 1 - (Math.floor(time * 0.6) % 6), 1.5, 1.5);
+      } else if (h.type === 'rolling_boulder') {
+        // Giant Rolling Basalt Volcano Boulder Hazard
+        const cx = x + h.w / 2;
+        const cy = h.y + h.h / 2;
+        const rad = Math.min(h.w, h.h) / 2;
+        const spin = (h.x || x) * 0.08;
+
+        // Ground shadow
+        ctx.fillStyle = 'rgba(12, 10, 9, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(cx, h.y + h.h, rad * 0.9, 2.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(spin);
+
+        // Rough jagged stone body
+        ctx.fillStyle = '#1c1917';
+        ctx.beginPath();
+        ctx.arc(0, 0, rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#44403c';
+        ctx.beginPath();
+        ctx.arc(-1, -1, rad - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Craggy basalt rock fissures
+        ctx.strokeStyle = '#0c0a09';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-rad * 0.6, -rad * 0.3);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(rad * 0.5, -rad * 0.5);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-rad * 0.2, rad * 0.6);
+        ctx.stroke();
+
+        // Glowing magma fissure in rock
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-rad * 0.3, -rad * 0.1);
+        ctx.lineTo(rad * 0.2, rad * 0.2);
+        ctx.stroke();
+
+        ctx.restore();
       }
     }
   }

@@ -43,7 +43,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      const underConstruction = isUnderConstruction || ['jurasicdraft', 'themoon'].includes(zone);
+      const underConstruction = isUnderConstruction || ['themoon'].includes(zone);
 
       // ========================================================
       // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
@@ -385,6 +385,24 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           skyGrad.addColorStop(0.75, '#042f2e');
           skyGrad.addColorStop(1, '#020617');
         }
+      } else if (zone === 'jurasicdraft') {
+        if (act === 1) {
+          skyGrad.addColorStop(0, '#064e3b');
+          skyGrad.addColorStop(0.4, '#047857');
+          skyGrad.addColorStop(0.75, '#10b981');
+          skyGrad.addColorStop(1, '#fde047');
+        } else if (act === 2) {
+          skyGrad.addColorStop(0, '#451a03');
+          skyGrad.addColorStop(0.4, '#7c2d12');
+          skyGrad.addColorStop(0.75, '#ea580c');
+          skyGrad.addColorStop(1, '#fed7aa');
+        } else {
+          skyGrad.addColorStop(0, '#1c070c');
+          skyGrad.addColorStop(0.35, '#450a0a');
+          skyGrad.addColorStop(0.7, '#991b1b');
+          skyGrad.addColorStop(0.9, '#ea580c');
+          skyGrad.addColorStop(1, '#facc15');
+        }
       } else {
         // travel
         skyGrad.addColorStop(0, '#020617');
@@ -703,6 +721,50 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillStyle = 'rgba(45, 212, 191, 0.2)';
           ctx.beginPath();
           ctx.arc(w - 40, 30, 22, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (zone === 'jurasicdraft') {
+        if (act === 1) {
+          // Prehistoric golden dawn sun
+          const sunX = w - 44;
+          const sunY = 24;
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.3)';
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 20, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pterodactyl soaring silhouette
+          const pX = (tick * 0.4) % (w + 40) - 20;
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.moveTo(pX, 18);
+          ctx.lineTo(pX - 5, 14);
+          ctx.lineTo(pX - 1, 18);
+          ctx.lineTo(pX + 5, 14);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Smoking volcano peak
+          const volX = w - 48;
+          ctx.fillStyle = '#260404';
+          ctx.beginPath();
+          ctx.moveTo(volX - 26, h - 30);
+          ctx.lineTo(volX, 20);
+          ctx.lineTo(volX + 26, h - 30);
+          ctx.closePath();
+          ctx.fill();
+          // Magma glow
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(volX - 6, 20, 12, 2.5);
+          // Smoke puff
+          const spY = 16 - ((tick * 0.4) % 15);
+          ctx.fillStyle = 'rgba(120, 53, 15, 0.4)';
+          ctx.beginPath();
+          ctx.arc(volX + Math.sin(tick * 0.1) * 3, spY, 5, 0, Math.PI * 2);
           ctx.fill();
         }
       } else {
@@ -1226,6 +1288,61 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillRect(w * 0.55, h - 92, 3, 22);
           ctx.fillRect(w * 0.45, h - 84, 24, 2);
         }
+      } else if (zone === 'jurasicdraft') {
+        if (act === 1) {
+          // Prehistoric Jungle: Giant cycad palms & sauropod neck in background
+          ctx.fillStyle = '#064e3b';
+          // Sauropod long neck silhouette
+          ctx.beginPath();
+          ctx.moveTo(w * 0.7, h - 34);
+          ctx.quadraticCurveTo(w * 0.75, h - 75, w * 0.82, h - 80);
+          ctx.lineTo(w * 0.88, h - 80);
+          ctx.lineTo(w * 0.86, h - 74);
+          ctx.quadraticCurveTo(w * 0.8, h - 70, w * 0.78, h - 34);
+          ctx.closePath();
+          ctx.fill();
+          // Sauropod head
+          ctx.fillRect(w * 0.82, h - 82, 10, 6);
+          // Giant fern trunks
+          ctx.fillStyle = '#14532d';
+          ctx.fillRect(w * 0.25, h - 68, 6, 34);
+          ctx.fillRect(w * 0.45, h - 60, 5, 26);
+        } else if (act === 2) {
+          // Volcanic Pterosaur Canyon & Smoking Fumaroles
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.1, h - 34);
+          ctx.lineTo(w * 0.35, h - 85);
+          ctx.lineTo(w * 0.6, h - 34);
+          ctx.closePath();
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(w * 0.5, h - 34);
+          ctx.lineTo(w * 0.75, h - 90);
+          ctx.lineTo(w * 0.95, h - 34);
+          ctx.closePath();
+          ctx.fill();
+          // Volcanic smoke plume
+          ctx.fillStyle = 'rgba(120, 53, 15, 0.4)';
+          ctx.beginPath();
+          ctx.arc(w * 0.75, h - 96, 10, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Caldera of Titan Rex: Volcanic rim with glowing magma streams
+          ctx.fillStyle = '#1c1917';
+          ctx.beginPath();
+          ctx.moveTo(0, h - 34);
+          ctx.lineTo(w * 0.25, h - 80);
+          ctx.lineTo(w * 0.75, h - 80);
+          ctx.lineTo(w, h - 34);
+          ctx.closePath();
+          ctx.fill();
+          // Magma flow cascade
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(w * 0.48, h - 80, 4, 46);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(w * 0.49, h - 78, 2, 44);
+        }
       } else {
         // Quantum Space Shards (Travel)
         for (let i = 0; i < 6; i++) {
@@ -1288,6 +1405,10 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platBaseColor = act === 1 ? '#b45309' : act === 2 ? '#4c0519' : '#0f172a';
         platTrimColor = act === 1 ? '#d97706' : act === 2 ? '#9f1239' : '#1e293b';
         platHighlight = act === 1 ? '#fde047' : act === 2 ? '#f43f5e' : '#38bdf8';
+      } else if (zone === 'jurasicdraft') {
+        platBaseColor = act === 1 ? '#052e16' : act === 2 ? '#271004' : '#1c1917';
+        platTrimColor = act === 1 ? '#15803d' : act === 2 ? '#c2410c' : '#b91c1c';
+        platHighlight = act === 1 ? '#4ade80' : act === 2 ? '#fb923c' : '#f87171';
       }
 
       // Draw Main Ground Block
@@ -1425,6 +1546,38 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
             ctx.fillRect(bx + 1, groundY + 7, 1, 1);
           }
         }
+      } else if (zone === 'jurasicdraft') {
+        if (act === 1) {
+          // Primordial Fern Fronds & Moss
+          ctx.fillStyle = '#22c55e';
+          for (let fx = 12; fx < w; fx += 22) {
+            ctx.fillRect(fx, groundY - 4, 3, 4);
+            ctx.fillRect(fx - 2, groundY - 2, 7, 2);
+          }
+          // Dinosaur fossil bone in stone
+          ctx.fillStyle = '#fef3c7';
+          ctx.fillRect(w * 0.3, groundY + 12, 10, 3);
+          ctx.fillRect(w * 0.3 - 2, groundY + 11, 4, 5);
+          ctx.fillRect(w * 0.3 + 8, groundY + 11, 4, 5);
+        } else if (act === 2) {
+          // Glowing Lava fissure cracks in volcanic rock
+          ctx.fillStyle = '#ea580c';
+          for (let vx = 18; vx < w; vx += 32) {
+            ctx.fillRect(vx, groundY + 6, 12, 2);
+            ctx.fillRect(vx + 5, groundY + 8, 3, 6);
+          }
+          // Smoldering ember spark
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(w * 0.6, groundY - 3, 2, 2);
+        } else {
+          // Volcanic obsidian crags with magma veins
+          ctx.fillStyle = '#ef4444';
+          for (let vx = 10; vx < w; vx += 24) {
+            ctx.fillRect(vx, groundY + 5, 8, 2);
+          }
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(w * 0.4, groundY + 6, 4, 2);
+        }
       }
 
       // Floating Ledges
@@ -1543,6 +1696,52 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           const bAng = tick * 0.1;
           ctx.fillStyle = '#bae6fd';
           ctx.fillRect(itemX + Math.cos(bAng) * 13 - 1, itemY + Math.sin(bAng) * 13 - 1, 2, 2);
+        } else if (zone === 'jurasicdraft') {
+          // Titan Rex: Colossal T-Rex Pixel Art Head with gaping maw, sharp fangs & glowing amber eye
+          const bossPulse = Math.sin(tick * 0.15) * 2;
+          // Predatory fiery aura
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';
+          ctx.beginPath();
+          ctx.arc(itemX, itemY + bossPulse, 16, 0, Math.PI * 2);
+          ctx.fill();
+
+          // T-Rex Skull / Snout (Dark reptilian crimson-brown)
+          ctx.fillStyle = '#7f1d1d';
+          // Upper jaw
+          ctx.fillRect(itemX - 12, itemY - 10 + bossPulse, 24, 11);
+          ctx.fillRect(itemX - 4, itemY - 14 + bossPulse, 14, 5);
+          // Lower jaw
+          ctx.fillStyle = '#991b1b';
+          ctx.fillRect(itemX - 8, itemY + 3 + bossPulse, 18, 6);
+
+          // Massive Serrated White Fangs
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(itemX - 10, itemY + 1 + bossPulse, 2, 3);
+          ctx.fillRect(itemX - 6, itemY + 1 + bossPulse, 2, 4);
+          ctx.fillRect(itemX - 2, itemY + 1 + bossPulse, 2, 4);
+          ctx.fillRect(itemX + 2, itemY + 1 + bossPulse, 2, 3);
+          ctx.fillRect(itemX + 6, itemY + 1 + bossPulse, 2, 3);
+          // Lower teeth pointing up
+          ctx.fillRect(itemX - 8, itemY + 1 + bossPulse, 2, 2);
+          ctx.fillRect(itemX - 4, itemY + 1 + bossPulse, 2, 2);
+          ctx.fillRect(itemX, itemY + 1 + bossPulse, 2, 2);
+
+          // Glowing Menacing Amber/Gold Reptilian Eye
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(itemX + 4, itemY - 8 + bossPulse, 4, 4);
+          // Slit pupil
+          ctx.fillStyle = '#450a0a';
+          ctx.fillRect(itemX + 5, itemY - 8 + bossPulse, 1.5, 4);
+
+          // Nostril
+          ctx.fillStyle = '#450a0a';
+          ctx.fillRect(itemX - 10, itemY - 5 + bossPulse, 2, 2);
+
+          // Embers / roaring breath particles
+          const roarAng = tick * 0.14;
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(itemX - 14 + Math.cos(roarAng) * 4, itemY + bossPulse + Math.sin(roarAng) * 4, 2, 2);
+          ctx.fillRect(itemX - 18, itemY + 2 + bossPulse, 2.5, 2.5);
         } else {
           // Pulsing Demonic Boss Core / Skull Sigil
           const bossPulse = Math.sin(tick * 0.15) * 2;

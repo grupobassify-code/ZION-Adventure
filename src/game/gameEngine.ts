@@ -1096,6 +1096,17 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('pirateUnderwater');
       }
+    } else if (currentConfig.zone === 'jurasicdraft') {
+      // Jurassic Draft Prehistoric Dinosaur Era
+      if (this.boss && this.arenaActive && !this.bossDefeated) {
+        sound.setMusicTrack('jurassicBoss');
+      } else if (currentConfig.act === 1) {
+        sound.setMusicTrack('jurassicAct1');
+      } else if (currentConfig.act === 2) {
+        sound.setMusicTrack('jurassicAct2');
+      } else {
+        sound.setMusicTrack('jurassicBoss');
+      }
     }
   }
 
@@ -1643,13 +1654,37 @@ export class GameEngine {
       const arenaRight = this.arenaRight || (this.boss.x + 360);
       const arenaY = isVerticalSteampunk ? this.boss.y - 120 : 0;
       const arenaH = isVerticalSteampunk ? 260 : 180;
-      walls.push({ x: arenaLeft, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
+      // Only block player from moving left if they are already comfortably inside the arena!
+      // This ensures players can always walk freely into the arena without hitting an invisible gate.
+      if (p.x >= arenaLeft + 25) {
+        walls.push({ x: arenaLeft, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
+      }
       walls.push({ x: arenaRight, y: arenaY, w: 8, h: arenaH, kind: 'arena' });
     }
 
     for (const plat of walls) {
       if (plat.hidden || plat.slopeEndY !== undefined) continue;
       if (this.checkAABB(p, plat)) {
+        if (plat.kind === 'arena') {
+          // Left arena gate: Only block if player is moving left (p.vx < 0) from inside to prevent leaving.
+          // NEVER block a player moving right (p.vx >= 0) entering the arena!
+          if (this.arenaLeft && Math.abs(plat.x - this.arenaLeft) < 20) {
+            if (p.vx < 0 && p.x >= plat.x) {
+              p.x = plat.x + plat.w;
+              p.vx = 0;
+            }
+            continue;
+          }
+          // Right arena gate: Only block if player is moving right (p.vx > 0) to prevent leaving.
+          if (this.arenaRight && Math.abs(plat.x - this.arenaRight) < 20) {
+            if (p.vx > 0 && p.x <= plat.x) {
+              p.x = plat.x - p.w;
+              p.vx = 0;
+            }
+            continue;
+          }
+          continue; // Any arena collision that didn't match must never fall through to block general movement
+        }
         if (p.vx > 0) {
           p.x = plat.x - p.w;
         } else if (p.vx < 0) {
@@ -4085,6 +4120,71 @@ export class GameEngine {
           if (e.x < e.min || e.x > e.max) e.vx *= -1;
           e.facing = (e.vx >= 0 ? 1 : -1);
         }
+      } else if (e.type === 'raptor') {
+        // Velociraptor: Agile pack hunter, stalks player and leaps forward aggressively
+        if (absDist < 130 && absYDist < 60) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.x += (dist >= 0 ? 1 : -1) * 2.4;
+          if (e.vy === 0 && Math.random() < 0.04) {
+            e.vy = -4.6;
+            e.alertTimer = 16;
+            this.playEnemySfx(e, 'enemyAlert');
+          }
+        } else {
+          e.x += e.vx * 1.3;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
+      } else if (e.type === 'pterodactyl') {
+        // Pterodactyl: Prehistoric flyer, glides in thermals and swoops down dropping volcanic stones
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.05;
+        e.y = e.home + Math.sin(e.t) * 14;
+        e.x += e.vx * 1.1;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        e.facing = e.vx >= 0 ? 1 : -1;
+        e.cool = (e.cool || 80) - 1;
+        if (absDist < 120 && absYDist < 90 && e.cool <= 0) {
+          e.cool = 95;
+          e.alertTimer = 20;
+          this.projectiles.push({
+            x: e.x + e.w / 2,
+            y: e.y + e.h,
+            w: 8,
+            h: 8,
+            vx: Math.sign(dist) * 1.2,
+            vy: 2.8,
+            life: 90,
+            isHero: false,
+            kind: 'catapult_boulder',
+          });
+          this.playEnemySfx(e, 'bossShot');
+        }
+      } else if (e.type === 'triceratops') {
+        // Triceratops: Armored dinosaur, charges with heavy horn thrust when close
+        if (absDist < 140 && absYDist < 45) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.x += (dist >= 0 ? 1 : -1) * 2.2;
+          if (this.time % 12 === 0) {
+            this.createBurst(e.x + (e.facing === 1 ? 0 : e.w), e.y + e.h, 3, '#78350f');
+          }
+        } else {
+          e.x += e.vx * 0.9;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
+      } else if (e.type === 'ankylosaur') {
+        // Ankylosaur: Heavy armored tank with spiky tail club defense
+        e.x += e.vx * 0.7;
+        if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        e.facing = e.vx >= 0 ? 1 : -1;
+        if (absDist < 55 && absYDist < 35 && (e.cool || 0) <= 0) {
+          e.cool = 60;
+          e.alertTimer = 20;
+          this.createBurst(e.x + e.w / 2, e.y + e.h / 2, 8, '#ea580c');
+          this.playEnemySfx(e, 'slashHit');
+        }
+        if (e.cool && e.cool > 0) e.cool--;
       }
 
       // Gravity for ground enemies
@@ -4102,7 +4202,8 @@ export class GameEngine {
         e.type !== 'parrot_bomber' &&
         e.type !== 'anglerfish' &&
         e.type !== 'electric_jellyfish' &&
-        e.type !== 'shark_corsair'
+        e.type !== 'shark_corsair' &&
+        e.type !== 'pterodactyl'
       ) {
         const isUnderwater = !this.isOnlyUpMode && LEVEL_CONFIGS[this.levelIndex]?.zone === 'piratestreasure' && LEVEL_CONFIGS[this.levelIndex]?.act !== 1;
         e.vy = Math.min(e.vy + (isUnderwater ? 0.08 : GRAVITY), isUnderwater ? 2.5 : 6);
@@ -4128,20 +4229,29 @@ export class GameEngine {
     if (!b || !b.alive) return;
 
     // Trigger Arena lock & Cinematic Intro
+    b.startX = b.startX ?? b.x;
+    b.startY = b.startY ?? b.y;
     const isVerticalSteampunk = LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3';
+    const currentConfig = LEVEL_CONFIGS[this.levelIndex];
     const inArenaRange = isVerticalSteampunk
       ? (Math.abs(this.player.x - b.x) < 320 && Math.abs(this.player.y - b.y) < 160)
-      : (this.player.x > b.x - 330);
+      : currentConfig?.id === 'piratestreasure-3'
+      ? (this.player.x >= 2710)
+      : currentConfig?.id === 'jurasicdraft-3'
+      ? (this.player.x >= 2560)
+      : (this.player.x > b.x - 340 || (this.arenaLeft > 0 && this.player.x >= this.arenaLeft + 40));
 
     if (inArenaRange && !this.arenaActive) {
       this.arenaActive = true;
-      const currentConfig = LEVEL_CONFIGS[this.levelIndex];
       if (currentConfig?.id === 'castlesmash-3') {
         this.arenaLeft = 2690;
         this.arenaRight = 3750;
       } else if (currentConfig?.id === 'piratestreasure-3') {
         this.arenaLeft = 2700;
         this.arenaRight = 3750;
+      } else if (currentConfig?.id === 'jurasicdraft-3') {
+        this.arenaLeft = 2550;
+        this.arenaRight = 3550;
       } else {
         this.arenaLeft = b.x - 360;
         this.arenaRight = b.x + 360;
@@ -5981,6 +6091,167 @@ export class GameEngine {
         b.y = groundY;
         b.vy = 0;
       }
+    } else if (b.name.includes('Rex') || b.name.includes('Titan Rex') || b.name.includes('Dinosaurio') || b.name.includes('T-Rex')) {
+      // ---------------------------------------------------------------------
+      // JEFE DE JURASSIC DRAFT: TITAN REX COLOSAL (REY DEL MESOZOICO)
+      // ---------------------------------------------------------------------
+      // Depredador alfa en la caldera volcánica del cráter prehistórico.
+      // - Fase 1: Pisotones sísmicos (ondas de choque en el suelo), mordiscos en carrera y coletazos.
+      // - Fase 2: Rugido primigenio que sacude el suelo y desata lluvia de rocas y meteoros volcánicos.
+      // - Fase 3 (Extinción): Embestidas furiosas, aliento de magma ardiente y pisotones consecutivos.
+      const p = this.player;
+      const groundY = 148 - b.h;
+      b.facing = p.x < b.x ? -1 : 1;
+
+      // Phase calculation
+      if (b.hp <= b.maxHp * 0.35) {
+        b.phase = 3;
+      } else if (b.hp <= b.maxHp * 0.7) {
+        b.phase = 2;
+      } else {
+        b.phase = 1;
+      }
+
+      // Footstep smoke / dust when moving
+      if (Math.abs(b.vx) > 0.5 && this.time % 6 === 0) {
+        this.createBurst(b.x + (b.facing === 1 ? 4 : b.w - 4), groundY + b.h, 3, '#78350f');
+      }
+
+      if (b.state === 'idle') {
+        b.stateTimer--;
+        b.vx *= 0.85;
+        b.x += b.vx;
+
+        // Choose next attack pattern
+        if (b.stateTimer <= 0) {
+          const rng = Math.random();
+          if (rng < 0.35) {
+            // Earth-shattering stomp attack
+            b.state = 'smashing';
+            b.stateTimer = 45;
+            this.addFloatingText(b.x + b.w / 2, b.y - 15, '⚠️ ¡PISOTÓN SÍSMICO!', '#ea580c');
+            sound.playSfx('bossWarning');
+          } else if (rng < 0.65) {
+            // Chomp rush / charge attack
+            b.state = 'attack';
+            b.stateTimer = b.phase === 3 ? 55 : 45;
+            this.addFloatingText(b.x + b.w / 2, b.y - 15, '🦖 ¡MORDISCO COLOSAL!', '#ef4444');
+            sound.playSfx('bossWarning');
+          } else {
+            // Primal roar / volcanic boulders (or magma breath in phase 3)
+            b.state = 'roaring';
+            b.stateTimer = b.phase === 3 ? 50 : 40;
+            this.addFloatingText(b.x + b.w / 2, b.y - 15, b.phase === 3 ? '🔥 ¡ALIENTO DE MAGMA!' : '🌋 ¡RUGIDO PRIMIGENIO!', '#f97316');
+            sound.playSfx('bossShot');
+          }
+        }
+      } else if (b.state === 'smashing') {
+        b.stateTimer--;
+        if (b.stateTimer === 20) {
+          // Foot slams down
+          this.screenShake = 10;
+          sound.playSfx('explosion');
+          this.createBurst(b.x + b.w / 2, groundY + b.h, 16, '#ea580c');
+          this.createBurst(b.x + b.w / 2, groundY + b.h, 10, '#f97316');
+
+          // Ground shockwave
+          this.boss.shockwaves.push(
+            {
+              x: b.x,
+              y: groundY + b.h - 8,
+              vx: -3.8,
+              w: 16,
+              h: 12,
+              life: 45,
+              maxLife: 45,
+              color: '#ea580c',
+            },
+            {
+              x: b.x + b.w,
+              y: groundY + b.h - 8,
+              vx: 3.8,
+              w: 16,
+              h: 12,
+              life: 45,
+              maxLife: 45,
+              color: '#ea580c',
+            }
+          );
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+        }
+      } else if (b.state === 'attack') {
+        // Chomp dash forward
+        b.stateTimer--;
+        b.vx = b.facing * (b.phase === 3 ? 3.0 : 2.4);
+        b.x += b.vx;
+        b.x = Math.max(2580, Math.min(3520 - b.w, b.x));
+
+        if (this.checkAABB(p, b) && p.inv <= 0 && !this.settings.godMode) {
+          this.handlePlayerDamage('¡Mordisco Titánico del T-Rex!');
+          b.state = 'idle';
+          b.stateTimer = 30;
+        }
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 25;
+        }
+      } else if (b.state === 'roaring') {
+        b.stateTimer--;
+        b.vx *= 0.8;
+        b.x += b.vx;
+
+        if (b.stateTimer === 25) {
+          this.screenShake = 12;
+          sound.playSfx('bossShot');
+
+          if (b.phase === 3) {
+            // Magma flame breath fireballs
+            for (let i = 0; i < 3; i++) {
+              this.projectiles.push({
+                x: b.x + (b.facing === 1 ? b.w + 4 : -8),
+                y: b.y + 12 + i * 8,
+                w: 8,
+                h: 8,
+                vx: b.facing * (3.0 + i * 0.5),
+                vy: -0.6 + (i - 1) * 0.8,
+                life: 90,
+                isHero: false,
+                kind: 'fireball',
+                color: '#ef4444',
+              });
+            }
+          } else {
+            // Volcanic boulders raining from the volcanic crater
+            for (let i = 0; i < 2; i++) {
+              const dropX = p.x + (i - 0.5) * 80;
+              this.projectiles.push({
+                x: Math.max(2600, Math.min(3500, dropX)),
+                y: 10,
+                w: 12,
+                h: 12,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: 4.2 + b.phase * 0.5,
+                life: 80,
+                isHero: false,
+                kind: 'catapult_boulder',
+              });
+            }
+          }
+        }
+
+        if (b.stateTimer <= 0) {
+          b.state = 'idle';
+          b.stateTimer = b.phase === 3 ? 15 : 30;
+        }
+      }
+
+      if (b.state !== 'jumping' && b.y !== groundY) {
+        b.y = groundY;
+        b.vy = 0;
+      }
     }
 
     // Universal Relentless Boss Watchdog: Ensures the boss NEVER goes passive or stops attacking
@@ -6723,6 +6994,23 @@ export class GameEngine {
             sound.playSfx('buzzSaw');
             this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#f59e0b');
             this.handlePlayerDamage('¡Enganchado por Engranaje Dentado!');
+          } else if (h.type === 'lava_fissure') {
+            sound.playSfx('lava');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 20, '#ea580c');
+            this.handlePlayerDamage('¡Quemadura de Grieta de Magma Volcánico!');
+          } else if (h.type === 'tar_pit') {
+            sound.playSfx('acidSizzle');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 16, '#1e293b');
+            p.vx *= 0.4;
+            this.handlePlayerDamage('¡Atrapado en Charco de Brea Fósil!');
+          } else if (h.type === 'rolling_boulder') {
+            sound.playSfx('hit');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 20, '#78350f');
+            this.handlePlayerDamage('¡Impacto de Roca Rodante Prehistórica!');
+          } else if (h.type === 'pterodactyl_nest') {
+            sound.playSfx('enemyAlert');
+            this.createBurst(p.x + p.w / 2, p.y + p.h, 14, '#15803d');
+            this.handlePlayerDamage('¡Alerta: Nido de Dinosaurio Perturbado!');
           } else {
             this.handlePlayerDamage('¡Peligro en el terreno!');
           }
@@ -7410,6 +7698,14 @@ export class GameEngine {
     this.maxLives = 3;
     this.lives = 3;
 
+    // In any level with a boss, ensure the arena checkpoint is activated so Zion respawns right at the boss battle
+    const arenaCp = this.checkpoints.find((c) => c.arena);
+    if (this.boss && arenaCp) {
+      arenaCp.active = true;
+      this.hasActiveCheckpoint = true;
+      this.spawnPoint = { ...arenaCp.spawn };
+    }
+
     const hasCheckpoint = this.hasActiveCheckpoint && this.checkpoints.some((c) => c.active);
     const respawnTarget = hasCheckpoint ? this.spawnPoint : this.levelStartPoint;
 
@@ -7422,6 +7718,7 @@ export class GameEngine {
     this.player.isShieldBroken = false;
     this.daggers = DAGGER_MAX_AMMO;
     this.player.energy = Math.max(60, this.player.energy);
+    this.cameraX = Math.max(0, this.player.x - GAME_WIDTH * 0.38);
 
     const isBlizzardSki = LEVEL_CONFIGS[this.levelIndex]?.id === 'blizzard-1';
     this.player.isSkiing = isBlizzardSki;
@@ -7441,7 +7738,13 @@ export class GameEngine {
     }
 
     // If player died during a boss arena battle, reset the boss state for an immediate, fair retry inside the arena
-    if (this.arenaActive && this.boss && this.boss.alive) {
+    if ((this.arenaActive || this.boss) && this.boss && this.boss.alive) {
+      this.arenaActive = false; // Reset arena gate so the player is never trapped or locked out!
+      this.arenaLeft = 0;
+      this.arenaRight = 0;
+      if (this.boss.startX !== undefined) this.boss.x = this.boss.startX;
+      if (this.boss.startY !== undefined) this.boss.y = this.boss.startY;
+      this.projectiles = this.projectiles.filter((p) => p.isHero);
       this.boss.hp = this.boss.maxHp;
       this.boss.phase = 1;
       this.boss.state = 'idle';
@@ -7459,11 +7762,10 @@ export class GameEngine {
       if (this.boss.name.includes('Guardián') || this.boss.name.includes('Neón') || this.boss.name.includes('Yeti') || this.boss.name.includes('Vulkan')) {
         this.boss.shield = true;
         this.nodes.forEach((n) => (n.taken = false));
-      } else if (this.boss.name.includes('Kronos')) {
-        // Kronos-Ω has no shield nodes - boss can be damaged directly
+      } else if (this.boss.name.includes('Kronos') || this.boss.name.includes('Cofre') || this.boss.name.includes('Rex')) {
         this.boss.shield = false;
       }
-      this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '⚡ ¡Zion Reaparece en la Arena del Jefe! (3/3 ❤)', '#38bdf8');
+      this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '⚡ ¡Zion Reaparece en la Entrada de la Arena! (3/3 ❤)', '#38bdf8');
     } else if (hasCheckpoint) {
       this.addFloatingText(respawnTarget.x, respawnTarget.y - 20, '✦ REGRESASTE AL ÚLTIMO CHECKPOINT (3/3 ❤) ✦', '#4ade80');
     } else {

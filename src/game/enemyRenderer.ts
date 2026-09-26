@@ -208,6 +208,20 @@ export class EnemyRenderer {
         this.renderSharkCorsair(anim, time, e);
         break;
 
+      // --- ZONA 11: JURASSIC DRAFT (ERA DE LOS DINOSAURIOS) ---
+      case 'raptor':
+        this.renderRaptor(anim, time, e);
+        break;
+      case 'pterodactyl':
+        this.renderPterodactyl(anim, time, e);
+        break;
+      case 'triceratops':
+        this.renderTriceratops(anim, time, e);
+        break;
+      case 'ankylosaur':
+        this.renderAnkylosaur(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -2942,5 +2956,385 @@ export class EnemyRenderer {
     ctx.moveTo(5, -4);
     ctx.lineTo(11, -1);
     ctx.stroke(); // Strap
+  }
+
+  // ===========================================================================
+  // ZONA 11: JURASSIC DRAFT (ERA DE LOS DINOSAURIOS)
+  // ===========================================================================
+
+  // 1. VELOCIRAPTOR — Pack hunter, swift leaps and razor sickle claw
+  private renderRaptor(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const runCycle = Math.sin(time * 0.35) * 4;
+    const tailSway = Math.sin(time * 0.25) * 3;
+    const isLeaping = e.vy !== 0;
+
+    // A. Long Balancing Feathered Tail (Behind: -6 to -18)
+    ctx.fillStyle = '#0f381e';
+    ctx.beginPath();
+    ctx.moveTo(-4, -2);
+    ctx.quadraticCurveTo(-12, -4 + tailSway, -18, 1 + tailSway);
+    ctx.lineTo(-17, 3 + tailSway);
+    ctx.quadraticCurveTo(-10, 2, -4, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Plumage quill accents on tail tip
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(-19, tailSway, 3, 1.5);
+    ctx.fillRect(-17, -1 + tailSway, 2, 1);
+
+    // B. Back Hind Leg (Darker)
+    ctx.fillStyle = '#0a2312';
+    ctx.fillRect(-5, 4, 3, 5 + runCycle);
+    ctx.fillRect(-6, 9 + runCycle, 4, 2);
+
+    // C. Muscular Torso & Ribcage
+    ctx.fillStyle = '#15803d'; // Scaly olive/emerald
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 7, 5, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Tiger Stripes along spine
+    ctx.fillStyle = '#052e16';
+    ctx.fillRect(-3, -4, 1.5, 3);
+    ctx.fillRect(0, -5, 1.5, 3);
+    ctx.fillRect(3, -4, 1.5, 3);
+
+    // Pale golden chest/belly
+    ctx.fillStyle = '#ca8a04';
+    ctx.beginPath();
+    ctx.ellipse(1, 2, 5, 2.5, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // D. Front Hind Leg with Iconic Sickle Claw
+    ctx.fillStyle = '#166534';
+    ctx.fillRect(-2, 4, 3.5, 6 - runCycle);
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-4, 10 - runCycle, 5, 2);
+    // Raised lethal curved sickle claw
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.moveTo(-4, 10 - runCycle);
+    ctx.lineTo(-6, 7 - runCycle);
+    ctx.lineTo(-3, 9 - runCycle);
+    ctx.closePath();
+    ctx.fill();
+
+    // E. Small Grasping Forearms with Claws
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(3, 1, 3, 2);
+    ctx.fillRect(5, 2, 2, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(6, 4.5, 1.5, 1.5);
+
+    // F. Neck & Snapping Raptor Head
+    ctx.fillStyle = '#166534';
+    ctx.beginPath();
+    ctx.moveTo(3, -2);
+    ctx.lineTo(6, -6);
+    ctx.lineTo(13, -5); // Snout
+    ctx.lineTo(13, -2); // Jaw
+    ctx.lineTo(5, 1);
+    ctx.closePath();
+    ctx.fill();
+
+    // Sharp white fangs
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(9, -2, 1, 1.5);
+    ctx.fillRect(11, -2, 1, 1.5);
+
+    // Glowing Predatory Amber Eye
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(8, -5, 2, 2);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(8.5, -5, 1, 2);
+
+    // Feather crest on head
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(5, -7, 2, 2);
+    ctx.fillRect(7, -8, 2, 2);
+  }
+
+  // 2. PTERODACTYL — Prehistoric soaring glider, thermals and rock drops
+  private renderPterodactyl(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const flap = Math.sin(time * 0.3) * 5;
+    const glideTilt = Math.sin(time * 0.15) * 0.15;
+
+    ctx.save();
+    ctx.rotate(glideTilt);
+
+    // A. Left / Top Wing (Leathery amber membrane with bone spars)
+    ctx.fillStyle = '#9a3412';
+    ctx.beginPath();
+    ctx.moveTo(-2, -2);
+    ctx.lineTo(-14, -8 + flap);
+    ctx.lineTo(-6, -1);
+    ctx.closePath();
+    ctx.fill();
+    // Wing membrane wash
+    ctx.fillStyle = '#ea580c';
+    ctx.beginPath();
+    ctx.moveTo(-1, -1);
+    ctx.lineTo(-13, -7 + flap);
+    ctx.lineTo(-3, 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // B. Slender Prehistoric Body & Tucked Talons
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 6, 3, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Small tucked talons beneath
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-2, 2, 2, 3);
+    ctx.fillRect(1, 2, 2, 3);
+
+    // C. Right / Fore Wing (Foreground)
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.moveTo(1, 0);
+    ctx.lineTo(15, -9 - flap);
+    ctx.lineTo(6, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.moveTo(2, 0);
+    ctx.lineTo(14, -8 - flap);
+    ctx.lineTo(4, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // D. Pterosaur Skull with Cranial Crest and Needle Beak
+    // Backward pointing crest
+    ctx.fillStyle = '#b45309';
+    ctx.beginPath();
+    ctx.moveTo(2, -2);
+    ctx.lineTo(-6, -7);
+    ctx.lineTo(0, -4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Head core
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath();
+    ctx.ellipse(4, -2, 3, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sharp forward needle beak
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.moveTo(6, -3);
+    ctx.lineTo(14, -1);
+    ctx.lineTo(6, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Glowing bright eye
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(4, -3, 1.5, 1.5);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(4.5, -3, 1, 1);
+
+    ctx.restore();
+  }
+
+  // 3. TRICERATOPS — Heavy armored horned quad, stomping charge
+  private renderTriceratops(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walk = Math.sin(time * 0.25) * 3;
+    const isCharging = (e.alertTimer && e.alertTimer > 0) || Math.abs(e.vx) > 1.5;
+
+    // A. Short Heavy Tail
+    ctx.fillStyle = '#451a03';
+    ctx.beginPath();
+    ctx.moveTo(-10, -1);
+    ctx.lineTo(-16, 2);
+    ctx.lineTo(-10, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // B. Back Stomping Feet (Darker)
+    ctx.fillStyle = '#331800';
+    ctx.fillRect(-8, 5, 4, 5 + walk);
+    ctx.fillRect(4, 5, 4, 5 - walk);
+
+    // C. Heavy Bulky Armored Torso
+    ctx.fillStyle = '#78350f'; // Earthy terracotta hide
+    ctx.beginPath();
+    ctx.ellipse(-1, 0, 11, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mossy scute plates on back
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(-6, -6, 4, 2);
+    ctx.fillRect(0, -6, 4, 2);
+
+    // D. Front Stomping Feet (Foreground)
+    ctx.fillStyle = '#542306';
+    ctx.fillRect(-5, 6, 4, 5 - walk);
+    ctx.fillRect(6, 6, 4, 5 + walk);
+    // Toenails
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(-5, 10 - walk, 1, 1);
+    ctx.fillRect(6, 10 + walk, 1, 1);
+
+    // E. Massive Bony Neck Frill (Scalloped shield behind head)
+    ctx.fillStyle = '#9a3412';
+    ctx.beginPath();
+    ctx.moveTo(6, 4);
+    ctx.lineTo(6, -9);
+    ctx.lineTo(11, -8);
+    ctx.lineTo(10, 3);
+    ctx.closePath();
+    ctx.fill();
+    // Scalloped frill rim with spikes
+    ctx.fillStyle = '#ea580c';
+    ctx.fillRect(6, -9, 2, 2);
+    ctx.fillRect(8, -10, 2, 2);
+    ctx.fillRect(10, -9, 2, 2);
+
+    // F. Solid Horned Skull
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath();
+    ctx.moveTo(8, -4);
+    ctx.lineTo(14, -2);
+    ctx.lineTo(16, 2); // Beak
+    ctx.lineTo(9, 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Sharp Parrot-like Beak
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(14, 1, 2, 2);
+
+    // Glowing Eye
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(9, -2, 1.5, 1.5);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(9.5, -2, 0.8, 1.5);
+
+    // G. Forward-pointing Ivory Brow Horns & Nasal Horn
+    ctx.fillStyle = '#fef3c7';
+    // Brow Horn 1
+    ctx.beginPath();
+    ctx.moveTo(10, -5);
+    ctx.lineTo(18, -9);
+    ctx.lineTo(11, -3);
+    ctx.closePath();
+    ctx.fill();
+    // Brow Horn 2 (offset)
+    ctx.beginPath();
+    ctx.moveTo(9, -7);
+    ctx.lineTo(17, -11);
+    ctx.lineTo(10, -5);
+    ctx.closePath();
+    ctx.fill();
+    // Sharp Nasal Horn on snout
+    ctx.beginPath();
+    ctx.moveTo(13, -1);
+    ctx.lineTo(16, -4);
+    ctx.lineTo(14, 1);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 4. ANKYLOSAUR — Armored living tank, spiked osteoderm carapace & bone club tail
+  private renderAnkylosaur(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const walk = Math.sin(time * 0.2) * 2;
+    const tailClubSway = Math.sin(time * 0.22) * 4;
+
+    // A. Heavy Tail & Massive Bone Club (Behind)
+    ctx.fillStyle = '#3f3f46';
+    ctx.beginPath();
+    ctx.moveTo(-8, 1);
+    ctx.lineTo(-18, 2 + tailClubSway);
+    ctx.lineTo(-8, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Heavy Double-Lobed Bone Club at Tail Tip
+    const clubX = -20;
+    const clubY = 2 + tailClubSway;
+    ctx.fillStyle = '#1c1917';
+    ctx.beginPath();
+    ctx.arc(clubX, clubY, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#71717a';
+    ctx.beginPath();
+    ctx.arc(clubX, clubY, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Bone spikes on club
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(clubX - 5, clubY - 1, 2, 2);
+    ctx.fillRect(clubX + 1, clubY - 4, 2, 2);
+    ctx.fillRect(clubX + 1, clubY + 2, 2, 2);
+
+    // B. Low-Slung Stumpy Legs
+    ctx.fillStyle = '#18181b';
+    ctx.fillRect(-6, 5, 4, 4 + walk);
+    ctx.fillRect(4, 5, 4, 4 - walk);
+    ctx.fillStyle = '#27272a';
+    ctx.fillRect(-4, 5, 4, 4 - walk);
+    ctx.fillRect(6, 5, 4, 4 + walk);
+
+    // C. Low-Slung Impenetrable Carapace (Dome Shell)
+    ctx.fillStyle = '#27272a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 11, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Carapace Osteoderm Plates (Hexagonal bone shields)
+    ctx.fillStyle = '#3f3f46';
+    for (let px = -6; px <= 6; px += 3) {
+      ctx.fillRect(px, -4, 2, 4);
+    }
+
+    // D. Rows of Sharp Triangular Bone Spikes protruding along flanks & top
+    ctx.fillStyle = '#ea580c'; // Charred amber spike tips
+    for (let sp = -7; sp <= 5; sp += 4) {
+      // Top spike
+      ctx.beginPath();
+      ctx.moveTo(sp, -5);
+      ctx.lineTo(sp + 1.5, -9);
+      ctx.lineTo(sp + 3, -5);
+      ctx.closePath();
+      ctx.fill();
+      // Flank spike
+      ctx.beginPath();
+      ctx.moveTo(sp, 2);
+      ctx.lineTo(sp + 2, 5);
+      ctx.lineTo(sp + 4, 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // E. Broad Armored Triangular Skull
+    ctx.fillStyle = '#27272a';
+    ctx.beginPath();
+    ctx.moveTo(8, -3);
+    ctx.lineTo(15, -1);
+    ctx.lineTo(14, 3);
+    ctx.lineTo(8, 3);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cheek Armor Horns
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(10, -4, 2, 2);
+    ctx.fillRect(10, 3, 2, 2);
+
+    // Tough Snout & Nostril
+    ctx.fillStyle = '#18181b';
+    ctx.fillRect(13, 0, 2, 2);
+
+    // Small Beady Amber Eye
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(11, -1, 1.5, 1.5);
   }
 }

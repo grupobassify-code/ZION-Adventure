@@ -81,6 +81,8 @@ export class BossRenderer {
       this.renderLordMalakar(boss, x, y, time);
     } else if (boss.name.includes('Cofre') || boss.name.includes('Tesoro') || boss.name.includes('Maldito') || boss.name.includes('Pirata') || boss.name.includes('Corsario')) {
       this.renderCursedChest(boss, x, y, time);
+    } else if (boss.name.includes('Rex') || boss.name.includes('Titan Rex') || boss.name.includes('Dinosaurio') || boss.name.includes('T-Rex')) {
+      this.renderTitanRex(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -2029,6 +2031,236 @@ export class BossRenderer {
     }
 
     ctx.restore(); // Base transform
+  }
+
+  // ===========================================================================
+  // 11. TITAN REX COLOSAL (REY DEL MESOZOICO - JURASSIC DRAFT BOSS)
+  // ===========================================================================
+  private renderTitanRex(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const isEnraged = boss.phase >= 2;
+    const isApexExtinction = boss.phase === 3;
+    const facing = boss.facing || 1;
+    const anim = Math.floor(time);
+
+    ctx.save();
+    // Center of the Titan Rex model
+    ctx.translate(x + boss.w / 2, y + boss.h / 2);
+    // Face player
+    ctx.scale(facing, 1);
+
+    // 1. Primal Volcanic Aura in Phase 2 & 3
+    if (isEnraged) {
+      const auraPulse = Math.sin(time * 0.15) * 4;
+      const grad = ctx.createRadialGradient(0, 0, 10, 0, 0, 36 + auraPulse);
+      grad.addColorStop(0, isApexExtinction ? 'rgba(239, 68, 68, 0.35)' : 'rgba(249, 115, 22, 0.25)');
+      grad.addColorStop(0.7, isApexExtinction ? 'rgba(220, 38, 38, 0.15)' : 'rgba(234, 88, 12, 0.1)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, 36 + auraPulse, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const breathe = Math.sin(time * 0.08) * 1.5;
+    const tailWag = Math.sin(time * 0.12) * 3;
+    const isAttacking = boss.state === 'attack' || boss.state === 'charging' || boss.state === 'shooting';
+
+    // 2. Heavy balancing Tail (Swinging behind: x from -8 to -34)
+    ctx.fillStyle = '#0f381e';
+    ctx.beginPath();
+    ctx.moveTo(-6, -2 + breathe);
+    ctx.quadraticCurveTo(-20, -6 + tailWag, -32, 2 + tailWag);
+    ctx.lineTo(-30, 7 + tailWag);
+    ctx.quadraticCurveTo(-16, 8, -6, 10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Tail Dorsal Spines (Charred obsidian spikes along tail)
+    ctx.fillStyle = isEnraged ? '#ea580c' : '#1e293b';
+    for (let ts = -28; ts <= -10; ts += 6) {
+      const spikeH = 3 + Math.sin(ts) * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(ts - 2, -2 + tailWag * (ts / -30));
+      ctx.lineTo(ts, -2 - spikeH + tailWag * (ts / -30));
+      ctx.lineTo(ts + 2, -2 + tailWag * (ts / -30));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 3. Left / Back Muscular Hind Leg
+    const legStep = Math.sin(time * 0.2) * 3;
+    ctx.fillStyle = '#0d2818';
+    ctx.beginPath();
+    ctx.ellipse(-10, 6, 6, 9, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(-12, 12, 4, 8 + legStep);
+    // Back foot talons
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-15, 18 + legStep, 7, 3);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(-16, 19 + legStep, 2, 2);
+
+    // 4. Main Massive Muscular Torso & Ribcage
+    ctx.fillStyle = '#14532d'; // Primeval reptilian forest green
+    ctx.beginPath();
+    ctx.ellipse(0, 0 + breathe, 16, 12, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Darker dorsal armor plates
+    ctx.fillStyle = '#0f381e';
+    ctx.beginPath();
+    ctx.ellipse(-2, -5 + breathe, 14, 6, 0.05, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pale scaly underbelly
+    ctx.fillStyle = '#854d0e';
+    ctx.beginPath();
+    ctx.ellipse(4, 5 + breathe, 10, 6, 0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Magma veins running along the back in Phase 2 & 3
+    if (isEnraged) {
+      ctx.fillStyle = isApexExtinction ? '#facc15' : '#ea580c';
+      ctx.fillRect(-6, -7 + breathe, 3, 1.5);
+      ctx.fillRect(0, -6 + breathe, 4, 1.5);
+      ctx.fillRect(6, -4 + breathe, 3, 1.5);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-3, -6 + breathe, 2, 1);
+      ctx.fillRect(3, -5 + breathe, 2, 1);
+    }
+
+    // Dorsal Spikes on Back
+    ctx.fillStyle = isApexExtinction ? '#f97316' : '#1c1917';
+    for (let ds = -8; ds <= 10; ds += 5) {
+      ctx.beginPath();
+      ctx.moveTo(ds - 2, -10 + breathe);
+      ctx.lineTo(ds, -15 + breathe);
+      ctx.lineTo(ds + 2, -10 + breathe);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 5. Powerful Front / Right Hind Leg
+    ctx.fillStyle = '#166534';
+    ctx.beginPath();
+    ctx.ellipse(-4, 5, 7, 10, -0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#14532d';
+    ctx.fillRect(-6, 12, 5, 9 - legStep);
+    // Foot with 3 vicious talons
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(-9, 19 - legStep, 9, 3);
+    ctx.fillStyle = '#fef08a'; // Sharp ivory talons
+    ctx.fillRect(-10, 20 - legStep, 2, 2);
+    ctx.fillRect(-7, 20 - legStep, 2, 2);
+    ctx.fillRect(-4, 20 - legStep, 2, 2);
+
+    // 6. Tiny Vicious Forearms with Claws
+    const armJitter = isAttacking ? Math.sin(time * 0.4) * 3 : 0;
+    ctx.fillStyle = '#15803d';
+    ctx.fillRect(10, 1 + breathe, 5, 3);
+    ctx.fillRect(13, 3 + breathe + armJitter, 3, 4);
+    // Two sharp little claws
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(14, 7 + breathe + armJitter, 2, 1.5);
+    ctx.fillRect(16, 6 + breathe + armJitter, 2, 1.5);
+
+    // 7. Muscular Arching Neck
+    ctx.fillStyle = '#14532d';
+    ctx.beginPath();
+    ctx.moveTo(8, -4 + breathe);
+    ctx.lineTo(16, -14 + breathe);
+    ctx.lineTo(24, -12 + breathe);
+    ctx.lineTo(16, 2 + breathe);
+    ctx.closePath();
+    ctx.fill();
+
+    // 8. Colossal T-Rex Skull & Jaws (Positioned from x: 14 to 32, y: -22 to -6)
+    const jawOpen = isAttacking ? 6 : Math.sin(time * 0.1) > 0.6 ? 3 : 0;
+
+    // Upper Skull & Snout
+    ctx.fillStyle = '#166534';
+    ctx.beginPath();
+    ctx.moveTo(14, -14 + breathe);
+    ctx.lineTo(18, -20 + breathe); // Brow
+    ctx.lineTo(30, -18 + breathe); // Snout tip
+    ctx.lineTo(30, -12 + breathe); // Upper lip
+    ctx.lineTo(16, -10 + breathe);
+    ctx.closePath();
+    ctx.fill();
+
+    // Brow ridge & Horn Crest
+    ctx.fillStyle = isApexExtinction ? '#ef4444' : '#0f381e';
+    ctx.fillRect(18, -22 + breathe, 4, 3);
+    ctx.fillRect(24, -20 + breathe, 4, 2);
+
+    // Nostril
+    ctx.fillStyle = '#052e16';
+    ctx.fillRect(27, -17 + breathe, 2, 1.5);
+
+    // Glowing Predatory Amber Eye
+    ctx.fillStyle = isApexExtinction ? '#ff0000' : '#facc15';
+    ctx.beginPath();
+    ctx.arc(20, -17 + breathe, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Slit pupil
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(20, -18.5 + breathe, 1, 3);
+
+    // Upper Teeth (Razor-sharp serrated ivory)
+    ctx.fillStyle = '#ffffff';
+    for (let t = 18; t <= 28; t += 2.5) {
+      ctx.beginPath();
+      ctx.moveTo(t, -12 + breathe);
+      ctx.lineTo(t + 1, -9 + breathe);
+      ctx.lineTo(t + 2, -12 + breathe);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Lower Mandible / Jaw (Hinged to drop open during attacks)
+    ctx.fillStyle = '#14532d';
+    ctx.beginPath();
+    ctx.moveTo(16, -10 + breathe);
+    ctx.lineTo(29, -9 + breathe + jawOpen);
+    ctx.lineTo(28, -5 + breathe + jawOpen);
+    ctx.lineTo(15, -6 + breathe + (jawOpen * 0.5));
+    ctx.closePath();
+    ctx.fill();
+
+    // Open Mouth Red Throat & Tongue
+    if (jawOpen > 0) {
+      ctx.fillStyle = isEnraged ? '#ea580c' : '#991b1b';
+      ctx.fillRect(18, -10 + breathe, 8, jawOpen);
+      // Fiery ember breath glow inside throat
+      if (isEnraged) {
+        ctx.fillStyle = '#fde047';
+        ctx.fillRect(17, -10 + breathe + 1, 3, jawOpen - 1);
+      }
+      // Lower teeth pointing up
+      ctx.fillStyle = '#ffffff';
+      for (let lt = 19; lt <= 27; lt += 3) {
+        ctx.beginPath();
+        ctx.moveTo(lt, -9 + breathe + jawOpen);
+        ctx.lineTo(lt + 1, -11 + breathe + jawOpen);
+        ctx.lineTo(lt + 2, -9 + breathe + jawOpen);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // 9. Roaring Magma Breath & Volcanic Ash Spits
+    if (isAttacking && Math.random() < 0.8) {
+      const pX = 30 + Math.random() * 8;
+      const pY = -12 + breathe + (Math.random() - 0.5) * 8;
+      ctx.fillStyle = Math.random() < 0.5 ? '#ea580c' : '#facc15';
+      ctx.beginPath();
+      ctx.arc(pX, pY, 1.5 + Math.random() * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
   }
 }
 

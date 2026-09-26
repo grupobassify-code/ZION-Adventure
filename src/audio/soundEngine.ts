@@ -29,6 +29,9 @@ export type MusicTrackName =
   | 'pirateBeach'
   | 'pirateUnderwater'
   | 'pirateBoss'
+  | 'jurassicAct1'
+  | 'jurassicAct2'
+  | 'jurassicBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -66,6 +69,9 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'pirateBeach', title: 'Cala del Corsario: Palmeras y Mareas', zone: 'Pirates Treasure · Acto 1', tag: 'Pirate Sea Shanty · Tropical Chiptune' },
   { id: 'pirateUnderwater', title: 'Fosa Abisal: Susurros del Océano Azul', zone: 'Pirates Treasure · Acto 2', tag: 'Bajo el Agua · Ambient Deep Sea' },
   { id: 'pirateBoss', title: 'El Cofre Maldito del Naufragio', zone: 'Pirates Treasure · Jefe', tag: 'Duelo Mímico · Sea Monster Metal' },
+  { id: 'jurassicAct1', title: 'Jungla Primordial y Nidos de Raptor', zone: 'Jurassic Draft · Acto 1', tag: 'Prehistoric Jungle · Tribal Beat' },
+  { id: 'jurassicAct2', title: 'Cañón de Pterodáctilos y Lava Ancestral', zone: 'Jurassic Draft · Acto 2', tag: 'Volcanic Thermals · Driving Bass' },
+  { id: 'jurassicBoss', title: 'Titan Rex: Rugido del Depredador Alfa', zone: 'Jurassic Draft · Jefe', tag: 'Duelo de Titanes · Heavy Dinosaur Metal' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -1448,6 +1454,105 @@ class SoundEngine {
         N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.As0, N.C1, N.D1, N.Ds1, N.F1, N.G1, N.As1, N.C2,
         N.C2, N.C2, N.As1, N.G1, N.Fs1, N.F1, N.Ds1, N.D1,  N.C1, N.C1, N.Ds1, N.F1, N.Fs1, N.G1, N.F1, N.Ds1,
         N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.C1, N.Ds1, N.C1, N.G1, N.C1, N.C1, N.G0, N.C1
+      ],
+      drumPattern: [
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
+        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
+        4, 2, 5, 4, 4, 4, 5, 2, 4, 2, 5, 4, 4, 4, 5, 5,
+        4, 4, 5, 4, 4, 5, 5, 4, 4, 4, 5, 5, 2, 2, 5, 5
+      ],
+    },
+
+    // JURASSIC DRAFT · ACTO 1: JUNGLA PRIMORDIAL Y NIDOS DE RAPTOR (136 BPM Prehistoric Jungle Tribal Beat)
+    jurassicAct1: {
+      tempo: 136,
+      leadWave: 'square',
+      harmonyWave: 'sawtooth',
+      bassWave: 'triangle',
+      arpWave: 'square',
+      leadNotes: [
+        N.E4, N.G4, N.A4, N.REST, N.B4, N.D5, N.B4, N.A4,  N.G4, N.E4, N.G4, N.A4, N.B4, N.REST, N.D5, N.E5,
+        N.D5, N.B4, N.A4, N.G4,  N.E4, N.D4, N.E4, N.G4,  N.A4, N.B4, N.A4, N.G4, N.E4, N.REST, N.E4, N.REST,
+        N.E5, N.D5, N.B4, N.REST, N.D5, N.B4, N.A4, N.G4,  N.A4, N.B4, N.D5, N.E5, N.G5, N.E5, N.D5, N.B4,
+        N.A4, N.G4, N.E4, N.D4,  N.E4, N.G4, N.A4, N.B4,  N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.REST, N.REST
+      ],
+      harmonyNotes: [
+        N.B3, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.D4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST,
+        N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E4, N.REST, N.B3, N.REST, N.B3, N.REST,
+        N.G4, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.G4, N.REST,
+        N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E3, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.E1, N.E1, N.G1, N.E1, N.A1, N.E1, N.B1, N.G1,  N.E1, N.E1, N.G1, N.E1, N.D1, N.E1, N.G1, N.A1,
+        N.E1, N.E1, N.G1, N.E1, N.A1, N.G1, N.E1, N.D1,  N.C1, N.D1, N.E1, N.G1, N.E1, N.E1, N.B0, N.E1,
+        N.E1, N.G1, N.A1, N.B1, N.E1, N.G1, N.A1, N.B1,  N.C2, N.B1, N.A1, N.G1, N.E1, N.G1, N.A1, N.B1,
+        N.E1, N.E1, N.G1, N.A1, N.B1, N.A1, N.G1, N.D1,  N.E1, N.G1, N.E1, N.B0, N.E1, N.REST, N.E1, N.REST
+      ],
+      drumPattern: [
+        1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 0, 1, 1, 2, 3,
+        1, 0, 2, 0, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 3, 3,
+        1, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 3,
+        1, 0, 2, 1, 1, 1, 2, 0, 1, 2, 1, 2, 3, 3, 2, 0
+      ],
+    },
+
+    // JURASSIC DRAFT · ACTO 2: CAÑÓN DE PTERODÁCTILOS Y LAVA ANCESTRAL (144 BPM Driving Volcanic Action)
+    jurassicAct2: {
+      tempo: 144,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'square',
+      leadNotes: [
+        N.D4, N.F4, N.A4, N.D5, N.C5, N.A4, N.G4, N.F4,  N.D4, N.F4, N.G4, N.Gs4, N.A4, N.C5, N.D5, N.REST,
+        N.F5, N.D5, N.C5, N.A4, N.G4, N.F4, N.D4, N.F4,  N.G4, N.A4, N.C5, N.D5, N.F5, N.E5, N.D5, N.REST,
+        N.D5, N.D5, N.F5, N.D5, N.C5, N.A4, N.C5, N.D5,  N.F5, N.G5, N.F5, N.D5, N.C5, N.A4, N.G4, N.F4,
+        N.D4, N.F4, N.G4, N.A4, N.C5, N.A4, N.G4, N.F4,  N.D4, N.F4, N.D4, N.A3, N.D4, N.REST, N.D4, N.REST
+      ],
+      harmonyNotes: [
+        N.A3, N.REST, N.D4, N.REST, N.F4, N.REST, N.D4, N.REST, N.A3, N.REST, N.D4, N.REST, N.F4, N.REST, N.A4, N.REST,
+        N.C5, N.REST, N.A4, N.REST, N.F4, N.REST, N.D4, N.REST, N.E4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST,
+        N.F4, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.A4, N.REST, N.C5, N.REST, N.A4, N.REST, N.F4, N.REST,
+        N.D4, N.REST, N.F4, N.REST, N.E4, N.REST, N.D4, N.REST, N.A3, N.REST, N.C4, N.REST, N.D3, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.D1, N.D1, N.F1, N.D1, N.G1, N.Gs1, N.A1, N.F1,  N.D1, N.D1, N.F1, N.D1, N.C1, N.D1, N.F1, N.G1,
+        N.D1, N.D1, N.F1, N.D1, N.G1, N.F1, N.D1, N.C1,  N.As0, N.C1, N.D1, N.F1, N.D1, N.D1, N.A0, N.D1,
+        N.D1, N.D2, N.C2, N.A1, N.F1, N.G1, N.A1, N.C2,  N.D1, N.F1, N.G1, N.Gs1, N.A1, N.C2, N.D2, N.A1,
+        N.D1, N.D1, N.F1, N.G1, N.A1, N.G1, N.F1, N.C1,  N.D1, N.F1, N.D1, N.A0, N.D1, N.REST, N.D1, N.REST
+      ],
+      drumPattern: [
+        1, 0, 2, 0, 1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1,
+        1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1, 1, 2, 3, 3,
+        1, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 3,
+        1, 0, 2, 1, 1, 1, 2, 0, 1, 2, 1, 2, 3, 3, 2, 1
+      ],
+    },
+
+    // JURASSIC DRAFT · ACTO 3 JEFE: TITAN REX (154 BPM Heavy Prehistoric Metal Dinosaur Showdown)
+    jurassicBoss: {
+      tempo: 154,
+      leadWave: 'sawtooth',
+      harmonyWave: 'sawtooth',
+      bassWave: 'sawtooth',
+      arpWave: 'square',
+      leadNotes: [
+        N.B3, N.D4, N.F4, N.Fs4, N.F4, N.D4, N.B3, N.REST, N.B3, N.D4, N.Fs4, N.G4, N.Fs4, N.D4, N.B3, N.REST,
+        N.B4, N.A4, N.Fs4, N.F4, N.D4, N.B3, N.D4, N.Fs4, N.G4, N.A4, N.B4, N.D5, N.Fs5, N.F5, N.D5, N.REST,
+        N.B4, N.B4, N.D5, N.Cs5, N.B4, N.A4, N.Fs4, N.F4, N.E4, N.Fs4, N.A4, N.B4, N.D5, N.Cs5, N.B4, N.A4,
+        N.Fs4, N.F4, N.E4, N.D4, N.B3, N.D4, N.E4, N.F4,  N.Fs4, N.B4, N.Fs4, N.D4, N.B3, N.REST, N.B3, N.REST
+      ],
+      harmonyNotes: [
+        N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Cs5, N.REST, N.D5, N.REST,
+        N.D5, N.REST, N.Cs5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.E4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.B4, N.REST,
+        N.D5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.D5, N.REST,
+        N.B4, N.REST, N.A4, N.REST, N.Fs4, N.REST, N.D4, N.REST, N.B3, N.REST, N.D4, N.REST, N.Fs4, N.REST, N.REST, N.REST
+      ],
+      bassNotes: [
+        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.B0, N.B0, N.B1, N.B0, N.Fs1, N.B0, N.A1, N.B1,
+        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.A0, N.B0, N.Cs1, N.D1, N.E1, N.Fs1, N.A1, N.B1,
+        N.B1, N.B1, N.A1, N.Fs1, N.F1, N.E1, N.D1, N.Cs1, N.B0, N.B0, N.D1, N.E1, N.F1, N.Fs1, N.E1, N.D1,
+        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.B0, N.D1, N.B0, N.Fs1, N.B0, N.B0, N.Fs1, N.B0
       ],
       drumPattern: [
         4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,

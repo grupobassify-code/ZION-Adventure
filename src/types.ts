@@ -71,7 +71,11 @@ export interface Platform {
     | 'palm_wood'
     | 'coral'
     | 'sunken_deck'
-    | 'shipwreck_hull';
+    | 'shipwreck_hull'
+    | 'prehistoric_earth'
+    | 'petrified_wood'
+    | 'dino_fossil_rock'
+    | 'volcanic_basalt';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -134,7 +138,11 @@ export type EnemyType =
   | 'parrot_bomber'
   | 'anglerfish'
   | 'electric_jellyfish'
-  | 'shark_corsair';
+  | 'shark_corsair'
+  | 'raptor'
+  | 'pterodactyl'
+  | 'triceratops'
+  | 'ankylosaur';
 
 export interface Enemy {
   id: number;
@@ -223,7 +231,11 @@ export interface Hazard {
     | 'sea_urchin'
     | 'bubble_geyser'
     | 'coral_spikes'
-    | 'falling_coconut';
+    | 'falling_coconut'
+    | 'lava_fissure'
+    | 'pterodactyl_nest'
+    | 'rolling_boulder'
+    | 'tar_pit';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -419,7 +431,9 @@ export interface Boss {
   name: string;
   title: string;
   subtitle?: string;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult' | 'shooting';
+  startX?: number;
+  startY?: number;
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult' | 'shooting' | 'smashing' | 'roaring';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;

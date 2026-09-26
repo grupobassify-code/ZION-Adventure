@@ -332,15 +332,18 @@ export function recordLevelCompletion(
   const castleSmash1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-1');
   const castleSmashFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'castlesmash-3');
   const pirateTreasure1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
+  const pirateTreasureFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-3');
+  const jurassicDraft1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-1');
 
   // If nextLevel is jungle-1, only unlock it if Kronos Travel is beaten
   // If nextLevel is blizzard-1, only unlock it if Balam (jungle-3) is beaten
   // If nextLevel is steampunk-1, only unlock it if Yukio el Yeti (blizzard-3) is beaten
   // If nextLevel is castlesmash-1, only unlock it if Vulkan-Ω (steampunk-3) is beaten
   // If nextLevel is piratestreasure-1, only unlock it if Lord Malakar (castlesmash-3) is beaten
-  // Once Pirate's Treasure (piratestreasure-3) is completed, the player has conquered the full campaign: no further levels are unlocked.
-  const isPirateTreasureFinal = LEVEL_CONFIGS[levelIndex]?.id === 'piratestreasure-3';
-  if (!isPirateTreasureFinal && nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
+  // If nextLevel is jurasicdraft-1, only unlock it if El Cofre Maldito (piratestreasure-3) is beaten
+  // Once Jurassic Draft (jurasicdraft-3) is completed, the player has conquered the full campaign.
+  const isJurassicDraftFinal = LEVEL_CONFIGS[levelIndex]?.id === 'jurasicdraft-3';
+  if (!isJurassicDraftFinal && nextLevel < LEVEL_CONFIGS.length && !slot.unlockedLevels.includes(nextLevel)) {
     if (nextLevel === jungle1Idx) {
       if (travelIdx !== -1 && slot.completedLevels.includes(travelIdx)) {
         slot.unlockedLevels.push(nextLevel);
@@ -359,6 +362,10 @@ export function recordLevelCompletion(
       }
     } else if (nextLevel === pirateTreasure1Idx) {
       if (castleSmashFinalBossIdx !== -1 && slot.completedLevels.includes(castleSmashFinalBossIdx)) {
+        slot.unlockedLevels.push(nextLevel);
+      }
+    } else if (nextLevel === jurassicDraft1Idx) {
+      if (pirateTreasureFinalBossIdx !== -1 && slot.completedLevels.includes(pirateTreasureFinalBossIdx)) {
         slot.unlockedLevels.push(nextLevel);
       }
     } else {
@@ -395,6 +402,11 @@ export function recordLevelCompletion(
   // When Lord Malakar (castlesmash-3) is beaten, unlock Pirate's Treasure (piratestreasure-1)
   if (levelIndex === castleSmashFinalBossIdx && pirateTreasure1Idx !== -1 && !slot.unlockedLevels.includes(pirateTreasure1Idx)) {
     slot.unlockedLevels.push(pirateTreasure1Idx);
+  }
+
+  // When El Cofre Maldito (piratestreasure-3) is beaten, unlock Jurassic Draft (jurasicdraft-1)
+  if (levelIndex === pirateTreasureFinalBossIdx && jurassicDraft1Idx !== -1 && !slot.unlockedLevels.includes(jurassicDraft1Idx)) {
+    slot.unlockedLevels.push(jurassicDraft1Idx);
   }
 
   slots[slotId] = slot;
@@ -494,8 +506,25 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     }
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`piratestreasure-${cfg.act - 1}` as any);
   }
-  if (cfg && (cfg.zone === 'jurasicdraft' || cfg.zone === 'themoon')) {
-    return false; // Progression capped at Pirate's Treasure; future zones are not unlocked
+  if (cfg && cfg.zone === 'jurasicdraft') {
+    const pirate3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-3');
+    const jurasic1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isPirateBossDefeated =
+      pirate3Idx !== -1 && (completedList.includes(pirate3Idx) || completedList.includes('piratestreasure-3' as any));
+
+    if (!isPirateBossDefeated && !unlockedList.includes(levelIndex)) {
+      return false; // Jurassic Draft is locked until Pirate's Treasure (piratestreasure-3) is defeated!
+    }
+    if (levelIndex === jurasic1Idx) {
+      return true;
+    }
+    return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`jurasicdraft-${cfg.act - 1}` as any);
+  }
+  if (cfg && cfg.zone === 'themoon') {
+    return false; // Future zone
   }
   return slot.unlockedLevels.includes(levelIndex);
 }
@@ -506,7 +535,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3', 'jurasicdraft-3'].includes(cfg.id);
 }
 
 /**
@@ -679,6 +708,28 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
 
     const pirate1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-1');
     const isUnlocked = isCastleBossDefeated || (pirate1Idx !== -1 && unlockedList.includes(pirate1Idx));
+
+    if (!isUnlocked) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // Jurassic Draft Zone requires defeating Pirate's Treasure boss El Cofre Maldito (piratestreasure-3)
+  if (zone === 'jurasicdraft') {
+    const pirate3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'piratestreasure-3');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isPirateBossDefeated =
+      pirate3Idx !== -1 && (completedList.includes(pirate3Idx) || completedList.includes('piratestreasure-3' as any));
+
+    const jurassic1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-1');
+    const isUnlocked = isPirateBossDefeated || (jurassic1Idx !== -1 && unlockedList.includes(jurassic1Idx));
 
     if (!isUnlocked) {
       return { completed: 0, total, unlocked: false };
@@ -912,7 +963,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     id: 'jurasicdraft',
     name: 'Ámbar Fósil Primigenio',
     subtitle: 'Gota de Resina Prehistórica Ancestral',
-    bossName: 'T-Rex Alfa de la Caldera (En Desarrollo)',
+    bossName: 'Titan Rex Colosal · Rey del Mesozoico',
     zoneName: 'Jurassic Draft (Acto 3)',
     levelId: 'jurasicdraft-3',
     levelIndex: 33,
@@ -921,7 +972,7 @@ export const KRONOS_PIECES: KronosPieceInfo[] = [
     position: 'top',
     angle: 300,
     iconName: 'Flame',
-    isComingSoon: true,
+    isComingSoon: false,
     lore: 'Preserva en su interior la chispa biológica de la era mesozoica, otorgando vigor orgánico a la sincronización del reloj.',
   },
   {

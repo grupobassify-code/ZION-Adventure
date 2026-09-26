@@ -713,10 +713,20 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'jurasicdraft-1',
     zone: 'jurasicdraft',
     act: 1,
-    title: 'Zona 11 · Acto 1 — Jungla del Mesozoico (Próximamente)',
-    subtitle: 'Helechos Gigantes, Dinosaurios y Fósiles',
-    lore: [{ title: '🦖 ERA DE LOS TITANES', lines: ['Próximamente: Un ecosistema jurásico primigenio donde ruge la naturaleza salvaje.'], author: 'Expedición Mesozoica' }],
-    worldWidth: 3000,
+    title: 'Zona 11 · Acto 1 — Jungla del Mesozoico',
+    subtitle: 'Nidos de Raptor, Helechos Primordiales y Fósiles',
+    lore: [
+      {
+        title: '🦖 ERA DE LOS TITANES',
+        lines: [
+          'La ruptura dimensional arroja a Zion 150 millones de años en el pasado: un edén jurásico colosal.',
+          'Entre helechos gigantes y troncos de coníferas primitivas cazan veloces manadas de velociraptors.',
+          'Evita perturbar los nidos de dinosaurio, salta sobre troncos petrificados y ábrete paso con tu espada.'
+        ],
+        author: 'Expedición Mesozoica'
+      }
+    ],
+    worldWidth: 3200,
     themeColor: '#15803d',
     accentColor: '#ea580c'
   },
@@ -724,10 +734,20 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'jurasicdraft-2',
     zone: 'jurasicdraft',
     act: 2,
-    title: 'Zona 11 · Acto 2 — Cañón de los Pterodáctilos (Próximamente)',
-    subtitle: 'Corrientes de Viento Térmico y Rocas Volcánicas',
-    lore: [{ title: '🦅 EL VUELO ANCESTRAL', lines: ['Próximamente: Corrientes de aire ascendentes y desfiladeros prehistóricos.'], author: 'Expedición Mesozoica' }],
-    worldWidth: 3200,
+    title: 'Zona 11 · Acto 2 — Cañón de los Pterodáctilos y Grietas de Lava',
+    subtitle: 'Corrientes Térmicas, Picos Rocosos y Bombardeo Aéreo',
+    lore: [
+      {
+        title: '🦅 EL VUELO ANCESTRAL',
+        lines: [
+          'Un cañón volcánico azotado por vientos térmicos y fumarolas ardientes de magma.',
+          'Bandadas de pterodáctilos se lanzan en picada desde las cornisas de basalto arrojando rocas ardientes.',
+          'Avanza con cautela entre grietas de lava, charcos de brea y crestas fósiles escarpadas.'
+        ],
+        author: 'Expedición Mesozoica'
+      }
+    ],
+    worldWidth: 3400,
     themeColor: '#166534',
     accentColor: '#f97316'
   },
@@ -735,10 +755,20 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'jurasicdraft-3',
     zone: 'jurasicdraft',
     act: 3,
-    title: 'Zona 11 · Acto 3 — Caldera del T-Rex Alfa (Próximamente)',
-    subtitle: 'Cráter de Lava Primitiva · Jefe Rex Colosal',
-    lore: [{ title: '🌋 REINADO DEL T-REX', lines: ['Próximamente: El Rey del Jurásico te espera en el cráter de impacto.'], author: 'Expedición Mesozoica' }],
-    worldWidth: 2600,
+    title: 'Zona 11 · Acto 3 — Caldera del T-Rex Colosal',
+    subtitle: 'Cráter de Magma · Duelo contra el Rey de los Titanes',
+    lore: [
+      {
+        title: '🌋 EL REINADO DEL T-REX',
+        lines: [
+          'En el corazón de la caldera volcánica reina el depredador supremo de la historia: Titan Rex.',
+          'Sus pisotones hacen temblar la corteza terrestre desprendiendo meteoros y ondas de choque sísmicas.',
+          '¡Esquiva sus mordiscos demoledores, destruye los nodos de magma y reclama el Ámbar Fósil Primigenio!'
+        ],
+        author: 'Expedición Mesozoica'
+      }
+    ],
+    worldWidth: 3600,
     themeColor: '#14532d',
     accentColor: '#ef4444'
   },
@@ -873,6 +903,14 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 4, xp: 65, score: 280 };
     case 'shark_corsair':
       return { hp: 7, xp: 95, score: 400 };
+    case 'raptor':
+      return { hp: 5, xp: 85, score: 380 };
+    case 'pterodactyl':
+      return { hp: 3, xp: 60, score: 260 };
+    case 'triceratops':
+      return { hp: 8, xp: 110, score: 480 };
+    case 'ankylosaur':
+      return { hp: 9, xp: 120, score: 500 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -937,6 +975,18 @@ function createEnemy(
   } else if (type === 'shark_corsair') {
     enemyW = 26;
     enemyH = 18;
+  } else if (type === 'raptor') {
+    enemyW = 24;
+    enemyH = 20;
+  } else if (type === 'pterodactyl') {
+    enemyW = 22;
+    enemyH = 16;
+  } else if (type === 'triceratops') {
+    enemyW = 28;
+    enemyH = 22;
+  } else if (type === 'ankylosaur') {
+    enemyW = 28;
+    enemyH = 20;
   }
   return {
     id: _enemyGlobalId++,
@@ -6297,9 +6347,9 @@ export function buildLevel(levelIndex: number) {
     // -------------------------------------------------------------
     // Batalla submarina en el galeón hundido contra el titánico cofre mímico
     platforms.push(
-      // Cubierta exterior y casco del navío naufragado
+      // Cubierta exterior y casco del navío naufragado con pasarela continua hacia la arena
       { x: 0, y: 148, w: 1300, h: 32, kind: 'sunken_deck' },
-      { x: 1360, y: 148, w: 1290, h: 32, kind: 'shipwreck_hull' },
+      { x: 1360, y: 148, w: 1340, h: 32, kind: 'shipwreck_hull' },
       // Gran Cubierta del Naufragio: Arena del Jefe Cofre Maldito (2700 - 3750)
       { x: 2700, y: 148, w: 1050, h: 32, kind: 'sunken_deck' }
     );
@@ -6332,20 +6382,22 @@ export function buildLevel(levelIndex: number) {
       { x: 800, y: 55, w: 16, h: 16, type: 'sea_mine' },
       { x: 1800, y: 50, w: 16, h: 16, type: 'sea_mine' },
       { x: 1300, y: 154, w: 60, h: 20, type: 'sea_urchin' },
-      { x: 2650, y: 154, w: 50, h: 20, type: 'sea_urchin' },
+      { x: 2360, y: 154, w: 35, h: 20, type: 'sea_urchin' },
       { x: 1240, y: 136, w: 24, h: 32, type: 'bubble_geyser' },
-      { x: 2440, y: 136, w: 24, h: 32, type: 'bubble_geyser' }
+      { x: 2280, y: 136, w: 24, h: 32, type: 'bubble_geyser' }
     );
 
-    // Checkpoint previo al jefe
+    // Checkpoint previo al jefe (sobre la cubierta antes de entrar a la arena, garantizando reaparición inmediata sin trabas ni bloqueos)
     checkpoints.push(
-      { x: 2550, y: 116, w: 20, h: 32, active: false, spawn: { x: 2560, y: 125 }, arena: true }
+      { x: 2660, y: 116, w: 20, h: 32, active: false, spawn: { x: 2680, y: 125 }, arena: true }
     );
 
     // JEFE DE PIRATES TREASURE: EL COFRE MALDITO DEL NAUFRAGIO
     boss = {
       x: 3280,
       y: 116,
+      startX: 3280,
+      startY: 116,
       w: 48,
       h: 32,
       vx: 0,
@@ -6408,6 +6460,293 @@ export function buildLevel(levelIndex: number) {
     });
 
     goal = { x: 3660, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'jurasicdraft-1') {
+    // -------------------------------------------------------------
+    // ZONA 11 · ACTO 1 — JUNGLA DEL MESOZOICO (3200px)
+    // -------------------------------------------------------------
+    // Tierra primigenia, nidos de velociraptors y helechos colosales
+    platforms.push(
+      { x: 0, y: 148, w: 750, h: 32, kind: 'prehistoric_earth' },
+      { x: 820, y: 148, w: 720, h: 32, kind: 'prehistoric_earth' },
+      { x: 1620, y: 148, w: 760, h: 32, kind: 'prehistoric_earth' },
+      { x: 2460, y: 148, w: 740, h: 32, kind: 'prehistoric_earth' }
+    );
+
+    // Plataformas elevadas: Troncos petrificados y riscos con fósiles
+    platforms.push(
+      { x: 200, y: 112, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 360, y: 80, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 530, y: 110, w: 90, h: 12, kind: 'petrified_wood' },
+      { x: 700, y: 78, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 920, y: 108, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 1090, y: 76, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 1280, y: 106, w: 95, h: 12, kind: 'petrified_wood' },
+      { x: 1460, y: 74, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 1720, y: 110, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 1910, y: 78, w: 115, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2110, y: 108, w: 90, h: 12, kind: 'petrified_wood' },
+      { x: 2300, y: 76, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2540, y: 108, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 2720, y: 76, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2910, y: 106, w: 95, h: 12, kind: 'petrified_wood' }
+    );
+
+    // Peligros mesozoicos: Nidos de pterodáctilo, charcos de brea y espinas
+    hazards.push(
+      { x: 750, y: 154, w: 70, h: 20, type: 'tar_pit' },
+      { x: 1540, y: 154, w: 80, h: 20, type: 'tar_pit' },
+      { x: 2380, y: 154, w: 80, h: 20, type: 'tar_pit' },
+      { x: 420, y: 136, w: 24, h: 16, type: 'pterodactyl_nest' },
+      { x: 1160, y: 136, w: 24, h: 16, type: 'pterodactyl_nest' },
+      { x: 1980, y: 136, w: 24, h: 16, type: 'pterodactyl_nest' },
+      { x: 2680, y: 136, w: 24, h: 16, type: 'pterodactyl_nest' },
+      { x: 880, y: 138, w: 20, h: 14, type: 'spike' },
+      { x: 1780, y: 138, w: 20, h: 14, type: 'spike' },
+      { x: 2600, y: 138, w: 20, h: 14, type: 'spike' }
+    );
+
+    // Checkpoints
+    checkpoints.push(
+      { x: 1580, y: 116, w: 20, h: 32, active: false, spawn: { x: 1600, y: 125 } }
+    );
+
+    // Dinosaurios enemigos: Raptors veloces, pterodáctilos y anquilosaurios
+    enemies.push(
+      createEnemy(340, 128, 'raptor', 220, 480),
+      createEnemy(620, 50, 'pterodactyl', 540, 720),
+      createEnemy(980, 128, 'ankylosaur', 900, 1140),
+      createEnemy(1240, 128, 'raptor', 1140, 1380),
+      createEnemy(1440, 50, 'pterodactyl', 1360, 1560),
+      createEnemy(1820, 128, 'ankylosaur', 1700, 1980),
+      createEnemy(2160, 128, 'raptor', 2040, 2320),
+      createEnemy(2480, 50, 'pterodactyl', 2380, 2600),
+      createEnemy(2780, 128, 'raptor', 2660, 2940)
+    );
+
+    // Cristales
+    for (let cx = 150; cx < 3050; cx += 150) {
+      crystals.push({ x: cx, y: 92, w: 8, h: 8, taken: false });
+    }
+
+    // Botiquines
+    heals.push(
+      { x: 700, y: 60, w: 10, h: 10, taken: false },
+      { x: 1500, y: 56, w: 10, h: 10, taken: false },
+      { x: 2320, y: 58, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 2950,
+      y: 50,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🥚 Huevo Fosilizado de Raptor Dorado'
+    });
+
+    goal = { x: 3080, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'jurasicdraft-2') {
+    // -------------------------------------------------------------
+    // ZONA 11 · ACTO 2 — CAÑÓN DE PTERODÁCTILOS Y LAVA (3400px)
+    // -------------------------------------------------------------
+    // Desfiladero de basalto negro, grietas de magma ardiente y rocas rodantes
+    platforms.push(
+      { x: 0, y: 148, w: 800, h: 32, kind: 'volcanic_basalt' },
+      { x: 880, y: 148, w: 760, h: 32, kind: 'volcanic_basalt' },
+      { x: 1720, y: 148, w: 800, h: 32, kind: 'volcanic_basalt' },
+      { x: 2600, y: 148, w: 750, h: 32, kind: 'volcanic_basalt' }
+    );
+
+    // Cornisas de azufre, columnas de basalto y crestas fósiles
+    platforms.push(
+      { x: 220, y: 110, w: 95, h: 12, kind: 'dino_fossil_rock' },
+      { x: 390, y: 76, w: 115, h: 12, kind: 'volcanic_basalt' },
+      { x: 570, y: 108, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 740, y: 74, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 960, y: 106, w: 105, h: 12, kind: 'volcanic_basalt' },
+      { x: 1150, y: 74, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 1340, y: 104, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 1530, y: 72, w: 120, h: 12, kind: 'volcanic_basalt' },
+      { x: 1780, y: 108, w: 105, h: 12, kind: 'dino_fossil_rock' },
+      { x: 1980, y: 76, w: 110, h: 12, kind: 'volcanic_basalt' },
+      { x: 2180, y: 106, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 2380, y: 74, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2650, y: 108, w: 105, h: 12, kind: 'volcanic_basalt' },
+      { x: 2850, y: 76, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 3050, y: 106, w: 100, h: 12, kind: 'volcanic_basalt' }
+    );
+
+    // Peligros: Grietas de lava, rocas rodantes y fumarolas
+    hazards.push(
+      { x: 800, y: 154, w: 80, h: 20, type: 'lava_fissure' },
+      { x: 1640, y: 154, w: 80, h: 20, type: 'lava_fissure' },
+      { x: 2520, y: 154, w: 80, h: 20, type: 'lava_fissure' },
+      { x: 480, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
+      { x: 1250, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
+      { x: 2080, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
+      { x: 2900, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
+      { x: 1020, y: 136, w: 22, h: 28, type: 'geyser' },
+      { x: 1860, y: 136, w: 22, h: 28, type: 'geyser' },
+      { x: 2720, y: 136, w: 22, h: 28, type: 'geyser' }
+    );
+
+    // Checkpoint
+    checkpoints.push(
+      { x: 1680, y: 116, w: 20, h: 32, active: false, spawn: { x: 1700, y: 125 } }
+    );
+
+    // Dinosaurios enemigos: Triceratops blindados, pterodáctilos en picada y raptors
+    enemies.push(
+      createEnemy(320, 126, 'triceratops', 220, 480),
+      createEnemy(650, 48, 'pterodactyl', 560, 760),
+      createEnemy(1020, 128, 'raptor', 920, 1180),
+      createEnemy(1280, 126, 'triceratops', 1180, 1420),
+      createEnemy(1520, 48, 'pterodactyl', 1420, 1640),
+      createEnemy(1880, 126, 'triceratops', 1760, 2040),
+      createEnemy(2220, 128, 'raptor', 2100, 2380),
+      createEnemy(2560, 48, 'pterodactyl', 2460, 2700),
+      createEnemy(2920, 126, 'triceratops', 2780, 3100)
+    );
+
+    // Cristales
+    for (let cx = 160; cx < 3250; cx += 150) {
+      crystals.push({ x: cx, y: 90, w: 8, h: 8, taken: false });
+    }
+
+    // Botiquines
+    heals.push(
+      { x: 740, y: 56, w: 10, h: 10, taken: false },
+      { x: 1560, y: 54, w: 10, h: 10, taken: false },
+      { x: 2400, y: 56, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 3100,
+      y: 50,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '💎 Diente Petrificado de Megalodón Terrestre'
+    });
+
+    goal = { x: 3280, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'jurasicdraft-3') {
+    // -------------------------------------------------------------
+    // ZONA 11 · ACTO 3 — CALDERA DEL T-REX COLOSAL (3600px)
+    // -------------------------------------------------------------
+    // Duelo épico en el cráter de impacto volcánico contra Titan Rex
+    platforms.push(
+      // Camino de aproximación al cráter (0 - 2450)
+      { x: 0, y: 148, w: 1200, h: 32, kind: 'volcanic_basalt' },
+      { x: 1260, y: 148, w: 1200, h: 32, kind: 'volcanic_basalt' },
+      { x: 2440, y: 148, w: 120, h: 32, kind: 'volcanic_basalt' },
+      // Gran Suelo del Cráter: Arena del Jefe Titan Rex (2550 - 3550)
+      { x: 2550, y: 148, w: 1000, h: 32, kind: 'volcanic_basalt' }
+    );
+
+    // Plataformas tácticas y repisas elevadas de basalto
+    platforms.push(
+      // Camino previo
+      { x: 240, y: 110, w: 90, h: 12, kind: 'petrified_wood' },
+      { x: 420, y: 76, w: 110, h: 12, kind: 'dino_fossil_rock' },
+      { x: 600, y: 108, w: 95, h: 12, kind: 'volcanic_basalt' },
+      { x: 780, y: 74, w: 115, h: 12, kind: 'dino_fossil_rock' },
+      { x: 980, y: 106, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 1180, y: 76, w: 120, h: 12, kind: 'volcanic_basalt' },
+      { x: 1400, y: 106, w: 95, h: 12, kind: 'dino_fossil_rock' },
+      { x: 1620, y: 74, w: 115, h: 12, kind: 'volcanic_basalt' },
+      { x: 1840, y: 106, w: 100, h: 12, kind: 'petrified_wood' },
+      { x: 2060, y: 74, w: 120, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2280, y: 106, w: 95, h: 12, kind: 'volcanic_basalt' },
+
+      // Plataformas tácticas elevadas dentro de la Arena del Jefe (2550 - 3550)
+      { x: 2680, y: 105, w: 100, h: 12, kind: 'dino_fossil_rock' },
+      { x: 2900, y: 75, w: 120, h: 12, kind: 'volcanic_basalt' },
+      { x: 3120, y: 105, w: 100, h: 12, kind: 'dino_fossil_rock' },
+      { x: 3340, y: 76, w: 110, h: 12, kind: 'volcanic_basalt' }
+    );
+
+    // Peligros
+    hazards.push(
+      { x: 1200, y: 154, w: 60, h: 20, type: 'lava_fissure' },
+      { x: 2450, y: 154, w: 100, h: 20, type: 'lava_fissure' },
+      { x: 800, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
+      { x: 1900, y: 138, w: 18, h: 18, type: 'rolling_boulder' }
+    );
+
+    // Checkpoint previo al jefe (dentro del umbral de la arena para reaparición inmediata sin trabas)
+    checkpoints.push(
+      { x: 2580, y: 116, w: 20, h: 32, active: false, spawn: { x: 2600, y: 125 }, arena: true }
+    );
+
+    // JEFE SUPREMO DE JURASSIC DRAFT: TITAN REX COLOSAL
+    boss = {
+      x: 3200,
+      y: 104,
+      startX: 3200,
+      startY: 104,
+      w: 56,
+      h: 44,
+      vx: 0,
+      vy: 0,
+      hp: 85,
+      maxHp: 85,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 70,
+      shotTimer: 55,
+      stateTimer: 60,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 80,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      name: 'Titan Rex Colosal',
+      title: 'TITAN REX · REY DEL MESOZOICO',
+      subtitle: 'Depredador Alfa de la Caldera Volcánica',
+      state: 'idle'
+    };
+
+    // Enemigos en el camino de aproximación
+    enemies.push(
+      createEnemy(380, 128, 'raptor', 260, 500),
+      createEnemy(700, 48, 'pterodactyl', 600, 820),
+      createEnemy(1050, 126, 'triceratops', 940, 1200),
+      createEnemy(1380, 128, 'ankylosaur', 1280, 1520),
+      createEnemy(1660, 48, 'pterodactyl', 1540, 1780),
+      createEnemy(1950, 128, 'raptor', 1840, 2120),
+      createEnemy(2250, 126, 'triceratops', 2140, 2400)
+    );
+
+    // Cristales & Botiquines
+    for (let cx = 160; cx < 2500; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+    heals.push(
+      { x: 500, y: 58, w: 10, h: 10, taken: false },
+      { x: 1300, y: 56, w: 10, h: 10, taken: false },
+      { x: 2100, y: 54, w: 10, h: 10, taken: false },
+      // Botiquines dentro de la Arena del Jefe
+      { x: 2700, y: 85, w: 10, h: 10, taken: false },
+      { x: 3350, y: 56, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto
+    secrets.push({
+      x: 3450,
+      y: 48,
+      w: 14,
+      h: 14,
+      taken: false,
+      name: '🦖 Cráneo Ancestral de T-Rex Dorado'
+    });
+
+    goal = { x: 3500, y: 88, w: 36, h: 62 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(

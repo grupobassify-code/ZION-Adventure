@@ -194,7 +194,6 @@ const ZONES_DATA: ZoneMeta[] = [
     themeColor: '#15803d',
     accentColor: '#ea580c',
     actsCount: 3,
-    status: 'soon',
   },
   {
     id: 'themoon',
