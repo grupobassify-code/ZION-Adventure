@@ -726,7 +726,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Expedición Mesozoica'
       }
     ],
-    worldWidth: 6200,
+    worldWidth: 8600,
     themeColor: '#15803d',
     accentColor: '#ea580c'
   },
@@ -747,7 +747,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Expedición Mesozoica'
       }
     ],
-    worldWidth: 6400,
+    worldWidth: 8800,
     themeColor: '#166534',
     accentColor: '#f97316'
   },
@@ -768,7 +768,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
         author: 'Expedición Mesozoica'
       }
     ],
-    worldWidth: 6800,
+    worldWidth: 9000,
     themeColor: '#14532d',
     accentColor: '#ef4444'
   },
@@ -6462,147 +6462,172 @@ export function buildLevel(levelIndex: number) {
     goal = { x: 3660, y: 88, w: 36, h: 62 };
   } else if (config.id === 'jurasicdraft-1') {
     // -------------------------------------------------------------
-    // ZONA 11 · ACTO 1 — JUNGLA DEL MESOZOICO (6200px)
+    // ZONA 11 · ACTO 1 — JUNGLA DEL MESOZOICO (8600px)
     // -------------------------------------------------------------
     // Tierra primigenia continua, nidos de raptor, barrancos de brea y coníferas milenarias
+    // 1- Desaturado de plataformas arbitrarias: terreno sólido, ritmo puro y saltos con propósito claro
+    // 2- Peligros activos constantes: rocas rodantes, fosas de brea viscosa, estalactitas y cráneos oscilantes
     platforms.push(
-      // Terreno base con amplios claros naturales y fosas de brea
-      { x: 0, y: 148, w: 900, h: 32, kind: 'prehistoric_earth' },
-      { x: 990, y: 148, w: 950, h: 32, kind: 'prehistoric_earth' },
-      { x: 2040, y: 148, w: 980, h: 32, kind: 'prehistoric_earth' },
-      { x: 3120, y: 148, w: 980, h: 32, kind: 'prehistoric_earth' },
-      { x: 4200, y: 148, w: 980, h: 32, kind: 'prehistoric_earth' },
-      { x: 5280, y: 148, w: 920, h: 32, kind: 'prehistoric_earth' }
+      // Terreno base primigenio continuo con fosas de brea naturales entre segmentos
+      { x: 0, y: 148, w: 980, h: 32, kind: 'prehistoric_earth' },
+      { x: 1080, y: 148, w: 1060, h: 32, kind: 'prehistoric_earth' },
+      { x: 2260, y: 148, w: 1100, h: 32, kind: 'prehistoric_earth' },
+      { x: 3480, y: 148, w: 1080, h: 32, kind: 'prehistoric_earth' },
+      { x: 4680, y: 148, w: 1100, h: 32, kind: 'prehistoric_earth' },
+      { x: 5900, y: 148, w: 1100, h: 32, kind: 'prehistoric_earth' },
+      { x: 7120, y: 148, w: 1440, h: 32, kind: 'prehistoric_earth' }
     );
 
-    // Plataformas elevadas estratégicas (densidad reducida, alto propósito táctico)
-    // 1. Rama alta sobre el primer nido de raptors
+    // Plataformas elevadas tácticas (densidad reducida, alto propósito táctico: salvar fosas y sortear emboscadas)
     platforms.push(
-      { x: 420, y: 98, w: 85, h: 10, kind: 'petrified_wood' },
-      // 2. Piedra fósil que sirve de apoyo en el primer barranco
-      { x: 910, y: 105, w: 65, h: 10, kind: 'dino_fossil_rock' },
-      // 3. Tronco suspendido sobre el camino de rocas rodantes
-      { x: 1450, y: 92, w: 90, h: 10, kind: 'petrified_wood' },
-      // 4. Peldaño fósil sobre el abismo del segundo checkpoint
-      { x: 1960, y: 104, w: 65, h: 10, kind: 'dino_fossil_rock' },
-      // 5. Mirador alto donde se oculta un alijo de cristales de ámbar
-      { x: 2520, y: 84, w: 85, h: 10, kind: 'petrified_wood' },
-      // 6. Cornisa para evadir la fumarola sulfurosa
-      { x: 3500, y: 96, w: 90, h: 10, kind: 'dino_fossil_rock' },
-      // 7. Puente de conífera milenaria sobre manada de anquilosaurios
-      { x: 4560, y: 90, w: 95, h: 10, kind: 'petrified_wood' },
-      // 8. Risco elevado previo al portal que oculta el nido secreto
-      { x: 5540, y: 80, w: 80, h: 10, kind: 'dino_fossil_rock' }
+      // Rama alta de conífera sobre el primer nido de raptors
+      { x: 480, y: 96, w: 90, h: 10, kind: 'petrified_wood' },
+      // Piedra fósil que sirve de apoyo en el primer barranco
+      { x: 1000, y: 105, w: 70, h: 10, kind: 'dino_fossil_rock' },
+      // Tronco suspendido sobre el camino de rocas rodantes
+      { x: 1650, y: 92, w: 95, h: 10, kind: 'petrified_wood' },
+      // Peldaño fósil sobre el abismo del segundo checkpoint
+      { x: 2180, y: 104, w: 70, h: 10, kind: 'dino_fossil_rock' },
+      // Mirador alto donde se oculta un alijo de cristales de ámbar
+      { x: 2950, y: 84, w: 90, h: 10, kind: 'petrified_wood' },
+      // Cornisa para evadir la fumarola sulfurosa
+      { x: 4100, y: 96, w: 95, h: 10, kind: 'dino_fossil_rock' },
+      // Puente de conífera milenaria sobre manada de anquilosaurios
+      { x: 5320, y: 90, w: 100, h: 10, kind: 'petrified_wood' },
+      // Risco elevado previo al cañón
+      { x: 6520, y: 98, w: 85, h: 10, kind: 'dino_fossil_rock' },
+      // Plataforma secreta en la copa de la gran conífera ancestral
+      { x: 7920, y: 80, w: 90, h: 10, kind: 'petrified_wood' }
     );
 
-    // Hongos gigantes elásticos mesozoicos (Trampolines para alcanzar atajos aéreos)
+    // Hongos gigantes elásticos mesozoicos (Trampolines para alcanzar atajos aéreos y salvar fosas)
     trampolines.push(
-      { x: 1360, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
-      { x: 3420, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' },
-      { x: 5200, y: 138, w: 32, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
+      { x: 1520, y: 138, w: 32, h: 10, bounceForce: -13.5, springAnim: 0, type: 'normal' },
+      { x: 3820, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' },
+      { x: 5780, y: 138, w: 32, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
+      { x: 7350, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' }
     );
 
     // Barricadas de madera petrificada destruibles (se pueden romper con espada o dagas)
     destructibles.push(
-      { id: 1, x: 1720, y: 116, w: 20, h: 32, hp: 4, maxHp: 4, type: 'wooden_barricade', destroyed: false, name: 'Tronco Petrificado' },
-      { id: 2, x: 3820, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'wooden_barricade', destroyed: false, name: 'Tronco Petrificado' },
-      { id: 3, x: 5740, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'wooden_barricade', destroyed: false, name: 'Pared de Raíces Primigenias' }
+      { id: 1, x: 1920, y: 116, w: 20, h: 32, hp: 4, maxHp: 4, type: 'wooden_barricade', destroyed: false, name: 'Tronco Petrificado' },
+      { id: 2, x: 4320, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'wooden_barricade', destroyed: false, name: 'Tronco Petrificado' },
+      { id: 3, x: 6720, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'wooden_barricade', destroyed: false, name: 'Pared de Raíces Primigenias' }
     );
 
     // Peligros mesozoicos activos que fuerzan evasión constante:
     // 1. Fosas profundas de brea burbujeante con restos fósiles punzantes
     hazards.push(
-      { x: 900, y: 154, w: 90, h: 24, type: 'tar_pit' },
-      { x: 1940, y: 154, w: 100, h: 24, type: 'tar_pit' },
-      { x: 3020, y: 154, w: 100, h: 24, type: 'tar_pit' },
-      { x: 4100, y: 154, w: 100, h: 24, type: 'tar_pit' },
-      { x: 5180, y: 154, w: 100, h: 24, type: 'tar_pit' }
+      { x: 980, y: 154, w: 100, h: 24, type: 'tar_pit' },
+      { x: 2140, y: 154, w: 120, h: 24, type: 'tar_pit' },
+      { x: 3360, y: 154, w: 120, h: 24, type: 'tar_pit' },
+      { x: 4560, y: 154, w: 120, h: 24, type: 'tar_pit' },
+      { x: 5780, y: 154, w: 120, h: 24, type: 'tar_pit' },
+      { x: 7000, y: 154, w: 120, h: 24, type: 'tar_pit' }
     );
 
-    // 2. Rocas gigantes rodantes (boulders) que bajan por el terreno y deben saltarse
+    // 2. Rocas gigantes rodantes (boulders) que patrullan y ruedan por el terreno obligando a saltar o esquivar con dash
     hazards.push(
-      { x: 620, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 1650, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 2780, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 3750, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 4780, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 5680, y: 138, w: 18, h: 18, type: 'rolling_boulder' }
+      { x: 650, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 450, railMax: 850, moveSpeed: 2.1, dir: -1 },
+      { x: 1750, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 1450, railMax: 1900, moveSpeed: 2.3, dir: 1 },
+      { x: 2850, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 2550, railMax: 3100, moveSpeed: 2.2, dir: -1 },
+      { x: 3950, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 3650, railMax: 4250, moveSpeed: 2.4, dir: 1 },
+      { x: 5150, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 4850, railMax: 5450, moveSpeed: 2.3, dir: -1 },
+      { x: 6350, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 6050, railMax: 6650, moveSpeed: 2.5, dir: 1 },
+      { x: 7550, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 7250, railMax: 7850, moveSpeed: 2.4, dir: -1 }
     );
 
     // 3. Nidos de pterodáctilo con espinas óseas afiladas
     hazards.push(
-      { x: 450, y: 88, w: 24, h: 12, type: 'pterodactyl_nest' },
-      { x: 1480, y: 82, w: 24, h: 12, type: 'pterodactyl_nest' },
-      { x: 2550, y: 74, w: 24, h: 12, type: 'pterodactyl_nest' },
-      { x: 4590, y: 80, w: 24, h: 12, type: 'pterodactyl_nest' },
-      { x: 5570, y: 70, w: 24, h: 12, type: 'pterodactyl_nest' }
+      { x: 500, y: 86, w: 24, h: 12, type: 'pterodactyl_nest' },
+      { x: 1680, y: 82, w: 24, h: 12, type: 'pterodactyl_nest' },
+      { x: 2980, y: 74, w: 24, h: 12, type: 'pterodactyl_nest' },
+      { x: 5350, y: 80, w: 24, h: 12, type: 'pterodactyl_nest' },
+      { x: 7950, y: 70, w: 24, h: 12, type: 'pterodactyl_nest' }
     );
 
     // 4. Géiseres de vapor sulfuroso a alta presión
     hazards.push(
-      { x: 1180, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 2350, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 3380, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 4420, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 5460, y: 136, w: 22, h: 30, type: 'geyser' }
+      { x: 1350, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 2650, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 3750, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 4950, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 6250, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 7750, y: 136, w: 22, h: 30, type: 'geyser' }
     );
 
     // 5. Estalactitas de roca volcánica que caen al pasar por debajo
     hazards.push(
-      { x: 780, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 1820, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 2920, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 3960, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 5040, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 }
+      { x: 850, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 1980, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 3150, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 4350, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 5550, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 6850, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 8100, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 }
     );
 
     // 6. Cráneo fósil oscilante en liana (Swinging Hazard)
     hazards.push(
-      { x: 1980, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 0, bladeSpeed: 0.038 },
-      { x: 4140, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 1.5, bladeSpeed: 0.042 }
+      { x: 2200, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 0, bladeSpeed: 0.038 },
+      { x: 4600, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 1.5, bladeSpeed: 0.042 },
+      { x: 7050, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 0.8, bladeSpeed: 0.040 }
     );
 
-    // Checkpoints seguros (2 estaciones intermedias a lo largo de los 6200px)
+    // Monumentos prehistóricos inmersivos
+    landmarks.push(
+      { type: 'amber_altar', x: 2270, y: 148 },
+      { type: 'dino_fossil_ribs', x: 4480, y: 148, w: 90, h: 80 },
+      { type: 'dino_fossil_ribs', x: 6920, y: 148, w: 90, h: 80 }
+    );
+
+    // Checkpoints seguros (3 estaciones intermedias a lo largo de los 8600px)
     checkpoints.push(
-      { x: 2060, y: 116, w: 20, h: 32, active: false, spawn: { x: 2080, y: 125 } },
-      { x: 4220, y: 116, w: 20, h: 32, active: false, spawn: { x: 4240, y: 125 } }
+      { x: 2280, y: 116, w: 20, h: 32, active: false, spawn: { x: 2300, y: 125 } },
+      { x: 4700, y: 116, w: 20, h: 32, active: false, spawn: { x: 4720, y: 125 } },
+      { x: 7140, y: 116, w: 20, h: 32, active: false, spawn: { x: 7160, y: 125 } }
     );
 
     // Enemigos dinosaurios bien espaciados y reactivos
     enemies.push(
-      createEnemy(320, 128, 'raptor', 180, 480),
-      createEnemy(720, 52, 'pterodactyl', 620, 840),
-      createEnemy(1120, 128, 'ankylosaur', 1020, 1260),
-      createEnemy(1520, 128, 'raptor', 1380, 1680),
-      createEnemy(1880, 50, 'pterodactyl', 1780, 2000),
-      createEnemy(2260, 128, 'raptor', 2120, 2420),
-      createEnemy(2680, 128, 'ankylosaur', 2520, 2820),
-      createEnemy(3240, 128, 'raptor', 3120, 3400),
-      createEnemy(3680, 50, 'pterodactyl', 3560, 3800),
-      createEnemy(4360, 128, 'ankylosaur', 4240, 4520),
-      createEnemy(4740, 128, 'raptor', 4620, 4900),
-      createEnemy(5100, 50, 'pterodactyl', 4980, 5220),
-      createEnemy(5480, 128, 'raptor', 5340, 5620),
-      createEnemy(5860, 128, 'ankylosaur', 5720, 6000)
+      createEnemy(380, 128, 'raptor', 220, 540),
+      createEnemy(760, 50, 'pterodactyl', 660, 900),
+      createEnemy(1220, 128, 'ankylosaur', 1100, 1380),
+      createEnemy(1620, 128, 'raptor', 1480, 1820),
+      createEnemy(2020, 48, 'pterodactyl', 1900, 2180),
+      createEnemy(2480, 128, 'raptor', 2340, 2680),
+      createEnemy(2880, 128, 'ankylosaur', 2720, 3050),
+      createEnemy(3450, 128, 'raptor', 3300, 3650),
+      createEnemy(3920, 50, 'pterodactyl', 3780, 4100),
+      createEnemy(4520, 128, 'ankylosaur', 4380, 4700),
+      createEnemy(4950, 128, 'raptor', 4820, 5150),
+      createEnemy(5420, 50, 'pterodactyl', 5280, 5600),
+      createEnemy(6120, 128, 'raptor', 5980, 6300),
+      createEnemy(6580, 128, 'ankylosaur', 6420, 6780),
+      createEnemy(7320, 128, 'raptor', 7180, 7500),
+      createEnemy(7850, 50, 'pterodactyl', 7700, 8050),
+      createEnemy(8250, 128, 'ankylosaur', 8100, 8450)
     );
 
     // Cristales de ámbar mesozoico
-    for (let cx = 140; cx < 6050; cx += 170) {
+    for (let cx = 140; cx < 8450; cx += 165) {
       crystals.push({ x: cx, y: 92, w: 8, h: 8, taken: false });
     }
 
     // Botiquines
     heals.push(
-      { x: 700, y: 60, w: 10, h: 10, taken: false },
-      { x: 1850, y: 56, w: 10, h: 10, taken: false },
-      { x: 3000, y: 58, w: 10, h: 10, taken: false },
-      { x: 4120, y: 56, w: 10, h: 10, taken: false },
-      { x: 5240, y: 58, w: 10, h: 10, taken: false }
+      { x: 750, y: 58, w: 10, h: 10, taken: false },
+      { x: 2050, y: 56, w: 10, h: 10, taken: false },
+      { x: 3350, y: 58, w: 10, h: 10, taken: false },
+      { x: 4620, y: 56, w: 10, h: 10, taken: false },
+      { x: 5850, y: 58, w: 10, h: 10, taken: false },
+      { x: 7100, y: 56, w: 10, h: 10, taken: false },
+      { x: 8150, y: 56, w: 10, h: 10, taken: false }
     );
 
     // Secreto ancestral
     secrets.push({
-      x: 5580,
+      x: 7960,
       y: 50,
       w: 14,
       h: 14,
@@ -6610,142 +6635,173 @@ export function buildLevel(levelIndex: number) {
       name: '🥚 Huevo Fosilizado de Raptor Dorado'
     });
 
-    goal = { x: 6060, y: 88, w: 36, h: 62 };
+    goal = { x: 8460, y: 88, w: 36, h: 62 };
   } else if (config.id === 'jurasicdraft-2') {
     // -------------------------------------------------------------
-    // ZONA 11 · ACTO 2 — CAÑÓN DE LOS PTERODÁCTILOS Y LAVA (6400px)
+    // ZONA 11 · ACTO 2 — CAÑÓN DE LOS PTERODÁCTILOS Y LAVA (8800px)
     // -------------------------------------------------------------
-    // Desfiladero volcánico de basalto negro, grietas de magma y bombardeo aéreo
+    // Desfiladero volcánico de basalto negro, grietas de magma ardiente y bombardeo aéreo
+    // 1- Desaturado de plataformas: pasarelas sólidas de basalto, puentes limpios y saltos tensos
+    // 2- Peligros reforzados: rocas rodantes volcánicas, chorros de fuego, cadenas giratorias de magma y bloques que colapsan
     platforms.push(
-      // Terreno base volcánico con amplias gargantas de magma
-      { x: 0, y: 148, w: 920, h: 32, kind: 'volcanic_basalt' },
-      { x: 1040, y: 148, w: 950, h: 32, kind: 'volcanic_basalt' },
-      { x: 2110, y: 148, w: 980, h: 32, kind: 'volcanic_basalt' },
-      { x: 3210, y: 148, w: 980, h: 32, kind: 'volcanic_basalt' },
-      { x: 4310, y: 148, w: 980, h: 32, kind: 'volcanic_basalt' },
-      { x: 5410, y: 148, w: 990, h: 32, kind: 'volcanic_basalt' }
+      // Terreno base volcánico continuo con gargantas de magma ardiente
+      { x: 0, y: 148, w: 980, h: 32, kind: 'volcanic_basalt' },
+      { x: 1100, y: 148, w: 1060, h: 32, kind: 'volcanic_basalt' },
+      { x: 2280, y: 148, w: 1100, h: 32, kind: 'volcanic_basalt' },
+      { x: 3500, y: 148, w: 1100, h: 32, kind: 'volcanic_basalt' },
+      { x: 4720, y: 148, w: 1100, h: 32, kind: 'volcanic_basalt' },
+      { x: 5940, y: 148, w: 1100, h: 32, kind: 'volcanic_basalt' },
+      { x: 7160, y: 148, w: 1540, h: 32, kind: 'volcanic_basalt' }
     );
 
     // Cornisas de basalto elevadas estratégicas
     platforms.push(
-      // 1. Columna de basalto sobre la primera falla de magma
-      { x: 960, y: 104, w: 60, h: 10, kind: 'volcanic_basalt' },
-      // 2. Cresta fósil para esquivar la embestida del triceratops
-      { x: 1480, y: 86, w: 85, h: 10, kind: 'dino_fossil_rock' },
-      // 3. Peldaño sobre el segundo abismo de lava
-      { x: 2020, y: 102, w: 65, h: 10, kind: 'volcanic_basalt' },
-      // 4. Pasarela de madera petrificada sobre chorro de fuego
-      { x: 2620, y: 84, w: 90, h: 10, kind: 'petrified_wood' },
-      // 5. Aguja volcánica de apoyo
-      { x: 3120, y: 102, w: 65, h: 10, kind: 'volcanic_basalt' },
-      // 6. Cornisa de azufre elevada
-      { x: 3750, y: 88, w: 85, h: 10, kind: 'dino_fossil_rock' },
-      // 7. Columna sobre el gran cañón de fumarolas
-      { x: 4220, y: 104, w: 65, h: 10, kind: 'volcanic_basalt' },
-      // 8. Risco secreto previo al portal
-      { x: 5750, y: 82, w: 80, h: 10, kind: 'dino_fossil_rock' }
+      // Columna de basalto sobre la primera falla de magma
+      { x: 1020, y: 104, w: 65, h: 10, kind: 'volcanic_basalt' },
+      // Cresta fósil para esquivar la embestida del triceratops
+      { x: 1680, y: 86, w: 90, h: 10, kind: 'dino_fossil_rock' },
+      // Peldaño sobre el segundo abismo de lava
+      { x: 2200, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
+      // Pasarela de madera petrificada sobre chorro de fuego
+      { x: 3050, y: 84, w: 95, h: 10, kind: 'petrified_wood' },
+      // Aguja volcánica de apoyo
+      { x: 3420, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
+      // Cornisa de azufre elevada
+      { x: 4320, y: 88, w: 90, h: 10, kind: 'dino_fossil_rock' },
+      // Columna sobre el gran cañón de fumarolas
+      { x: 5860, y: 104, w: 70, h: 10, kind: 'volcanic_basalt' },
+      // Risco fósil previo a la caldera
+      { x: 8050, y: 82, w: 85, h: 10, kind: 'dino_fossil_rock' }
     );
 
     // Fumarolas de vapor geotérmico (Trampolines ascendentes)
     trampolines.push(
-      { x: 1420, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' },
-      { x: 3650, y: 138, w: 32, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
-      { x: 5350, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' }
+      { x: 1550, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' },
+      { x: 4020, y: 138, w: 32, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' },
+      { x: 6450, y: 138, w: 32, h: 10, bounceForce: -14.0, springAnim: 0, type: 'normal' },
+      { x: 7450, y: 138, w: 32, h: 10, bounceForce: -14.5, springAnim: 0, type: 'super' }
     );
 
     // Barricadas de basalto resquebrajado
     destructibles.push(
-      { id: 10, x: 1780, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'stone_wall', destroyed: false, name: 'Roca de Basalto Resquebrajada' },
-      { id: 11, x: 3950, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'stone_wall', destroyed: false, name: 'Roca de Basalto Resquebrajada' },
-      { id: 12, x: 5920, y: 116, w: 20, h: 32, hp: 6, maxHp: 6, type: 'stone_wall', destroyed: false, name: 'Bloque de Obsidiana Ígnea' }
+      { id: 10, x: 2020, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'stone_wall', destroyed: false, name: 'Roca de Basalto Resquebrajada' },
+      { id: 11, x: 4420, y: 116, w: 20, h: 32, hp: 5, maxHp: 5, type: 'stone_wall', destroyed: false, name: 'Roca de Basalto Resquebrajada' },
+      { id: 12, x: 6820, y: 116, w: 20, h: 32, hp: 6, maxHp: 6, type: 'stone_wall', destroyed: false, name: 'Bloque de Obsidiana Ígnea' }
     );
 
     // Peligros intensos del cañón volcánico:
     // 1. Grietas y gargantas de magma ardiente
     hazards.push(
-      { x: 920, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 1990, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 3090, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 4190, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 5290, y: 154, w: 120, h: 24, type: 'lava_fissure' }
+      { x: 980, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 2160, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 3380, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 4600, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 5820, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 7040, y: 154, w: 120, h: 24, type: 'lava_fissure' }
     );
 
     // 2. Rocas volcánicas incandescentes rodando a gran velocidad
     hazards.push(
-      { x: 550, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 1600, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 2700, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 3800, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 4900, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 5850, y: 138, w: 18, h: 18, type: 'rolling_boulder' }
+      { x: 620, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 420, railMax: 850, moveSpeed: 2.3, dir: -1 },
+      { x: 1820, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 1520, railMax: 2050, moveSpeed: 2.5, dir: 1 },
+      { x: 2950, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 2650, railMax: 3250, moveSpeed: 2.4, dir: -1 },
+      { x: 4180, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 3850, railMax: 4450, moveSpeed: 2.6, dir: 1 },
+      { x: 5380, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 5050, railMax: 5680, moveSpeed: 2.5, dir: -1 },
+      { x: 6620, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 6280, railMax: 6920, moveSpeed: 2.6, dir: 1 },
+      { x: 7780, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 7450, railMax: 8100, moveSpeed: 2.5, dir: -1 }
     );
 
     // 3. Llamas de azufre y géiseres geotérmicos
     hazards.push(
-      { x: 380, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 0 },
-      { x: 1250, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 2380, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 45 },
-      { x: 3450, y: 136, w: 22, h: 30, type: 'geyser' },
-      { x: 4550, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 30 },
-      { x: 5650, y: 136, w: 22, h: 30, type: 'geyser' }
+      { x: 420, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 0 },
+      { x: 1420, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 2620, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 45 },
+      { x: 3820, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 5020, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 30 },
+      { x: 6220, y: 136, w: 22, h: 30, type: 'geyser' },
+      { x: 7420, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 20 }
     );
 
     // 4. Cadena giratoria de esferas de magma
     hazards.push(
-      { x: 2660, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 44, orbCount: 4, bladeSpeed: 0.04, bladeAngle: 0 },
-      { x: 4850, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 46, orbCount: 4, bladeSpeed: -0.045, bladeAngle: 1.2 }
+      { x: 3000, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 44, orbCount: 4, bladeSpeed: 0.04, bladeAngle: 0 },
+      { x: 5450, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 46, orbCount: 4, bladeSpeed: -0.045, bladeAngle: 1.2 },
+      { x: 7650, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 46, orbCount: 4, bladeSpeed: 0.042, bladeAngle: 2.1 }
     );
 
     // 5. Bloques de basalto que caen al temblar el volcán
     hazards.push(
-      { x: 820, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
-      { x: 1880, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
-      { x: 2980, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
-      { x: 4080, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
-      { x: 5180, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 }
+      { x: 920, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 2080, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 3280, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 4480, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 5680, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 6920, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 },
+      { x: 8250, y: 35, w: 16, h: 20, type: 'fallingBlock', originalY: 35 }
+    );
+
+    // 6. Cráneo fósil oscilante en liana
+    hazards.push(
+      { x: 2220, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 0, bladeSpeed: 0.038 },
+      { x: 4650, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 1.2, bladeSpeed: 0.044 },
+      { x: 7080, y: 65, w: 18, h: 18, type: 'swinging_mace', bladeAngle: 2.0, bladeSpeed: 0.040 }
+    );
+
+    // Monumentos volcánicos inmersivos
+    landmarks.push(
+      { type: 'volcanic_fumarole', x: 1150, y: 148 },
+      { type: 'dino_fossil_ribs', x: 3550, y: 148, w: 90, h: 80 },
+      { type: 'volcanic_fumarole', x: 5300, y: 148 },
+      { type: 'amber_altar', x: 7180, y: 148 }
     );
 
     // Checkpoints seguros intermedios
     checkpoints.push(
-      { x: 2130, y: 116, w: 20, h: 32, active: false, spawn: { x: 2150, y: 125 } },
-      { x: 4330, y: 116, w: 20, h: 32, active: false, spawn: { x: 4350, y: 125 } }
+      { x: 2320, y: 116, w: 20, h: 32, active: false, spawn: { x: 2340, y: 125 } },
+      { x: 4760, y: 116, w: 20, h: 32, active: false, spawn: { x: 4780, y: 125 } },
+      { x: 7200, y: 116, w: 20, h: 32, active: false, spawn: { x: 7220, y: 125 } }
     );
 
     // Enemigos: Triceratops blindados, Pterodáctilos en picada y veloces Raptors
     enemies.push(
-      createEnemy(340, 126, 'triceratops', 200, 520),
-      createEnemy(700, 48, 'pterodactyl', 580, 840),
-      createEnemy(1150, 128, 'raptor', 1050, 1300),
-      createEnemy(1550, 126, 'triceratops', 1420, 1720),
-      createEnemy(1850, 48, 'pterodactyl', 1720, 2020),
-      createEnemy(2280, 128, 'raptor', 2160, 2450),
-      createEnemy(2720, 126, 'triceratops', 2580, 2900),
-      createEnemy(3320, 128, 'raptor', 3220, 3500),
-      createEnemy(3780, 48, 'pterodactyl', 3650, 3950),
-      createEnemy(4450, 126, 'triceratops', 4320, 4650),
-      createEnemy(4880, 128, 'raptor', 4750, 5080),
-      createEnemy(5250, 48, 'pterodactyl', 5120, 5420),
-      createEnemy(5620, 126, 'triceratops', 5480, 5820),
-      createEnemy(6050, 128, 'raptor', 5920, 6220)
+      createEnemy(380, 126, 'triceratops', 240, 560),
+      createEnemy(750, 48, 'pterodactyl', 620, 880),
+      createEnemy(1280, 128, 'raptor', 1150, 1420),
+      createEnemy(1720, 126, 'triceratops', 1580, 1880),
+      createEnemy(2050, 48, 'pterodactyl', 1920, 2220),
+      createEnemy(2520, 128, 'raptor', 2380, 2680),
+      createEnemy(2980, 126, 'triceratops', 2840, 3160),
+      createEnemy(3620, 128, 'raptor', 3500, 3800),
+      createEnemy(4120, 48, 'pterodactyl', 3980, 4280),
+      createEnemy(4820, 126, 'triceratops', 4680, 5020),
+      createEnemy(5280, 128, 'raptor', 5140, 5460),
+      createEnemy(5750, 48, 'pterodactyl', 5600, 5920),
+      createEnemy(6220, 126, 'triceratops', 6080, 6420),
+      createEnemy(6720, 128, 'raptor', 6580, 6920),
+      createEnemy(7420, 48, 'pterodactyl', 7280, 7620),
+      createEnemy(7950, 126, 'triceratops', 7800, 8150),
+      createEnemy(8380, 128, 'raptor', 8240, 8560)
     );
 
     // Cristales de magma
-    for (let cx = 150; cx < 6250; cx += 170) {
+    for (let cx = 150; cx < 8650; cx += 165) {
       crystals.push({ x: cx, y: 90, w: 8, h: 8, taken: false });
     }
 
     // Botiquines
     heals.push(
-      { x: 740, y: 56, w: 10, h: 10, taken: false },
-      { x: 1900, y: 54, w: 10, h: 10, taken: false },
-      { x: 3150, y: 56, w: 10, h: 10, taken: false },
-      { x: 4250, y: 54, w: 10, h: 10, taken: false },
-      { x: 5350, y: 56, w: 10, h: 10, taken: false }
+      { x: 780, y: 56, w: 10, h: 10, taken: false },
+      { x: 2100, y: 54, w: 10, h: 10, taken: false },
+      { x: 3380, y: 56, w: 10, h: 10, taken: false },
+      { x: 4650, y: 54, w: 10, h: 10, taken: false },
+      { x: 5880, y: 56, w: 10, h: 10, taken: false },
+      { x: 7120, y: 54, w: 10, h: 10, taken: false },
+      { x: 8250, y: 56, w: 10, h: 10, taken: false }
     );
 
     // Secreto fósil
     secrets.push({
-      x: 6180,
+      x: 8090,
       y: 50,
       w: 14,
       h: 14,
@@ -6753,96 +6809,113 @@ export function buildLevel(levelIndex: number) {
       name: '💎 Diente Petrificado de Megalodón Terrestre'
     });
 
-    goal = { x: 6260, y: 88, w: 36, h: 62 };
+    goal = { x: 8660, y: 88, w: 36, h: 62 };
   } else if (config.id === 'jurasicdraft-3') {
     // -------------------------------------------------------------
-    // ZONA 11 · ACTO 3 — CALDERA DEL T-REX COLOSAL (6800px)
+    // ZONA 11 · ACTO 3 — CALDERA DEL T-REX COLOSAL (9000px)
     // -------------------------------------------------------------
-    // Épica aproximación por el cráter volcánico (0 - 5650px) y Arena Final de Titan Rex (5700 - 6750px)
+    // Épica aproximación por el cráter volcánico (0 - 7380px) y Gran Arena de Titan Rex (7420 - 8980px)
+    // 1- Desaturado de plataformas: pasarelas sólidas, limpias y rítmicas, 4 plataformas tácticas dentro de la arena
+    // 2- Peligros reforzados: lluvia de rocas incandescentes, ríos de lava, llamaradas de azufre y cadenas de magma
     platforms.push(
-      // Pasarelas del cráter y suelo exterior
-      { x: 0, y: 148, w: 1100, h: 32, kind: 'volcanic_basalt' },
-      { x: 1220, y: 148, w: 1050, h: 32, kind: 'volcanic_basalt' },
-      { x: 2380, y: 148, w: 1080, h: 32, kind: 'volcanic_basalt' },
-      { x: 3580, y: 148, w: 1080, h: 32, kind: 'volcanic_basalt' },
-      { x: 4780, y: 148, w: 880, h: 32, kind: 'volcanic_basalt' },
-      // Gran Suelo del Cráter: Arena del Jefe Titan Rex (5700 - 6750)
-      { x: 5700, y: 148, w: 1050, h: 32, kind: 'volcanic_basalt' }
+      // Pasarelas del cráter y suelo exterior (0 - 7380)
+      { x: 0, y: 148, w: 1080, h: 32, kind: 'volcanic_basalt' },
+      { x: 1200, y: 148, w: 1120, h: 32, kind: 'volcanic_basalt' },
+      { x: 2440, y: 148, w: 1140, h: 32, kind: 'volcanic_basalt' },
+      { x: 3700, y: 148, w: 1140, h: 32, kind: 'volcanic_basalt' },
+      { x: 4960, y: 148, w: 1140, h: 32, kind: 'volcanic_basalt' },
+      { x: 6220, y: 148, w: 1160, h: 32, kind: 'volcanic_basalt' },
+      // Gran Suelo de la Caldera: Arena del Jefe Titan Rex (7420 - 8980px)
+      { x: 7420, y: 148, w: 1560, h: 32, kind: 'volcanic_basalt' }
     );
 
     // Plataformas elevadas tácticas (densidad reducida, alto propósito táctico)
     platforms.push(
       // Camino de aproximación
-      { x: 1120, y: 104, w: 65, h: 10, kind: 'volcanic_basalt' },
-      { x: 1720, y: 86, w: 90, h: 10, kind: 'dino_fossil_rock' },
-      { x: 2280, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
-      { x: 2880, y: 84, w: 95, h: 10, kind: 'petrified_wood' },
-      { x: 3480, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
-      { x: 4120, y: 86, w: 90, h: 10, kind: 'dino_fossil_rock' },
-      { x: 4680, y: 104, w: 75, h: 10, kind: 'volcanic_basalt' },
+      { x: 1120, y: 104, w: 70, h: 10, kind: 'volcanic_basalt' },
+      { x: 1850, y: 86, w: 90, h: 10, kind: 'dino_fossil_rock' },
+      { x: 2360, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
+      { x: 3100, y: 84, w: 95, h: 10, kind: 'petrified_wood' },
+      { x: 3620, y: 102, w: 70, h: 10, kind: 'volcanic_basalt' },
+      { x: 4420, y: 86, w: 90, h: 10, kind: 'dino_fossil_rock' },
+      { x: 5750, y: 104, w: 75, h: 10, kind: 'volcanic_basalt' },
+      { x: 6980, y: 88, w: 90, h: 10, kind: 'dino_fossil_rock' },
 
-      // Plataformas tácticas elevadas dentro de la Arena del Jefe Titan Rex (5700 - 6750)
-      { x: 5850, y: 105, w: 95, h: 12, kind: 'dino_fossil_rock' },
-      { x: 6080, y: 75, w: 115, h: 12, kind: 'volcanic_basalt' },
-      { x: 6320, y: 105, w: 95, h: 12, kind: 'dino_fossil_rock' },
-      { x: 6540, y: 76, w: 110, h: 12, kind: 'volcanic_basalt' }
+      // Plataformas tácticas elevadas dentro de la Arena del Jefe Titan Rex (7420 - 8980)
+      // Permiten saltar sobre los pisotones sísmicos y embestidas de Titan Rex
+      { x: 7600, y: 105, w: 95, h: 12, kind: 'dino_fossil_rock' },
+      { x: 7950, y: 74, w: 120, h: 12, kind: 'volcanic_basalt' },
+      { x: 8350, y: 105, w: 95, h: 12, kind: 'dino_fossil_rock' },
+      { x: 8680, y: 76, w: 110, h: 12, kind: 'volcanic_basalt' }
     );
 
     // Peligros de la Caldera Volcánica:
     // 1. Grietas de magma ardiente
     hazards.push(
-      { x: 1100, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 2270, y: 154, w: 110, h: 24, type: 'lava_fissure' },
-      { x: 3460, y: 154, w: 120, h: 24, type: 'lava_fissure' },
-      { x: 4660, y: 154, w: 120, h: 24, type: 'lava_fissure' }
+      { x: 1080, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 2320, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 3580, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 4840, y: 154, w: 120, h: 24, type: 'lava_fissure' },
+      { x: 6100, y: 154, w: 120, h: 24, type: 'lava_fissure' }
     );
 
     // 2. Rocas volcánicas gigantes rodantes
     hazards.push(
-      { x: 720, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 1820, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 2950, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 4150, y: 138, w: 18, h: 18, type: 'rolling_boulder' },
-      { x: 5150, y: 138, w: 18, h: 18, type: 'rolling_boulder' }
+      { x: 720, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 480, railMax: 950, moveSpeed: 2.3, dir: -1 },
+      { x: 1850, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 1550, railMax: 2150, moveSpeed: 2.5, dir: 1 },
+      { x: 3100, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 2800, railMax: 3450, moveSpeed: 2.4, dir: -1 },
+      { x: 4350, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 4050, railMax: 4700, moveSpeed: 2.6, dir: 1 },
+      { x: 5600, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 5300, railMax: 5950, moveSpeed: 2.5, dir: -1 },
+      { x: 6850, y: 138, w: 18, h: 18, type: 'rolling_boulder', railMin: 6550, railMax: 7200, moveSpeed: 2.6, dir: 1 }
     );
 
     // 3. Fumarolas y llamaradas de azufre
     hazards.push(
       { x: 480, y: 136, w: 22, h: 28, type: 'geyser' },
-      { x: 1550, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 0 },
-      { x: 2680, y: 136, w: 22, h: 28, type: 'geyser' },
-      { x: 3850, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 35 },
-      { x: 4950, y: 136, w: 22, h: 28, type: 'geyser' }
+      { x: 1650, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 0 },
+      { x: 2850, y: 136, w: 22, h: 28, type: 'geyser' },
+      { x: 4100, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 35 },
+      { x: 5350, y: 136, w: 22, h: 28, type: 'geyser' },
+      { x: 6600, y: 140, w: 18, h: 12, type: 'flameJet', erupting: false, flameTimer: 25 }
     );
 
     // 4. Estalactitas de magma que caen
     hazards.push(
       { x: 920, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 2050, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 3200, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 4400, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
-      { x: 5350, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 }
+      { x: 2150, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 3400, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 4650, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 5900, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 },
+      { x: 7150, y: 35, w: 14, h: 22, type: 'stalactite', originalY: 35 }
     );
 
     // 5. Cadena de fuego giratoria
     hazards.push(
-      { x: 2920, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 46, orbCount: 4, bladeSpeed: 0.042, bladeAngle: 0 },
-      { x: 4720, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 48, orbCount: 4, bladeSpeed: -0.045, bladeAngle: 1.5 }
+      { x: 3100, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 46, orbCount: 4, bladeSpeed: 0.042, bladeAngle: 0 },
+      { x: 5500, y: 92, w: 12, h: 12, type: 'rotatingFireChain', chainLength: 48, orbCount: 4, bladeSpeed: -0.045, bladeAngle: 1.5 }
+    );
+
+    // Monumentos prehistóricos inmersivos
+    landmarks.push(
+      { type: 'dino_fossil_ribs', x: 1800, y: 148, w: 90, h: 80 },
+      { type: 'volcanic_fumarole', x: 3650, y: 148 },
+      { type: 'dino_fossil_ribs', x: 5400, y: 148, w: 90, h: 80 },
+      { type: 'amber_altar', x: 7380, y: 148 }
     );
 
     // Checkpoints de la aproximación
     checkpoints.push(
-      { x: 1900, y: 116, w: 20, h: 32, active: false, spawn: { x: 1920, y: 125 } },
-      { x: 3800, y: 116, w: 20, h: 32, active: false, spawn: { x: 3820, y: 125 } },
+      { x: 2360, y: 116, w: 20, h: 32, active: false, spawn: { x: 2380, y: 125 } },
+      { x: 4880, y: 116, w: 20, h: 32, active: false, spawn: { x: 4900, y: 125 } },
       // Checkpoint previo al jefe (justo en la entrada de la arena para reaparición inmediata sin trabas)
-      { x: 5660, y: 116, w: 20, h: 32, active: false, spawn: { x: 5690, y: 125 }, arena: true }
+      { x: 7380, y: 116, w: 20, h: 32, active: false, spawn: { x: 7410, y: 125 }, arena: true }
     );
 
-    // JEFE SUPREMO DE JURASSIC DRAFT: TITAN REX COLOSAL
+    // JEFE SUPREMO DE JURASSIC DRAFT: TITAN REX COLOSAL (8250px)
     boss = {
-      x: 6350,
+      x: 8250,
       y: 104,
-      startX: 6350,
+      startX: 8250,
       startY: 104,
       w: 56,
       h: 44,
@@ -6871,38 +6944,42 @@ export function buildLevel(levelIndex: number) {
 
     // Enemigos en el camino de aproximación
     enemies.push(
-      createEnemy(380, 128, 'raptor', 260, 500),
+      createEnemy(380, 128, 'raptor', 260, 520),
       createEnemy(750, 48, 'pterodactyl', 650, 880),
-      createEnemy(1150, 126, 'triceratops', 1050, 1300),
-      createEnemy(1550, 128, 'ankylosaur', 1450, 1720),
-      createEnemy(1950, 48, 'pterodactyl', 1850, 2100),
-      createEnemy(2450, 128, 'raptor', 2350, 2600),
-      createEnemy(2850, 126, 'triceratops', 2720, 3020),
-      createEnemy(3350, 128, 'ankylosaur', 3220, 3500),
-      createEnemy(3920, 48, 'pterodactyl', 3800, 4080),
-      createEnemy(4350, 128, 'raptor', 4220, 4500),
-      createEnemy(4950, 126, 'triceratops', 4820, 5100),
-      createEnemy(5420, 128, 'ankylosaur', 5300, 5580)
+      createEnemy(1220, 126, 'triceratops', 1100, 1380),
+      createEnemy(1650, 128, 'ankylosaur', 1520, 1820),
+      createEnemy(2050, 48, 'pterodactyl', 1950, 2200),
+      createEnemy(2580, 128, 'raptor', 2460, 2750),
+      createEnemy(3020, 126, 'triceratops', 2900, 3200),
+      createEnemy(3520, 128, 'ankylosaur', 3400, 3680),
+      createEnemy(4080, 48, 'pterodactyl', 3950, 4250),
+      createEnemy(4550, 128, 'raptor', 4420, 4700),
+      createEnemy(5150, 126, 'triceratops', 5020, 5320),
+      createEnemy(5650, 128, 'ankylosaur', 5500, 5800),
+      createEnemy(6350, 128, 'raptor', 6220, 6500),
+      createEnemy(6820, 48, 'pterodactyl', 6700, 7000),
+      createEnemy(7200, 126, 'triceratops', 7080, 7350)
     );
 
     // Cristales & Botiquines
-    for (let cx = 160; cx < 5650; cx += 160) {
+    for (let cx = 160; cx < 7350; cx += 160) {
       crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
     }
     heals.push(
       { x: 500, y: 58, w: 10, h: 10, taken: false },
-      { x: 1700, y: 56, w: 10, h: 10, taken: false },
-      { x: 2900, y: 54, w: 10, h: 10, taken: false },
-      { x: 4100, y: 56, w: 10, h: 10, taken: false },
-      { x: 5200, y: 54, w: 10, h: 10, taken: false },
+      { x: 1750, y: 56, w: 10, h: 10, taken: false },
+      { x: 3000, y: 54, w: 10, h: 10, taken: false },
+      { x: 4250, y: 56, w: 10, h: 10, taken: false },
+      { x: 5500, y: 54, w: 10, h: 10, taken: false },
+      { x: 6750, y: 56, w: 10, h: 10, taken: false },
       // Botiquines dentro de la Arena del Jefe
-      { x: 5880, y: 85, w: 10, h: 10, taken: false },
-      { x: 6560, y: 56, w: 10, h: 10, taken: false }
+      { x: 7650, y: 85, w: 10, h: 10, taken: false },
+      { x: 8700, y: 56, w: 10, h: 10, taken: false }
     );
 
     // Secreto
     secrets.push({
-      x: 6650,
+      x: 8780,
       y: 48,
       w: 14,
       h: 14,
@@ -6910,7 +6987,7 @@ export function buildLevel(levelIndex: number) {
       name: '🦖 Cráneo Ancestral de T-Rex Dorado'
     });
 
-    goal = { x: 6720, y: 88, w: 36, h: 62 };
+    goal = { x: 8880, y: 88, w: 36, h: 62 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(

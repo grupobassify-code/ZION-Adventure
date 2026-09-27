@@ -3443,6 +3443,71 @@ export class GameEngine {
             this.createBurst(h.x + h.w / 2, floorY, 8, '#78350f');
           }
         }
+      } else if (h.type === 'rolling_boulder') {
+        const spd = h.moveSpeed || 2.2;
+        const dir = h.dir ?? -1;
+        h.x += spd * dir;
+        const minX = h.railMin ?? (h.x - 140);
+        const maxX = h.railMax ?? (h.x + 140);
+        if (h.x <= minX) {
+          h.x = minX;
+          h.dir = 1;
+        } else if (h.x >= maxX) {
+          h.x = maxX;
+          h.dir = -1;
+        }
+        h.spinAngle = ((h.spinAngle || 0) + 0.16 * (h.dir || -1)) % (Math.PI * 2);
+        // Ground rock dust particles
+        if (Math.random() < 0.35 && this.particles.length < 85) {
+          this.particles.push({
+            x: h.x + h.w / 2,
+            y: h.y + h.h,
+            vx: (Math.random() - 0.5) * 1.6 - (h.dir || -1) * 1.2,
+            vy: -Math.random() * 1.6,
+            life: 9,
+            maxLife: 9,
+            color: '#78716c',
+            size: 1.6,
+          });
+        }
+      } else if (h.type === 'tar_pit') {
+        // Primordial bubbling tar pit: slows player down and pulls down
+        if (p.x + p.w > h.x && p.x < h.x + h.w && p.y + p.h >= h.y - 2 && p.y <= h.y + h.h + 8) {
+          p.vx *= 0.82; // Strong viscous drag
+          if (p.ground && !p.isDashing) {
+            p.vy = Math.min(p.vy + 0.18, 1.2); // Sinking pull
+          }
+          if (this.time % 22 === 0) {
+            sound.playSfx('acidSizzle');
+          }
+        }
+        // Viscous tar bubbles
+        if (Math.random() < 0.28 && this.particles.length < 85) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + 2,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -0.6 - Math.random() * 0.8,
+            life: 16,
+            maxLife: 16,
+            color: Math.random() < 0.6 ? '#1c1917' : '#451a03',
+            size: 2.2,
+          });
+        }
+      } else if (h.type === 'lava_fissure') {
+        // Bubbling incandescent magma fissure
+        if (Math.random() < 0.35 && this.particles.length < 85) {
+          this.particles.push({
+            x: h.x + Math.random() * h.w,
+            y: h.y + 2,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: -1.2 - Math.random() * 1.8,
+            life: 14,
+            maxLife: 14,
+            color: Math.random() < 0.5 ? '#fef08a' : '#f97316',
+            size: 1.8,
+          });
+        }
       }
     }
   }
@@ -4238,7 +4303,7 @@ export class GameEngine {
       : currentConfig?.id === 'piratestreasure-3'
       ? (this.player.x >= 2710)
       : currentConfig?.id === 'jurasicdraft-3'
-      ? (this.player.x >= 2560)
+      ? (this.player.x >= 7450)
       : (this.player.x > b.x - 340 || (this.arenaLeft > 0 && this.player.x >= this.arenaLeft + 40));
 
     if (inArenaRange && !this.arenaActive) {
@@ -4250,8 +4315,8 @@ export class GameEngine {
         this.arenaLeft = 2700;
         this.arenaRight = 3750;
       } else if (currentConfig?.id === 'jurasicdraft-3') {
-        this.arenaLeft = 2550;
-        this.arenaRight = 3550;
+        this.arenaLeft = 7400;
+        this.arenaRight = 8950;
       } else {
         this.arenaLeft = b.x - 360;
         this.arenaRight = b.x + 360;
@@ -6187,7 +6252,9 @@ export class GameEngine {
         b.stateTimer--;
         b.vx = b.facing * (b.phase === 3 ? 3.0 : 2.4);
         b.x += b.vx;
-        b.x = Math.max(2580, Math.min(3520 - b.w, b.x));
+        const arenaMin = this.arenaLeft > 0 ? this.arenaLeft + 30 : (b.startX ? b.startX - 320 : 7430);
+        const arenaMax = this.arenaRight > 0 ? this.arenaRight - 30 : (b.startX ? b.startX + 320 : 8920);
+        b.x = Math.max(arenaMin, Math.min(arenaMax - b.w, b.x));
 
         if (this.checkAABB(p, b) && p.inv <= 0 && !this.settings.godMode) {
           this.handlePlayerDamage('¡Mordisco Titánico del T-Rex!');
@@ -6225,10 +6292,12 @@ export class GameEngine {
             }
           } else {
             // Volcanic boulders raining from the volcanic crater
+            const arenaMin = this.arenaLeft > 0 ? this.arenaLeft + 30 : (b.startX ? b.startX - 320 : 7430);
+            const arenaMax = this.arenaRight > 0 ? this.arenaRight - 30 : (b.startX ? b.startX + 320 : 8920);
             for (let i = 0; i < 2; i++) {
               const dropX = p.x + (i - 0.5) * 80;
               this.projectiles.push({
-                x: Math.max(2600, Math.min(3500, dropX)),
+                x: Math.max(arenaMin + 20, Math.min(arenaMax - 20, dropX)),
                 y: 10,
                 w: 12,
                 h: 12,
@@ -6844,6 +6913,14 @@ export class GameEngine {
           const pcy = p.y + p.h / 2;
           const dist = Math.hypot(bcx - pcx, bcy - pcy);
           isColliding = dist < ballRadius + 4;
+        } else if (h.type === 'rolling_boulder') {
+          const ballRadius = (h.w || 18) / 2;
+          const bcx = h.x + ballRadius;
+          const bcy = h.y + ballRadius;
+          const pcx = p.x + p.w / 2;
+          const pcy = p.y + p.h / 2;
+          const dist = Math.hypot(bcx - pcx, bcy - pcy);
+          isColliding = dist < ballRadius + 5;
         } else if (h.type === 'plasmaTurret') {
           isColliding = this.checkAABB(p, h);
         } else if (h.type === 'gravityVortex') {
