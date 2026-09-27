@@ -75,7 +75,11 @@ export interface Platform {
     | 'prehistoric_earth'
     | 'petrified_wood'
     | 'dino_fossil_rock'
-    | 'volcanic_basalt';
+    | 'volcanic_basalt'
+    | 'launch_gantry'
+    | 'space_chassis'
+    | 'moon_regolith'
+    | 'rocket_scaffold';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -142,7 +146,11 @@ export type EnemyType =
   | 'raptor'
   | 'pterodactyl'
   | 'triceratops'
-  | 'ankylosaur';
+  | 'ankylosaur'
+  | 'astro_guard'
+  | 'rocket_drone'
+  | 'lunar_crawler'
+  | 'thruster_mech';
 
 export interface Enemy {
   id: number;
@@ -235,7 +243,10 @@ export interface Hazard {
     | 'lava_fissure'
     | 'pterodactyl_nest'
     | 'rolling_boulder'
-    | 'tar_pit';
+    | 'tar_pit'
+    | 'rocket_thruster_plume'
+    | 'cryo_steam_vent'
+    | 'electrified_gantry_rail';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -460,7 +471,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt' | 'cryo_canister' | 'lunar_laser';
   homingTimer?: number;
   angle?: number;
   color?: string;
@@ -506,7 +517,7 @@ export interface FloatingText {
 }
 
 export interface Landmark {
-  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower' | 'castle_keep' | 'siege_catapult' | 'throne_dais' | 'royal_banner' | 'stone_gargoyle_perch' | 'dino_fossil_ribs' | 'amber_altar' | 'volcanic_fumarole';
+  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower' | 'castle_keep' | 'siege_catapult' | 'throne_dais' | 'royal_banner' | 'stone_gargoyle_perch' | 'dino_fossil_ribs' | 'amber_altar' | 'volcanic_fumarole' | 'colossal_rocket_gantry' | 'launch_control_tower' | 'radar_tracking_dish' | 'cryogenic_fuel_silo';
   x: number;
   y?: number;
   w?: number;

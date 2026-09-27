@@ -32,6 +32,7 @@ export type MusicTrackName =
   | 'jurassicAct1'
   | 'jurassicAct2'
   | 'jurassicBoss'
+  | 'moonLaunchAct1'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -72,6 +73,7 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'jurassicAct1', title: 'Jungla Primordial y Nidos de Raptor', zone: 'Jurassic Draft · Acto 1', tag: 'Prehistoric Jungle · Tribal Beat' },
   { id: 'jurassicAct2', title: 'Cañón de Pterodáctilos y Lava Ancestral', zone: 'Jurassic Draft · Acto 2', tag: 'Volcanic Thermals · Driving Bass' },
   { id: 'jurassicBoss', title: 'Titan Rex: Rugido del Depredador Alfa', zone: 'Jurassic Draft · Jefe', tag: 'Duelo de Titanes · Heavy Dinosaur Metal' },
+  { id: 'moonLaunchAct1', title: 'Base de Lanzamiento: Cuenta Regresiva al Infinito', zone: 'The Moon · Acto 1', tag: 'Space Synthwave · Heroic Cosmic Odyssey' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -1559,6 +1561,46 @@ class SoundEngine {
         4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
         4, 2, 5, 4, 4, 4, 5, 2, 4, 2, 5, 4, 4, 4, 5, 5,
         4, 4, 5, 4, 4, 5, 5, 4, 4, 4, 5, 5, 2, 2, 5, 5
+      ],
+    },
+
+    // THE MOON · ACTO 1: BASE DE LANZAMIENTO DE COHETES (138 BPM Heroic Space Synthwave & Countdown Odyssey)
+    moonLaunchAct1: {
+      tempo: 138,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'square',
+      leadNotes: [
+        // Measure 1: Heroic Launch Anthem Call (C Minor - Apollo Ascending)
+        N.C4, N.Eb4, N.G4, N.C5,  N.Bb4, N.G4, N.Eb4, N.G4,   N.F4, N.Ab4, N.C5, N.Eb5,  N.D5, N.Bb4, N.G4, N.F4,
+        // Measure 2: Rocket Thruster Ignite & Horizon Climb
+        N.Eb4, N.G4, N.Bb4, N.Eb5, N.D5, N.C5, N.Bb4, N.C5,   N.G4, N.Bb4, N.C5, N.D5,   N.Eb5, N.F5, N.G5, N.REST,
+        // Measure 3: Orbital Trajectory Arc (Majestic High Octave Leap)
+        N.C5, N.G5, N.F5, N.Eb5,  N.D5, N.C5, N.Bb4, N.C5,   N.Ab4, N.C5, N.Eb5, N.Ab5, N.G5, N.Eb5, N.D5, N.C5,
+        // Measure 4: Staging Separation & Triumphant Climax
+        N.Bb4, N.D5, N.F5, N.Bb5, N.A5, N.F5, N.D5, N.Bb4,  N.G4, N.C5, N.Eb5, N.G5,   N.C6, N.REST, N.C5, N.REST
+      ],
+      harmonyNotes: [
+        // Counterpoint Telemetry Pulses & Rocket Arpeggios
+        N.G3, N.C4, N.Eb4, N.G4,   N.G3, N.C4, N.Eb4, N.G4,   N.Ab3, N.C4, N.Eb4, N.Ab4, N.Ab3, N.C4, N.Eb4, N.Ab4,
+        N.Bb3, N.Eb4, N.G4, N.Bb4, N.Bb3, N.Eb4, N.G4, N.Bb4, N.G3, N.B3, N.D4, N.G4,    N.G3, N.B3, N.D4, N.G4,
+        N.C4, N.Eb4, N.G4, N.C5,   N.C4, N.Eb4, N.G4, N.C5,   N.Ab3, N.C4, N.Eb4, N.Ab4, N.Ab3, N.C4, N.Eb4, N.Ab4,
+        N.Bb3, N.D4, N.F4, N.Bb4, N.Bb3, N.D4, N.F4, N.Bb4, N.C4, N.Eb4, N.G4, N.C5,   N.G4, N.REST, N.Eb4, N.REST
+      ],
+      bassNotes: [
+        // 16th note driving synthwave bassline
+        N.C2, N.C2, N.C1, N.C2,   N.C2, N.G1, N.C2, N.C2,    N.Ab1, N.Ab1, N.Eb1, N.Ab1, N.Ab1, N.C2, N.Ab1, N.Ab1,
+        N.Eb1, N.Eb1, N.Bb0, N.Eb1, N.Eb1, N.G1, N.Eb1, N.Eb1, N.G1, N.G1, N.D1, N.G1,    N.G1, N.B1, N.G1, N.G1,
+        N.C2, N.C2, N.C1, N.C2,   N.C2, N.G1, N.C2, N.C2,    N.Ab1, N.Ab1, N.Eb1, N.Ab1, N.Ab1, N.C2, N.Ab1, N.Ab1,
+        N.Bb1, N.Bb1, N.F1, N.Bb1, N.Bb1, N.D2, N.Bb1, N.Bb1, N.C2, N.Eb2, N.G2, N.C3,   N.C2, N.REST, N.C1, N.REST
+      ],
+      drumPattern: [
+        // Punchy Space Electro Groove with driving kick, snappy snare and high-energy fills
+        4, 1, 5, 1, 4, 1, 5, 1,  4, 1, 5, 1, 4, 4, 5, 1,
+        4, 1, 5, 1, 4, 1, 5, 4,  4, 1, 5, 1, 4, 4, 5, 5,
+        4, 1, 5, 1, 4, 1, 5, 1,  4, 1, 5, 1, 4, 4, 5, 4,
+        4, 1, 5, 1, 4, 4, 5, 4,  4, 4, 5, 5, 2, 2, 5, 5
       ],
     },
   };

@@ -409,6 +409,13 @@ export function recordLevelCompletion(
     slot.unlockedLevels.push(jurassicDraft1Idx);
   }
 
+  // When Titan Rex (jurasicdraft-3) is beaten, unlock The Moon: Rocket Launch Facility (themoon-1)
+  const jurassicFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-3');
+  const moon1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-1');
+  if (levelIndex === jurassicFinalBossIdx && moon1Idx !== -1 && !slot.unlockedLevels.includes(moon1Idx)) {
+    slot.unlockedLevels.push(moon1Idx);
+  }
+
   slots[slotId] = slot;
   saveAllSlots(slots);
   return slot;
@@ -524,7 +531,23 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1) || completedList.includes(`jurasicdraft-${cfg.act - 1}` as any);
   }
   if (cfg && cfg.zone === 'themoon') {
-    return false; // Future zone
+    const jurasic3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-3');
+    const moon1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-1');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isJurassicBossDefeated =
+      jurasic3Idx !== -1 && (completedList.includes(jurasic3Idx) || completedList.includes('jurasicdraft-3' as any));
+
+    // Act 1 of The Moon is unlocked once Jurassic Draft Boss (Titan Rex) is defeated
+    if (cfg.act === 1) {
+      if (!isJurassicBossDefeated && !unlockedList.includes(levelIndex)) {
+        return false;
+      }
+      return true;
+    }
+    // Acts 2 and 3 are future acts (only Act 1 is implemented)
+    return false;
   }
   return slot.unlockedLevels.includes(levelIndex);
 }
@@ -730,6 +753,28 @@ export function getZoneCompletion(slot: SaveSlot | null, zone: ZoneId): { comple
 
     const jurassic1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-1');
     const isUnlocked = isPirateBossDefeated || (jurassic1Idx !== -1 && unlockedList.includes(jurassic1Idx));
+
+    if (!isUnlocked) {
+      return { completed: 0, total, unlocked: false };
+    }
+    let completed = 0;
+    for (const item of zoneLevels) {
+      if (completedList.includes(item.idx)) completed++;
+    }
+    return { completed, total, unlocked: true };
+  }
+
+  // The Moon Zone requires defeating Jurassic Draft boss Titan Rex (jurasicdraft-3)
+  if (zone === 'themoon') {
+    const jurasic3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jurasicdraft-3');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isJurassicBossDefeated =
+      jurasic3Idx !== -1 && (completedList.includes(jurasic3Idx) || completedList.includes('jurasicdraft-3' as any));
+
+    const moon1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-1');
+    const isUnlocked = isJurassicBossDefeated || (moon1Idx !== -1 && unlockedList.includes(moon1Idx));
 
     if (!isUnlocked) {
       return { completed: 0, total, unlocked: false };

@@ -1107,6 +1107,9 @@ export class GameEngine {
       } else {
         sound.setMusicTrack('jurassicBoss');
       }
+    } else if (currentConfig.zone === 'themoon') {
+      // The Moon Space Zone: Act 1 Rocket Launch Facility
+      sound.setMusicTrack('moonLaunchAct1');
     }
   }
 

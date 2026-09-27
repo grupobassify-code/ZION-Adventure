@@ -776,11 +776,31 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'themoon-1',
     zone: 'themoon',
     act: 1,
-    title: 'Zona 12 · Acto 1 — Mar de la Tranquilidad (Próximamente)',
-    subtitle: 'Regolito Lunar, Baja Gravedad y Cielo Estelar',
-    lore: [{ title: '🌙 UN PEQUEÑO PASO', lines: ['Próximamente: Salta a grandes alturas con la gravedad lunar reducida y contempla la Tierra.'], author: 'Misión Apolo Ω' }],
-    worldWidth: 3000,
-    themeColor: '#475569',
+    title: 'Zona 12 · Acto 1 — Base de Lanzamiento de Cohetes',
+    subtitle: 'Plataformas de Despegue, Torres Umbilicales y Cuenta Regresiva',
+    lore: [
+      {
+        title: '🚀 PROYECTO APOLO-Ω: BASE DE LANZAMIENTO',
+        lines: [
+          'Zion ha llegado al complejo aeroespacial de la última frontera: la Base de Lanzamiento de Cohetes de Cabo Kronos.',
+          'Entre colosales torres de servicio umbilical, pasarelas suspendidas y silos criogénicos, los propulsores rugen en pruebas de ignición.',
+          'Cuidado con los chorros de fuego de los motores cohete, los escapes criogénicos y los drones de patrulla orbital.',
+          '¡Asciende por las pasarelas de la torre de lanzamiento y aborda el cohete para iniciar el viaje a la Luna!'
+        ],
+        author: 'Bitácora del Director de Vuelo'
+      },
+      {
+        title: 'SISTEMAS DE SEGURIDAD AEROESPACIAL',
+        lines: [
+          '• MOTORES COHETE: Emiten ráfagas masivas de fuego en ciclos calculados; observa las luces de advertencia.',
+          '• VÁLVULAS CRIOGÉNICAS: Liberan chorros de vapor bajo cero a alta presión que pueden empujarte al vacío.',
+          '• BARRERAS ELÉCTRICAS: Despliega tu Dash invulnerable para atravesar las redes de contención de alta tensión.'
+        ],
+        author: 'Manual de Protocolo de Despegue'
+      }
+    ],
+    worldWidth: 8800,
+    themeColor: '#0ea5e9',
     accentColor: '#38bdf8'
   },
   {
@@ -911,6 +931,14 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 8, xp: 110, score: 480 };
     case 'ankylosaur':
       return { hp: 9, xp: 120, score: 500 };
+    case 'astro_guard':
+      return { hp: 6, xp: 90, score: 420 };
+    case 'rocket_drone':
+      return { hp: 4, xp: 75, score: 340 };
+    case 'lunar_crawler':
+      return { hp: 7, xp: 95, score: 440 };
+    case 'thruster_mech':
+      return { hp: 10, xp: 135, score: 550 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -6988,6 +7016,279 @@ export function buildLevel(levelIndex: number) {
     });
 
     goal = { x: 8880, y: 88, w: 36, h: 62 };
+  } else if (config.id === 'themoon-1') {
+    // =========================================================================
+    // ZONA 12: THE MOON · ACTO 1 — BASE DE LANZAMIENTO DE COHETES (8800px)
+    // Complejo Aeroespacial de Cabo Kronos: Torres Umbilicales, Silos de Combustible
+    // y Cuenta Regresiva de Despegue hacia la Luna
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // 1. ESTRUCTURA DE PLATAFORMAS (Pistas de Rodadura, Pasarelas y Torres)
+    // -------------------------------------------------------------------------
+    // Sector 1: Pista de Tarmac y Silos Criogénicos (0 - 2200px)
+    platforms.push(
+      { x: 0, y: 148, w: 420, h: 32, kind: 'space_chassis' },
+      { x: 260, y: 118, w: 85, h: 12, kind: 'launch_gantry' },
+      { x: 380, y: 92, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 500, y: 148, w: 380, h: 32, kind: 'launch_gantry' },
+      { x: 620, y: 114, w: 100, h: 12, kind: 'rocket_scaffold' },
+      { x: 760, y: 84, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 920, y: 148, w: 450, h: 32, kind: 'space_chassis' },
+      { x: 1040, y: 112, w: 110, h: 12, kind: 'rocket_scaffold' },
+      { x: 1190, y: 82, w: 90, h: 12, kind: 'launch_gantry' },
+      { x: 1320, y: 114, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 1430, y: 148, w: 380, h: 32, kind: 'launch_gantry' },
+      { x: 1560, y: 110, w: 95, h: 12, kind: 'rocket_scaffold' },
+      { x: 1700, y: 80, w: 110, h: 12, kind: 'launch_gantry' },
+      { x: 1860, y: 148, w: 420, h: 32, kind: 'space_chassis' },
+      { x: 1980, y: 112, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 2110, y: 82, w: 95, h: 12, kind: 'launch_gantry' }
+    );
+
+    // Sector 2: Pasarelas de Servicio de Alta Tensión (2200 - 4400px)
+    platforms.push(
+      // Plataforma del Checkpoint 1
+      { x: 2220, y: 148, w: 380, h: 32, kind: 'space_chassis' },
+      { x: 2350, y: 116, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 2470, y: 88, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 2600, y: 64, w: 80, h: 12, kind: 'rocket_scaffold' },
+      { x: 2720, y: 148, w: 360, h: 32, kind: 'launch_gantry' },
+      { x: 2840, y: 114, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 2980, y: 84, w: 100, h: 12, kind: 'launch_gantry' },
+      // Torre elevada de telemetría (Secreto 1)
+      { x: 3100, y: 56, w: 95, h: 12, kind: 'rocket_scaffold' },
+      { x: 3240, y: 84, w: 85, h: 12, kind: 'launch_gantry' },
+      { x: 3360, y: 148, w: 420, h: 32, kind: 'space_chassis' },
+      { x: 3490, y: 116, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 3620, y: 86, w: 105, h: 12, kind: 'launch_gantry' },
+      { x: 3770, y: 148, w: 350, h: 32, kind: 'launch_gantry' },
+      { x: 3900, y: 112, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 4040, y: 82, w: 110, h: 12, kind: 'launch_gantry' },
+      { x: 4190, y: 110, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 4310, y: 148, w: 380, h: 32, kind: 'space_chassis' }
+    );
+
+    // Sector 3: Torres Umbilicales y Fosos de Ignición (4400 - 6600px)
+    platforms.push(
+      // Plataforma del Checkpoint 2
+      { x: 4420, y: 148, w: 380, h: 32, kind: 'space_chassis' },
+      { x: 4560, y: 114, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 4680, y: 84, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 4820, y: 148, w: 320, h: 32, kind: 'launch_gantry' },
+      // Pasarela móvil suspendida en la torre
+      { x: 4980, y: 108, w: 75, h: 12, kind: 'launch_gantry', speed: 0.8, dir: 1 },
+      { x: 5120, y: 78, w: 100, h: 12, kind: 'rocket_scaffold' },
+      // Altillo secreto 2
+      { x: 5280, y: 52, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 5420, y: 84, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 5540, y: 148, w: 410, h: 32, kind: 'space_chassis' },
+      { x: 5670, y: 116, w: 90, h: 12, kind: 'launch_gantry' },
+      { x: 5800, y: 86, w: 105, h: 12, kind: 'rocket_scaffold' },
+      { x: 5950, y: 148, w: 360, h: 32, kind: 'launch_gantry' },
+      { x: 6080, y: 112, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 6200, y: 82, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 6330, y: 110, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 6450, y: 148, w: 380, h: 32, kind: 'space_chassis' }
+    );
+
+    // Sector 4: Plataforma de Despegue Alfa y Rampa del Cohete (6600 - 8800px)
+    platforms.push(
+      // Plataforma del Checkpoint 3
+      { x: 6580, y: 148, w: 420, h: 32, kind: 'space_chassis' },
+      { x: 6720, y: 118, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 6850, y: 88, w: 100, h: 12, kind: 'launch_gantry' },
+      { x: 7000, y: 148, w: 380, h: 32, kind: 'launch_gantry' },
+      { x: 7130, y: 114, w: 90, h: 12, kind: 'rocket_scaffold' },
+      { x: 7260, y: 84, w: 105, h: 12, kind: 'launch_gantry' },
+      { x: 7410, y: 62, w: 85, h: 12, kind: 'rocket_scaffold' },
+      { x: 7530, y: 148, w: 440, h: 32, kind: 'space_chassis' },
+      // Brazo de servicio que conecta al fuselaje del cohete
+      { x: 7680, y: 116, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 7820, y: 86, w: 110, h: 12, kind: 'rocket_scaffold' },
+      { x: 7970, y: 64, w: 90, h: 12, kind: 'launch_gantry' },
+      // Altillo secreto 3 sobre el cojinete del cohete
+      { x: 8120, y: 46, w: 100, h: 12, kind: 'rocket_scaffold' },
+      { x: 8260, y: 76, w: 95, h: 12, kind: 'launch_gantry' },
+      { x: 8400, y: 104, w: 120, h: 12, kind: 'launch_gantry' },
+      // Plataforma de la esclusa del cohete (Goal final)
+      { x: 8560, y: 148, w: 240, h: 32, kind: 'space_chassis' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 2. TRAMPOLINES (Plataformas Neumáticas de Lanzamiento Vertical)
+    // -------------------------------------------------------------------------
+    trampolines.push(
+      { x: 440, y: 140, w: 24, h: 8, bounceForce: -6.2, springAnim: 0, type: 'super' },
+      { x: 1390, y: 140, w: 24, h: 8, bounceForce: -6.2, springAnim: 0, type: 'super' },
+      { x: 2680, y: 140, w: 24, h: 8, bounceForce: -6.4, springAnim: 0, type: 'super' },
+      { x: 3730, y: 140, w: 24, h: 8, bounceForce: -6.4, springAnim: 0, type: 'super' },
+      { x: 4780, y: 140, w: 24, h: 8, bounceForce: -6.6, springAnim: 0, type: 'super' },
+      { x: 5910, y: 140, w: 24, h: 8, bounceForce: -6.6, springAnim: 0, type: 'super' },
+      { x: 7370, y: 140, w: 24, h: 8, bounceForce: -6.8, springAnim: 0, type: 'super' },
+      { x: 8360, y: 140, w: 24, h: 8, bounceForce: -6.8, springAnim: 0, type: 'super' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 3. HAZARDS & TRAMPAS (Propulsores de Cohete, Válvulas Criogénicas, Barreras Eléctricas)
+    // -------------------------------------------------------------------------
+    hazards.push(
+      // Válvulas Criogénicas de Vapor (Escapes fríos a presión)
+      { x: 320, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 700, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 1140, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 1650, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+
+      // Redes de Alta Tensión en pasarelas
+      { x: 830, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 1280, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 1810, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+
+      // Sector 2: Barreras y Criogenia
+      { x: 2540, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 2910, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 3300, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 3550, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 3960, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 4120, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+
+      // Sector 3: Toberas de Cohete (Propulsores en prueba)
+      { x: 4720, y: 134, w: 22, h: 14, type: 'rocket_thruster_plume' },
+      { x: 5040, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 5360, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 5740, y: 134, w: 22, h: 14, type: 'rocket_thruster_plume' },
+      { x: 6140, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 6380, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+
+      // Sector 4: Toberas Principales de la Plataforma de Lanzamiento
+      { x: 6920, y: 134, w: 22, h: 14, type: 'rocket_thruster_plume' },
+      { x: 7190, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 7460, y: 140, w: 16, h: 8, type: 'electrified_gantry_rail' },
+      { x: 7750, y: 134, w: 22, h: 14, type: 'rocket_thruster_plume' },
+      { x: 8050, y: 138, w: 14, h: 10, type: 'cryo_steam_vent' },
+      { x: 8320, y: 134, w: 22, h: 14, type: 'rocket_thruster_plume' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 4. NUEVOS ENEMIGOS (Guardias Cósmicos, Drones Cohete, Rovers Lunares, Mechas)
+    // -------------------------------------------------------------------------
+    enemies.push(
+      // Sector 1 (0 - 2200px)
+      createEnemy(280, 102, 'astro_guard', 260, 340),
+      createEnemy(640, 52, 'rocket_drone', 550, 750),
+      createEnemy(960, 132, 'lunar_crawler', 920, 1100),
+      createEnemy(1220, 66, 'rocket_drone', 1120, 1300),
+      createEnemy(1580, 94, 'astro_guard', 1520, 1680),
+      createEnemy(1920, 132, 'lunar_crawler', 1880, 2040),
+
+      // Sector 2 (2200 - 4400px)
+      createEnemy(2380, 100, 'astro_guard', 2340, 2460),
+      createEnemy(2620, 48, 'rocket_drone', 2520, 2720),
+      createEnemy(2860, 98, 'astro_guard', 2800, 2940),
+      createEnemy(3120, 40, 'rocket_drone', 3020, 3220),
+      createEnemy(3420, 132, 'lunar_crawler', 3380, 3550),
+      createEnemy(3640, 70, 'astro_guard', 3580, 3740),
+      createEnemy(3920, 96, 'rocket_drone', 3820, 4020),
+      createEnemy(4210, 94, 'astro_guard', 4160, 4280),
+
+      // Sector 3 (4400 - 6600px)
+      createEnemy(4600, 98, 'astro_guard', 4540, 4660),
+      createEnemy(4860, 126, 'thruster_mech', 4820, 4960),
+      createEnemy(5140, 62, 'rocket_drone', 5040, 5240),
+      createEnemy(5440, 68, 'astro_guard', 5380, 5520),
+      createEnemy(5600, 132, 'lunar_crawler', 5540, 5720),
+      createEnemy(5820, 70, 'rocket_drone', 5740, 5940),
+      createEnemy(6000, 126, 'thruster_mech', 5960, 6120),
+      createEnemy(6220, 66, 'astro_guard', 6160, 6300),
+      createEnemy(6480, 132, 'lunar_crawler', 6440, 6600),
+
+      // Sector 4 (6600 - 8800px)
+      createEnemy(6740, 102, 'astro_guard', 6680, 6820),
+      createEnemy(7040, 126, 'thruster_mech', 6980, 7150),
+      createEnemy(7280, 68, 'rocket_drone', 7200, 7400),
+      createEnemy(7580, 132, 'lunar_crawler', 7520, 7700),
+      createEnemy(7840, 70, 'astro_guard', 7780, 7940),
+      createEnemy(8000, 48, 'rocket_drone', 7900, 8100),
+      createEnemy(8280, 60, 'astro_guard', 8220, 8360),
+      createEnemy(8440, 88, 'thruster_mech', 8380, 8540)
+    );
+
+    // -------------------------------------------------------------------------
+    // 5. LANDMARKS (Instalaciones de Cabo Kronos: Silos, Radar, Torres y Cohete)
+    // -------------------------------------------------------------------------
+    landmarks.push(
+      { type: 'launch_control_tower', x: 800, y: 148 },
+      { type: 'radar_tracking_dish', x: 1400, y: 148 },
+      { type: 'cryogenic_fuel_silo', x: 1800, y: 148 },
+
+      { type: 'launch_control_tower', x: 3600, y: 148 },
+      { type: 'radar_tracking_dish', x: 5000, y: 148 },
+      { type: 'cryogenic_fuel_silo', x: 5900, y: 148 },
+
+      // Colosal Cohete Lunar en la Torre de Lanzamiento
+      { type: 'colossal_rocket_gantry', x: 7600, y: 148 }
+    );
+
+    // -------------------------------------------------------------------------
+    // 6. CHECKPOINTS (Sanctuary Zones Holográficas con Balizas Seguras)
+    // -------------------------------------------------------------------------
+    checkpoints.push(
+      { x: 2260, y: 116, w: 20, h: 32, active: false, spawn: { x: 2280, y: 125 } },
+      { x: 4460, y: 116, w: 20, h: 32, active: false, spawn: { x: 4480, y: 125 } },
+      { x: 6620, y: 116, w: 20, h: 32, active: false, spawn: { x: 6640, y: 125 } }
+    );
+
+    // -------------------------------------------------------------------------
+    // 7. CRISTALES Y BOTIQUINES
+    // -------------------------------------------------------------------------
+    for (let cx = 140; cx < 8500; cx += 150) {
+      crystals.push({ x: cx, y: 88, w: 8, h: 8, taken: false });
+    }
+
+    heals.push(
+      { x: 480, y: 62, w: 10, h: 10, taken: false },
+      { x: 1680, y: 58, w: 10, h: 10, taken: false },
+      { x: 2780, y: 64, w: 10, h: 10, taken: false },
+      { x: 3880, y: 60, w: 10, h: 10, taken: false },
+      { x: 5200, y: 48, w: 10, h: 10, taken: false },
+      { x: 6300, y: 60, w: 10, h: 10, taken: false },
+      { x: 7460, y: 44, w: 10, h: 10, taken: false }
+    );
+
+    // -------------------------------------------------------------------------
+    // 8. SECRETOS OCULTOS
+    // -------------------------------------------------------------------------
+    secrets.push(
+      {
+        x: 3120,
+        y: 40,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🚀 Chip Cuántico de Telemetría Apolo'
+      },
+      {
+        x: 5300,
+        y: 36,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🛰️ Módulo de Guiado Gravitacional Estelar'
+      },
+      {
+        x: 8140,
+        y: 30,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '💎 Cristal Estelar de Helio-3 Puro'
+      }
+    );
+
+    // -------------------------------------------------------------------------
+    // 9. GOAL: ESCLUSA DE EMBARQUE DEL COHETE LUNAR
+    // -------------------------------------------------------------------------
+    goal = { x: 8660, y: 86, w: 36, h: 62 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(

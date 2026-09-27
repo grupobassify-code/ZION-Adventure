@@ -1157,7 +1157,7 @@ export const ZONE_NAMES_EN: Record<string, { name: string; subtitle: string }> =
   castlesmash: { name: 'Castle Smash', subtitle: 'Medieval Siege, Stone Battlements and Lord Malakar' },
   piratestreasure: { name: 'Pirates Treasure', subtitle: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck' },
   jurasicdraft: { name: 'Jurassic Draft', subtitle: 'Mesozoic Jungle, Pterodactyls and Colossal T-Rex' },
-  themoon: { name: 'The Moon', subtitle: 'Sea of Tranquility, Low Gravity and Mecha Titan' },
+  themoon: { name: 'The Moon', subtitle: 'Rocket Launch Facility, Launch Gantries and Space Odyssey' },
 };
 
 export function getZoneLocalizedName(zoneId: string, lang: Language): string {
@@ -1183,7 +1183,7 @@ export function getZoneLocalizedSubtitle(zoneId: string, lang: Language): string
   if (zoneId === 'castlesmash') return 'Asedio Medieval, Almenas de Piedra y Lord Malakar';
   if (zoneId === 'piratestreasure') return 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito';
   if (zoneId === 'jurasicdraft') return 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal';
-  if (zoneId === 'themoon') return 'Mar de la Tranquilidad, Baja Gravedad y Mecha Titán';
+  if (zoneId === 'themoon') return 'Base de Lanzamiento de Cohetes, Andamios y Odisea Espacial';
   const key = `zone_${zoneId}_subtitle` as TranslationKey;
   return translate(key, 'es');
 }

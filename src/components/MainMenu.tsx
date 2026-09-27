@@ -198,11 +198,10 @@ const ZONES_DATA: ZoneMeta[] = [
   {
     id: 'themoon',
     name: 'The moon',
-    subtitle: 'Mar de la Tranquilidad, Gravedad Lunar y Mecha Titán',
-    themeColor: '#475569',
+    subtitle: 'Base de Lanzamiento Espacial, Cohetes y Andamios de Despegue',
+    themeColor: '#0f172a',
     accentColor: '#38bdf8',
     actsCount: 3,
-    status: 'soon',
   },
 ];
 
