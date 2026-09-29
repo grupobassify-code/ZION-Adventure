@@ -43,7 +43,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      const underConstruction = isUnderConstruction || ['themoon'].includes(zone);
+      const underConstruction = isUnderConstruction || (zone === 'themoon' && act === 3);
 
       // ========================================================
       // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
@@ -402,6 +402,18 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           skyGrad.addColorStop(0.7, '#991b1b');
           skyGrad.addColorStop(0.9, '#ea580c');
           skyGrad.addColorStop(1, '#facc15');
+        }
+      } else if (zone === 'themoon') {
+        if (act === 1) {
+          skyGrad.addColorStop(0, '#020617');
+          skyGrad.addColorStop(0.4, '#0f172a');
+          skyGrad.addColorStop(0.75, '#0369a1');
+          skyGrad.addColorStop(1, '#38bdf8');
+        } else {
+          skyGrad.addColorStop(0, '#010206');
+          skyGrad.addColorStop(0.45, '#050a14');
+          skyGrad.addColorStop(0.8, '#0b1329');
+          skyGrad.addColorStop(1, '#1e293b');
         }
       } else {
         // travel
@@ -766,6 +778,64 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.beginPath();
           ctx.arc(volX + Math.sin(tick * 0.1) * 3, spY, 5, 0, Math.PI * 2);
           ctx.fill();
+        }
+      } else if (zone === 'themoon') {
+        if (act === 1) {
+          // Full glowing Moon in twilight sky & searchlights pointing up
+          const mX = w - 44;
+          const mY = 22;
+          ctx.fillStyle = 'rgba(241, 245, 249, 0.25)';
+          ctx.beginPath();
+          ctx.arc(mX, mY, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.arc(mX, mY, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(mX - 4, mY - 3, 3, 3);
+          ctx.fillRect(mX + 1, mY + 2, 4, 3);
+
+          // Launchpad searchlights
+          const sAngle = Math.sin(tick * 0.05) * 0.2;
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+          ctx.beginPath();
+          ctx.moveTo(w * 0.25, h - 34);
+          ctx.lineTo(w * 0.25 - 20 + sAngle * 30, 0);
+          ctx.lineTo(w * 0.25 + 10 + sAngle * 30, 0);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // The Majestic Earthrise in the airless starry cosmos
+          const eX = w - 46;
+          const eY = 24;
+          // Cosmic stars
+          for (let s = 0; s < 18; s++) {
+            const sx = (s * 37 + (seed % 17)) % w;
+            const sy = (s * 23 + (seed % 19)) % 65;
+            ctx.fillStyle = (s + tick) % 15 === 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.4)';
+            ctx.fillRect(sx, sy, 1, 1);
+          }
+
+          // Blue Planet Earth Atmosphere Aura
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+          ctx.beginPath();
+          ctx.arc(eX, eY, 17, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Ocean Blue Disc
+          ctx.fillStyle = '#0284c7';
+          ctx.beginPath();
+          ctx.arc(eX, eY, 12, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Green Continents & Swirling White Clouds
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(eX - 6, eY - 4, 6, 5);
+          ctx.fillRect(eX + 1, eY - 1, 5, 4);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+          ctx.fillRect(eX - 8, eY - 2, 12, 2);
+          ctx.fillRect(eX - 2, eY + 3, 8, 2);
         }
       } else {
         // Quantum Hyperspace Spiral Void (Travel)
@@ -1343,6 +1413,76 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillStyle = '#fde047';
           ctx.fillRect(w * 0.49, h - 78, 2, 44);
         }
+      } else if (zone === 'themoon') {
+        if (act === 1) {
+          // Launch Gantries, Umbilical Towers and Colossal Saturn V Rocket
+          const rx = w * 0.62;
+          // Rocket Body (White/Black roll pattern)
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(rx - 6, h - 90, 12, 56);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(rx - 6, h - 70, 6, 16);
+          ctx.fillRect(rx, h - 54, 6, 16);
+          // Rocket Cone & Escape Tower
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.moveTo(rx - 5, h - 90);
+          ctx.lineTo(rx, h - 100);
+          ctx.lineTo(rx + 5, h - 90);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(rx - 1, h - 108, 2, 8);
+
+          // Red Umbilical Launch Tower
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(rx + 9, h - 102, 10, 68);
+          ctx.fillStyle = '#f8fafc';
+          for (let ty = h - 100; ty < h - 36; ty += 12) {
+            ctx.fillRect(rx + 10, ty, 8, 2);
+          }
+          // Blinking red aviation strobe
+          const strobe = Math.floor(tick / 8) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+          ctx.fillStyle = strobe;
+          ctx.fillRect(rx + 13, h - 105, 2, 3);
+        } else {
+          // Lunar Base: Jagged Mountain Peaks, Biosphere Biodome & Habitat Modules
+          // Lunar Montes Apenninus sharp mountain peaks
+          ctx.fillStyle = '#060a14';
+          ctx.beginPath();
+          ctx.moveTo(0, h - 34);
+          ctx.lineTo(w * 0.15, h - 75);
+          ctx.lineTo(w * 0.35, h - 55);
+          ctx.lineTo(w * 0.55, h - 85);
+          ctx.lineTo(w * 0.8, h - 50);
+          ctx.lineTo(w, h - 70);
+          ctx.lineTo(w, h - 34);
+          ctx.closePath();
+          ctx.fill();
+
+          // Sunlight crest highlights on mountains
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(w * 0.14, h - 75, 4, 2);
+          ctx.fillRect(w * 0.54, h - 85, 4, 2);
+
+          // Glowing Green Hydroponic Biodome
+          const bdX = w * 0.32;
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+          ctx.beginPath();
+          ctx.arc(bdX, h - 34, 18, Math.PI, 0);
+          ctx.fill();
+          ctx.strokeStyle = '#34d399';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Habitat Cylinders with cyan portholes
+          const hX = w * 0.65;
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(hX - 12, h - 52, 24, 18);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(hX - 6, h - 46, 3, 3);
+          ctx.fillRect(hX + 3, h - 46, 3, 3);
+        }
       } else {
         // Quantum Space Shards (Travel)
         for (let i = 0; i < 6; i++) {
@@ -1409,6 +1549,10 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platBaseColor = act === 1 ? '#052e16' : act === 2 ? '#271004' : '#1c1917';
         platTrimColor = act === 1 ? '#15803d' : act === 2 ? '#c2410c' : '#b91c1c';
         platHighlight = act === 1 ? '#4ade80' : act === 2 ? '#fb923c' : '#f87171';
+      } else if (zone === 'themoon') {
+        platBaseColor = act === 1 ? '#080d1a' : '#1e293b';
+        platTrimColor = act === 1 ? '#dc2626' : '#06b6d4';
+        platHighlight = act === 1 ? '#38bdf8' : '#ffffff';
       }
 
       // Draw Main Ground Block

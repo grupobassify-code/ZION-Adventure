@@ -79,7 +79,12 @@ export interface Platform {
     | 'launch_gantry'
     | 'space_chassis'
     | 'moon_regolith'
-    | 'rocket_scaffold';
+    | 'rocket_scaffold'
+    | 'lunar_regolith'
+    | 'lunar_base_habitat'
+    | 'solar_deck'
+    | 'biodome_catwalk'
+    | 'pressurized_conduit';
   slopeEndY?: number;
   phase?: number;
   hidden?: boolean;
@@ -150,7 +155,8 @@ export type EnemyType =
   | 'astro_guard'
   | 'rocket_drone'
   | 'lunar_crawler'
-  | 'thruster_mech';
+  | 'thruster_mech'
+  | 'cosmic_parasite';
 
 export interface Enemy {
   id: number;
@@ -246,7 +252,10 @@ export interface Hazard {
     | 'tar_pit'
     | 'rocket_thruster_plume'
     | 'cryo_steam_vent'
-    | 'electrified_gantry_rail';
+    | 'electrified_gantry_rail'
+    | 'laser_barrier'
+    | 'cosmic_geyser'
+    | 'lunar_spike';
   life?: number;
   dead?: boolean;
   active?: boolean;
@@ -471,7 +480,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt' | 'cryo_canister' | 'lunar_laser';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt' | 'cryo_canister' | 'lunar_laser' | 'space_missile' | 'doomsday_laser' | 'asteroid_debris' | 'bionic_burst';
   homingTimer?: number;
   angle?: number;
   color?: string;
@@ -517,7 +526,7 @@ export interface FloatingText {
 }
 
 export interface Landmark {
-  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower' | 'castle_keep' | 'siege_catapult' | 'throne_dais' | 'royal_banner' | 'stone_gargoyle_perch' | 'dino_fossil_ribs' | 'amber_altar' | 'volcanic_fumarole' | 'colossal_rocket_gantry' | 'launch_control_tower' | 'radar_tracking_dish' | 'cryogenic_fuel_silo';
+  type: 'torii' | 'bridge' | 'waterfall' | 'shrine' | 'bamboo' | 'lanterns' | 'volcano_vent' | 'obsidian_pillar' | 'lava_fall' | 'basalt_arch' | 'magma_pipe' | 'pyramid' | 'sphinx' | 'sand_dune' | 'obelisk' | 'pharaoh_statue' | 'oasis' | 'sarcophagus' | 'ancient_columns' | 'cyber_skyscraper' | 'holo_billboard' | 'antenna_tower' | 'warp_portal' | 'reactor_core' | 'kronos_statue' | 'credits_gate' | 'travel_beacon' | 'dimensional_rift' | 'mayan_pyramid' | 'jungle_waterfall' | 'giant_ceiba' | 'mayan_temple' | 'tribal_totem' | 'jungle_ruins' | 'snow_cabin' | 'ski_jump_ramp' | 'frozen_pine' | 'glacial_peak' | 'yeti_cave' | 'ice_crystal_cluster' | 'chalet' | 'slalom_flag' | 'giant_frosted_pine' | 'frozen_pinnacle' | 'ski_lift' | 'ice_cave_entrance' | 'aurora_shrine' | 'clocktower' | 'steam_generator' | 'boiler_furnace' | 'clockwork_tower' | 'castle_keep' | 'siege_catapult' | 'throne_dais' | 'royal_banner' | 'stone_gargoyle_perch' | 'dino_fossil_ribs' | 'amber_altar' | 'volcanic_fumarole' | 'colossal_rocket_gantry' | 'launch_control_tower' | 'radar_tracking_dish' | 'cryogenic_fuel_silo' | 'lunar_biodome' | 'lunar_lander_apollo' | 'lunar_comm_relay' | 'lunar_solar_farm' | 'helium3_refinery';
   x: number;
   y?: number;
   w?: number;
@@ -591,6 +600,12 @@ export interface Player {
   skiAirTime?: number;
   skiAirTimer?: number;
   skiTrickTimer?: number;
+
+  // Space Flight Bionic Suit (Super Sonic / Doomsday Zone Mode)
+  isFlying?: boolean;
+  flightSuit?: boolean;
+  flightBoost?: boolean;
+  flightBoostTimer?: number;
 }
 
 export interface GameSettings {

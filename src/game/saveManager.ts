@@ -546,7 +546,12 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
       }
       return true;
     }
-    // Acts 2 and 3 are future acts (only Act 1 is implemented)
+    // Act 2 is unlocked when Act 1 is completed or in unlocked levels
+    if (cfg.act === 2) {
+      const isMoon1Completed = moon1Idx !== -1 && (completedList.includes(moon1Idx) || completedList.includes('themoon-1' as any));
+      return isMoon1Completed || unlockedList.includes(levelIndex);
+    }
+    // Act 3 is the future boss act
     return false;
   }
   return slot.unlockedLevels.includes(levelIndex);
@@ -558,7 +563,7 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
 export function isBossLevel(levelIndex: number): boolean {
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (!cfg) return false;
-  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3', 'jurasicdraft-3'].includes(cfg.id);
+  return ['neon-3', 'sakura-3', 'lavacliff-3', 'desert-3', 'krono-3', 'jungle-3', 'blizzard-3', 'steampunk-3', 'castlesmash-3', 'piratestreasure-3', 'jurasicdraft-3', 'themoon-3'].includes(cfg.id);
 }
 
 /**

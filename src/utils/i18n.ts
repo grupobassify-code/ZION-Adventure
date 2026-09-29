@@ -1113,6 +1113,18 @@ export const LEVEL_LOCALIZATION: Record<string, { titleEs: string; titleEn: stri
     subtitleEs: 'Fosa Abisal · Batalla contra el Titánico Mímico del Naufragio',
     subtitleEn: 'Abyssal Trench · Battle against the Titanic Shipwreck Mimic',
   },
+  'themoon-1': {
+    titleEs: 'Zona 12 · Acto 1 — Base de Lanzamiento de Cohetes',
+    titleEn: 'Zone 12 · Act 1 — Rocket Launch Facility',
+    subtitleEs: 'Torres Umbilicales, Silos Criogénicos y Cuenta Regresiva',
+    subtitleEn: 'Umbilical Towers, Cryogenic Silos & Countdown',
+  },
+  'themoon-2': {
+    titleEs: 'Zona 12 · Acto 2 — Base Lunar Apolo-Kronos',
+    titleEn: 'Zone 12 · Act 2 — Apollo-Kronos Lunar Base',
+    subtitleEs: 'Cráteres de Regolito, Módulos Biosféricos y Gravedad Lunar',
+    subtitleEn: 'Regolith Craters, Biosphere Domes & Lunar Gravity',
+  },
 };
 
 export function getLevelTitle(configOrId: { id: string; title: string; act?: number } | string, lang: Language): string {

@@ -222,6 +222,23 @@ export class EnemyRenderer {
         this.renderAnkylosaur(anim, time, e);
         break;
 
+      // --- ZONA 12: THE MOON (ZONA DE LANZAMIENTO & BASE LUNAR) ---
+      case 'astro_guard':
+        this.renderAstroGuard(anim, time, e);
+        break;
+      case 'rocket_drone':
+        this.renderRocketDrone(anim, time, e);
+        break;
+      case 'lunar_crawler':
+        this.renderLunarCrawler(anim, time, e);
+        break;
+      case 'thruster_mech':
+        this.renderThrusterMech(anim, time, e);
+        break;
+      case 'cosmic_parasite':
+        this.renderCosmicParasite(anim, time, e);
+        break;
+
       default:
         this.renderPatrolDroid(anim, e);
         break;
@@ -256,7 +273,8 @@ export class EnemyRenderer {
       e.type === 'parrot_bomber' ||
       e.type === 'anglerfish' ||
       e.type === 'electric_jellyfish' ||
-      e.type === 'shark_corsair';
+      e.type === 'shark_corsair' ||
+      e.type === 'rocket_drone';
 
     const shadowY = isAirborne ? y + e.h + 14 : y + e.h;
     const shadowW = isAirborne ? e.w * 0.75 : e.w * 0.9;
@@ -3337,4 +3355,440 @@ export class EnemyRenderer {
     ctx.fillStyle = '#facc15';
     ctx.fillRect(11, -1, 1.5, 1.5);
   }
+
+  // ===========================================================================
+  // ZONA 12: THE MOON (ZONA DE LANZAMIENTO & BASE LUNAR)
+  // ===========================================================================
+
+  // ---------------------------------------------------------------------------
+  // 1. ASTRO GUARD (Soldado de Seguridad Aeroespacial / Guardia Lunar)
+  // Traje presurizado blanco/azul marino, visor dorado reflectante y rifle láser
+  // ---------------------------------------------------------------------------
+  private renderAstroGuard(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isMoving = Math.abs(e.vx) > 0.05;
+    const walk = isMoving ? Math.sin(time * 0.25) * 3 : 0;
+    const breathe = Math.sin(time * 0.1) * 0.8;
+
+    // A. Life Support Oxygen Backpack (Back)
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-7, -6 + breathe, 4, 11);
+    ctx.fillStyle = '#0ea5e9'; // Pressurized oxygen cylinder
+    ctx.fillRect(-6, -5 + breathe, 2, 9);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(-6, -3 + breathe, 2, 2);
+    // Pressure dial on top
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(-6, -7 + breathe, 2, 1.5);
+
+    // B. Magnetic Lunar Boots & Armored Suit Legs
+    // Back leg
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-3, 3, 3, 5 - walk * 0.6);
+    ctx.fillStyle = '#f8fafc'; // White armor thigh
+    ctx.fillRect(-3, 2, 3, 3);
+    ctx.fillStyle = '#3b82f6'; // Knee joint
+    ctx.fillRect(-3, 5 - walk * 0.6, 3, 1.5);
+    ctx.fillStyle = '#0f172a'; // Boot
+    ctx.fillRect(-4, 7 - walk * 0.6, 4, 2.5);
+    ctx.fillStyle = '#f97316'; // Magnetic boot thruster sole
+    ctx.fillRect(-4, 9 - walk * 0.6, 4, 1);
+
+    // Front leg
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(1, 2, 3, 3);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(1, 5 + walk * 0.6, 3, 1.5);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 7 + walk * 0.6, 5, 2.5);
+    ctx.fillStyle = '#f97316';
+    ctx.fillRect(0, 9 + walk * 0.6, 5, 1);
+
+    // C. Armored EVA Suit Torso
+    ctx.fillStyle = '#e2e8f0'; // White ceramic composite chest
+    ctx.fillRect(-3, -4 + breathe, 7, 8);
+    ctx.fillStyle = '#0284c7'; // Aerospace navy shoulder accents
+    ctx.fillRect(-3, -4 + breathe, 2, 2);
+    ctx.fillRect(2, -4 + breathe, 2, 2);
+    // Chest Telemetry & Life-Support Panel
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-1, -2 + breathe, 4, 3);
+    ctx.fillStyle = '#38bdf8'; // Heart rate / oxygen telemetry LED
+    ctx.fillRect(0, -1.5 + breathe, 2, 1);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(0, 0 + breathe, 1, 1);
+
+    // D. Domed Aerospace Space Helmet
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(0.5, -7 + breathe, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(-2, -5 + breathe, 5, 1.5); // Helmet ring seal
+
+    // Shimmering Mirrored Gold Visor (Reflects stars)
+    const visorGlint = Math.sin(time * 0.15) * 1;
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath();
+    ctx.ellipse(2, -7 + breathe, 2.5, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(1.5 + visorGlint * 0.5, -8 + breathe, 1.5, 1.5);
+
+    // E. Tactical Laser Carbine Rifle
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(2, 0 + breathe, 8, 3);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(4, 1 + breathe, 5, 1.5);
+    // Battery clip
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(4, 3 + breathe, 2, 2);
+    // Laser Muzzle Emitter
+    const muzzleGlow = Math.sin(time * 0.3) > 0.4 ? '#38bdf8' : '#0284c7';
+    ctx.fillStyle = muzzleGlow;
+    ctx.fillRect(9, 0.5 + breathe, 2, 2);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. ROCKET DRONE (Dron Cohete Aeroespacial de Patrulla)
+  // Vuelo aerodinámico, toberas de reacción orientables con chorros de fuego y ojo ciclópeo
+  // ---------------------------------------------------------------------------
+  private renderRocketDrone(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const hover = Math.sin(time * 0.14) * 2;
+    const thrusterFlicker = Math.sin(time * 0.4) * 1.5;
+
+    ctx.save();
+    ctx.translate(0, hover);
+
+    // A. Left & Right Reaction Rocket Booster Pods
+    for (const side of [-1, 1]) {
+      const podY = side === -1 ? -4 : 4;
+      // Pylon mount
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-3, podY - 1, 4, 2);
+
+      // Rocket engine nacelle
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-6, podY - 2, 6, 4);
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-5, podY - 1.5, 4, 3);
+
+      // Superheated engine nozzle bell
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(-7, podY - 1.5, 1.5, 3);
+
+      // Blazing rocket exhaust flame jet
+      const flameLen = 4 + thrusterFlicker + (side === 1 ? 1 : 0);
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.moveTo(-7, podY - 1.5);
+      ctx.lineTo(-7 - flameLen, podY);
+      ctx.lineTo(-7, podY + 1.5);
+      ctx.closePath();
+      ctx.fill();
+
+      // White/yellow core of flame
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.moveTo(-7, podY - 0.8);
+      ctx.lineTo(-7 - flameLen * 0.55, podY);
+      ctx.lineTo(-7, podY + 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // B. Aerodynamic Titanium Stealth Fuselage
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.moveTo(-4, -6);
+    ctx.lineTo(6, -2);
+    ctx.lineTo(8, 0);
+    ctx.lineTo(6, 2);
+    ctx.lineTo(-4, 6);
+    ctx.lineTo(-6, 3);
+    ctx.lineTo(-6, -3);
+    ctx.closePath();
+    ctx.fill();
+
+    // White composite top armor plates
+    ctx.fillStyle = '#e2e8f0';
+    ctx.beginPath();
+    ctx.moveTo(-2, -4);
+    ctx.lineTo(5, -1);
+    ctx.lineTo(5, 1);
+    ctx.lineTo(-2, 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // High-visibility Aerospace Orange Warning Stripe
+    ctx.fillStyle = '#f97316';
+    ctx.fillRect(0, -3, 2, 6);
+
+    // C. Central Glowing Cyclops Sensor Eye (Cyan / Red pulsing)
+    const eyePulse = Math.sin(time * 0.2) * 0.3 + 0.7;
+    ctx.fillStyle = `rgba(6, 182, 212, ${eyePulse})`;
+    ctx.beginPath();
+    ctx.arc(6.5, 0, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(6, -0.5, 1.2, 1.2);
+
+    // D. Top Communication Antenna & Strobe LED
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-1, -8, 1, 3);
+    const strobe = Math.floor(time / 8) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+    ctx.fillStyle = strobe;
+    ctx.fillRect(-1.5, -9.5, 2, 2);
+
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. LUNAR CRAWLER (Rover Minero / Explorador Lunar Autónomo de 6 Ruedas)
+  // Suspensión móvil, ruedas giratorias con huella, taladro de minería y antena parabólica
+  // ---------------------------------------------------------------------------
+  private renderLunarCrawler(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isMoving = Math.abs(e.vx) > 0.05;
+    const wheelRot = isMoving ? time * 0.3 : 0;
+    const drillSpin = Math.sin(time * 0.6) * 2;
+
+    // A. 6 Rugged All-Terrain Lunar Rover Wheels
+    const wheelPositions = [-7, 0, 7];
+    for (const wx of wheelPositions) {
+      // Suspension arm
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(wx - 1, 2, 2, 3);
+
+      // Deep tread lunar tire
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(wx, 5.5, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rim
+      ctx.fillStyle = '#94a3b8';
+      ctx.beginPath();
+      ctx.arc(wx, 5.5, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hubcap spoke indicator
+      ctx.fillStyle = '#0f172a';
+      const spokeX = Math.cos(wheelRot + wx) * 1.5;
+      const spokeY = Math.sin(wheelRot + wx) * 1.5;
+      ctx.fillRect(wx + spokeX - 0.5, 5.5 + spokeY - 0.5, 1, 1);
+    }
+
+    // B. Reinforced Heavy Lunar Chassis
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-9, -2, 18, 5);
+    ctx.fillStyle = '#e2e8f0'; // White thermal insulation blanket top
+    ctx.fillRect(-8, -4, 15, 3);
+
+    // Hazard Caution Stripes on Chassis Skirt
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(-7, 1, 14, 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-5, 1, 2, 2);
+    ctx.fillRect(-1, 1, 2, 2);
+    ctx.fillRect(3, 1, 2, 2);
+
+    // C. Forward Industrial Mining Drill / Laser Arm
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(7, -1, 4, 3);
+    // Rotating diamond-tipped conical drill head
+    ctx.fillStyle = '#0ea5e9';
+    ctx.beginPath();
+    ctx.moveTo(11, -2.5);
+    ctx.lineTo(16 + drillSpin * 0.4, 0.5);
+    ctx.lineTo(11, 3.5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(11, -1, 3, 3);
+
+    // Drill spark particle if player is close
+    if (Math.abs(e.vx) > 0.8 && Math.random() < 0.4) {
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(15 + Math.random() * 3, -1 + Math.random() * 3, 1.5, 1.5);
+    }
+
+    // D. Top Lunar Science Instrumentation & Parabolic Dish
+    // Parabolic antenna dish
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.arc(-4, -6.5, 3.5, -Math.PI * 0.6, Math.PI * 0.4);
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.stroke();
+    ctx.fillStyle = '#38bdf8'; // Center feed horn
+    ctx.fillRect(-3, -7, 1.5, 1.5);
+
+    // Flashing Amber Warning Beacon on roof
+    const beacon = Math.floor(time / 6) % 2 === 0 ? '#f59e0b' : '#78350f';
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(1, -6, 3, 2);
+    ctx.fillStyle = beacon;
+    ctx.fillRect(1.5, -7.5, 2, 2);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4. THRUSTER MECH (Mecha Titán Bípedo de Defensa Lunar)
+  // Andador pesado con pistones hidráulicos, propulsores de salto y cañón de plasma
+  // ---------------------------------------------------------------------------
+  private renderThrusterMech(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isJumping = Math.abs(e.vy) > 0.5;
+    const isMoving = Math.abs(e.vx) > 0.05;
+    const legWalk = isMoving && !isJumping ? Math.sin(time * 0.2) * 3 : 0;
+    const thrusterBlast = isJumping || (e.alertTimer && e.alertTimer > 0);
+
+    // A. Back Shoulder Jet Thrusters
+    for (const sx of [-6, -2]) {
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(sx, -10, 4, 6);
+      ctx.fillStyle = '#ea580c'; // Nozzle
+      ctx.fillRect(sx + 0.5, -4, 3, 1.5);
+
+      if (thrusterBlast) {
+        // Blazing downward rocket flame plumes
+        const flameH = 5 + Math.sin(time * 0.5 + sx) * 2;
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.moveTo(sx, -2.5);
+        ctx.lineTo(sx + 2, -2.5 + flameH);
+        ctx.lineTo(sx + 4, -2.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(sx + 1, -2.5, 2, flameH * 0.5);
+      }
+    }
+
+    // B. Hydraulic Bipedal Stomp Legs
+    // Left / Back Leg
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(-5, 0, 3, 5 - legWalk);
+    ctx.fillStyle = '#0ea5e9'; // Hydraulic cylinder
+    ctx.fillRect(-4.5, 1, 2, 3);
+    ctx.fillStyle = '#0f172a'; // Heavy Stomp Foot
+    ctx.fillRect(-7, 5 - legWalk, 6, 3);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(-6, 5 - legWalk, 4, 1);
+
+    // Right / Front Leg
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(1, 0, 3, 5 + legWalk);
+    ctx.fillStyle = '#0ea5e9';
+    ctx.fillRect(1.5, 1, 2, 3);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-1, 5 + legWalk, 6, 3);
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(0, 5 + legWalk, 4, 1);
+
+    // C. Heavy Armored Cockpit Torso
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-6, -8, 12, 9);
+    ctx.fillStyle = '#334155'; // Front armor glacis plate
+    ctx.fillRect(-5, -7, 10, 7);
+    ctx.fillStyle = '#e2e8f0'; // White alloy shoulder cowl
+    ctx.fillRect(-6, -9, 12, 2);
+
+    // Glowing Horizontal Red/Cyan Visor Slit
+    const visorCol = (e.alertTimer && e.alertTimer > 0) ? '#ef4444' : '#06b6d4';
+    ctx.fillStyle = visorCol;
+    ctx.fillRect(-3, -5, 7, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1, -5, 2, 1);
+
+    // D. Right Arm: Twin-Barrel Heavy Plasma Autocannon
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(4, -5, 3, 4);
+    // Twin barrels
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(7, -6, 6, 2);
+    ctx.fillRect(7, -3, 6, 2);
+    // Plasma muzzle glow
+    ctx.fillStyle = '#06b6d4';
+    ctx.fillRect(12, -6, 2, 2);
+    ctx.fillRect(12, -3, 2, 2);
+
+    // E. Left Arm: Shield Buckler Plate
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-9, -6, 3, 6);
+    ctx.fillStyle = '#3b82f6';
+    ctx.fillRect(-10, -5, 2, 4);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. COSMIC PARASITE (Parásito Cósmico de los Cráteres Lunares)
+  // Arácnido cristalino bioluminiscente del lado oscuro de la luna con patas ágiles y aguijón
+  // ---------------------------------------------------------------------------
+  private renderCosmicParasite(anim: number, time: number, e: Enemy) {
+    const ctx = this.ctx;
+    const isJumping = Math.abs(e.vy) > 0.5;
+    const scuttle = !isJumping ? Math.sin(time * 0.35) * 2 : 0;
+    const corePulse = Math.sin(time * 0.2) * 0.25 + 0.75;
+
+    // A. 6 Spindly Jointed Crystalline Legs
+    ctx.strokeStyle = '#c084fc';
+    ctx.lineWidth = 1.4;
+    for (let l = 0; l < 3; l++) {
+      const legX = -4 + l * 4;
+      const legPhase = l % 2 === 0 ? scuttle : -scuttle;
+
+      // Top leg joint
+      ctx.beginPath();
+      ctx.moveTo(legX, 0);
+      ctx.lineTo(legX - 3 - l, -3 + legPhase);
+      ctx.lineTo(legX - 5 - l, 4 + legPhase);
+      ctx.stroke();
+
+      // Bottom leg joint
+      ctx.beginPath();
+      ctx.moveTo(legX, 0);
+      ctx.lineTo(legX + 3 + l, -3 - legPhase);
+      ctx.lineTo(legX + 5 + l, 4 - legPhase);
+      ctx.stroke();
+    }
+
+    // B. Crystal Carapace Body
+    ctx.fillStyle = '#3b0764'; // Deep obsidian-amethyst core
+    ctx.beginPath();
+    ctx.ellipse(0, -1, 5, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bioluminescent Violet/Cyan Internal Core
+    ctx.fillStyle = `rgba(168, 85, 247, ${corePulse})`;
+    ctx.beginPath();
+    ctx.ellipse(0, -1, 3.5, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = `rgba(56, 189, 248, ${corePulse})`;
+    ctx.fillRect(-1.5, -2, 3, 2);
+
+    // C. Glowing Alien Eyes Cluster (4 emerald eyes)
+    ctx.fillStyle = '#4ade80';
+    ctx.fillRect(2.5, -3, 1.5, 1.5);
+    ctx.fillRect(4, -2, 1.5, 1.5);
+    ctx.fillRect(2.5, 0, 1.5, 1.5);
+    ctx.fillRect(4, -0.5, 1.5, 1.5);
+
+    // D. Crystalline Stinger Tail arching over back
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-4, -1);
+    ctx.quadraticCurveTo(-7, -7, -2, -8);
+    ctx.stroke();
+
+    // Glowing venom tip
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(-1, -8, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-1.5, -8.5, 1, 1);
+  }
 }
+

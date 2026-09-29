@@ -83,6 +83,8 @@ export class BossRenderer {
       this.renderCursedChest(boss, x, y, time);
     } else if (boss.name.includes('Rex') || boss.name.includes('Titan Rex') || boss.name.includes('Dinosaurio') || boss.name.includes('T-Rex')) {
       this.renderTitanRex(boss, x, y, time);
+    } else if (boss.name.includes('Doomsday') || boss.name.includes('Orbital') || boss.name.includes('Dreadnought')) {
+      this.renderDoomsdayDreadnought(boss, x, y, time);
     } else {
       // Fallback aesthetic mech
       this.renderGuardianNeon(boss, x, y, time);
@@ -2262,5 +2264,215 @@ export class BossRenderer {
 
     ctx.restore();
   }
+
+  // =========================================================================
+  // DOOMSDAY DREADNOUGHT / COLOSO TITÁN MECHA ORBITAL (THE MOON ACT 3)
+  // Colossal multi-phase space dreadnought inspired by Sonic 3 & Knuckles Doomsday Zone
+  // =========================================================================
+  private renderDoomsdayDreadnought(boss: Boss, x: number, y: number, time: number) {
+    const ctx = this.ctx;
+    const isPhase2 = boss.phase >= 2;
+    const isEnraged = boss.phase === 3;
+    const isFlashing = boss.flash > 0 && Math.floor(boss.flash / 2) % 2 === 0;
+
+    ctx.save();
+    ctx.translate(x + boss.w / 2, y + boss.h / 2);
+
+    // Boss faces player (facing: -1 means facing left toward Zion)
+    if (boss.facing > 0) {
+      ctx.scale(-1, 1);
+    }
+
+    const floatY = Math.sin(time * 0.08) * 3.5;
+    ctx.translate(0, floatY);
+
+    if (isFlashing) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-boss.w / 2, -boss.h / 2, boss.w, boss.h);
+      ctx.restore();
+      return;
+    }
+
+    // 1. REAR HYPER ION THRUSTERS (Firing intense plasma flame plumes to the right)
+    const thrusterFlicker = Math.sin(time * 0.4) * 4;
+    const plumeLen = (isEnraged ? 45 : 30) + thrusterFlicker;
+    const thrusterYPositions = [-24, 0, 24];
+
+    for (const ty of thrusterYPositions) {
+      const plumeGrad = ctx.createLinearGradient(boss.w / 2 - 10, ty, boss.w / 2 + plumeLen, ty);
+      plumeGrad.addColorStop(0, '#ffffff');
+      plumeGrad.addColorStop(0.2, '#38bdf8');
+      plumeGrad.addColorStop(0.6, isEnraged ? '#f43f5e' : '#a855f7');
+      plumeGrad.addColorStop(1, 'transparent');
+
+      ctx.fillStyle = plumeGrad;
+      ctx.beginPath();
+      ctx.moveTo(boss.w / 2 - 10, ty - 6);
+      ctx.lineTo(boss.w / 2 + plumeLen, ty);
+      ctx.lineTo(boss.w / 2 - 10, ty + 6);
+      ctx.closePath();
+      ctx.fill();
+
+      // Exhaust Nozzle Bells
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(boss.w / 2 - 14, ty - 7, 8, 14);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(boss.w / 2 - 12, ty - 5, 4, 10);
+      ctx.fillStyle = '#0ea5e9';
+      ctx.fillRect(boss.w / 2 - 14, ty - 8, 2, 16);
+    }
+
+    // 2. MAIN ARMORED DREADNOUGHT HULL
+    if (!isPhase2) {
+      // --- PHASE 1: FULL COLOSSAL DREADNOUGHT WARSHIP ---
+      // Primary Titanium Hull Geometry (Aerospace Heavy Cruiser)
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.moveTo(-boss.w / 2 + 10, -20);
+      ctx.lineTo(-boss.w / 2 + 35, -boss.h / 2);
+      ctx.lineTo(boss.w / 2 - 12, -boss.h / 2 + 5);
+      ctx.lineTo(boss.w / 2 - 5, boss.h / 2 - 5);
+      ctx.lineTo(-boss.w / 2 + 35, boss.h / 2);
+      ctx.lineTo(-boss.w / 2 + 10, 20);
+      ctx.lineTo(-boss.w / 2, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Secondary Composite Armor Plates (White/Grey NASA Apollo Theme)
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(-boss.w / 2 + 16, -16);
+      ctx.lineTo(-boss.w / 2 + 38, -boss.h / 2 + 4);
+      ctx.lineTo(boss.w / 2 - 16, -boss.h / 2 + 9);
+      ctx.lineTo(boss.w / 2 - 10, boss.h / 2 - 9);
+      ctx.lineTo(-boss.w / 2 + 38, boss.h / 2 - 4);
+      ctx.lineTo(-boss.w / 2 + 16, 16);
+      ctx.closePath();
+      ctx.fill();
+
+      // White Heat-Shield Ceramic Tiles
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(-25, -boss.h / 2 + 8, 55, 12);
+      ctx.fillRect(-25, boss.h / 2 - 20, 55, 12);
+      ctx.fillStyle = '#0ea5e9';
+      ctx.fillRect(-25, -boss.h / 2 + 18, 55, 2);
+      ctx.fillRect(-25, boss.h / 2 - 22, 55, 2);
+
+      // Warning Chevrons & Hazard Stripes
+      const stripeY = -boss.h / 2 + 10;
+      for (let sx = -20; sx < 25; sx += 8) {
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(sx, stripeY, 4, 6);
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(sx + 4, stripeY, 4, 6);
+      }
+
+      // Upper & Lower Missile Silo Pods (Glowing with ready ordnance)
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(0, -boss.h / 2 + 1, 30, 7);
+      ctx.fillRect(0, boss.h / 2 - 8, 30, 7);
+      for (let mx = 4; mx < 28; mx += 6) {
+        ctx.fillStyle = (Math.floor(time / 8) % 2 === 0) ? '#ef4444' : '#f97316';
+        ctx.fillRect(mx, -boss.h / 2 + 3, 3, 3);
+        ctx.fillRect(mx, boss.h / 2 - 6, 3, 3);
+      }
+
+      // Front Heavy Laser Ram Cannon
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-boss.w / 2, -7, 18, 14);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(-boss.w / 2 + 2, -5, 12, 10);
+      const chargePulse = 0.5 + Math.sin(time * 0.25) * 0.5;
+      ctx.fillStyle = `rgba(239, 68, 68, ${chargePulse})`;
+      ctx.beginPath();
+      ctx.arc(-boss.w / 2 + 2, 0, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Command Bridge Canopy (Ruby Glass Cockpit)
+      ctx.fillStyle = '#991b1b';
+      ctx.beginPath();
+      ctx.ellipse(-15, -6, 12, 6, -0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.ellipse(-15, -6, 9, 4, -0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-18, -8, 4, 2);
+
+      // Central Fusion Reactor Core with rotating containment fields
+      const corePulse = Math.sin(time * 0.15) * 2;
+      const coreGrad = ctx.createRadialGradient(10, 0, 2, 10, 0, 16 + corePulse);
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.4, '#38bdf8');
+      coreGrad.addColorStop(0.8, '#a855f7');
+      coreGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = coreGrad;
+      ctx.beginPath();
+      ctx.arc(10, 0, 16 + corePulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Reactor containment armature brackets
+      ctx.strokeStyle = '#67e8f9';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(10, 0, 12, time * 0.1, time * 0.1 + Math.PI * 1.5);
+      ctx.stroke();
+    } else {
+      // --- PHASE 2: ESCAPING CORE MECHA (SUPER SPEED DOOMSDAY MECH) ---
+      // Outer hull blown away, exposing the sleek cyber-mecha pilot frame!
+      // Trailing sparks and plasma arcs
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(-boss.w / 2 + 25, -12);
+      ctx.lineTo(-boss.w / 2 + 45, -28);
+      ctx.lineTo(boss.w / 2 - 20, -18);
+      ctx.lineTo(boss.w / 2 - 20, 18);
+      ctx.lineTo(-boss.w / 2 + 45, 28);
+      ctx.lineTo(-boss.w / 2 + 25, 12);
+      ctx.closePath();
+      ctx.fill();
+
+      // Gleaming Bionic Armor Trim
+      ctx.fillStyle = isEnraged ? '#ef4444' : '#0284c7';
+      ctx.fillRect(-15, -22, 35, 4);
+      ctx.fillRect(-15, 18, 35, 4);
+
+      // Menacing Robotic Eye / Visor Array (Cyclops beam optic)
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-boss.w / 2 + 28, -6, 16, 12);
+      const visorScan = Math.sin(time * 0.3) * 4;
+      ctx.fillStyle = '#ff0055';
+      ctx.fillRect(-boss.w / 2 + 32 + visorScan, -3, 6, 6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-boss.w / 2 + 34 + visorScan, -1, 2, 2);
+
+      // Exposed Superheated Warp Reactor Core
+      const warpGlow = ctx.createRadialGradient(5, 0, 4, 5, 0, 24);
+      warpGlow.addColorStop(0, '#ffffff');
+      warpGlow.addColorStop(0.3, '#facc15');
+      warpGlow.addColorStop(0.7, '#f97316');
+      warpGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = warpGlow;
+      ctx.beginPath();
+      ctx.arc(5, 0, 24, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Damaged electrical spark arcs
+      if (Math.random() < 0.6) {
+        ctx.strokeStyle = '#67e8f9';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-10, -15);
+        ctx.lineTo(-14 + Math.random() * 8, -25);
+        ctx.moveTo(15, 15);
+        ctx.lineTo(20 + Math.random() * 8, 25);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
 }
+
 

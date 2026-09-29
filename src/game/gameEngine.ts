@@ -1592,15 +1592,16 @@ export class GameEngine {
 
         const currentConfig = LEVEL_CONFIGS[this.levelIndex];
         const isUnderwater = !this.isOnlyUpMode && currentConfig?.zone === 'piratestreasure' && (currentConfig.act === 2 || currentConfig.act === 3);
+        const isMoonGravity = !this.isOnlyUpMode && currentConfig?.zone === 'themoon' && currentConfig.act === 2;
 
-        // Execute Jump with Dynamic Altitude Boost in Only Up mode or underwater buoyancy
+        // Execute Jump with Dynamic Altitude Boost in Only Up mode or underwater buoyancy or lunar low-gravity
         if (p.jumpBufferTimer > 0 && p.coyoteTimer > 0) {
-          p.vy = this.isOnlyUpMode ? agility.jumpForce : (isUnderwater ? -4.4 : JUMP_FORCE);
+          p.vy = this.isOnlyUpMode ? agility.jumpForce : (isUnderwater ? -4.4 : (isMoonGravity ? -6.2 : JUMP_FORCE));
           p.ground = false;
           p.coyoteTimer = 0;
           p.jumpBufferTimer = 0;
           sound.playSfx(isUnderwater ? 'bubble' : 'jump');
-          this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : (isUnderwater ? '#67e8f9' : '#e2e8f0'));
+          this.createBurst(p.x + p.w / 2, p.y + p.h, agility.tier > 1 ? 8 : 6, agility.tier > 1 ? agility.tierColor : (isUnderwater ? '#67e8f9' : (isMoonGravity ? '#cbd5e1' : '#e2e8f0')));
         } else if (isUnderwater && inputs.jump && !p.jumpHeld && p.vy > -2.2) {
           // Underwater light swimming stroke when tapping jump mid-water
           p.vy = Math.max(p.vy - 1.8, -3.2);
@@ -1610,14 +1611,28 @@ export class GameEngine {
 
         // Variable jump height release cut
         if (!inputs.jump && p.vy < 0) {
-          const grav = isUnderwater ? 0.08 : GRAVITY;
+          const grav = isUnderwater ? 0.08 : (isMoonGravity ? 0.11 : GRAVITY);
           p.vy += grav * VARIABLE_JUMP_FALL_MULTIPLIER;
         }
 
-        // Gravity - Significantly reduced underwater (Menos gravedad bajo el agua)
-        const activeGravity = isUnderwater ? 0.08 : GRAVITY;
-        const activeMaxFall = isUnderwater ? 2.4 : MAX_FALL_SPEED;
+        // Gravity - Significantly reduced underwater & in lunar low-gravity
+        const activeGravity = isUnderwater ? 0.08 : (isMoonGravity ? 0.11 : GRAVITY);
+        const activeMaxFall = isUnderwater ? 2.4 : (isMoonGravity ? 3.6 : MAX_FALL_SPEED);
         p.vy = Math.min(p.vy + activeGravity, activeMaxFall);
+
+        // Lunar regolith dust particles kicked up when running on the Moon
+        if (isMoonGravity && p.ground && Math.abs(p.vx) > 0.8 && Math.random() < 0.25) {
+          this.particles.push({
+            x: p.x + (p.vx > 0 ? 0 : p.w),
+            y: p.y + p.h - 1,
+            vx: -p.vx * 0.22,
+            vy: -0.3 - Math.random() * 0.5,
+            life: 14,
+            maxLife: 14,
+            color: '#94a3b8',
+            size: 1.5,
+          });
+        }
 
         // Underwater bubble particles trail
         if (isUnderwater && (Math.abs(p.vx) > 0.5 || Math.abs(p.vy) > 0.5) && Math.random() < 0.2) {
@@ -4253,6 +4268,138 @@ export class GameEngine {
           this.playEnemySfx(e, 'slashHit');
         }
         if (e.cool && e.cool > 0) e.cool--;
+      } else if (e.type === 'astro_guard') {
+        // Astro Guard: Aerospace security patrol. Fires laser rifle at player
+        if (absDist < 135 && absYDist < 60) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.cool = (e.cool || 75) - 1;
+          if (e.cool === 20) {
+            e.alertTimer = 20;
+            this.playEnemySfx(e, 'bossWarning');
+          }
+          if (e.cool <= 0) {
+            this.projectiles.push({
+              x: e.x + (dist > 0 ? e.w + 2 : -6),
+              y: e.y + 3,
+              w: 7,
+              h: 3,
+              vx: Math.sign(dist) * 2.8,
+              vy: 0,
+              life: 100,
+              isHero: false,
+              kind: 'laserBolt',
+            });
+            this.playEnemySfx(e, 'bossShot');
+            e.cool = 80;
+          }
+          if (absDist < 45) {
+            e.x -= Math.sign(dist) * 0.8;
+          }
+        } else {
+          e.x += e.vx * 1.0;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
+      } else if (e.type === 'rocket_drone') {
+        // Rocket Drone: Airborne flight, hovering bob, tracks horizontally & shoots lasers
+        e.home = e.home ?? e.y;
+        e.t = (e.t || 0) + 0.06;
+        e.y = e.home + Math.sin(e.t) * 12;
+        e.facing = dist >= 0 ? 1 : -1;
+        if (absDist < 150) {
+          e.x += Math.sign(dist) * 0.65;
+        } else {
+          e.x += e.vx * 0.8;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+        }
+        e.cool = (e.cool || 80) - 1;
+        if (absDist < 130 && absYDist < 75 && e.cool <= 0) {
+          e.cool = 90;
+          e.alertTimer = 20;
+          this.projectiles.push({
+            x: e.x + (dist > 0 ? e.w + 2 : -6),
+            y: e.y + e.h / 2,
+            w: 6,
+            h: 4,
+            vx: Math.sign(dist) * 2.4,
+            vy: 0.2,
+            life: 100,
+            isHero: false,
+            kind: 'laserBolt',
+          });
+          this.playEnemySfx(e, 'bossShot');
+        }
+      } else if (e.type === 'lunar_crawler') {
+        // Lunar Crawler: 6-wheeled robotic rover. Charges forward with drill
+        if (absDist < 140 && absYDist < 40) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.x += (dist >= 0 ? 1 : -1) * 2.0;
+          if (this.time % 10 === 0) {
+            this.particles.push({
+              x: e.x + (e.facing === 1 ? 0 : e.w),
+              y: e.y + e.h,
+              vx: -e.facing * 0.6,
+              vy: -0.5,
+              life: 10,
+              maxLife: 10,
+              color: '#94a3b8',
+              size: 1.5,
+            });
+          }
+        } else {
+          e.x += e.vx * 0.9;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
+      } else if (e.type === 'thruster_mech') {
+        // Thruster Mech: Heavy bipedal combat walker with rocket jump & plasma blasts
+        if (absDist < 150 && absYDist < 70) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.cool = (e.cool || 90) - 1;
+          if (e.vy === 0 && e.cool % 70 === 0 && Math.random() < 0.6) {
+            e.vy = -4.8;
+            e.vx = (dist >= 0 ? 1.4 : -1.4);
+            e.alertTimer = 22;
+            this.playEnemySfx(e, 'bossWarning');
+            this.createBurst(e.x + e.w / 2, e.y + e.h, 10, '#f97316');
+          }
+          if (e.cool <= 0) {
+            e.cool = 100;
+            e.alertTimer = 20;
+            this.projectiles.push({
+              x: e.x + (dist > 0 ? e.w + 4 : -8),
+              y: e.y + 2,
+              w: 7,
+              h: 7,
+              vx: Math.sign(dist) * 2.5,
+              vy: -0.3,
+              life: 110,
+              isHero: false,
+              kind: 'plasma',
+            });
+            this.playEnemySfx(e, 'bossShot');
+          }
+        } else {
+          e.x += e.vx * 0.7;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
+      } else if (e.type === 'cosmic_parasite') {
+        // Cosmic Parasite: Leaps fast and scuttles along lunar terrain
+        if (absDist < 120 && absYDist < 55) {
+          e.facing = dist >= 0 ? 1 : -1;
+          e.x += (dist >= 0 ? 1 : -1) * 2.2;
+          if (e.vy === 0 && Math.random() < 0.05) {
+            e.vy = -4.4;
+            e.alertTimer = 16;
+            this.playEnemySfx(e, 'enemyAlert');
+            this.createBurst(e.x + e.w / 2, e.y + e.h, 4, '#c084fc');
+          }
+        } else {
+          e.x += e.vx * 1.1;
+          if (e.x < e.min || e.x > e.max) e.vx *= -1;
+          e.facing = e.vx >= 0 ? 1 : -1;
+        }
       }
 
       // Gravity for ground enemies
@@ -4271,10 +4418,14 @@ export class GameEngine {
         e.type !== 'anglerfish' &&
         e.type !== 'electric_jellyfish' &&
         e.type !== 'shark_corsair' &&
-        e.type !== 'pterodactyl'
+        e.type !== 'pterodactyl' &&
+        e.type !== 'rocket_drone'
       ) {
         const isUnderwater = !this.isOnlyUpMode && LEVEL_CONFIGS[this.levelIndex]?.zone === 'piratestreasure' && LEVEL_CONFIGS[this.levelIndex]?.act !== 1;
-        e.vy = Math.min(e.vy + (isUnderwater ? 0.08 : GRAVITY), isUnderwater ? 2.5 : 6);
+        const isMoonBase = !this.isOnlyUpMode && LEVEL_CONFIGS[this.levelIndex]?.zone === 'themoon' && LEVEL_CONFIGS[this.levelIndex]?.act === 2;
+        const enemyGrav = isUnderwater ? 0.08 : (isMoonBase ? 0.12 : GRAVITY);
+        const enemyMaxFall = isUnderwater ? 2.5 : (isMoonBase ? 3.8 : 6);
+        e.vy = Math.min(e.vy + enemyGrav, enemyMaxFall);
         e.y += e.vy;
         for (const p of this.platforms) {
           if (p.hidden) continue;
@@ -6953,6 +7104,12 @@ export class GameEngine {
           isColliding = Math.hypot(playerCenterX - maceX, playerCenterY - maceY) < 14;
         } else if (h.type === 'portcullis') {
           isColliding = h.active ? this.checkAABB(p, h) : false;
+        } else if (h.type === 'rocket_thruster_plume') {
+          const cycle = (this.time * 0.1 + (h.x * 0.05)) % 6;
+          isColliding = cycle > 2.5 && this.checkAABB(p, { x: h.x + 2, y: h.y, w: h.w - 4, h: h.h + 40 });
+        } else if (h.type === 'cosmic_geyser') {
+          const cycle = Math.sin(this.time * 0.18 + h.x);
+          isColliding = cycle > 0.2 && this.checkAABB(p, { x: h.x + 2, y: h.y - 30, w: h.w - 4, h: h.h + 30 });
         } else {
           isColliding = this.checkAABB(p, h);
         }
@@ -7091,6 +7248,26 @@ export class GameEngine {
             sound.playSfx('enemyAlert');
             this.createBurst(p.x + p.w / 2, p.y + p.h, 14, '#15803d');
             this.handlePlayerDamage('¡Alerta: Nido de Dinosaurio Perturbado!');
+          } else if (h.type === 'cryo_steam_vent') {
+            sound.playSfx('flameWhoosh');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#38bdf8');
+            this.handlePlayerDamage('¡Vapor Criogénico Bajo Cero!');
+          } else if (h.type === 'electrified_gantry_rail') {
+            sound.playSfx('teslaShock');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#0ea5e9');
+            this.handlePlayerDamage('¡Descarga Eléctrica de Alta Tensión!');
+          } else if (h.type === 'laser_barrier') {
+            sound.playSfx('laserFire');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#ef4444');
+            this.handlePlayerDamage('¡Barrera Láser de Seguridad!');
+          } else if (h.type === 'cosmic_geyser') {
+            sound.playSfx('bubble');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#67e8f9');
+            this.handlePlayerDamage('¡Erupción de Gas Cósmico!');
+          } else if (h.type === 'rocket_thruster_plume') {
+            sound.playSfx('lava');
+            this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 28, '#ea580c');
+            this.handlePlayerDamage('¡Calcinado por Propulsor Cohete!');
           } else {
             this.handlePlayerDamage('¡Peligro en el terreno!');
           }

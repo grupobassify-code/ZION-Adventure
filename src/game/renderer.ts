@@ -1021,6 +1021,28 @@ export class GameRenderer {
         grad.addColorStop(0.88, '#ea580c'); // Blazing caldera rim
         grad.addColorStop(1, '#facc15');
       }
+    } else if (zone === 'themoon') {
+      // Zona 12: The Moon
+      // Acto 1: Base de Lanzamiento (Cabo Kronos) - Cielo nocturno aeroespacial con resplandor de reflectores
+      // Acto 2: Base Lunar Apolo-Kronos - Espacio cósmico negro absoluto salpicado de estrellas
+      if (act === 1) {
+        grad.addColorStop(0, '#030712');    // Deep aerospace spaceport night
+        grad.addColorStop(0.35, '#0c1a30'); // Electric indigo twilight atmosphere
+        grad.addColorStop(0.68, '#1e293b'); // Complex navy horizon
+        grad.addColorStop(0.88, '#0284c7'); // Electric cyan floodlight glow on horizon
+        grad.addColorStop(1, '#38bdf8');
+      } else if (act === 2) {
+        grad.addColorStop(0, '#000000');    // Deep pitch-black cosmic space
+        grad.addColorStop(0.5, '#02040a');  // Starfield void
+        grad.addColorStop(0.85, '#050814'); // Lunar horizon star void
+        grad.addColorStop(1, '#090d1a');    // Faint lunar dust horizon scattering
+      } else {
+        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Espacio profundo infinito con nebulosa estelar
+        grad.addColorStop(0, '#030008');    // Deep void space
+        grad.addColorStop(0.35, '#0d0418'); // Cosmic purple nebula dust
+        grad.addColorStop(0.7, '#070b1a');  // Electric cyan nebula dust
+        grad.addColorStop(1, '#020005');    // Infinite cosmic abyss
+      }
     } else {
       // Desert Sanctuary
       if (act === 1) {
@@ -1717,6 +1739,207 @@ export class GameRenderer {
           ctx.stroke();
         }
       }
+    } else if (zone === 'themoon') {
+      // The Moon: Celestial Atmosphere
+      if (act === 1) {
+        // Base de Lanzamiento: Luna Llena Plateada en el cielo nocturno & Reflectores Aeroespaciales
+        const moonX = 235;
+        const moonY = 36;
+        // Lunar Atmospheric Soft Glow
+        ctx.fillStyle = 'rgba(224, 242, 254, 0.18)';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(186, 230, 253, 0.32)';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 24, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Moon Disc (Silver / Pearl White)
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(moonX, moonY, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dark Lunar Mare / Cráter Basins on the Moon
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.arc(moonX - 5, moonY - 3, 5, 0, Math.PI * 2);
+        ctx.arc(moonX + 3, moonY - 6, 4, 0, Math.PI * 2);
+        ctx.arc(moonX - 1, moonY + 5, 6, 0, Math.PI * 2);
+        ctx.arc(moonX + 6, moonY + 2, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Distant Aerospace Searchlights sweeping through the twilight sky
+        for (let s = 0; s < 2; s++) {
+          const sAngle = Math.sin(time * 0.03 + s * 1.8) * 0.45 + (s === 0 ? -0.3 : 0.3);
+          const baseLx = s === 0 ? 90 : 210;
+          ctx.save();
+          ctx.translate(baseLx, 148);
+          ctx.rotate(sAngle);
+          const beamGrad = ctx.createLinearGradient(0, 0, 0, -170);
+          beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
+          beamGrad.addColorStop(0.6, 'rgba(56, 189, 248, 0.12)');
+          beamGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.moveTo(-4, 0);
+          ctx.lineTo(-24, -170);
+          ctx.lineTo(24, -170);
+          ctx.lineTo(4, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      } else if (act === 2) {
+        // Base Lunar: ¡ESPECTACULAR PLANETA TIERRA EN EL COSMOS (EARTHRISE)!
+        const earthX = 230;
+        const earthY = 40;
+        const earthR = 22;
+
+        // Glowing Cyan Atmospheric Corona of Earth
+        const earthGlow = ctx.createRadialGradient(earthX, earthY, earthR - 2, earthX, earthY, earthR + 18);
+        earthGlow.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
+        earthGlow.addColorStop(0.5, 'rgba(14, 165, 233, 0.22)');
+        earthGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = earthGlow;
+        ctx.beginPath();
+        ctx.arc(earthX, earthY, earthR + 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Earth Ocean Sphere (Sapphire Azure Blue)
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.arc(earthX, earthY, earthR, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Continents (Emerald green & warm ochre savannahs)
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(earthX, earthY, earthR, 0, Math.PI * 2);
+        ctx.clip();
+
+        // America / Eurasia continents
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.ellipse(earthX - 7, earthY - 4, 7, 10, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.ellipse(earthX - 6, earthY + 6, 6, 8, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#059669';
+        ctx.beginPath();
+        ctx.ellipse(earthX + 8, earthY - 5, 8, 9, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Polar Ice Caps (North & South)
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(earthX, earthY - earthR + 2, 8, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(earthX, earthY + earthR - 2, 9, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Swirling atmospheric white cloud bands & storm cyclones
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.beginPath();
+        ctx.arc(earthX - 3, earthY - 6, 4, 0, Math.PI * 2);
+        ctx.arc(earthX + 4, earthY - 2, 6, 0, Math.PI * 2);
+        ctx.arc(earthX - 8, earthY + 4, 5, 0, Math.PI * 2);
+        ctx.arc(earthX + 6, earthY + 8, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Terminator shadow (Earth phase crescent effect)
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.35)';
+        ctx.beginPath();
+        ctx.arc(earthX + 6, earthY, earthR, -Math.PI * 0.5, Math.PI * 0.5);
+        ctx.arc(earthX, earthY, earthR, Math.PI * 0.5, -Math.PI * 0.5, true);
+        ctx.fill();
+
+        ctx.restore();
+
+        // Deep space cosmic starfield (crisp stars in vacuum)
+        ctx.save();
+        for (let s = 0; s < 45; s++) {
+          const sx = (s * 37 + 13) % GAME_WIDTH;
+          const sy = (s * 23 + 7) % 110;
+          // Avoid drawing stars directly inside Earth
+          if (Math.hypot(sx - earthX, sy - earthY) > earthR + 2) {
+            const twinkle = 0.5 + Math.sin(time * 0.08 + s) * 0.45;
+            ctx.fillStyle = (s % 5 === 0) ? `rgba(253, 224, 71, ${twinkle})` : (s % 3 === 0) ? `rgba(147, 197, 253, ${twinkle})` : `rgba(255, 255, 255, ${twinkle})`;
+            const sz = (s % 7 === 0) ? 2 : 1;
+            ctx.fillRect(sx, sy, sz, sz);
+          }
+        }
+        // Faint purple/cyan galaxy streak
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.06)';
+        ctx.beginPath();
+        ctx.ellipse(80, 45, 65, 16, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // =====================================================================
+        // ACTO 3: DOOMSDAY ZONE ORBITAL - ESPACIO PROFUNDO A HIPER-VELOCIDAD
+        // =====================================================================
+        // 1. Swirling Cosmic Interstellar Nebula (Violet, Cyan & Gold Gas Clouds)
+        ctx.save();
+        const nebGrad = ctx.createRadialGradient(160, 90, 20, 160, 90, 160);
+        nebGrad.addColorStop(0, 'rgba(168, 85, 247, 0.22)');
+        nebGrad.addColorStop(0.4, 'rgba(6, 182, 212, 0.16)');
+        nebGrad.addColorStop(0.7, 'rgba(236, 72, 153, 0.08)');
+        nebGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = nebGrad;
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        // 2. Distant Earth & Moon in Cosmic Perspective (Distant Spheres)
+        const dEarthX = 65;
+        const dEarthY = 45;
+        const dEarthR = 14;
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath();
+        ctx.arc(dEarthX, dEarthY, dEarthR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.beginPath();
+        ctx.arc(dEarthX, dEarthY, dEarthR + 3, 0, Math.PI * 2);
+        ctx.stroke();
+        // Tiny glowing Moon nearby
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        ctx.arc(dEarthX + 28, dEarthY - 8, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3. Sonic Doomsday Zone Warp Stars (Streaking left at high speed!)
+        for (let s = 0; s < 55; s++) {
+          const speed = 2.5 + (s % 5) * 1.5;
+          const starX = ((time * speed + s * 37) % (GAME_WIDTH + 80)) * -1 + (GAME_WIDTH + 80);
+          const starY = (s * 19 + 7) % GAME_HEIGHT;
+          const streakLen = 3 + speed * 1.8;
+          ctx.strokeStyle = s % 4 === 0 ? '#facc15' : s % 3 === 0 ? '#38bdf8' : '#ffffff';
+          ctx.lineWidth = s % 6 === 0 ? 1.5 : 1;
+          ctx.beginPath();
+          ctx.moveTo(starX, starY);
+          ctx.lineTo(starX + streakLen, starY);
+          ctx.stroke();
+        }
+
+        // 4. Distant Tumbling Cosmic Asteroids (Passing backward in space)
+        for (let a = 0; a < 4; a++) {
+          const aSpd = 1.2 + a * 0.4;
+          const ax = ((time * aSpd + a * 120) % (GAME_WIDTH + 100)) * -1 + (GAME_WIDTH + 100);
+          const ay = 30 + a * 38 + Math.sin(time * 0.05 + a) * 8;
+          const aSize = 5 + (a % 3) * 2;
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(ax, ay, aSize, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(ax - 2, ay - 2, 2, 2);
+        }
+        ctx.restore();
+      }
     } else {
       // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
       if (act === 1) {
@@ -2120,6 +2343,74 @@ export class GameRenderer {
         ctx.fillRect(pagodaX - 4, pagodaY - 1, 8, 3);
         ctx.fillRect(pagodaX - 9, pagodaY + 2, 18, 2);
         ctx.fillRect(pagodaX - 5, pagodaY + 4, 10, 6);
+      }
+    } else if (zone === 'themoon') {
+      // The Moon (Parallax Layer 1: Distant Launch Facilities / Stark Lunar Mountain Crater Rims)
+      const p1Offset = (cameraX * 0.05) % 240;
+      if (act === 1) {
+        // Base de Lanzamiento: Siluetas de Hangares Colosales VAB & Torres de Telecomunicaciones
+        ctx.fillStyle = '#0a101f';
+        ctx.beginPath();
+        ctx.moveTo(0, 130);
+        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 48) {
+          // Monumental Vehicle Assembly Building (VAB) monolith
+          ctx.lineTo(x, 108);
+          ctx.lineTo(x + 4, 72);
+          ctx.lineTo(x + 36, 72);
+          ctx.lineTo(x + 40, 108);
+        }
+        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+        ctx.lineTo(0, GAME_HEIGHT);
+        ctx.fill();
+
+        // Flashing Red Aviation Obstruction Warning Beacons atop distant towers
+        const beacon = Math.floor(time / 10) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+        ctx.fillStyle = beacon;
+        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 48) {
+          ctx.fillRect(x + 20, 68, 2, 3);
+          // Radar tracking dome
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(x + 32, 70, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = beacon;
+        }
+      } else {
+        // Base Lunar: Montes Apenninus / Cordillera Lunar bajo la luz solar del vacío
+        ctx.fillStyle = '#060a14'; // Dark lunar shadow base
+        ctx.beginPath();
+        ctx.moveTo(0, 135);
+        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 32) {
+          const peak = Math.sin(x * 0.022) * 26 + Math.cos(x * 0.045) * 14;
+          ctx.lineTo(x, 78 + peak);
+        }
+        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+        ctx.lineTo(0, GAME_HEIGHT);
+        ctx.fill();
+
+        // Stark Silver Sunlight Facets on Mountain Peaks (Airless lunar contrast)
+        for (let px = -p1Offset - 240; px <= GAME_WIDTH + 240; px += 64) {
+          const peakY = 62 + Math.sin(px * 0.02) * 16;
+          ctx.fillStyle = '#cbd5e1'; // Harsh sunlight lit face
+          ctx.beginPath();
+          ctx.moveTo(px, peakY);
+          ctx.lineTo(px - 18, peakY + 36);
+          ctx.lineTo(px + 2, peakY + 34);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = '#475569'; // Midtone basalt facet
+          ctx.beginPath();
+          ctx.moveTo(px, peakY);
+          ctx.lineTo(px + 20, peakY + 36);
+          ctx.lineTo(px + 2, peakY + 34);
+          ctx.closePath();
+          ctx.fill();
+
+          // Blinding summit specularity
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(px - 1, peakY - 1, 2, 2.5);
+        }
       }
     } else {
       const p1Offset = (cameraX * 0.08) % 140;
@@ -3026,6 +3317,101 @@ export class GameRenderer {
             ctx.fillRect(x + 36, wy, 6, 6);
           }
           ctx.fillStyle = act === 1 ? '#0f1a3a' : '#1d1242';
+        } else if (zone === 'themoon') {
+          // Zona 12 The Moon (Parallax Layer 2: Launch Umbilical Towers & Sprawling Lunar Base Modules)
+          if (act === 1) {
+            // Base de Lanzamiento: Torres Umbilicales de Servicio con Celosía Roja/Blanca & Silos de Combustible
+            // Red and white launch tower truss
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(x + 18, 52, 16, 96);
+            ctx.fillStyle = '#f8fafc';
+            for (let ty = 54; ty < 140; ty += 16) {
+              ctx.fillRect(x + 19, ty, 14, 6);
+            }
+            // Swing arms extending toward rocket
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(x + 34, 66, 12, 3);
+            ctx.fillRect(x + 34, 94, 12, 3);
+            ctx.fillRect(x + 34, 118, 12, 3);
+            // Aviation strobe atop tower
+            const tBeacon = Math.floor(time / 8) % 2 === 0 ? '#ef4444' : '#991b1b';
+            ctx.fillStyle = tBeacon;
+            ctx.fillRect(x + 25, 48, 2, 4);
+
+            // Cryogenic Propellant Spherical Tank beside tower
+            const sphereX = x + 62;
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(sphereX - 4, 134, 8, 14); // Stand legs
+            ctx.fillStyle = '#f8fafc'; // Insulated white sphere
+            ctx.beginPath();
+            ctx.arc(sphereX, 122, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0ea5e9'; // Cyan LH2 / LOX hazard band
+            ctx.fillRect(sphereX - 13, 120, 26, 3);
+            ctx.fillStyle = '#0f172a';
+          } else {
+            // Base Lunar: Módulos de Hábitat Presurizados, Pasarelas Tubulares y Cúpulas Biosféricas
+            const modX = x + 24;
+            // Pressurized cylindrical habitat module
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(modX - 18, 100, 36, 45);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(modX - 16, 102, 32, 43);
+            ctx.fillStyle = '#cbd5e1'; // Titanium insulation roof
+            ctx.beginPath();
+            ctx.ellipse(modX, 100, 18, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Circular illuminated portholes
+            for (let py = 110; py <= 134; py += 12) {
+              ctx.fillStyle = '#0f172a';
+              ctx.beginPath();
+              ctx.arc(modX - 8, py, 3.5, 0, Math.PI * 2);
+              ctx.arc(modX + 8, py, 3.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#38bdf8'; // Glowing warm cyan cabin light
+              ctx.beginPath();
+              ctx.arc(modX - 8, py, 2.5, 0, Math.PI * 2);
+              ctx.arc(modX + 8, py, 2.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            // Airtight tubular transit corridor connecting modules
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(modX + 18, 122, 32, 8);
+            ctx.fillStyle = '#64748b';
+            ctx.fillRect(modX + 18, 124, 32, 2);
+
+            // Glowing Translucent Green Geodesic Hydroponic Biodome
+            const domeX = modX + 56;
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+            ctx.beginPath();
+            ctx.arc(domeX, 122, 16, Math.PI, 0);
+            ctx.fill();
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            // Hydroponic plants glowing inside dome
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(domeX - 8, 114, 4, 8);
+            ctx.fillRect(domeX + 4, 112, 5, 10);
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(domeX - 1, 108, 3, 3); // Solar grow lamp
+
+            // Photovoltaic Solar Panel Array on pylon
+            const pylonX = modX - 28;
+            ctx.fillStyle = '#475569';
+            ctx.fillRect(pylonX, 95, 2, 50);
+            ctx.fillStyle = '#1e3a8a'; // Deep blue photovoltaic panel
+            ctx.fillRect(pylonX - 10, 84, 22, 11);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(pylonX - 10, 84, 22, 11);
+            // Grid lines on panel
+            ctx.fillStyle = '#60a5fa';
+            ctx.fillRect(pylonX - 10, 89, 22, 1);
+            ctx.fillRect(pylonX, 84, 1, 11);
+          }
         } else {
           // Ancient Sandstone Obelisks & Ruined Temples (Desert)
           ctx.fillRect(x + 22, 60, 16, 90);
@@ -3396,8 +3782,82 @@ export class GameRenderer {
       ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
       ctx.lineTo(0, GAME_HEIGHT);
       ctx.fill();
+    } else if (zone === 'themoon') {
+      // Near Depth Layer: Launch Gantries & Pipelines (Act 1) or Lunar Regolith Ridges & Apollo Relics (Act 2)
+      const p3Offset = (cameraX * 0.36) % 220;
+      if (act === 1) {
+        // Base de Lanzamiento: Barandillas de servicio, tuberías criogénicas con condensación de hielo
+        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 180) {
+          // Gantry structural railing
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 10, 118, 4, 34);
+          ctx.fillRect(x + 50, 118, 4, 34);
+          ctx.fillRect(x + 8, 122, 48, 2.5);
+          // Frosty white insulated cryogenic pipe
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(x + 2, 134, 76, 6);
+          ctx.fillStyle = '#e0f2fe';
+          ctx.fillRect(x + 2, 134, 76, 1.5);
+          // Vent hiss condensation puff
+          if (Math.sin(time * 0.15 + x) > 0.6) {
+            ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
+            ctx.beginPath();
+            ctx.arc(x + 30, 131, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else {
+        // Base Lunar: Crestas de cráteres de regolito, módulo de descenso Apolo y huellas en el polvo
+        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 200) {
+          const craterX = x + 65;
+          // Regolith ridge bowl
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.ellipse(craterX, 150, 36, 12, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#334155';
+          ctx.beginPath();
+          ctx.ellipse(craterX - 2, 149, 32, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Silver crater rim highlight
+          ctx.fillStyle = '#cbd5e1';
+          ctx.beginPath();
+          ctx.arc(craterX + 10, 142, 12, -Math.PI * 0.4, 0.2);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.stroke();
+
+          // Historic Apollo Lunar Lander Descent Stage silhouette on crater edge
+          const landerX = craterX + 75;
+          // Gold thermal Mylar foil core
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(landerX - 8, 128, 16, 12);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(landerX - 6, 130, 12, 8);
+          // 4 Spider landing struts
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(landerX - 6, 136);
+          ctx.lineTo(landerX - 16, 148);
+          ctx.moveTo(landerX + 6, 136);
+          ctx.lineTo(landerX + 16, 148);
+          ctx.stroke();
+          // Circular landing footpads
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(landerX - 18, 147, 5, 2);
+          ctx.fillRect(landerX + 13, 147, 5, 2);
+          // Commemorative mission flag on staff
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillRect(landerX - 22, 132, 1.5, 16);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(landerX - 22, 132, 8, 5);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(landerX - 22, 134.5, 8, 1.5);
+        }
+      }
     }
-    const count = zone === 'blizzard' ? 44 : zone === 'steampunk' ? 38 : zone === 'castlesmash' ? 36 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
+    const count = zone === 'blizzard' ? 44 : zone === 'themoon' ? 40 : zone === 'steampunk' ? 38 : zone === 'castlesmash' ? 36 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
     for (let i = 0; i < count; i++) {
       const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'castlesmash' ? 0.3 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;
       const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
@@ -3516,6 +3976,31 @@ export class GameRenderer {
           const emberY = (GAME_HEIGHT - ((time * 0.9 + i * 26) % (GAME_HEIGHT + 10)));
           ctx.fillStyle = i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#f97316' : '#ef4444';
           ctx.fillRect(px, emberY, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
+        }
+      } else if (zone === 'themoon') {
+        if (act === 1) {
+          // Base de Lanzamiento: Chispas de soldadura y vapor criogénico frío
+          if (i % 2 === 0) {
+            ctx.fillStyle = i % 4 === 0 ? '#fef08a' : '#38bdf8';
+            ctx.fillRect(px, py, 1.5, 1.5);
+          } else {
+            ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
+            ctx.beginPath();
+            ctx.arc(px, py, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          // Base Lunar & Superficie: Motes de polvo de regolito levitando en el viento solar y micrometeoritos
+          if (i % 4 === 0) {
+            // Micrometeorito cósmico veloz
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(px, py, 2.5, 1);
+          } else {
+            // Polvo de regolito plateado flotante
+            const dTwinkle = 0.4 + Math.sin(time * 0.12 + i) * 0.45;
+            ctx.fillStyle = `rgba(226, 232, 240, ${dTwinkle})`;
+            ctx.fillRect(px, py, i % 2 === 0 ? 1.5 : 1, i % 2 === 0 ? 1.5 : 1);
+          }
         }
       } else {
         // Golden swirling sand dust & hieroglyphic sparkle specks
@@ -4706,6 +5191,382 @@ export class GameRenderer {
           ctx.arc(sx, sy, 4 + sp * 1.5, 0, Math.PI * 2);
           ctx.fill();
         }
+      } else if (lm.type === 'colossal_rocket_gantry') {
+        // Colosal Cohete Lunar Apolo-Ω & Torre de Lanzamiento Umbilical
+        const baseY = lm.y || 148;
+        const rx = x;
+
+        // 1. Red Umbilical Service Tower (Gantry) alongside rocket
+        const towerX = rx + 22;
+        const towerW = 16;
+        const towerH = 118;
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(towerX, baseY - towerH, towerW, towerH);
+        // White truss horizontal bands & diagonals
+        ctx.fillStyle = '#f8fafc';
+        for (let ty = baseY - towerH + 6; ty < baseY; ty += 14) {
+          ctx.fillRect(towerX, ty, towerW, 2);
+          ctx.fillRect(towerX + 7, ty - 12, 2, 12);
+        }
+        // Top yellow crane boom
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(towerX - 6, baseY - towerH - 4, towerW + 12, 4);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(towerX + towerW / 2 - 1.5, baseY - towerH - 8, 3, 4); // Red beacon
+
+        // Digital Launch Countdown LED Board on tower
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(towerX + 2, baseY - 60, towerW - 4, 10);
+        ctx.fillStyle = '#22c55e';
+        ctx.font = 'bold 5px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('T-03', towerX + towerW / 2, baseY - 53);
+
+        // Umbilical Swing Arms connecting tower to rocket
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(rx + 8, baseY - 88, 16, 3);
+        ctx.fillRect(rx + 8, baseY - 58, 16, 3);
+        ctx.fillRect(rx + 10, baseY - 28, 14, 3);
+        // Fuel pipe couplings
+        ctx.fillStyle = '#0ea5e9';
+        ctx.fillRect(rx + 8, baseY - 59, 3, 5);
+
+        // 2. Colossal Apollo-Omega Lunar Rocket Body
+        // Stage 1 (Booster with black/white roll pattern)
+        const rocketW = 18;
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(rx - rocketW / 2, baseY - 48, rocketW, 44);
+        ctx.fillStyle = '#090d16'; // Roll stripes
+        ctx.fillRect(rx - rocketW / 2, baseY - 44, rocketW / 2, 16);
+        ctx.fillRect(rx, baseY - 24, rocketW / 2, 16);
+
+        // Stage 1 Engine bells & flame trench mount
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(rx - 8, baseY - 4, 6, 4);
+        ctx.fillRect(rx + 2, baseY - 4, 6, 4);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(rx - 12, baseY, 24, 4);
+
+        // Interstage Corrugated Ring
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(rx - rocketW / 2 + 1, baseY - 52, rocketW - 2, 4);
+
+        // Stage 2 (Second Stage with mission insignia)
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(rx - (rocketW - 2) / 2, baseY - 84, rocketW - 2, 32);
+        ctx.fillStyle = '#0ea5e9';
+        ctx.fillRect(rx - (rocketW - 2) / 2, baseY - 76, rocketW - 2, 2); // Cyan stripe
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(rx - 3, baseY - 72, 6, 4); // Mission patch emblem
+
+        // Stage 3 & Command Module Cone
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(rx - (rocketW - 4) / 2, baseY - 100, rocketW - 4, 16);
+        // Conical Command Capsule
+        ctx.beginPath();
+        ctx.moveTo(rx - (rocketW - 4) / 2, baseY - 100);
+        ctx.lineTo(rx, baseY - 114);
+        ctx.lineTo(rx + (rocketW - 4) / 2, baseY - 100);
+        ctx.closePath();
+        ctx.fill();
+
+        // Launch Escape Tower (LES) with escape rocket motor
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(rx - 1, baseY - 124, 2, 10);
+        ctx.fillRect(rx - 2.5, baseY - 126, 5, 2.5); // Escape nozzles
+
+        // Cryogenic venting frost vapor wisps from rocket
+        ctx.fillStyle = 'rgba(224, 242, 254, 0.45)';
+        const rVaporY = baseY - 58 + Math.sin(time * 0.2) * 3;
+        ctx.beginPath();
+        ctx.arc(rx - 10, rVaporY, 3, 0, Math.PI * 2);
+        ctx.arc(rx + 10, rVaporY + 8, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (lm.type === 'launch_control_tower') {
+        // Torre de Control de Vuelo Aeroespacial Cabo Kronos
+        const baseY = lm.y || 148;
+        // Reinforced concrete bunker body
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - 14, baseY - 48, 28, 48);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(x - 12, baseY - 46, 24, 46);
+
+        // Angled Green Panoramic Observation Windows
+        ctx.fillStyle = '#065f46';
+        ctx.fillRect(x - 16, baseY - 38, 32, 10);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(x - 14, baseY - 37, 28, 8);
+        ctx.fillStyle = '#6ee7b7';
+        for (let wx = x - 12; wx < x + 12; wx += 6) {
+          ctx.fillRect(wx, baseY - 36, 1, 6);
+        }
+
+        // Roof Radar Radome Dome
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(x, baseY - 50, 7, Math.PI, 0);
+        ctx.fill();
+        // Red flashing obstruction beacon
+        const beacon = Math.floor(time / 8) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+        ctx.fillStyle = beacon;
+        ctx.fillRect(x - 1, baseY - 59, 2, 2);
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(x - 0.5, baseY - 57, 1, 7);
+      } else if (lm.type === 'radar_tracking_dish') {
+        // Gran Antena Parabólica de Telemetría y Rastreo Lunar
+        const baseY = lm.y || 148;
+        // Concrete foundation & steel pylon
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - 6, baseY - 24, 12, 24);
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x - 4, baseY - 22, 8, 22);
+
+        // Parabolic Dish (Oriented towards the Moon)
+        const dishTilt = -0.4;
+        ctx.save();
+        ctx.translate(x, baseY - 28);
+        ctx.rotate(dishTilt);
+
+        // Dish mesh bowl
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 18, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Feed horn tripod & receiver
+        ctx.fillStyle = '#0ea5e9';
+        ctx.fillRect(-1.5, -12, 3, 4);
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-10, 0);
+        ctx.lineTo(0, -10);
+        ctx.lineTo(10, 0);
+        ctx.stroke();
+
+        ctx.restore();
+      } else if (lm.type === 'cryogenic_fuel_silo') {
+        // Silo Esférico Criogénico de Hidrógeno / Oxígeno Líquido
+        const baseY = lm.y || 148;
+        // Heavy steel tripod support legs
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(x - 14, baseY);
+        ctx.lineTo(x - 8, baseY - 16);
+        ctx.moveTo(x + 14, baseY);
+        ctx.lineTo(x + 8, baseY - 16);
+        ctx.stroke();
+
+        // Giant Insulated White Sphere
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(x, baseY - 28, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Cyan Hazard Warning Ring
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x - 17, baseY - 30, 34, 4);
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 5px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('LH2', x, baseY - 27);
+
+        // Safety Relief Vent with condensation vapor puff
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(x - 1.5, baseY - 49, 3, 4);
+        const puff = (time * 0.3) % 24;
+        ctx.fillStyle = 'rgba(224, 242, 254, 0.35)';
+        ctx.beginPath();
+        ctx.arc(x, baseY - 50 - puff * 0.5, 3 + puff * 0.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (lm.type === 'lunar_biodome') {
+        // Monumental Cúpula Biosférica Geodésica de la Base Lunar
+        const baseY = lm.y || 148;
+        const radius = 34;
+
+        // Interior Hydroponic Lighting Glow (Lush Green & Gold)
+        const domeGlow = ctx.createRadialGradient(x, baseY, 4, x, baseY, radius);
+        domeGlow.addColorStop(0, 'rgba(74, 222, 128, 0.7)');
+        domeGlow.addColorStop(0.6, 'rgba(16, 185, 129, 0.4)');
+        domeGlow.addColorStop(1, 'rgba(6, 182, 212, 0.15)');
+        ctx.fillStyle = domeGlow;
+        ctx.beginPath();
+        ctx.arc(x, baseY, radius, Math.PI, 0);
+        ctx.fill();
+
+        // Internal Oxygen Tree & Hydroponic Plant Silhouettes
+        ctx.fillStyle = '#14532d';
+        ctx.fillRect(x - 2, baseY - 24, 4, 24); // Tree trunk
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.arc(x, baseY - 26, 10, 0, Math.PI * 2);
+        ctx.arc(x - 7, baseY - 22, 7, 0, Math.PI * 2);
+        ctx.arc(x + 7, baseY - 22, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#86efac';
+        ctx.fillRect(x - 2, baseY - 28, 4, 3); // Solar grow lamp
+
+        // Translucent Geodesic Glass Hexagonal Framework
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x, baseY, radius, Math.PI, 0);
+        ctx.stroke();
+
+        // Geodesic strut ribs
+        ctx.strokeStyle = 'rgba(224, 242, 254, 0.45)';
+        ctx.lineWidth = 1;
+        for (let a = 1; a < 5; a++) {
+          const angle = Math.PI + (a * Math.PI) / 5;
+          ctx.beginPath();
+          ctx.moveTo(x, baseY);
+          ctx.lineTo(x + Math.cos(angle) * radius, baseY + Math.sin(angle) * radius);
+          ctx.stroke();
+        }
+
+        // Reinforced Airlock Entrance at base
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x - 8, baseY - 12, 16, 12);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x - 6, baseY - 10, 12, 10);
+        ctx.fillStyle = '#22c55e'; // Green pressurized airlock light
+        ctx.fillRect(x - 1, baseY - 12, 2, 2);
+      } else if (lm.type === 'lunar_lander_apollo') {
+        // Módulo de Descenso Lunar Histórico (Apolo Relic con Lámina de Oro)
+        const baseY = lm.y || 148;
+        const lx = x;
+
+        // 4 Articulated Spider Landing Legs & Footpads
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(lx - 8, baseY - 16);
+        ctx.lineTo(lx - 20, baseY);
+        ctx.moveTo(lx + 8, baseY - 16);
+        ctx.lineTo(lx + 20, baseY);
+        ctx.moveTo(lx - 4, baseY - 16);
+        ctx.lineTo(lx - 10, baseY);
+        ctx.moveTo(lx + 4, baseY - 16);
+        ctx.lineTo(lx + 10, baseY);
+        ctx.stroke();
+
+        // Circular footpads on regolith
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(lx - 23, baseY - 2, 6, 2.5);
+        ctx.fillRect(lx + 17, baseY - 2, 6, 2.5);
+        ctx.fillRect(lx - 12, baseY - 2, 4, 2);
+        ctx.fillRect(lx + 8, baseY - 2, 4, 2);
+
+        // Gold Mylar Thermal Foil Insulated Octagonal Body
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(lx - 12, baseY - 22, 24, 14);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(lx - 10, baseY - 20, 20, 10);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(lx - 6, baseY - 18, 12, 6);
+
+        // Ascent Stage Silhouette & VHF Antenna on top
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(lx - 8, baseY - 32, 16, 10);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(lx - 6, baseY - 30, 12, 6);
+        // Rendezvous radar dish
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(lx - 2, baseY - 36, 4, 4);
+
+        // Commemorative Mission Flag planted on lunar surface beside lander
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(lx + 26, baseY - 20, 1.5, 20); // Staff
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(lx + 26, baseY - 20, 9, 6);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(lx + 26, baseY - 17, 9, 1.5);
+      } else if (lm.type === 'lunar_comm_relay') {
+        // Torre de Retransmisión Láser Espacio Profundo
+        const baseY = lm.y || 148;
+        // Pylon structure
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - 3, baseY - 50, 6, 50);
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(x - 2, baseY - 48, 4, 48);
+
+        // Optical laser transceiver head
+        ctx.fillStyle = '#0ea5e9';
+        ctx.beginPath();
+        ctx.arc(x, baseY - 54, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pulsing cyan laser beam firing upward toward Earth
+        const laserPulse = 0.5 + Math.sin(time * 0.2) * 0.4;
+        ctx.fillStyle = `rgba(56, 189, 248, ${laserPulse})`;
+        ctx.fillRect(x - 1, 0, 2, baseY - 54);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x - 0.5, 0, 1, baseY - 54);
+      } else if (lm.type === 'lunar_solar_farm') {
+        // Granja de Paneles Solares Fotovoltaicos de Alta Eficiencia
+        const baseY = lm.y || 148;
+        for (let p = 0; p < 3; p++) {
+          const px = x + p * 22 - 22;
+          // Pylon
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(px - 1, baseY - 14, 2, 14);
+          // Blue photovoltaic collector plate
+          ctx.fillStyle = '#1e3a8a';
+          ctx.fillRect(px - 8, baseY - 24, 16, 10);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(px - 8, baseY - 24, 16, 10);
+          // Silicon grid lines
+          ctx.fillStyle = '#60a5fa';
+          ctx.fillRect(px - 8, baseY - 19, 16, 1);
+          ctx.fillRect(px, baseY - 24, 1, 10);
+        }
+      } else if (lm.type === 'helium3_refinery') {
+        // Refinería y Extractor Minero de Helio-3
+        const baseY = lm.y || 148;
+        // Heavy industrial plant housing
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x - 22, baseY - 36, 44, 36);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x - 20, baseY - 34, 40, 34);
+
+        // Yellow caution stripes
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(x - 18, baseY - 10, 36, 3);
+        ctx.fillStyle = '#0f172a';
+        for (let sx = x - 18; sx < x + 18; sx += 6) {
+          ctx.fillRect(sx, baseY - 10, 3, 3);
+        }
+
+        // 3 Glowing Cyan Helium-3 Pressurized Storage Canisters
+        for (let c = 0; c < 3; c++) {
+          const cx = x - 12 + c * 12;
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(cx - 3, baseY - 28, 6, 14);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(cx - 2, baseY - 27, 4, 12);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(cx - 1, baseY - 25, 2, 4);
+        }
+
+        // Vacuum extraction intake funnel
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.moveTo(x - 6, baseY - 36);
+        ctx.lineTo(x + 6, baseY - 36);
+        ctx.lineTo(x + 10, baseY - 44);
+        ctx.lineTo(x - 10, baseY - 44);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(x - 4, baseY - 44, 8, 2);
       }
     }
   }
@@ -4723,6 +5584,7 @@ export class GameRenderer {
     const isCastle = zone === 'castlesmash';
     const isPirate = zone === 'piratestreasure';
     const isJurassic = zone === 'jurasicdraft';
+    const isMoon = zone === 'themoon';
 
     for (const p of platforms) {
       if (p.hidden) continue;
@@ -5064,6 +5926,190 @@ export class GameRenderer {
             ctx.fillRect(tx, y - 2, 2, 2);
             ctx.fillRect(tx + 1, y - 4, 1.5, 2);
           }
+        }
+        continue;
+      }
+
+      if (
+        isMoon ||
+        p.kind === 'space_chassis' ||
+        p.kind === 'launch_gantry' ||
+        p.kind === 'rocket_scaffold' ||
+        p.kind === 'lunar_regolith' ||
+        p.kind === 'lunar_base_habitat' ||
+        p.kind === 'solar_deck' ||
+        p.kind === 'biodome_catwalk' ||
+        p.kind === 'pressurized_conduit'
+      ) {
+        // =====================================================================
+        // ZONA 12: THE MOON PLATFORMS (ZONA DE LANZAMIENTO & BASE LUNAR)
+        // =====================================================================
+        if (p.kind === 'lunar_regolith' || (isMoon && act === 2 && (p.kind === 'ground' || p.kind === 'arena'))) {
+          // Lunar Regolith & Basalt Crater Terrain (Airless stark contrast)
+          ctx.fillStyle = '#060a12'; // Deep basalt shadow
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b'; // Powdery silver-grey lunar regolith
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Impact Crater Depressions & Micro-bowls
+          for (let cx = x + 16; cx < x + p.w - 16; cx += 36) {
+            ctx.fillStyle = '#0a0f1d';
+            ctx.beginPath();
+            ctx.ellipse(cx, y + 7, 7, 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Sharp sunlight rim on crater lip
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(cx - 5, y + 5, 10, 1);
+          }
+
+          // Astronaut Apollo Boot-Tread Imprints in dust
+          ctx.fillStyle = '#334155';
+          for (let tx = x + 8; tx < x + p.w - 8; tx += 28) {
+            ctx.fillRect(tx, y + 2, 6, 1.5);
+            ctx.fillRect(tx + 1, y + 4, 4, 1);
+          }
+
+          // Sparkling Crystalline Anorthosite Mineral Flecks
+          ctx.fillStyle = '#f8fafc';
+          for (let fx = x + 4; fx < x + p.w - 4; fx += 18) {
+            ctx.fillRect(fx, y + 3, 1, 1);
+          }
+
+          // Stark Solar White Top Mantle & Specular Edge
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'lunar_base_habitat' || p.kind === 'pressurized_conduit') {
+          // Pressurized Lunar Base Habitat Module & Air-Lock Catwalk
+          ctx.fillStyle = '#090d16'; // Vacuum shadow
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b'; // Titanium alloy plate
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+          ctx.fillStyle = '#334155'; // Inner panel recessed tier
+          ctx.fillRect(x + 3, y + 3, p.w - 6, p.h - 6);
+
+          // Ceramic Thermal Shield Rivets & Hermetic Seams
+          ctx.fillStyle = '#64748b';
+          for (let rx = x + 6; rx < x + p.w - 6; rx += 16) {
+            ctx.fillRect(rx, y + 4, 1.5, 1.5);
+            ctx.fillRect(rx, y + p.h - 5, 1.5, 1.5);
+          }
+
+          // Glowing Cyan Pressurized Conduit / Airlock Status Line
+          const pulse = 0.7 + Math.sin(time * 0.15) * 0.3;
+          ctx.fillStyle = `rgba(6, 182, 212, ${pulse})`;
+          ctx.fillRect(x + 2, y + p.h / 2 - 1, p.w - 4, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + 4, y + p.h / 2 - 0.5, p.w - 8, 1);
+
+          // Top Sleek Silver Trim
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'solar_deck') {
+          // Photovoltaic High-Efficiency Blue Silicon Solar Panel Deck
+          ctx.fillStyle = '#020617';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e3a8a'; // Deep blue photovoltaic cells
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Silicon Grid Matrix Lines
+          ctx.fillStyle = '#38bdf8';
+          for (let gx = x + 10; gx < x + p.w - 10; gx += 14) {
+            ctx.fillRect(gx, y + 2, 1, p.h - 4);
+          }
+          ctx.fillStyle = '#60a5fa';
+          ctx.fillRect(x + 2, y + Math.floor(p.h / 2), p.w - 4, 1);
+
+          // Electric Energy Top Trim
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#7dd3fc';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'biodome_catwalk') {
+          // Translucent Hydroponic Biodome Maintenance Walkway
+          ctx.fillStyle = '#022c22';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.45)'; // Hydroponic green glaze
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Non-Slip Diamond Walkway Grid
+          ctx.fillStyle = '#34d399';
+          for (let mx = x + 8; mx < x + p.w - 8; mx += 16) {
+            ctx.fillRect(mx, y + 3, 2, 2);
+            ctx.fillRect(mx + 4, y + 6, 2, 2);
+          }
+
+          // Luminescent Growth-LED Emerald Edge
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#a7f3d0';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'space_chassis' || (isMoon && act === 1 && (p.kind === 'ground' || p.kind === 'arena'))) {
+          // Launch Complex Tarmac Foundation & Blast Trench Plates
+          ctx.fillStyle = '#050b14';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b'; // Heavy blast steel
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Diagonal Safety Warning Hazard Stripes (Yellow / Black / Dark Grey)
+          for (let sx = x + 8; sx < x + p.w - 8; sx += 24) {
+            ctx.fillStyle = '#eab308';
+            ctx.fillRect(sx, y + 3, 8, 3);
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(sx + 4, y + 3, 4, 3);
+          }
+
+          // High-Voltage Cryo Power Conduit
+          ctx.fillStyle = '#0ea5e9';
+          ctx.fillRect(x + 4, y + p.h - 4, p.w - 8, 2);
+
+          // Metallic Top Trim
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (p.kind === 'launch_gantry' || p.kind === 'rocket_scaffold') {
+          // Aerospace Red & White Structural Lattice Truss Scaffold
+          ctx.fillStyle = '#1e293b'; // Core
+          ctx.fillRect(x, y, p.w, p.h);
+
+          // Red Gantry Girder Band
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(x, y + 2, p.w, p.h - 4);
+
+          // White diagonal truss braces
+          ctx.fillStyle = '#f8fafc';
+          for (let gx = x + 4; gx < x + p.w - 4; gx += 16) {
+            ctx.fillRect(gx, y + 3, 3, p.h - 6);
+            ctx.fillRect(gx + 6, y + 4, 4, 2);
+          }
+
+          // Perforated Steel Walkway Deck on top
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(x, y, p.w, 1);
+
+          // Red Aviation Safety Warning Beacon at ends
+          const beacon = Math.floor(time / 8) % 2 === 0 ? '#ef4444' : '#7f1d1d';
+          ctx.fillStyle = beacon;
+          ctx.fillRect(x + 1, y - 2, 2, 2);
+          ctx.fillRect(x + p.w - 3, y - 2, 2, 2);
+        } else {
+          // Elevated Titanium Space Ledge
+          ctx.fillStyle = '#090e1f';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 1, y + 1, p.w - 2, p.h - 2);
+
+          // Glowing Cyan Surface Guide
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x, y, p.w, 1);
         }
         continue;
       }
@@ -7013,6 +8059,167 @@ export class GameRenderer {
         ctx.stroke();
 
         ctx.restore();
+      } else if (h.type === 'cryo_steam_vent') {
+        // Válvula Criogénica de Vapor Espacial a Presión (Zona 12)
+        const baseY = h.y + h.h;
+        // Heavy insulated cryogenic valve base
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, baseY - 6, h.w, 6);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x + 2, baseY - 5, h.w - 4, 3);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x + 4, baseY - 4, h.w - 8, 1);
+
+        // Freezing condensation vapor jet surging upward
+        const ventPulse = Math.sin(time * 0.2 + x) * 0.5 + 0.5;
+        const jetHeight = 28 + ventPulse * 16;
+        const grad = ctx.createLinearGradient(x + h.w / 2, baseY - 6, x + h.w / 2, baseY - 6 - jetHeight);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+        grad.addColorStop(0.4, 'rgba(56, 189, 248, 0.6)');
+        grad.addColorStop(1, 'rgba(14, 165, 233, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(x + 2, baseY - 6);
+        ctx.lineTo(x + h.w / 2, baseY - 6 - jetHeight);
+        ctx.lineTo(x + h.w - 2, baseY - 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // Sub-zero ice crystals rising
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 3; i++) {
+          const cy = baseY - 6 - ((time * 0.6 + i * 10) % jetHeight);
+          const cx = x + h.w / 2 + Math.sin(time * 0.2 + i) * 3;
+          ctx.fillRect(cx, cy, 1.5, 1.5);
+        }
+      } else if (h.type === 'electrified_gantry_rail') {
+        // Barandilla Electrificada de Alta Tensión (Zona 12)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, h.y, h.w, h.h);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(x + 1, h.y + 1, h.w - 2, h.h - 2);
+
+        // Ceramic Insulator Pylons
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(x + 2, h.y + 2, 2, h.h - 4);
+        ctx.fillRect(x + h.w - 4, h.y + 2, 2, h.h - 4);
+
+        // Glowing Blue Plasma Energy Bar
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(x + 4, h.y + 3, h.w - 8, h.h - 6);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x + 4, h.y + 4, h.w - 8, 2);
+
+        // Electric lightning sparks flashing
+        if (Math.sin(time * 0.3 + x) > 0.3) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x + 4, h.y + h.h / 2);
+          ctx.lineTo(x + h.w / 2 + (Math.random() - 0.5) * 6, h.y - 2);
+          ctx.lineTo(x + h.w - 4, h.y + h.h / 2);
+          ctx.stroke();
+        }
+      } else if (h.type === 'laser_barrier') {
+        // Barrera Láser de Seguridad Perimetral Lunar (Zona 12)
+        // Left emitter pylon
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x, h.y, 4, h.h);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(x + 1, h.y + 2, 2, 2); // Red status LED
+
+        // Right emitter pylon
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(x + h.w - 4, h.y, 4, h.h);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(x + h.w - 3, h.y + 2, 2, 2);
+
+        // Pulsing intense laser beam between emitters
+        const laserPulse = 0.7 + Math.sin(time * 0.25) * 0.3;
+        ctx.fillStyle = `rgba(239, 68, 68, ${laserPulse * 0.35})`;
+        ctx.fillRect(x + 4, h.y + h.h / 2 - 2, h.w - 8, 4);
+
+        ctx.fillStyle = `rgba(248, 113, 113, ${laserPulse})`;
+        ctx.fillRect(x + 4, h.y + h.h / 2 - 1, h.w - 8, 2);
+
+        // Brilliant White Laser Core
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 4, h.y + h.h / 2 - 0.5, h.w - 8, 1);
+      } else if (h.type === 'cosmic_geyser') {
+        // Géiser Cósmico de Nitrógeno / Metano en Cráter de Regolito (Zona 12)
+        const baseY = h.y + h.h;
+        // Crater fissure basin
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.ellipse(x + h.w / 2, baseY - 2, h.w / 2, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Erupting cold gas plume
+        const geyserPulse = Math.sin(time * 0.18 + x) * 0.5 + 0.5;
+        const plumeH = 34 + geyserPulse * 20;
+
+        const gGrad = ctx.createLinearGradient(x + h.w / 2, baseY - 2, x + h.w / 2, baseY - 2 - plumeH);
+        gGrad.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
+        gGrad.addColorStop(0.3, 'rgba(147, 197, 253, 0.6)');
+        gGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gGrad;
+        ctx.beginPath();
+        ctx.moveTo(x + 3, baseY - 2);
+        ctx.quadraticCurveTo(x + h.w / 2 - 6, baseY - 2 - plumeH * 0.5, x + h.w / 2, baseY - 2 - plumeH);
+        ctx.quadraticCurveTo(x + h.w / 2 + 6, baseY - 2 - plumeH * 0.5, x + h.w - 3, baseY - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Crystalline regolith dust motes suspended in low gravity
+        ctx.fillStyle = '#ffffff';
+        for (let d = 0; d < 4; d++) {
+          const dy = baseY - 4 - ((time * 0.5 + d * 12) % plumeH);
+          const dx = x + h.w / 2 + Math.sin(time * 0.2 + d * 2) * 5;
+          ctx.fillRect(dx, dy, 1.5, 1.5);
+        }
+      } else if (h.type === 'rocket_thruster_plume') {
+        // Tobera de Motor Cohete con Ignición Cíclica (Zona 12)
+        const baseY = h.y + h.h;
+        // Heavy titanium engine bell base
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.moveTo(x + 2, baseY);
+        ctx.lineTo(x + 5, baseY - 8);
+        ctx.lineTo(x + h.w - 5, baseY - 8);
+        ctx.lineTo(x + h.w - 2, baseY);
+        ctx.closePath();
+        ctx.fill();
+
+        // Warning pre-ignition amber flare or active supersonic exhaust
+        const cycle = (time * 0.1 + (x * 0.05)) % 6;
+        if (cycle > 2.5) {
+          // ACTIVE INFERNO PLUME!
+          const flameH = 45 + Math.sin(time * 0.4) * 8;
+          const pGrad = ctx.createLinearGradient(x + h.w / 2, baseY, x + h.w / 2, baseY + flameH);
+          pGrad.addColorStop(0, '#ffffff');
+          pGrad.addColorStop(0.2, '#fde047');
+          pGrad.addColorStop(0.6, '#ea580c');
+          pGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+          ctx.fillStyle = pGrad;
+          ctx.beginPath();
+          ctx.moveTo(x + 3, baseY);
+          ctx.lineTo(x + h.w / 2, baseY + flameH);
+          ctx.lineTo(x + h.w - 3, baseY);
+          ctx.closePath();
+          ctx.fill();
+
+          // Shock diamond white ellipses in supersonic exhaust
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x + h.w / 2 - 2, baseY + 8, 4, 3);
+          ctx.fillRect(x + h.w / 2 - 1.5, baseY + 20, 3, 2.5);
+        } else {
+          // Pre-ignition ignition pilot spark
+          const blink = Math.floor(time / 4) % 2 === 0;
+          ctx.fillStyle = blink ? '#facc15' : '#ea580c';
+          ctx.beginPath();
+          ctx.arc(x + h.w / 2, baseY - 4, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
   }

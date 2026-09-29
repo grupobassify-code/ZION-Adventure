@@ -33,6 +33,7 @@ export type MusicTrackName =
   | 'jurassicAct2'
   | 'jurassicBoss'
   | 'moonLaunchAct1'
+  | 'moonDoomsdayBoss'
   | 'creditsTune';
 
 export interface SoundTrackInfo {
@@ -74,6 +75,7 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'jurassicAct2', title: 'Cañón de Pterodáctilos y Lava Ancestral', zone: 'Jurassic Draft · Acto 2', tag: 'Volcanic Thermals · Driving Bass' },
   { id: 'jurassicBoss', title: 'Titan Rex: Rugido del Depredador Alfa', zone: 'Jurassic Draft · Jefe', tag: 'Duelo de Titanes · Heavy Dinosaur Metal' },
   { id: 'moonLaunchAct1', title: 'Base de Lanzamiento: Cuenta Regresiva al Infinito', zone: 'The Moon · Acto 1', tag: 'Space Synthwave · Heroic Cosmic Odyssey' },
+  { id: 'moonDoomsdayBoss', title: 'Juicio Final Cósmico: Doomsday Colossus', zone: 'The Moon · Jefe Final', tag: 'Sonic 3 Doomsday Tribute · Epic 154 BPM Space Rock' },
   { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
 ];
 
@@ -1601,6 +1603,47 @@ class SoundEngine {
         4, 1, 5, 1, 4, 1, 5, 4,  4, 1, 5, 1, 4, 4, 5, 5,
         4, 1, 5, 1, 4, 1, 5, 1,  4, 1, 5, 1, 4, 4, 5, 4,
         4, 1, 5, 1, 4, 4, 5, 4,  4, 4, 5, 5, 2, 2, 5, 5
+      ],
+    },
+
+    // THE MOON · ACTO 3: JUICIO FINAL CÓSMICO (DOOMSDAY ZONE BOSS)
+    // 154 BPM Ultra High-Energy Space Battle Rock & Synth Symphony (Sonic 3 Doomsday Tribute)
+    moonDoomsdayBoss: {
+      tempo: 154,
+      leadWave: 'sawtooth',
+      harmonyWave: 'square',
+      bassWave: 'sawtooth',
+      arpWave: 'square',
+      leadNotes: [
+        // Measure 1: Fierce Doomsday Heroic Fanfare Call (D Minor Power)
+        N.D5, N.D5, N.F5, N.A5,  N.G5, N.F5, N.E5, N.F5,   N.D5, N.D5, N.F5, N.A5,  N.Bb5, N.A5, N.G5, N.A5,
+        // Measure 2: High Speed Supersonic Flight Thrust
+        N.F5, N.G5, N.A5, N.D6,  N.C6, N.Bb5, N.A5, N.G5,  N.A5, N.F5, N.E5, N.D5,  N.Cs5, N.E5, N.A5, N.REST,
+        // Measure 3: Dramatic Doomsday Climax Ascent
+        N.D5, N.F5, N.A5, N.D6,  N.C6, N.D6, N.C6, N.A5,   N.Bb5, N.D6, N.F6, N.E6, N.D6, N.C6, N.Bb5, N.A5,
+        // Measure 4: Hyper-Drive Victory Rocket Rush
+        N.G5, N.Bb5, N.D6, N.G6, N.F6, N.E6, N.D6, N.C6,   N.D6, N.REST, N.A5, N.REST, N.D5, N.D5, N.F5, N.A5
+      ],
+      harmonyNotes: [
+        // Lightning-fast 16th arpeggios spinning in stereo
+        N.D4, N.F4, N.A4, N.D5,  N.C4, N.E4, N.G4, N.C5,   N.Bb3, N.D4, N.F4, N.Bb4, N.A3, N.Cs4, N.E4, N.A4,
+        N.D4, N.F4, N.A4, N.D5,  N.F4, N.A4, N.C5, N.F5,   N.G4, N.Bb4, N.D5, N.G5,  N.A4, N.Cs5, N.E5, N.A5,
+        N.D4, N.F4, N.A4, N.D5,  N.C4, N.E4, N.G4, N.C5,   N.Bb3, N.D4, N.F4, N.Bb4, N.F4, N.A4, N.C5, N.F5,
+        N.G3, N.Bb3, N.D4, N.G4, N.A3, N.Cs4, N.E4, N.A4,  N.D4, N.F4, N.A4, N.D5,  N.D4, N.REST, N.A4, N.REST
+      ],
+      bassNotes: [
+        // Relentless galloping 16th synth-rock bassline
+        N.D2, N.D2, N.D1, N.D2,  N.C2, N.C2, N.G1, N.C2,   N.Bb1, N.Bb1, N.F1, N.Bb1, N.A1, N.A1, N.E1, N.A1,
+        N.D2, N.D2, N.D1, N.D2,  N.F2, N.F2, N.C2, N.F2,   N.G2, N.G2, N.D2, N.G2,   N.A2, N.A2, N.E2, N.A2,
+        N.D2, N.D2, N.D1, N.D2,  N.C2, N.C2, N.G1, N.C2,   N.Bb1, N.Bb1, N.F1, N.Bb1, N.F2, N.F2, N.C2, N.F2,
+        N.G1, N.G1, N.D1, N.G1,  N.A1, N.A1, N.E1, N.A1,   N.D2, N.F2, N.A2, N.D3,   N.D2, N.REST, N.D1, N.REST
+      ],
+      drumPattern: [
+        // Heavy Rock & Breakbeat: relentless driving double kick, cracking snare, crash fills
+        6, 1, 5, 1,  6, 2, 5, 1,  6, 1, 5, 1,  6, 6, 5, 1,
+        6, 1, 5, 1,  6, 2, 5, 4,  6, 1, 5, 1,  6, 6, 5, 5,
+        6, 1, 5, 1,  6, 2, 5, 1,  6, 1, 5, 1,  6, 6, 5, 4,
+        6, 1, 5, 4,  6, 6, 5, 4,  6, 6, 5, 5,  2, 2, 5, 5
       ],
     },
   };

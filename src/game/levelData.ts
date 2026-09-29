@@ -807,23 +807,56 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'themoon-2',
     zone: 'themoon',
     act: 2,
-    title: 'Zona 12 · Acto 2 — Base Lunar Apolo Kronos (Próximamente)',
-    subtitle: 'Módulos de Oxígeno, Láseres y Cúpulas Biosféricas',
-    lore: [{ title: '🚀 BASE KRONOS-LUNA', lines: ['Próximamente: Complejo de investigación espacial en el lado oculto de la Luna.'], author: 'Misión Apolo Ω' }],
-    worldWidth: 3200,
-    themeColor: '#334155',
-    accentColor: '#06b6d4'
+    title: 'Zona 12 · Acto 2 — Base Lunar Apolo-Kronos',
+    subtitle: 'Cráteres de Regolito, Módulos Biosféricos y Gravedad Lunar',
+    lore: [
+      {
+        title: '🌑 ALUNIZAJE EN EL MAR DE LA SERENIDAD',
+        lines: [
+          '• GRAVEDAD LUNAR REDUCIDA (1/6 g): Tus saltos son increíblemente altos y prolongados.',
+          '• MODULOS DE HABITAT: Complejos presurizados conectados por túneles tubulares herméticos.',
+          '• CUPULAS BIODOMO: Invernaderos hidropónicos geodésicos protegidos por campos de plasma.'
+        ],
+        author: 'Misión Lunar Apolo-Kronos Ω'
+      },
+      {
+        title: 'DEFENSA AUTOMATIZADA DEL CRÁTER',
+        lines: [
+          '• ASTRONAUTAS CORROMPIDOS & DROIDES: Patrullas con carabinas láser de alta dispersión.',
+          '• MECHAS DE PROPULSIÓN: Máquinas pesadas que saltan y liberan ondas de choque sísmicas.',
+          '• PARÁSITOS CÓSMICOS: Arácnidos cristalinos que absorben energía de los paneles solares.'
+        ],
+        author: 'Bitácora de Supervivencia Lunar'
+      }
+    ],
+    worldWidth: 8800,
+    themeColor: '#0ea5e9',
+    accentColor: '#38bdf8'
   },
   {
     id: 'themoon-3',
     zone: 'themoon',
     act: 3,
-    title: 'Zona 12 · Acto 3 — El Núcleo de Helio-3 (Próximamente)',
-    subtitle: 'Cráter Profundo · Jefe Mecha Lunar Titán',
-    lore: [{ title: '🛰️ COLOSO DE TITANIO', lines: ['Próximamente: El robot de defensa orbital lunar en gravedad cero.'], author: 'Misión Apolo Ω' }],
-    worldWidth: 2600,
-    themeColor: '#1e293b',
-    accentColor: '#a855f7'
+    title: 'Zona 12 · Acto 3 — Doomsday Orbital: Duelo Final Cósmico',
+    subtitle: 'Espacio Profundo · Persecución Legendaria contra el Titán Dreadnought',
+    lore: [
+      {
+        title: '🌌 TRAJE BIÓNICO ORBITAL: MODO DOOMSDAY',
+        lines: [
+          '¡Alerta máxima! El colosal acorazado espacial Kronos-Doomsday Dreadnought se da a la fuga a toda máquina en el cosmos profundo.',
+          'Zion activa su legendario Traje Biónico de Vuelo Libre: propulsores iónicos dorados, alas fotónicas y armadura ciberespacial.',
+          '¡En el espacio profundo no hay suelo! Vuela libremente en 8 direcciones con tu mando o controles.',
+          '• IMPULSO BIÓNICO (Salto / Dash): Vuela a velocidad supersónica e invulnerable. ¡Embiste asteroides y el reactor del jefe para destrozarlo!',
+          '• DAGAS FOTÓNICAS (Dagas): Dispara micro-misiles cósmicos teledirigidos que persiguen las torretas del acorazado.',
+          '• CORTE BIÓNICO (Ataque): Despliega ondas de energía de plasma puro que cortan el blindaje orbital.',
+          '¡Esquiva la lluvia de asteroides, misiles guiados y rayos láser para salvar el universo!'
+        ],
+        author: 'Comando Espacial Apolo-Kronos'
+      }
+    ],
+    worldWidth: 4200,
+    themeColor: '#38bdf8',
+    accentColor: '#facc15'
   }
 ];
 
@@ -939,6 +972,8 @@ function getEnemyStats(type: Enemy['type']): { hp: number; xp: number; score: nu
       return { hp: 7, xp: 95, score: 440 };
     case 'thruster_mech':
       return { hp: 10, xp: 135, score: 550 };
+    case 'cosmic_parasite':
+      return { hp: 5, xp: 85, score: 380 };
     default:
       return { hp: 2, xp: 25, score: 100 };
   }
@@ -1015,6 +1050,21 @@ function createEnemy(
   } else if (type === 'ankylosaur') {
     enemyW = 28;
     enemyH = 20;
+  } else if (type === 'astro_guard') {
+    enemyW = 18;
+    enemyH = 24;
+  } else if (type === 'rocket_drone') {
+    enemyW = 18;
+    enemyH = 16;
+  } else if (type === 'lunar_crawler') {
+    enemyW = 22;
+    enemyH = 16;
+  } else if (type === 'thruster_mech') {
+    enemyW = 24;
+    enemyH = 26;
+  } else if (type === 'cosmic_parasite') {
+    enemyW = 18;
+    enemyH = 14;
   }
   return {
     id: _enemyGlobalId++,
@@ -7289,6 +7339,376 @@ export function buildLevel(levelIndex: number) {
     // 9. GOAL: ESCLUSA DE EMBARQUE DEL COHETE LUNAR
     // -------------------------------------------------------------------------
     goal = { x: 8660, y: 86, w: 36, h: 62 };
+  } else if (config.id === 'themoon-2') {
+    // =========================================================================
+    // ZONA 12: THE MOON · ACTO 2 — BASE LUNAR APOLO-KRONOS (8800px)
+    // Complejo Lunar en el Mar de la Serenidad: Cráteres de Regolito,
+    // Módulos Biosféricos, Refinería de Helio-3 y Gravedad Lunar 1/6g
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // 1. ESTRUCTURA DE PLATAFORMAS (Regolito, Módulos de Hábitat, Cúpulas y Solar)
+    // -------------------------------------------------------------------------
+    // Sector 1: Cráteres de Regolito y Sitio de Alunizaje (0 - 2200px)
+    platforms.push(
+      { x: 0, y: 148, w: 450, h: 32, kind: 'lunar_regolith' },
+      { x: 260, y: 114, w: 85, h: 12, kind: 'lunar_base_habitat' },
+      { x: 390, y: 84, w: 90, h: 12, kind: 'lunar_regolith' },
+      { x: 520, y: 148, w: 380, h: 32, kind: 'lunar_regolith' },
+      { x: 650, y: 112, w: 95, h: 12, kind: 'solar_deck' },
+      { x: 790, y: 80, w: 90, h: 12, kind: 'lunar_base_habitat' },
+      { x: 940, y: 148, w: 440, h: 32, kind: 'lunar_regolith' },
+      { x: 1070, y: 110, w: 105, h: 12, kind: 'biodome_catwalk' },
+      { x: 1220, y: 80, w: 95, h: 12, kind: 'lunar_base_habitat' },
+      { x: 1360, y: 112, w: 85, h: 12, kind: 'solar_deck' },
+      { x: 1470, y: 148, w: 390, h: 32, kind: 'lunar_regolith' },
+      { x: 1600, y: 110, w: 100, h: 12, kind: 'biodome_catwalk' },
+      { x: 1740, y: 78, w: 110, h: 12, kind: 'lunar_base_habitat' },
+      { x: 1890, y: 148, w: 420, h: 32, kind: 'lunar_regolith' },
+      { x: 2020, y: 112, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 2150, y: 82, w: 95, h: 12, kind: 'lunar_base_habitat' }
+    );
+
+    // Sector 2: Complejo de Cúpulas Biosféricas e Invernaderos Geodésicos (2200 - 4400px)
+    platforms.push(
+      // Plataforma del Checkpoint 1
+      { x: 2220, y: 148, w: 390, h: 32, kind: 'lunar_base_habitat' },
+      { x: 2360, y: 116, w: 90, h: 12, kind: 'biodome_catwalk' },
+      { x: 2490, y: 86, w: 100, h: 12, kind: 'lunar_base_habitat' },
+      { x: 2630, y: 60, w: 85, h: 12, kind: 'biodome_catwalk' },
+      { x: 2750, y: 148, w: 360, h: 32, kind: 'lunar_regolith' },
+      { x: 2880, y: 114, w: 95, h: 12, kind: 'solar_deck' },
+      { x: 3020, y: 82, w: 105, h: 12, kind: 'biodome_catwalk' },
+      // Torre botánica elevada (Secreto 1)
+      { x: 3140, y: 52, w: 95, h: 12, kind: 'lunar_base_habitat' },
+      { x: 3280, y: 84, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 3410, y: 148, w: 420, h: 32, kind: 'lunar_regolith' },
+      { x: 3540, y: 114, w: 95, h: 12, kind: 'biodome_catwalk' },
+      { x: 3680, y: 84, w: 110, h: 12, kind: 'lunar_base_habitat' },
+      { x: 3830, y: 148, w: 350, h: 32, kind: 'lunar_regolith' },
+      { x: 3960, y: 112, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 4100, y: 80, w: 110, h: 12, kind: 'biodome_catwalk' },
+      { x: 4250, y: 108, w: 85, h: 12, kind: 'lunar_base_habitat' },
+      { x: 4370, y: 148, w: 380, h: 32, kind: 'lunar_regolith' }
+    );
+
+    // Sector 3: Tuberías Criogénicas y Refinería de Helio-3 (4400 - 6600px)
+    platforms.push(
+      // Plataforma del Checkpoint 2
+      { x: 4420, y: 148, w: 390, h: 32, kind: 'lunar_base_habitat' },
+      { x: 4570, y: 112, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 4700, y: 82, w: 100, h: 12, kind: 'lunar_base_habitat' },
+      { x: 4840, y: 148, w: 330, h: 32, kind: 'lunar_regolith' },
+      // Plataforma de transporte de gas móvil
+      { x: 5000, y: 106, w: 80, h: 12, kind: 'lunar_base_habitat', speed: 0.9, dir: 1 },
+      { x: 5140, y: 76, w: 105, h: 12, kind: 'solar_deck' },
+      // Altillo secreto 2 sobre el tanque de extracción
+      { x: 5300, y: 50, w: 95, h: 12, kind: 'lunar_base_habitat' },
+      { x: 5440, y: 82, w: 90, h: 12, kind: 'biodome_catwalk' },
+      { x: 5560, y: 148, w: 420, h: 32, kind: 'lunar_regolith' },
+      { x: 5690, y: 114, w: 95, h: 12, kind: 'solar_deck' },
+      { x: 5820, y: 84, w: 110, h: 12, kind: 'lunar_base_habitat' },
+      { x: 5970, y: 148, w: 360, h: 32, kind: 'lunar_regolith' },
+      { x: 6100, y: 110, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 6230, y: 80, w: 100, h: 12, kind: 'biodome_catwalk' },
+      { x: 6360, y: 108, w: 85, h: 12, kind: 'lunar_base_habitat' },
+      { x: 6480, y: 148, w: 380, h: 32, kind: 'lunar_regolith' }
+    );
+
+    // Sector 4: Complejo Central Kronos-Luna y Amanecer Terrestre (6600 - 8800px)
+    platforms.push(
+      // Plataforma del Checkpoint 3
+      { x: 6600, y: 148, w: 420, h: 32, kind: 'lunar_base_habitat' },
+      { x: 6740, y: 116, w: 95, h: 12, kind: 'biodome_catwalk' },
+      { x: 6880, y: 84, w: 105, h: 12, kind: 'lunar_base_habitat' },
+      { x: 7030, y: 148, w: 390, h: 32, kind: 'lunar_regolith' },
+      { x: 7160, y: 112, w: 90, h: 12, kind: 'solar_deck' },
+      { x: 7290, y: 80, w: 110, h: 12, kind: 'biodome_catwalk' },
+      { x: 7440, y: 58, w: 90, h: 12, kind: 'lunar_base_habitat' },
+      { x: 7570, y: 148, w: 440, h: 32, kind: 'lunar_regolith' },
+      { x: 7720, y: 114, w: 100, h: 12, kind: 'solar_deck' },
+      { x: 7860, y: 84, w: 110, h: 12, kind: 'biodome_catwalk' },
+      { x: 8010, y: 60, w: 95, h: 12, kind: 'lunar_base_habitat' },
+      // Altillo secreto 3 sobre la cúpula de observación Earthrise
+      { x: 8160, y: 42, w: 105, h: 12, kind: 'lunar_base_habitat' },
+      { x: 8300, y: 74, w: 100, h: 12, kind: 'solar_deck' },
+      { x: 8440, y: 102, w: 120, h: 12, kind: 'biodome_catwalk' },
+      // Plataforma de la esclusa final (Goal a la entrada del Núcleo)
+      { x: 8590, y: 148, w: 240, h: 32, kind: 'lunar_base_habitat' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 2. TRAMPOLINES (Muelles Neumáticos y Propulsores Iónicos de Salto)
+    // -------------------------------------------------------------------------
+    trampolines.push(
+      { x: 460, y: 140, w: 24, h: 8, bounceForce: -6.5, springAnim: 0, type: 'super' },
+      { x: 1410, y: 140, w: 24, h: 8, bounceForce: -6.5, springAnim: 0, type: 'super' },
+      { x: 2700, y: 140, w: 24, h: 8, bounceForce: -6.8, springAnim: 0, type: 'super' },
+      { x: 3760, y: 140, w: 24, h: 8, bounceForce: -6.8, springAnim: 0, type: 'super' },
+      { x: 4800, y: 140, w: 24, h: 8, bounceForce: -7.0, springAnim: 0, type: 'super' },
+      { x: 5930, y: 140, w: 24, h: 8, bounceForce: -7.0, springAnim: 0, type: 'super' },
+      { x: 7400, y: 140, w: 24, h: 8, bounceForce: -7.2, springAnim: 0, type: 'super' },
+      { x: 8390, y: 140, w: 24, h: 8, bounceForce: -7.2, springAnim: 0, type: 'super' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 3. HAZARDS & PELIGROS LUNARES (Láseres, Géiseres Cósmicos, Válvulas Criogénicas)
+    // -------------------------------------------------------------------------
+    hazards.push(
+      // Válvulas Criogénicas & Géiseres de Regolito
+      { x: 330, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 720, y: 138, w: 16, h: 10, type: 'cryo_steam_vent' },
+      { x: 1160, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 1680, y: 138, w: 16, h: 10, type: 'cryo_steam_vent' },
+
+      // Barreras Láser de Seguridad en Pasarelas
+      { x: 860, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 1310, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 1840, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+
+      // Sector 2: Géiseres e Invernadero
+      { x: 2560, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 2940, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 3330, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 3790, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 4210, y: 138, w: 16, h: 10, type: 'cryo_steam_vent' },
+
+      // Sector 3: Refinería de Helio-3 (Barreras de alta seguridad)
+      { x: 4720, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 5080, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 5480, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 5880, y: 138, w: 16, h: 10, type: 'cryo_steam_vent' },
+      { x: 6300, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+
+      // Sector 4: Aproximación al Complejo Central
+      { x: 6950, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 7330, y: 138, w: 16, h: 10, type: 'cosmic_geyser' },
+      { x: 7790, y: 138, w: 20, h: 10, type: 'laser_barrier' },
+      { x: 8220, y: 138, w: 16, h: 10, type: 'cryo_steam_vent' },
+      { x: 8520, y: 138, w: 20, h: 10, type: 'laser_barrier' }
+    );
+
+    // -------------------------------------------------------------------------
+    // 4. ENEMIGOS LUNARES (Astronautas Corrompidos, Drones, Mechas, Parásitos, Rovers)
+    // -------------------------------------------------------------------------
+    enemies.push(
+      // Sector 1: Cráteres y Alunizaje (0 - 2200px)
+      createEnemy(300, 102, 'astro_guard', 240, 380),
+      createEnemy(480, 56, 'rocket_drone', 420, 600),
+      createEnemy(680, 132, 'lunar_crawler', 620, 780),
+      createEnemy(960, 132, 'lunar_crawler', 900, 1060),
+      createEnemy(1120, 98, 'astro_guard', 1060, 1200),
+      createEnemy(1280, 50, 'rocket_drone', 1200, 1380),
+      createEnemy(1520, 132, 'lunar_crawler', 1460, 1620),
+      createEnemy(1780, 66, 'astro_guard', 1700, 1860),
+      createEnemy(1950, 126, 'thruster_mech', 1900, 2060),
+
+      // Sector 2: Cúpulas Biosféricas (2200 - 4400px)
+      createEnemy(2300, 126, 'thruster_mech', 2240, 2400),
+      createEnemy(2440, 74, 'cosmic_parasite', 2380, 2520),
+      createEnemy(2680, 48, 'rocket_drone', 2600, 2780),
+      createEnemy(2820, 132, 'lunar_crawler', 2760, 2920),
+      createEnemy(3060, 70, 'astro_guard', 2980, 3140),
+      createEnemy(3220, 72, 'cosmic_parasite', 3160, 3320),
+      createEnemy(3480, 132, 'lunar_crawler', 3420, 3580),
+      createEnemy(3620, 72, 'astro_guard', 3540, 3700),
+      createEnemy(3780, 52, 'rocket_drone', 3700, 3880),
+      createEnemy(4020, 68, 'cosmic_parasite', 3960, 4120),
+      createEnemy(4280, 96, 'astro_guard', 4200, 4360),
+
+      // Sector 3: Refinería de Helio-3 (4400 - 6600px)
+      createEnemy(4500, 126, 'thruster_mech', 4440, 4600),
+      createEnemy(4640, 70, 'cosmic_parasite', 4580, 4740),
+      createEnemy(4880, 132, 'lunar_crawler', 4820, 4980),
+      createEnemy(5100, 64, 'rocket_drone', 5020, 5200),
+      createEnemy(5240, 38, 'cosmic_parasite', 5180, 5320),
+      createEnemy(5480, 70, 'astro_guard', 5400, 5560),
+      createEnemy(5720, 132, 'lunar_crawler', 5660, 5820),
+      createEnemy(5860, 72, 'thruster_mech', 5800, 5960),
+      createEnemy(6040, 52, 'rocket_drone', 5960, 6140),
+      createEnemy(6260, 68, 'astro_guard', 6180, 6340),
+      createEnemy(6420, 96, 'cosmic_parasite', 6360, 6500),
+
+      // Sector 4: Complejo Central Kronos-Luna (6600 - 8800px)
+      createEnemy(6700, 104, 'astro_guard', 6620, 6780),
+      createEnemy(6920, 126, 'thruster_mech', 6860, 7020),
+      createEnemy(7120, 100, 'cosmic_parasite', 7060, 7200),
+      createEnemy(7240, 54, 'rocket_drone', 7160, 7340),
+      createEnemy(7480, 46, 'astro_guard', 7400, 7560),
+      createEnemy(7660, 132, 'lunar_crawler', 7600, 7760),
+      createEnemy(7820, 72, 'thruster_mech', 7760, 7920),
+      createEnemy(8040, 48, 'rocket_drone', 7960, 8140),
+      createEnemy(8180, 30, 'cosmic_parasite', 8120, 8260),
+      createEnemy(8340, 62, 'astro_guard', 8260, 8420),
+      createEnemy(8480, 90, 'thruster_mech', 8420, 8560)
+    );
+
+    // -------------------------------------------------------------------------
+    // 5. LANDMARKS LUNARES (Módulos Apolo, Cúpulas Biosféricas, Granja Solar, Helio-3)
+    // -------------------------------------------------------------------------
+    landmarks.push(
+      // Sector 1: Módulo Histórico Apolo y Antena de Retransmisión
+      { type: 'lunar_lander_apollo', x: 600, y: 148 },
+      { type: 'lunar_comm_relay', x: 1300, y: 148 },
+      { type: 'lunar_solar_farm', x: 1800, y: 148 },
+
+      // Sector 2: Monumental Cúpula Biosférica Geodésica
+      { type: 'lunar_biodome', x: 3100, y: 148 },
+      { type: 'lunar_comm_relay', x: 4100, y: 148 },
+
+      // Sector 3: Refinería de Extracción de Helio-3 y Granja Solar
+      { type: 'helium3_refinery', x: 5200, y: 148 },
+      { type: 'lunar_solar_farm', x: 6100, y: 148 },
+
+      // Sector 4: Segunda Cúpula de la Capital Lunar y Torre Láser Espacio Profundo
+      { type: 'lunar_biodome', x: 7400, y: 148 },
+      { type: 'lunar_comm_relay', x: 8100, y: 148 }
+    );
+
+    // -------------------------------------------------------------------------
+    // 6. CHECKPOINTS (Esclusas Presurizadas con Balizas de Oxígeno)
+    // -------------------------------------------------------------------------
+    checkpoints.push(
+      { x: 2260, y: 116, w: 20, h: 32, active: false, spawn: { x: 2280, y: 125 } },
+      { x: 4460, y: 116, w: 20, h: 32, active: false, spawn: { x: 4480, y: 125 } },
+      { x: 6640, y: 116, w: 20, h: 32, active: false, spawn: { x: 6660, y: 125 } }
+    );
+
+    // -------------------------------------------------------------------------
+    // 7. CRISTALES DE HELIO-3 Y BOTIQUINES
+    // -------------------------------------------------------------------------
+    for (let cx = 140; cx < 8550; cx += 140) {
+      crystals.push({ x: cx, y: 84, w: 8, h: 8, taken: false });
+    }
+
+    heals.push(
+      { x: 490, y: 58, w: 10, h: 10, taken: false },
+      { x: 1690, y: 54, w: 10, h: 10, taken: false },
+      { x: 2800, y: 60, w: 10, h: 10, taken: false },
+      { x: 3900, y: 56, w: 10, h: 10, taken: false },
+      { x: 5220, y: 44, w: 10, h: 10, taken: false },
+      { x: 6320, y: 58, w: 10, h: 10, taken: false },
+      { x: 7480, y: 40, w: 10, h: 10, taken: false }
+    );
+
+    // -------------------------------------------------------------------------
+    // 8. SECRETOS OCULTOS DE LA BASE LUNAR
+    // -------------------------------------------------------------------------
+    secrets.push(
+      {
+        x: 3140,
+        y: 36,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🌱 Muestra Biológica Terrestre en Vacío'
+      },
+      {
+        x: 5320,
+        y: 34,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '⚛️ Celda de Fusión Cuántica de Helio-3'
+      },
+      {
+        x: 8180,
+        y: 28,
+        w: 14,
+        h: 14,
+        taken: false,
+        name: '🌍 Holograma Ancestral del Amanecer Terrestre'
+      }
+    );
+
+    // -------------------------------------------------------------------------
+    // 9. GOAL: ENTRADA BLINDADA AL NÚCLEO LUNAR DE HELIO-3 (PORTAL AL JEFE ACTO 3)
+    // -------------------------------------------------------------------------
+    goal = { x: 8690, y: 86, w: 36, h: 62 };
+  } else if (config.id === 'themoon-3') {
+    // =========================================================================
+    // ZONA 12 · ACTO 3: DOOMSDAY ZONE ORBITAL (JEFE FINAL LEGENDARIO)
+    // =========================================================================
+    // ¡Inspirado directamente en Sonic 3 & Knuckles - The Doomsday Zone!
+    // • CERO PISO: Vuelo 100% libre en gravedad cero por el espacio profundo.
+    // • Zion porta el legendario Traje Biónico de Vuelo con propulsores iónicos.
+    // • Persecución cósmica a toda velocidad contra el colosal Dreadnought Apolo-Ω.
+    // • Fase 1: Destrucción de torretas láser, silos de misiles y blindaje exterior.
+    // • Fase 2: Huida a híper-velocidad del Núcleo Mecha entre cinturones de asteroides.
+    // =========================================================================
+
+    // Sin suelo: el espacio cósmico infinito es el escenario
+    platforms.length = 0;
+
+    // Checkpoint de inicio en el espacio
+    checkpoints.push({
+      x: 80,
+      y: 90,
+      w: 24,
+      h: 24,
+      active: true,
+      spawn: { x: 80, y: 90 },
+      arena: true
+    });
+
+    // Cristales de Helio-3 flotando en senderos espaciales
+    for (let cx = 120; cx < 3800; cx += 160) {
+      const cy = 40 + Math.sin(cx * 0.02) * 55;
+      crystals.push({ x: cx, y: cy, w: 8, h: 8, taken: false });
+    }
+
+    // Botiquines de energía iónica en el espacio
+    heals.push(
+      { x: 380, y: 60, w: 10, h: 10, taken: false },
+      { x: 1100, y: 130, w: 10, h: 10, taken: false },
+      { x: 1950, y: 50, w: 10, h: 10, taken: false },
+      { x: 2800, y: 140, w: 10, h: 10, taken: false }
+    );
+
+    // Secreto Cósmico Oculto
+    secrets.push({
+      x: 1850,
+      y: 35,
+      w: 16,
+      h: 16,
+      taken: false,
+      name: '⭐ Emblema Legendario del Juicio Final Cósmico (Doomsday)'
+    });
+
+    // Colosal Jefe Espacial Doomsday Dreadnought
+    boss = {
+      x: 520,
+      y: 55,
+      w: 125,
+      h: 85,
+      vx: 0,
+      vy: 0,
+      hp: 80,
+      maxHp: 80,
+      alive: true,
+      inv: 0,
+      flash: 0,
+      phase: 1,
+      jumpTimer: 0,
+      shotTimer: 50,
+      attackTimer: 0,
+      name: 'Titán Mecha Orbital Kronos-Doomsday',
+      title: 'Dreadnought Apolo-Ω Doomsday',
+      subtitle: 'Coloso Espacial · Batalla en Gravedad Cero',
+      state: 'idle',
+      stateTimer: 60,
+      telegraphTimer: 0,
+      stagger: 0,
+      maxStagger: 100,
+      isStaggered: false,
+      facing: -1,
+      shockwaves: [],
+      startX: 520,
+      startY: 55,
+    };
+
+    // Portal de Victoria final (se desbloquea al derrotar al jefe)
+    goal = { x: 3950, y: 70, w: 46, h: 68 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(
