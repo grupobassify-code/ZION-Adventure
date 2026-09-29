@@ -55,7 +55,10 @@ export default function App() {
     block: false,
     dash: false,
     special: false,
+    up: false,
+    down: false,
     analogX: 0,
+    analogY: 0,
   });
 
   const [, setRenderTick] = useState(0);
@@ -504,9 +507,15 @@ export default function App() {
         inputsRef.current.right = true;
       }
 
-      // Jump
+      // Jump / Up
       if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') {
         inputsRef.current.jump = true;
+        inputsRef.current.up = true;
+      }
+
+      // Down / Crouch
+      if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        inputsRef.current.down = true;
       }
 
       // Melee Sword Attack Combo
@@ -573,6 +582,10 @@ export default function App() {
       }
       if (e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Space') {
         inputsRef.current.jump = false;
+        inputsRef.current.up = false;
+      }
+      if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        inputsRef.current.down = false;
       }
       if (e.code === 'KeyJ' || e.code === 'KeyZ') {
         inputsRef.current.attack = false;
@@ -874,6 +887,9 @@ export default function App() {
           }}
           onUpdateAnalogX={(val) => {
             inputsRef.current.analogX = val;
+          }}
+          onUpdateAnalogY={(val) => {
+            inputsRef.current.analogY = val;
           }}
         />
       )}

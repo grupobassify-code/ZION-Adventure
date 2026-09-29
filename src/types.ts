@@ -467,6 +467,7 @@ export interface Boss {
   thrusterFlame?: number;
   overheatTimer?: number;
   shieldCores?: number;
+  immuneToStun?: boolean;
 }
 
 export interface Projectile {

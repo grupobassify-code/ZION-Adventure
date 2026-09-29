@@ -1491,7 +1491,8 @@ export class GameEngine {
         sound.playSfx('crit');
         this.screenShake = 12;
         this.applyDamageToBoss(4, true);
-        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '💥 ¡EMBESTIDA SUPERSONICA! -4 HP', '#facc15');
+        this.daggers = Math.min(DAGGER_MAX_AMMO, this.daggers + 1);
+        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '💥 ¡EMBESTIDA SUPERSONICA! -4 HP (+1 DAGA)', '#facc15');
         this.createBurst(p.x + p.w, p.y + p.h / 2, 35, '#fde047');
         this.createBurst(p.x + p.w, p.y + p.h / 2, 20, '#38bdf8');
         p.vx = -3.2; // recoil
@@ -1505,6 +1506,23 @@ export class GameEngine {
         p.vx *= 0.5;
       }
     } else {
+      // Direct collision with Boss Dreadnought Warship when not boosting: Boss deals damage to player!
+      if (
+        this.boss &&
+        this.boss.alive &&
+        !p.flightBoost &&
+        p.inv <= 0 &&
+        this.checkAABB(p, this.boss)
+      ) {
+        sound.playSfx('metalHit');
+        sound.playSfx('hurt');
+        this.screenShake = 10;
+        this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ef4444');
+        p.vx = -4.5;
+        p.vy = p.y < this.boss.y + this.boss.h / 2 ? -2.8 : 2.8;
+        this.handlePlayerDamage('💥 ¡Colisión contra el blindaje del Dreadnought!');
+      }
+
       // Normal free flight propulsion
       const flightAccel = 0.28;
       const maxFlightSpeedX = 4.4;
@@ -2242,7 +2260,17 @@ export class GameEngine {
     }
 
     if (this.boss && this.boss.alive && Math.abs(this.boss.x - p.x) < 260) {
-      if (this.boss.name.includes('Kronos')) {
+      const isDoomsdayBoss =
+        this.boss.immuneToStun ||
+        this.boss.name.includes('Doomsday') ||
+        this.boss.name.includes('Kronos-Doomsday') ||
+        this.boss.name.includes('Dreadnought') ||
+        LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3';
+
+      if (isDoomsdayBoss) {
+        // Doomsday dreadnought boss is immune to overheat/stun
+        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '🛡️ ¡BLINDAJE TITÁNICO: INMUNE AL ATURDIMIENTO!', '#f43f5e');
+      } else if (this.boss.name.includes('Kronos')) {
         this.boss.state = 'overheat';
         this.boss.stateTimer = 160;
         this.boss.inv = 0;
@@ -2711,6 +2739,13 @@ export class GameEngine {
       }
     }
 
+    // Dagger recovery on melee combo milestones (e.g. 4, 8, 12 hits)
+    if (this.comboCount > 0 && this.comboCount % 4 === 0 && this.daggers < DAGGER_MAX_AMMO) {
+      this.daggers++;
+      sound.playSfx('menuSelect');
+      this.addFloatingText(this.player.x, this.player.y - 18, `🗡 +1 DAGA RECUPERADA [${this.daggers}/${DAGGER_MAX_AMMO}]`, '#c084fc');
+    }
+
     if (this.comboCount % 5 === 0) {
       sound.playSfx('combo');
       this.addFloatingText(this.player.x, this.player.y - 28, `🔥 COMBO x${this.comboCount} [${this.comboRank}]`, '#facc15');
@@ -2865,8 +2900,15 @@ export class GameEngine {
     damage = Math.max(1, damage);
     this.registerHit(damage, isStaggerHit);
 
-    // Build stagger bar if not already staggered (special builds moderate stagger)
-    if (!b.isStaggered) {
+    const isDoomsdayBoss =
+      b.immuneToStun ||
+      b.name.includes('Doomsday') ||
+      b.name.includes('Kronos-Doomsday') ||
+      b.name.includes('Dreadnought') ||
+      LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3';
+
+    // Build stagger bar if not already staggered (Doomsday Dreadnought Boss is immune to stun/stagger)
+    if (!isDoomsdayBoss && !b.isStaggered) {
       const staggerAmount = isSpecial ? Math.min(18, baseDmg * 5) : baseDmg * 12;
       b.stagger += staggerAmount;
       if (b.stagger >= b.maxStagger) {
@@ -2949,22 +2991,18 @@ export class GameEngine {
       });
       sound.playSfx('dagger');
       this.daggerInputHeld = true;
+    } else if (inputs.dagger && !this.daggerInputHeld && this.daggers <= 0 && !this.settings.infiniteDaggers) {
+      sound.playSfx('metalHit');
+      this.addFloatingText(this.player.x, this.player.y - 14, '⚠️ ¡SIN DAGAS! (MUNICIÓN AGOTADA)', '#f43f5e');
+      this.daggerInputHeld = true;
     }
     if (!inputs.dagger) {
       this.daggerInputHeld = false;
     }
 
-    // Dagger Recharge
-    if (this.daggers < DAGGER_MAX_AMMO) {
-      this.daggerRechargeTimer++;
-      if (this.daggerRechargeTimer >= DAGGER_RECHARGE_TIME) {
-        this.daggers++;
-        this.daggerRechargeTimer = 0;
-        this.createBurst(this.player.x + this.player.w / 2, this.player.y + 4, 10, '#c084fc');
-        sound.playSfx('menuSelect');
-        this.addFloatingText(this.player.x, this.player.y - 14, `🗡 +1 DAGA [${this.daggers}/${DAGGER_MAX_AMMO}]`, '#c084fc');
-      }
-    }
+    // Daggers are NO LONGER INFINITE:
+    // No automatic passive infinite recharge! Daggers must be managed strategically.
+    // They refill at checkpoints, by landing 4+ hit melee combos, and by supersonic ramming bosses.
   }
 
   private updateHazards() {
@@ -4772,24 +4810,29 @@ export class GameEngine {
 
     // Process Stagger Recovery
     if (b.isStaggered) {
-      b.stateTimer--;
-      b.vx *= 0.8;
-      if (b.stateTimer <= 0) {
+      if (b.immuneToStun || b.name.includes('Doomsday') || b.name.includes('Kronos-Doomsday') || LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3') {
         b.isStaggered = false;
         b.stagger = 0;
-        b.state = 'idle';
-        b.inv = 25;
-        this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡JEFE RECUPERADO!', '#38bdf8');
+      } else {
+        b.stateTimer--;
+        b.vx *= 0.8;
+        if (b.stateTimer <= 0) {
+          b.isStaggered = false;
+          b.stagger = 0;
+          b.state = 'idle';
+          b.inv = 25;
+          this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡JEFE RECUPERADO!', '#38bdf8');
+        }
+        // Process gravity while staggered
+        b.vy = Math.min(b.vy + GRAVITY, 7);
+        b.y += b.vy;
+        if (b.y + b.h >= 148) {
+          b.y = 148 - b.h;
+          b.vy = 0;
+        }
+        this.updateShockwaves();
+        return;
       }
-      // Process gravity while staggered
-      b.vy = Math.min(b.vy + GRAVITY, 7);
-      b.y += b.vy;
-      if (b.y + b.h >= 148) {
-        b.y = 148 - b.h;
-        b.vy = 0;
-      }
-      this.updateShockwaves();
-      return;
     } else {
       // Natural stagger decay when not being hit
       if (b.stagger > 0 && this.time % 15 === 0) {
@@ -5502,6 +5545,8 @@ export class GameEngine {
       // --- BOSS 12: TITÁN MECHA ORBITAL KRONOS-DOOMSDAY (JEFE FINAL LEGENDARIO - DOOMSDAY ZONE) ---
       // Inspirado directamente en Sonic 3 & Knuckles: The Doomsday Zone
       b.facing = -1; // Encarando a la izquierda hacia Zion que lo persigue
+      b.isStaggered = false;
+      b.stagger = 0;
 
       // Detección de Transición a Fase 2 (cuando los PS bajan al 50% o menos)
       if (b.hp <= 40 && b.phase === 1) {
@@ -7724,9 +7769,19 @@ export class GameEngine {
         // Hostile Projectiles
         for (const proj of this.projectiles) {
         if (!proj.isHero) {
-          if (Math.abs(proj.x - p.x) > 30 || Math.abs(proj.y - p.y) > 30) continue;
+          // Expand distance check for large projectiles such as the Doomsday Nova Laser (width ~235px)
+          const maxSpanX = Math.max(30, proj.w / 2 + p.w / 2 + 10);
+          const maxSpanY = Math.max(30, proj.h / 2 + p.h / 2 + 10);
+          const pCenterX = p.x + p.w / 2;
+          const pCenterY = p.y + p.h / 2;
+          const projCenterX = proj.x + proj.w / 2;
+          const projCenterY = proj.y + proj.h / 2;
+          if (Math.abs(projCenterX - pCenterX) > maxSpanX || Math.abs(projCenterY - pCenterY) > maxSpanY) continue;
+
           if (this.checkAABB(p, proj)) {
-            proj.life = 0;
+            if (proj.kind !== 'doomsday_laser') {
+              proj.life = 0;
+            }
 
             // Check for Perfect Parry or Active Block
             if (p.isBlocking && !p.isShieldBroken) {
@@ -7754,7 +7809,15 @@ export class GameEngine {
                 }
               }
             } else {
-              this.handlePlayerDamage('¡Ataque recibido!');
+              const damageMsg =
+                proj.kind === 'doomsday_laser'
+                  ? '⚡ ¡Rayo Láser Doomsday Colosal!'
+                  : proj.kind === 'space_missile'
+                  ? '🚀 ¡Impacto de Misil Espacial!'
+                  : proj.kind === 'asteroid_debris'
+                  ? '🪨 ¡Impacto de Asteroide Cósmico!'
+                  : '¡Ataque recibido!';
+              this.handlePlayerDamage(damageMsg);
             }
             break;
           }
@@ -7811,22 +7874,28 @@ export class GameEngine {
       }
 
       // Boss Body Collision (Fair Collision Design: Only when boss is actively performing physical body moves like dash tackles or ground-slam drops, NEVER during charging, stationary projectile attacks, overheat, or teleport)
+      const isDoomsdayFight = LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3' || (this.boss && (this.boss.name.includes('Doomsday') || this.boss.name.includes('Dreadnought')));
+
       const isPhysicalBodyAttack =
         this.boss &&
-        (this.boss.state === 'dash' || (this.boss.state === 'slamming' && this.boss.vy > 1.5));
+        (this.boss.state === 'dash' ||
+         (this.boss.state === 'slamming' && this.boss.vy > 1.5) ||
+         (isDoomsdayFight && !p.flightBoost));
 
       const bossCanDamage =
         this.boss &&
         this.boss.alive &&
         !this.boss.isStaggered &&
         this.boss.state !== 'staggered' &&
-        this.boss.state !== 'idle' &&
-        this.boss.state !== 'overheat' &&
-        this.boss.state !== 'charging' &&
-        this.boss.state !== 'teleport' &&
-        this.boss.state !== 'laser' &&
-        this.boss.state !== 'missileBarrage' &&
-        this.boss.state !== 'emp' &&
+        (isDoomsdayFight || (
+          this.boss.state !== 'idle' &&
+          this.boss.state !== 'overheat' &&
+          this.boss.state !== 'charging' &&
+          this.boss.state !== 'teleport' &&
+          this.boss.state !== 'laser' &&
+          this.boss.state !== 'missileBarrage' &&
+          this.boss.state !== 'emp'
+        )) &&
         isPhysicalBodyAttack &&
         this.boss.inv < 15 &&
         (this.boss.introTimer || 0) <= 0;

@@ -8,6 +8,7 @@ interface TouchControlsProps {
   inputs: GameInputState;
   onUpdateInput: (key: keyof GameInputState, value: boolean) => void;
   onUpdateAnalogX?: (val: number) => void;
+  onUpdateAnalogY?: (val: number) => void;
   daggersAvailable: number;
   daggerRechargePercent?: number;
   energy: number;
@@ -21,6 +22,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
   inputs,
   onUpdateInput,
   onUpdateAnalogX,
+  onUpdateAnalogY,
   daggersAvailable,
   daggerRechargePercent = 0,
   energy,
@@ -67,7 +69,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
     setKnobPos({ x: 0, y: 0 });
     onUpdateInput('left', false);
     onUpdateInput('right', false);
+    onUpdateInput('up', false);
+    onUpdateInput('down', false);
     if (onUpdateAnalogX) onUpdateAnalogX(0);
+    if (onUpdateAnalogY) onUpdateAnalogY(0);
   };
 
   const updateJoystickPos = (clientX: number, clientY: number) => {
@@ -89,19 +94,36 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
     setKnobPos({ x: knobX, y: knobY });
 
     const normalizedX = knobX / maxRadius;
+    const normalizedY = knobY / maxRadius;
     if (onUpdateAnalogX) {
       onUpdateAnalogX(normalizedX);
     }
+    if (onUpdateAnalogY) {
+      onUpdateAnalogY(normalizedY);
+    }
 
-    if (normalizedX < -0.3) {
+    // Horizontal left / right digital fallback
+    if (normalizedX < -0.28) {
       onUpdateInput('left', true);
       onUpdateInput('right', false);
-    } else if (normalizedX > 0.3) {
+    } else if (normalizedX > 0.28) {
       onUpdateInput('right', true);
       onUpdateInput('left', false);
     } else {
       onUpdateInput('left', false);
       onUpdateInput('right', false);
+    }
+
+    // Vertical up / down digital fallback (flying, ladders, jumping, crouching)
+    if (normalizedY < -0.28) {
+      onUpdateInput('up', true);
+      onUpdateInput('down', false);
+    } else if (normalizedY > 0.28) {
+      onUpdateInput('down', true);
+      onUpdateInput('up', false);
+    } else {
+      onUpdateInput('up', false);
+      onUpdateInput('down', false);
     }
   };
 
@@ -222,7 +244,26 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                 </div>
               </div>
             ) : (
-              <div className={`flex items-center ${isIPad ? 'gap-3 p-2.5 rounded-2xl' : 'gap-1.5 sm:gap-2.5 p-1.5 rounded-xl'} bg-black/15 border border-white/10 shadow-none touch-control-surface`}>
+              <div className={`grid grid-cols-3 gap-1 ${isIPad ? 'p-2 rounded-2xl' : 'p-1 rounded-xl'} bg-black/15 border border-white/10 shadow-none touch-control-surface`}>
+                <div />
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('up', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('up', false)}
+                  onPointerCancel={() => onUpdateInput('up', false)}
+                  className={`${
+                    isIPad ? 'w-12 h-12 md:w-14 md:h-14 text-2xl' : 'w-9 h-9 sm:w-10 sm:h-10 text-base'
+                  } flex items-center justify-center font-black border rounded-lg transition-transform active:scale-95 ${
+                    inputs.up
+                      ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                      : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
+                  }`}
+                >
+                  ▲
+                </button>
+                <div />
                 <button
                   onPointerDown={(e) => {
                     e.preventDefault();
@@ -231,8 +272,8 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                   onPointerUp={() => onUpdateInput('left', false)}
                   onPointerCancel={() => onUpdateInput('left', false)}
                   className={`${
-                    isIPad ? 'w-18 h-18 md:w-20 md:h-20 text-3xl md:text-4xl rounded-2xl' : 'w-11 h-11 sm:w-13 sm:h-13 text-xl sm:text-2xl rounded-xl'
-                  } flex items-center justify-center font-black border transition-transform active:scale-95 ${
+                    isIPad ? 'w-12 h-12 md:w-14 md:h-14 text-2xl' : 'w-9 h-9 sm:w-10 sm:h-10 text-base'
+                  } flex items-center justify-center font-black border rounded-lg transition-transform active:scale-95 ${
                     inputs.left
                       ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                       : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
@@ -243,13 +284,30 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                 <button
                   onPointerDown={(e) => {
                     e.preventDefault();
+                    onUpdateInput('down', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('down', false)}
+                  onPointerCancel={() => onUpdateInput('down', false)}
+                  className={`${
+                    isIPad ? 'w-12 h-12 md:w-14 md:h-14 text-2xl' : 'w-9 h-9 sm:w-10 sm:h-10 text-base'
+                  } flex items-center justify-center font-black border rounded-lg transition-transform active:scale-95 ${
+                    inputs.down
+                      ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                      : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
+                  }`}
+                >
+                  ▼
+                </button>
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
                     onUpdateInput('right', true);
                   }}
                   onPointerUp={() => onUpdateInput('right', false)}
                   onPointerCancel={() => onUpdateInput('right', false)}
                   className={`${
-                    isIPad ? 'w-18 h-18 md:w-20 md:h-20 text-3xl md:text-4xl rounded-2xl' : 'w-11 h-11 sm:w-13 sm:h-13 text-xl sm:text-2xl rounded-xl'
-                  } flex items-center justify-center font-black border transition-transform active:scale-95 ${
+                    isIPad ? 'w-12 h-12 md:w-14 md:h-14 text-2xl' : 'w-9 h-9 sm:w-10 sm:h-10 text-base'
+                  } flex items-center justify-center font-black border rounded-lg transition-transform active:scale-95 ${
                     inputs.right
                       ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                       : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
@@ -287,10 +345,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
                 <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
                 <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
               </svg>
-              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black`}>
-                {daggersAvailable < 3 ? `${daggersAvailable}/3` : '3/3'}
+              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
+                {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
               </span>
-              {daggersAvailable < 3 && (
+              {daggerRechargePercent > 0 && daggersAvailable < 3 && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
@@ -394,8 +452,27 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             </div>
           </div>
         ) : (
-          /* D-Pad Buttons - Scaled Proportionately on iPad, translucent on both */
-          <div className={`flex items-center ${isIPad ? 'gap-3 md:gap-4 p-2 md:p-2.5 rounded-2xl' : 'gap-2 sm:gap-2.5 p-1 sm:p-1.5 rounded-2xl'} bg-black/15 border border-white/10 shadow-none`}>
+          /* D-Pad Buttons - 4-Way Directional Pad */
+          <div className={`grid grid-cols-3 gap-1.5 ${isIPad ? 'p-2 md:p-3 rounded-3xl' : 'p-1 sm:p-1.5 rounded-2xl'} bg-black/15 border border-white/10 shadow-none`}>
+            <div />
+            <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                onUpdateInput('up', true);
+              }}
+              onPointerUp={() => onUpdateInput('up', false)}
+              onPointerCancel={() => onUpdateInput('up', false)}
+              className={`${
+                isIPad ? 'w-16 h-16 md:w-18 md:h-18 text-2xl md:text-3xl rounded-2xl' : 'w-10 h-10 sm:w-12 sm:h-12 text-lg sm:text-xl rounded-xl'
+              } flex items-center justify-center font-black border transition-transform active:scale-95 ${
+                inputs.up
+                  ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                  : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
+              }`}
+            >
+              ▲
+            </button>
+            <div />
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -404,7 +481,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               onPointerUp={() => onUpdateInput('left', false)}
               onPointerCancel={() => onUpdateInput('left', false)}
               className={`${
-                isIPad ? 'w-18 h-18 md:w-22 md:h-22 text-3xl md:text-4xl rounded-2xl' : 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl rounded-xl'
+                isIPad ? 'w-16 h-16 md:w-18 md:h-18 text-2xl md:text-3xl rounded-2xl' : 'w-10 h-10 sm:w-12 sm:h-12 text-lg sm:text-xl rounded-xl'
               } flex items-center justify-center font-black border transition-transform active:scale-95 ${
                 inputs.left
                   ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
@@ -416,12 +493,29 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
             <button
               onPointerDown={(e) => {
                 e.preventDefault();
+                onUpdateInput('down', true);
+              }}
+              onPointerUp={() => onUpdateInput('down', false)}
+              onPointerCancel={() => onUpdateInput('down', false)}
+              className={`${
+                isIPad ? 'w-16 h-16 md:w-18 md:h-18 text-2xl md:text-3xl rounded-2xl' : 'w-10 h-10 sm:w-12 sm:h-12 text-lg sm:text-xl rounded-xl'
+              } flex items-center justify-center font-black border transition-transform active:scale-95 ${
+                inputs.down
+                  ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                  : 'bg-black/20 text-cyan-300/80 border-cyan-500/25 hover:bg-black/30'
+              }`}
+            >
+              ▼
+            </button>
+            <button
+              onPointerDown={(e) => {
+                e.preventDefault();
                 onUpdateInput('right', true);
               }}
               onPointerUp={() => onUpdateInput('right', false)}
               onPointerCancel={() => onUpdateInput('right', false)}
               className={`${
-                isIPad ? 'w-18 h-18 md:w-22 md:h-22 text-3xl md:text-4xl rounded-2xl' : 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl rounded-xl'
+                isIPad ? 'w-16 h-16 md:w-18 md:h-18 text-2xl md:text-3xl rounded-2xl' : 'w-10 h-10 sm:w-12 sm:h-12 text-lg sm:text-xl rounded-xl'
               } flex items-center justify-center font-black border transition-transform active:scale-95 ${
                 inputs.right
                   ? 'bg-cyan-400/40 text-cyan-100 border-cyan-300/80 shadow-[0_0_12px_rgba(6,182,212,0.6)]'
@@ -528,10 +622,10 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
               <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
               <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
             </svg>
-            <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>
-              {daggersAvailable < 3 ? `${daggersAvailable}/3` : '3/3'}
+            <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
+              {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
             </span>
-            {daggersAvailable < 3 && (
+            {daggerRechargePercent > 0 && daggersAvailable < 3 && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
