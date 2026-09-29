@@ -2375,7 +2375,7 @@ export class GameRenderer {
           ctx.fill();
           ctx.fillStyle = beacon;
         }
-      } else {
+      } else if (act === 2) {
         // Base Lunar: Montes Apenninus / Cordillera Lunar bajo la luz solar del vacío
         ctx.fillStyle = '#060a14'; // Dark lunar shadow base
         ctx.beginPath();
@@ -2410,6 +2410,22 @@ export class GameRenderer {
           // Blinding summit specularity
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(px - 1, peakY - 1, 2, 2.5);
+        }
+      } else {
+        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Espacio Profundo Infinito (Cero montañas en el suelo)
+        // Cosmic stardust clouds and distant space phenomena
+        const p1Offset = (cameraX * 0.04) % 320;
+        for (let x = -p1Offset - 320; x <= GAME_WIDTH + 320; x += 160) {
+          const cy = 60 + Math.sin(x * 0.015) * 35;
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.08)';
+          ctx.beginPath();
+          ctx.ellipse(x + 80, cy, 70, 24, 0.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.06)';
+          ctx.beginPath();
+          ctx.ellipse(x + 110, cy + 12, 50, 18, -0.15, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     } else {
@@ -3349,7 +3365,7 @@ export class GameRenderer {
             ctx.fillStyle = '#0ea5e9'; // Cyan LH2 / LOX hazard band
             ctx.fillRect(sphereX - 13, 120, 26, 3);
             ctx.fillStyle = '#0f172a';
-          } else {
+          } else if (act === 2) {
             // Base Lunar: Módulos de Hábitat Presurizados, Pasarelas Tubulares y Cúpulas Biosféricas
             const modX = x + 24;
             // Pressurized cylindrical habitat module
@@ -3411,6 +3427,20 @@ export class GameRenderer {
             ctx.fillStyle = '#60a5fa';
             ctx.fillRect(pylonX - 10, 89, 22, 1);
             ctx.fillRect(pylonX, 84, 1, 11);
+          } else {
+            // Acto 3: Juicio Final Cósmico / Doomsday Zone - Asteroides y Escombros Espaciales en el Vacío
+            const astX = x + 35;
+            const astY = 40 + Math.sin(x * 0.04 + time * 0.03) * 35;
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(astX, astY, 9, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.arc(astX - 2, astY - 2, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(astX + 1, astY + 1, 2, 2);
           }
         } else {
           // Ancient Sandstone Obelisks & Ruined Temples (Desert)
@@ -3806,7 +3836,7 @@ export class GameRenderer {
             ctx.fill();
           }
         }
-      } else {
+      } else if (act === 2) {
         // Base Lunar: Crestas de cráteres de regolito, módulo de descenso Apolo y huellas en el polvo
         for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 200) {
           const craterX = x + 65;
@@ -3854,6 +3884,15 @@ export class GameRenderer {
           ctx.fillRect(landerX - 22, 132, 8, 5);
           ctx.fillStyle = '#ef4444';
           ctx.fillRect(landerX - 22, 134.5, 8, 1.5);
+        }
+      } else {
+        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Ráfagas de Polvo Cósmico y Micro-Meteoros
+        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 110) {
+          const cy = (x * 0.73 + time * 2.5) % GAME_HEIGHT;
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+          ctx.fillRect(x + 20, cy, 14, 1.2);
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
+          ctx.fillRect(x + 65, (cy + 40) % GAME_HEIGHT, 8, 1);
         }
       }
     }
@@ -3989,7 +4028,7 @@ export class GameRenderer {
             ctx.arc(px, py, 2, 0, Math.PI * 2);
             ctx.fill();
           }
-        } else {
+        } else if (act === 2) {
           // Base Lunar & Superficie: Motes de polvo de regolito levitando en el viento solar y micrometeoritos
           if (i % 4 === 0) {
             // Micrometeorito cósmico veloz
@@ -4000,6 +4039,17 @@ export class GameRenderer {
             const dTwinkle = 0.4 + Math.sin(time * 0.12 + i) * 0.45;
             ctx.fillStyle = `rgba(226, 232, 240, ${dTwinkle})`;
             ctx.fillRect(px, py, i % 2 === 0 ? 1.5 : 1, i % 2 === 0 ? 1.5 : 1);
+          }
+        } else {
+          // Acto 3: Juicio Final Cósmico / Doomsday Zone - Fotones cósmicos dorados, cian y estrellas fugaces
+          if (i % 5 === 0) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(px, py, 3, 1);
+          } else {
+            const photonColors = ['#fde047', '#38bdf8', '#c084fc', '#f43f5e'];
+            const pPulse = 0.5 + Math.sin(time * 0.2 + i) * 0.5;
+            ctx.fillStyle = photonColors[i % photonColors.length];
+            ctx.fillRect(px, py, 1.5, 1.5);
           }
         }
       } else {
@@ -9107,6 +9157,73 @@ export class GameRenderer {
         ctx.beginPath();
         ctx.arc(cx, cy, p.w * 0.2, 0, Math.PI * 2);
         ctx.fill();
+      } else if (p.kind === 'space_missile') {
+        // Space Dreadnought Homing Missile (Sonic 3 Doomsday Style)
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        const mAngle = Math.atan2(p.vy, p.vx);
+        ctx.rotate(mAngle);
+        // Rocket exhaust plume
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(-p.w / 2 - 4, -1.5, 4, 3);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(-p.w / 2 - 2, -1, 2, 2);
+        // Rocket body
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w - 3, p.h);
+        // Fins
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(-p.w / 2, -p.h / 2 - 2, 3, p.h + 4);
+        // Red warhead tip
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(p.w / 2 - 3, -p.h / 2);
+        ctx.lineTo(p.w / 2 + 2, 0);
+        ctx.lineTo(p.w / 2 - 3, p.h / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      } else if (p.kind === 'doomsday_laser') {
+        // Colossal Doomsday Mega Laser Beam
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+        ctx.fillRect(x - 2, p.y - 3, p.w + 4, p.h + 6);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(x, p.y, p.w, p.h);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, p.y + p.h * 0.25, p.w, p.h * 0.5);
+      } else if (p.kind === 'asteroid_debris') {
+        // Tumbling Asteroid Rock in Space
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        ctx.rotate((p.angle || 0) + (p.life || 0) * 0.08);
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.arc(-1, -1, p.w / 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, 2, 2);
+        ctx.restore();
+      } else if (p.kind === 'bionic_burst') {
+        // Zion Bionic Photon Blast
+        ctx.save();
+        ctx.translate(x + p.w / 2, p.y + p.h / 2);
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.45)';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2 + 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       } else {
         ctx.fillStyle = '#f43f5e';
         ctx.fillRect(x, p.y, p.w, p.h);
@@ -9214,6 +9331,13 @@ export class GameRenderer {
 
     if (player.facing < 0) {
       ctx.scale(-1, 1);
+    }
+
+    // 0. Bionic Space Flight Suit (Legendary Doomsday Zone Flight Mode)
+    if (player.isFlying || player.flightSuit) {
+      this.renderBionicFlightZion(player, x, y, t);
+      ctx.restore();
+      return;
     }
 
     // Lean slightly forward when running, dashing, or downhill skiing
@@ -9557,6 +9681,199 @@ export class GameRenderer {
     }
 
     ctx.restore();
+  }
+
+  // =========================================================================
+  // ZION: TRAJE BIÓNICO ORBITAL DE VUELO LIBRE (DOOMSDAY FLIGHT SUIT)
+  // Masterpiece Super Sonic / Doomsday inspired omnidirectional space flight
+  // =========================================================================
+  private renderBionicFlightZion(player: Player, x: number, y: number, t: number) {
+    const ctx = this.ctx;
+    const isBoosting = player.isDashing || player.flightBoost;
+    const isAttacking = player.isAttacking;
+    const isBlocking = player.isBlocking;
+
+    // Supersonic banking tilt based on vertical movement
+    const bankAngle = (player.vy * 0.05) + (isBoosting ? 0.04 : 0.08);
+    ctx.rotate(bankAngle);
+
+    // 1. RADIANT SUPER DOOMSDAY ENERGY AURA (Pulsating Golden / Cyan Sphere)
+    ctx.save();
+    const auraPulse = Math.sin(t * 0.25) * 3;
+    const auraR = (isBoosting ? 24 : 17) + auraPulse;
+    const auraGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, auraR);
+    auraGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    auraGrad.addColorStop(0.3, isBoosting ? 'rgba(250, 204, 21, 0.65)' : 'rgba(56, 189, 248, 0.55)');
+    auraGrad.addColorStop(0.7, 'rgba(234, 179, 8, 0.35)');
+    auraGrad.addColorStop(1, 'transparent');
+
+    ctx.fillStyle = auraGrad;
+    ctx.beginPath();
+    ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Supersonic Shockwave Cone Ring when boosting
+    if (isBoosting) {
+      ctx.strokeStyle = 'rgba(254, 240, 138, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(-4, 0, 8, 16, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(-10, 0, 12, 22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 2. DUAL BIONIC ION THRUSTERS (Mounted to back, firing backward)
+    const flameLen = isBoosting ? 26 + Math.sin(t * 0.6) * 6 : 14 + Math.sin(t * 0.4) * 4;
+    const thrusterOffset = 4;
+
+    for (const dir of [-1, 1]) {
+      const ty = dir * thrusterOffset;
+      // Ion Jet Nozzle
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-8, ty - 2.5, 4, 5);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(-7, ty - 2, 2, 4);
+
+      // Plasma Flame Plume
+      const flameGrad = ctx.createLinearGradient(-8, ty, -8 - flameLen, ty);
+      flameGrad.addColorStop(0, '#ffffff');
+      flameGrad.addColorStop(0.2, '#fde047');
+      flameGrad.addColorStop(0.5, '#0ea5e9');
+      flameGrad.addColorStop(0.85, isBoosting ? '#f43f5e' : '#a855f7');
+      flameGrad.addColorStop(1, 'transparent');
+
+      ctx.fillStyle = flameGrad;
+      ctx.beginPath();
+      ctx.moveTo(-8, ty - 2);
+      ctx.lineTo(-8 - flameLen, ty);
+      ctx.lineTo(-8, ty + 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 3. PHOTON ENERGY WINGS / BIONIC FINS (Extending from Jetpack)
+    const wingSweep = isBoosting ? 0.35 : 0.2;
+    for (const dir of [-1, 1]) {
+      ctx.save();
+      ctx.scale(1, dir);
+      ctx.rotate(-wingSweep);
+
+      // Main photon wing blade
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+      ctx.beginPath();
+      ctx.moveTo(-4, -4);
+      ctx.lineTo(-14, -18);
+      ctx.lineTo(-6, -14);
+      ctx.lineTo(-2, -4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Wing energy edge
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-12, -16, 2, 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-13, -17, 1, 6);
+      ctx.restore();
+    }
+
+    // 4. AERODYNAMIC STREAMLINED BIONIC FLIGHT SUIT (Horizontal Torso)
+    // Dark Carbon Base Undersuit
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(-6, -3, 14, 6);
+
+    // Gleaming Golden Bionic Armor Plates (Chest & Pauldrons)
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-3, -4, 9, 3); // Upper chestplate
+    ctx.fillRect(-3, 1, 9, 3);  // Lower armor plate
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(-2, -3, 7, 1.5); // Golden metallic highlight
+    ctx.fillRect(-2, 1.5, 7, 1.5);
+
+    // Glowing Bionic Micro-Reactor Core
+    const corePulse = Math.sin(t * 0.3) * 0.3 + 0.7;
+    ctx.fillStyle = `rgba(56, 189, 248, ${corePulse})`;
+    ctx.fillRect(1, -1.5, 3, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2, -0.5, 1, 1);
+
+    // 5. AERODYNAMIC LEGS (Trailing Streamlined Behind)
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(-9, -2, 5, 2); // Left leg
+    ctx.fillRect(-9, 0.5, 5, 2); // Right leg
+    // Golden Tabi Boot Thrusters
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(-11, -2, 2.5, 2);
+    ctx.fillRect(-11, 0.5, 2.5, 2);
+    // Micro thruster flame sparks from boots
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(-13, -1.5, 2, 1);
+    ctx.fillRect(-13, 1, 2, 1);
+
+    // 6. FLIGHT HELMET & HOLOGRAPHIC CYAN VISOR
+    // Golden flight cowl
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(3, -4, 6, 8);
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(4, -5, 4, 1.5); // Aerodynamic crown crest
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(3, 2, 4, 2);   // Chin guard
+
+    // Full Holographic HUD Visor (Glowing Cyan Wrap-around)
+    const visorGlow = Math.sin(t * 0.2) * 0.2 + 0.8;
+    ctx.fillStyle = `rgba(34, 211, 238, ${visorGlow})`;
+    ctx.fillRect(6, -3, 4, 4);
+    // Reticle HUD glint
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(7, -2, 2, 2);
+
+    // 7. ARMS & ENERGIZED BIONIC BLADE
+    if (isAttacking) {
+      // Forward thrusting / slashing bionic ninjato
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(5, 1, 4, 3);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(7, 2, 2, 2);
+
+      // Massive Photonic Beam Blade
+      const bladeLen = 18;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+      ctx.fillRect(9, 1, bladeLen + 2, 4);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(9, 2, bladeLen, 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(10, 2.5, bladeLen - 2, 1);
+
+      // Forward Energy Arc shockwave
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(9 + bladeLen, 3, 6, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+    } else if (isBlocking) {
+      // Defensive gauntlet crossed barrier
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(5, -2, 3, 5);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(7, -1, 2, 3);
+    } else {
+      // Sleek forward flight stance: right arm forward, blade charged alongside body
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(4, 1, 4, 2.5);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(6, 1.5, 2, 2);
+
+      // Charged Beam Blade running parallel forward
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+      ctx.fillRect(8, 2, 12, 2.5);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(9, 2.5, 10, 1);
+    }
   }
 
   public renderRemotePlayer(remote: RemotePlayerState, cameraX: number, cameraY: number = 0, time: number) {

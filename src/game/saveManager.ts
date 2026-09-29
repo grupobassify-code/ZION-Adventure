@@ -551,7 +551,12 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
       const isMoon1Completed = moon1Idx !== -1 && (completedList.includes(moon1Idx) || completedList.includes('themoon-1' as any));
       return isMoon1Completed || unlockedList.includes(levelIndex);
     }
-    // Act 3 is the future boss act
+    // Act 3 (Doomsday Zone Boss) is unlocked when Act 2 is completed or in unlocked levels
+    if (cfg.act === 3) {
+      const moon2Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-2');
+      const isMoon2Completed = moon2Idx !== -1 && (completedList.includes(moon2Idx) || completedList.includes('themoon-2' as any));
+      return isMoon2Completed || unlockedList.includes(levelIndex);
+    }
     return false;
   }
   return slot.unlockedLevels.includes(levelIndex);

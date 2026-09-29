@@ -43,7 +43,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
       ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
 
-      const underConstruction = isUnderConstruction || (zone === 'themoon' && act === 3);
+      const underConstruction = isUnderConstruction;
 
       // ========================================================
       // SPECIAL MODE: UNDER CONSTRUCTION / EN CONSTRUCCIÓN SCENE
@@ -805,7 +805,7 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.lineTo(w * 0.25 + 10 + sAngle * 30, 0);
           ctx.closePath();
           ctx.fill();
-        } else {
+        } else if (act === 2) {
           // The Majestic Earthrise in the airless starry cosmos
           const eX = w - 46;
           const eY = 24;
@@ -836,6 +836,65 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
           ctx.fillRect(eX - 8, eY - 2, 12, 2);
           ctx.fillRect(eX - 2, eY + 3, 8, 2);
+        } else {
+          // Acto 3: Doomsday Zone Orbital Battle (Zion Vuelo Biónico vs Dreadnought Mecha)
+          // 1. Warp starfield streaks
+          for (let s = 0; s < 16; s++) {
+            const sx = ((s * 23 + tick * 3) % (w + 40)) * -1 + (w + 40);
+            const sy = (s * 13 + 5) % (h - 10);
+            ctx.fillStyle = s % 3 === 0 ? '#facc15' : '#38bdf8';
+            ctx.fillRect(sx, sy, 5, 1);
+          }
+
+          // 2. Swirling Cosmic Violet/Cyan Nebula
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.22)';
+          ctx.beginPath();
+          ctx.arc(w * 0.7, h * 0.45, 26, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 3. Colossal Space Dreadnought Boss on the Right
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.moveTo(w - 70, h * 0.48);
+          ctx.lineTo(w - 45, h * 0.2);
+          ctx.lineTo(w - 4, h * 0.24);
+          ctx.lineTo(w - 4, h * 0.72);
+          ctx.lineTo(w - 45, h * 0.76);
+          ctx.closePath();
+          ctx.fill();
+          // Dreadnought purple plasma thrusters
+          ctx.fillStyle = '#a855f7';
+          ctx.fillRect(w - 6, h * 0.3, 8, 5);
+          ctx.fillRect(w - 6, h * 0.6, 8, 5);
+          // Dreadnought charging ruby cannon
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(w - 60, h * 0.46, 8, 4);
+
+          // 4. Hero Zion Flying in Legendary Golden Bionic Flight Suit
+          const zx = 36;
+          const zy = h * 0.48 + Math.sin(tick * 0.15) * 4;
+          // Radiant Doomsday aura
+          ctx.fillStyle = 'rgba(250, 204, 21, 0.4)';
+          ctx.beginPath();
+          ctx.arc(zx, zy, 14, 0, Math.PI * 2);
+          ctx.fill();
+          // Twin Ion thruster flames
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(zx - 12, zy - 3, 9, 2);
+          ctx.fillRect(zx - 12, zy + 2, 9, 2);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(zx - 8, zy - 2.5, 5, 1);
+          ctx.fillRect(zx - 8, zy + 2.5, 5, 1);
+          // Bionic Armor & Cyan Visor
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(zx - 4, zy - 4, 9, 8);
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(zx - 2, zy - 3, 6, 5);
+          ctx.fillStyle = '#22d3ee';
+          ctx.fillRect(zx + 2, zy - 2, 3, 2);
+          // Energized Beam Ninjato
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(zx + 6, zy, 7, 2);
         }
       } else {
         // Quantum Hyperspace Spiral Void (Travel)
@@ -1555,23 +1614,26 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
         platHighlight = act === 1 ? '#38bdf8' : '#ffffff';
       }
 
-      // Draw Main Ground Block
-      ctx.fillStyle = platBaseColor;
-      ctx.fillRect(0, groundY, w, 34);
+      // Draw Main Ground Block (Exempting themoon Act 3 which has zero floor)
+      const hasFloor = !(zone === 'themoon' && act === 3);
+      if (hasFloor) {
+        ctx.fillStyle = platBaseColor;
+        ctx.fillRect(0, groundY, w, 34);
 
-      // Distinct platform brick/circuit seams
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-      for (let bx = 0; bx < w; bx += 24) {
-        ctx.fillRect(bx, groundY + 4, 1, 30);
+        // Distinct platform brick/circuit seams
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+        for (let bx = 0; bx < w; bx += 24) {
+          ctx.fillRect(bx, groundY + 4, 1, 30);
+        }
+        ctx.fillRect(0, groundY + 16, w, 1);
+
+        // Glowing Platform Top Trim
+        ctx.fillStyle = platTrimColor;
+        ctx.fillRect(0, groundY, w, 4);
+
+        ctx.fillStyle = platHighlight;
+        ctx.fillRect(0, groundY, w, 1.5);
       }
-      ctx.fillRect(0, groundY + 16, w, 1);
-
-      // Glowing Platform Top Trim
-      ctx.fillStyle = platTrimColor;
-      ctx.fillRect(0, groundY, w, 4);
-
-      ctx.fillStyle = platHighlight;
-      ctx.fillRect(0, groundY, w, 1.5);
 
       // Specific Foreground Accents
       if (zone === 'blizzard') {

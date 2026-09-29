@@ -83,6 +83,7 @@ export interface GameInputState {
   down?: boolean;
   up?: boolean;
   analogX?: number; // -1 to 1 analog joystick support
+  analogY?: number;
 }
 
 export interface GameStats {
@@ -524,6 +525,17 @@ export class GameEngine {
     this.player.skiSpeed = isBlizzardSki ? 4.2 : 0;
     this.player.skiCrouch = false;
     this.player.skiAirTimer = 0;
+
+    const isDoomsdayFlight = lvl.config.id === 'themoon-3';
+    this.player.isFlying = isDoomsdayFlight;
+    this.player.flightSuit = isDoomsdayFlight;
+    this.player.flightBoost = false;
+    this.player.flightBoostTimer = 0;
+    if (isDoomsdayFlight) {
+      this.player.x = 80;
+      this.player.y = 90;
+      this.player.ground = false;
+    }
 
     this.lives = this.maxLives;
     this.daggers = DAGGER_MAX_AMMO;
@@ -1108,8 +1120,12 @@ export class GameEngine {
         sound.setMusicTrack('jurassicBoss');
       }
     } else if (currentConfig.zone === 'themoon') {
-      // The Moon Space Zone: Act 1 Rocket Launch Facility
-      sound.setMusicTrack('moonLaunchAct1');
+      // The Moon Space Zone
+      if (currentConfig.act === 3) {
+        sound.setMusicTrack('moonDoomsdayBoss');
+      } else {
+        sound.setMusicTrack('moonLaunchAct1');
+      }
     }
   }
 
@@ -1387,9 +1403,171 @@ export class GameEngine {
     this.updateCamera();
   }
 
+  private updateFlightMovement(inputs: GameInputState) {
+    const p = this.player;
+    p.ground = false;
+
+    // 8-directional inputs
+    let dirX = 0;
+    let dirY = 0;
+
+    if (inputs.analogX !== undefined && Math.abs(inputs.analogX) > 0.15) {
+      dirX = inputs.analogX;
+    } else if (inputs.left && !inputs.right) {
+      dirX = -1;
+    } else if (inputs.right && !inputs.left) {
+      dirX = 1;
+    }
+
+    if (inputs.analogY !== undefined && Math.abs(inputs.analogY) > 0.15) {
+      dirY = inputs.analogY;
+    } else if (inputs.up && !inputs.down) {
+      dirY = -1;
+    } else if (inputs.down && !inputs.up) {
+      dirY = 1;
+    }
+
+    // Default facing right toward the retreating boss
+    p.facing = 1;
+    if (dirX < -0.3) p.facing = -1;
+    if (dirX > 0.3) p.facing = 1;
+
+    // Supersonic Boost Dash: Triggered by dash or jump in space flight
+    const wantsBoost = (inputs.dash && !this.dashInputHeld) || (inputs.jump && !p.jumpHeld);
+    if (wantsBoost && (p.dashCooldown || 0) <= 0 && !p.flightBoost) {
+      p.flightBoost = true;
+      p.isDashing = true;
+      p.flightBoostTimer = 22;
+      p.dashCooldown = 26;
+      p.inv = Math.max(p.inv, 26);
+      sound.playSfx('dash');
+      this.screenShake = 6;
+      this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#fde047');
+      this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 16, '#38bdf8');
+      this.addFloatingText(p.x, p.y - 14, '⚡ ¡SUPER BOOST BIÓNICO!', '#facc15');
+      this.dashInputHeld = true;
+      p.jumpHeld = true;
+    }
+    if (!inputs.dash) this.dashInputHeld = false;
+    if (!inputs.jump) p.jumpHeld = false;
+
+    if ((p.dashCooldown || 0) > 0) {
+      p.dashCooldown!--;
+    }
+
+    if (p.flightBoost) {
+      p.flightBoostTimer = (p.flightBoostTimer || 0) - 1;
+      const boostSpd = 7.2;
+      const bDirX = dirX !== 0 ? dirX : 1;
+      p.vx = bDirX * boostSpd;
+      p.vy = dirY * (boostSpd * 0.65);
+
+      // Sonic ghost trail
+      if (p.time % 2 === 0) {
+        p.dashTrail.push({
+          x: p.x,
+          y: p.y,
+          facing: p.facing,
+          alpha: 0.75,
+        });
+      }
+
+      // Supersonic flame exhaust particles
+      if (Math.random() < 0.75) {
+        this.particles.push({
+          x: p.x - 3,
+          y: p.y + p.h / 2 + (Math.random() - 0.5) * 6,
+          vx: -4.5 - Math.random() * 2,
+          vy: (Math.random() - 0.5) * 1.5,
+          life: 14,
+          maxLife: 14,
+          color: Math.random() < 0.6 ? '#facc15' : '#38bdf8',
+          size: 2.2,
+        });
+      }
+
+      // Direct Supersonic Ram attack against Boss!
+      if (this.boss && this.boss.alive && this.boss.inv <= 0 && this.checkAABB(p, this.boss)) {
+        sound.playSfx('crit');
+        this.screenShake = 12;
+        this.applyDamageToBoss(4, true);
+        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '💥 ¡EMBESTIDA SUPERSONICA! -4 HP', '#facc15');
+        this.createBurst(p.x + p.w, p.y + p.h / 2, 35, '#fde047');
+        this.createBurst(p.x + p.w, p.y + p.h / 2, 20, '#38bdf8');
+        p.vx = -3.2; // recoil
+        p.flightBoost = false;
+        p.isDashing = false;
+      }
+
+      if (p.flightBoostTimer <= 0) {
+        p.flightBoost = false;
+        p.isDashing = false;
+        p.vx *= 0.5;
+      }
+    } else {
+      // Normal free flight propulsion
+      const flightAccel = 0.28;
+      const maxFlightSpeedX = 4.4;
+      const maxFlightSpeedY = 3.6;
+
+      if (dirX !== 0) {
+        p.vx += dirX * flightAccel;
+        p.vx = Math.max(-maxFlightSpeedX, Math.min(maxFlightSpeedX, p.vx));
+      } else {
+        p.vx = Math.abs(p.vx) > 0.08 ? p.vx * 0.91 : 0;
+      }
+
+      if (dirY !== 0) {
+        p.vy += dirY * flightAccel;
+        p.vy = Math.max(-maxFlightSpeedY, Math.min(maxFlightSpeedY, p.vy));
+      } else {
+        p.vy = Math.abs(p.vy) > 0.08 ? p.vy * 0.91 : 0;
+      }
+
+      // Steady ion thruster particles
+      if (p.time % 3 === 0) {
+        this.particles.push({
+          x: p.x - 2,
+          y: p.y + p.h / 2,
+          vx: -2.5 - Math.random() * 1.5,
+          vy: (Math.random() - 0.5) * 0.8,
+          life: 10,
+          maxLife: 10,
+          color: Math.random() < 0.5 ? '#38bdf8' : '#fde047',
+          size: 1.6,
+        });
+      }
+    }
+
+    // Apply movement
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Viewport altitude boundaries (keep within vertical screen 16px to 154px)
+    if (p.y < 16) {
+      p.y = 16;
+      p.vy = Math.max(0, p.vy);
+    } else if (p.y > 154) {
+      p.y = 154;
+      p.vy = Math.min(0, p.vy);
+    }
+
+    // Screen left boundary: prevent falling behind camera view
+    const minX = this.cameraX + 6;
+    if (p.x < minX) {
+      p.x = minX;
+      p.vx = Math.max(0, p.vx);
+    }
+  }
+
   private updatePlayerMovement(inputs: GameInputState) {
     const p = this.player;
     p.time++;
+
+    if (p.isFlying) {
+      this.updateFlightMovement(inputs);
+      return;
+    }
 
     if (p.isSkiing) {
       p.facing = 1; // Always facing downhill
@@ -2239,6 +2417,59 @@ export class GameEngine {
       p.perfectParryTimer--;
     }
 
+    // 1.5. FLIGHT COMBAT (DOOMSDAY ZONE SPACE BATTLE)
+    if (p.isFlying) {
+      if (inputs.attack && !this.attackInputHeld) {
+        this.attackInputHeld = true;
+        p.isAttacking = true;
+        p.attackTimer = 12;
+        sound.playSfx('attack');
+        sound.playSfx('special');
+        // Launch bionic photon wave projectile
+        this.projectiles.push({
+          x: p.x + (p.facing > 0 ? p.w + 4 : -14),
+          y: p.y + p.h / 2 - 4,
+          w: 14,
+          h: 8,
+          vx: p.facing * 7.5,
+          vy: 0,
+          life: 80,
+          isHero: true,
+          kind: 'bionic_burst',
+          damage: 2,
+        });
+        this.createBurst(p.x + (p.facing > 0 ? p.w : 0), p.y + p.h / 2, 8, '#facc15');
+      } else if (!inputs.attack) {
+        this.attackInputHeld = false;
+      }
+
+      if (inputs.special && !this.specialInputHeld && p.energy >= 20) {
+        this.specialInputHeld = true;
+        p.energy -= 20;
+        sound.playSfx('special');
+        this.screenShake = 6;
+        this.addFloatingText(p.x, p.y - 18, '🌟 ¡ANDANADA BIÓNICA NOVA!', '#38bdf8');
+        for (let i = -1; i <= 1; i++) {
+          this.projectiles.push({
+            x: p.x + (p.facing > 0 ? p.w + 6 : -14),
+            y: p.y + p.h / 2 - 4 + i * 8,
+            w: 16,
+            h: 8,
+            vx: p.facing * 8.2,
+            vy: i * 1.5,
+            life: 90,
+            isHero: true,
+            kind: 'bionic_burst',
+            damage: 3,
+          });
+        }
+        this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 24, '#38bdf8');
+      } else if (!inputs.special) {
+        this.specialInputHeld = false;
+      }
+      return;
+    }
+
     // 2. SHOWDOWN COUNTER TRIGGER VIA ATTACK INPUT
     if (inputs.attack && !this.attackInputHeld && (p.showdownActive || (p.isBlocking && p.showdownMeter >= 100))) {
       this.executeShowdownCounterSlash();
@@ -2668,8 +2899,21 @@ export class GameEngine {
       this.addXp(600);
       this.addFloatingText(b.x + b.w / 2, b.y - 25, '🏆 ¡JEFE DERROTADO! +600 XP', '#facc15');
 
-      // Nivel Steampunk: Al matar al jefe aparece el portal dimensional en el centro de la arena
-      if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
+      // Nivel themoon-3: Al derrotar al Dreadnought Doomsday, aparece el Portal Cósmico de Victoria
+      if (LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3') {
+        const portalX = Math.round(this.player.x + 85);
+        const portalY = Math.round(this.player.y - 12);
+        this.goal = { x: portalX, y: portalY, w: 46, h: 68 };
+        sound.playSfx('warp');
+        sound.playSfx('special');
+        for (let i = 0; i < 10; i++) {
+          this.createBurst(b.x + Math.random() * b.w, b.y + Math.random() * b.h, 45, '#ffd700');
+          this.createBurst(b.x + Math.random() * b.w, b.y + Math.random() * b.h, 30, '#38bdf8');
+        }
+        this.screenShake = 22;
+        this.addFloatingText(portalX + 23, portalY - 26, '🌌 ¡PORTAL CÓSMICO DE VICTORIA FINAL! 🌌', '#fde047');
+        this.addFloatingText(portalX + 23, portalY - 12, '✦ ¡Entra al portal para coronar la Odisea de Zion! ✦', '#38bdf8');
+      } else if (LEVEL_CONFIGS[this.levelIndex]?.id === 'steampunk-3') {
         const portalX = 580;
         const portalY = -9860 - 62;
         this.goal = { x: portalX, y: portalY, w: 42, h: 62 };
@@ -4445,6 +4689,7 @@ export class GameEngine {
 
   private updateBoss() {
     const b = this.boss;
+    const p = this.player;
     if (!b || !b.alive) return;
 
     // Trigger Arena lock & Cinematic Intro
@@ -4454,6 +4699,8 @@ export class GameEngine {
     const currentConfig = LEVEL_CONFIGS[this.levelIndex];
     const inArenaRange = isVerticalSteampunk
       ? (Math.abs(this.player.x - b.x) < 320 && Math.abs(this.player.y - b.y) < 160)
+      : currentConfig?.id === 'themoon-3'
+      ? (this.player.x >= 70)
       : currentConfig?.id === 'piratestreasure-3'
       ? (this.player.x >= 2710)
       : currentConfig?.id === 'jurasicdraft-3'
@@ -4462,7 +4709,10 @@ export class GameEngine {
 
     if (inArenaRange && !this.arenaActive) {
       this.arenaActive = true;
-      if (currentConfig?.id === 'castlesmash-3') {
+      if (currentConfig?.id === 'themoon-3') {
+        this.arenaLeft = 0;
+        this.arenaRight = 4200;
+      } else if (currentConfig?.id === 'castlesmash-3') {
         this.arenaLeft = 2690;
         this.arenaRight = 3750;
       } else if (currentConfig?.id === 'piratestreasure-3') {
@@ -5247,6 +5497,200 @@ export class GameEngine {
         }
         b.y = 148 - b.h;
         b.vy = 0;
+      }
+    } else if (b.name.includes('Doomsday') || b.name.includes('Dreadnought') || b.name.includes('Kronos-Doomsday')) {
+      // --- BOSS 12: TITÁN MECHA ORBITAL KRONOS-DOOMSDAY (JEFE FINAL LEGENDARIO - DOOMSDAY ZONE) ---
+      // Inspirado directamente en Sonic 3 & Knuckles: The Doomsday Zone
+      b.facing = -1; // Encarando a la izquierda hacia Zion que lo persigue
+
+      // Detección de Transición a Fase 2 (cuando los PS bajan al 50% o menos)
+      if (b.hp <= 40 && b.phase === 1) {
+        b.phase = 2;
+        b.w = 56;
+        b.h = 42;
+        b.state = 'idle';
+        b.stateTimer = 40;
+        this.screenShake = 18;
+        sound.playSfx('explosion');
+        sound.playSfx('special');
+        // Desprendimiento explosivo de paneles blindados externos
+        for (let i = 0; i < 8; i++) {
+          this.createBurst(b.x + Math.random() * 80, b.y + Math.random() * 50, 30, '#f97316');
+          this.createBurst(b.x + Math.random() * 80, b.y + Math.random() * 50, 20, '#38bdf8');
+        }
+        this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚡ ¡FASE 2: NÚCLEO MECHA HIPER-PROPULSADO A LA FUGA! ⚡', '#facc15');
+      }
+
+      if (b.phase === 1) {
+        // =========================================================================
+        // FASE 1: COLOSAL ACORAZADO DREADNOUGHT WARSHIP
+        // =========================================================================
+        // Mantener posición adelante de Zion en la persecución cósmica
+        const targetX = Math.max(p.x + 135, (b.startX || 520));
+        b.vx = (targetX - b.x) * 0.05;
+        b.x += b.vx;
+
+        // Oscilación vertical suave siguiendo la altitud de vuelo de Zion
+        const targetY = Math.max(20, Math.min(95, p.y - 30));
+        b.vy = (targetY - b.y) * 0.04;
+        b.y += b.vy;
+
+        if (b.state === 'idle') {
+          b.stateTimer--;
+
+          // Disparo periódico de misiles teledirigidos desde las bahías superior e inferior
+          b.shotTimer--;
+          if (b.shotTimer <= 0) {
+            sound.playSfx('bossShot');
+            // Silo superior
+            this.projectiles.push({
+              x: b.x + 15,
+              y: b.y + 12,
+              w: 12,
+              h: 7,
+              vx: -3.6,
+              vy: -0.8,
+              life: 140,
+              isHero: false,
+              kind: 'space_missile',
+              homingTimer: 75,
+            });
+            // Silo inferior
+            this.projectiles.push({
+              x: b.x + 15,
+              y: b.y + b.h - 16,
+              w: 12,
+              h: 7,
+              vx: -3.6,
+              vy: 0.8,
+              life: 140,
+              isHero: false,
+              kind: 'space_missile',
+              homingTimer: 75,
+            });
+            b.shotTimer = 55;
+          }
+
+          // Escombros de asteroides flotantes
+          if (this.time % 90 === 0) {
+            this.projectiles.push({
+              x: b.x - 10,
+              y: 20 + Math.random() * 110,
+              w: 12,
+              h: 12,
+              vx: -2.8 - Math.random() * 1.5,
+              vy: (Math.random() - 0.5) * 0.8,
+              life: 120,
+              isHero: false,
+              kind: 'asteroid_debris',
+              angle: Math.random() * Math.PI,
+            });
+          }
+
+          if (b.stateTimer <= 0) {
+            // Iniciar carga del Cañón Nova
+            b.state = 'charging';
+            b.stateTimer = 45;
+            b.telegraphTimer = 45;
+            sound.playSfx('charge');
+            this.addFloatingText(b.x - 20, b.y + b.h / 2 - 14, '⚠️ ¡CARGANDO CAÑÓN NOVA!', '#ef4444');
+          }
+        } else if (b.state === 'charging') {
+          b.stateTimer--;
+          b.telegraphTimer = b.stateTimer;
+          // Partículas de condensación de energía en el cañón frontal
+          if (this.time % 2 === 0) {
+            this.particles.push({
+              x: b.x - 6 + (Math.random() - 0.5) * 20,
+              y: b.y + b.h / 2 + (Math.random() - 0.5) * 20,
+              vx: 1.2,
+              vy: 0,
+              life: 12,
+              maxLife: 12,
+              color: Math.random() < 0.5 ? '#ef4444' : '#fde047',
+              size: 2.2,
+            });
+          }
+          if (b.stateTimer <= 0) {
+            b.state = 'laser';
+            b.stateTimer = 40;
+            sound.playSfx('laserFire');
+            this.screenShake = 10;
+            // Desatar el rayo láser Doomsday colosal
+            this.projectiles.push({
+              x: b.x - 230,
+              y: b.y + b.h / 2 - 9,
+              w: 235,
+              h: 18,
+              vx: -6.5,
+              vy: 0,
+              life: 38,
+              isHero: false,
+              kind: 'doomsday_laser',
+            });
+          }
+        } else if (b.state === 'laser') {
+          b.stateTimer--;
+          this.screenShake = Math.max(this.screenShake, 3);
+          if (b.stateTimer <= 0) {
+            b.state = 'idle';
+            b.stateTimer = 60;
+          }
+        }
+      } else {
+        // =========================================================================
+        // FASE 2: NÚCLEO MECHA HIPER-PROPULSADO A TODA VELOCIDAD (CORE ESCAPE)
+        // =========================================================================
+        // Persecución cósmica veloz: el jefe acelera hacia adelante
+        b.vx = 2.8 + Math.sin(this.time * 0.05) * 0.8;
+        b.x += b.vx;
+
+        // Mantener al jefe a la vista sin alejarse infinitamente
+        if (b.x > p.x + 180) {
+          b.x = p.x + 180;
+        } else if (b.x < p.x + 60) {
+          b.x = p.x + 60;
+        }
+
+        // Movimiento senoidal vertical esquivando
+        b.y = 75 + Math.sin(this.time * 0.06) * 45;
+
+        // Ataques rápidos continuos durante la fuga
+        b.shotTimer--;
+        if (b.shotTimer <= 0) {
+          sound.playSfx('bossShot');
+          // Disparo de plasma en cono triple
+          for (let s = -1; s <= 1; s++) {
+            this.projectiles.push({
+              x: b.x - 8,
+              y: b.y + b.h / 2 - 4,
+              w: 8,
+              h: 8,
+              vx: -4.5,
+              vy: s * 1.2,
+              life: 90,
+              isHero: false,
+              kind: 'plasma',
+            });
+          }
+          b.shotTimer = 34;
+        }
+
+        // Cinturón de asteroides que cruzan en la trayectoria de huida
+        if (this.time % 45 === 0) {
+          this.projectiles.push({
+            x: b.x + 120,
+            y: 20 + Math.random() * 120,
+            w: 14,
+            h: 14,
+            vx: -3.8 - Math.random() * 1.8,
+            vy: (Math.random() - 0.5) * 0.9,
+            life: 110,
+            isHero: false,
+            kind: 'asteroid_debris',
+            angle: Math.random() * Math.PI,
+          });
+        }
       }
     } else if (b.name.includes('Kronos')) {
       // --- BOSS 5: TITÁN MECÁNICO KRONOS-Ω (JEFE FINAL) ---
