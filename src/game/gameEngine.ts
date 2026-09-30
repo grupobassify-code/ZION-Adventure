@@ -2601,13 +2601,27 @@ export class GameEngine {
         };
 
         if (this.checkAABB(attackHitbox, bossTargetBox)) {
-          if (this.boss.shield) {
+          if (this.boss.name.includes('Kronos') && this.boss.shield) {
+            // Kronos tiene escudo frontal: el jugador puede rodearlo con Dash y golpearlo por la espalda
+            const isBackstab = (this.boss.facing > 0 && p.x < this.boss.x + 10) || (this.boss.facing < 0 && p.x > this.boss.x + this.boss.w - 10);
+            if (isBackstab) {
+              sound.playSfx('crit');
+              this.applyDamageToBoss(Math.round(dmg * 1.5));
+              this.createBurst(this.boss.x + this.boss.w / 2, p.y + p.h / 2, 18, '#facc15');
+              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 24, '💥 ¡GOLPE POR LA ESPALDA! CRÍTICO (x1.5)', '#facc15');
+              this.addEnergy(12);
+            } else {
+              sound.playSfx('block');
+              this.createBurst(p.facing > 0 ? this.boss.x : this.boss.x + this.boss.w, p.y + p.h / 2, 10, '#38bdf8');
+              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO DE KRONOS! ¡Ataca por la espalda con Dash!', '#38bdf8');
+            }
+          } else if (this.boss.shield) {
             sound.playSfx('block');
             this.createBurst(p.facing > 0 ? this.boss.x : this.boss.x + this.boss.w, p.y + p.h / 2, 8, '#38bdf8');
             this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
           } else if (this.boss.inv <= 0) {
             this.applyDamageToBoss(dmg);
-            this.addEnergy(8);
+            this.addEnergy(10);
           }
         }
 
@@ -4796,6 +4810,8 @@ export class GameEngine {
         }
       }
       this.lives = this.maxLives;
+      this.player.inv = 20;
+      this.player.damageInvTimer = 0;
       this.player.shieldEnergy = this.player.maxShieldEnergy;
       this.player.isShieldBroken = false;
       this.daggers = DAGGER_MAX_AMMO;
@@ -5754,240 +5770,254 @@ export class GameEngine {
         }
       }
     } else if (b.name.includes('Kronos')) {
-      // --- BOSS 5: TITÁN MECÁNICO KRONOS-Ω (JEFE FINAL) ---
-      const speed = b.state === 'overheat' ? 0 : b.phase === 1 ? 0.9 : b.phase === 2 ? 1.4 : 1.9;
+      // --- BOSS: TITÁN MECÁNICO KRONOS-Ω (JEFE FINAL) ---
+      // Moveset exclusivo y depurado: ESCUDO, DASH y ATAQUE (sin lucesitas mareantes ni proyectiles masivos)
+      const speed = b.phase === 1 ? 0.95 : b.phase === 2 ? 1.35 : 1.7;
+      const p = this.player;
 
-      // Overheat state logic
-      if (b.state === 'overheat') {
+      // Update afterimages decay
+      if (b.afterimages && b.afterimages.length > 0) {
+        for (const img of b.afterimages) {
+          img.alpha -= 0.05;
+        }
+        b.afterimages = b.afterimages.filter((img) => img.alpha > 0);
+      }
+
+      // 1. STAGGERED STATE (Aturdido tras Perfect Parry o rotura de guardia)
+      if (b.state === 'staggered') {
+        b.isStaggered = true;
+        b.shield = false;
+        b.slashHitbox = undefined;
         b.stateTimer--;
         b.vx *= 0.8;
-        // Overheat steam and critical spark particles
-        if (this.time % 2 === 0) {
-          this.particles.push({
-            x: b.x + Math.random() * b.w,
-            y: b.y + Math.random() * b.h,
-            vx: (Math.random() - 0.5) * 1.5,
-            vy: -1.2 - Math.random() * 1.5,
-            life: 16,
-            maxLife: 16,
-            color: Math.random() < 0.5 ? '#f97316' : '#ffffff',
-            size: 2.5,
-          });
-        }
         if (b.stateTimer <= 0) {
+          b.isStaggered = false;
+          b.stagger = 0;
           b.state = 'idle';
-          b.stateTimer = 25;
-          b.inv = 20;
+          b.stateTimer = 22;
+          b.inv = 15;
           this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡KRONOS REINICIA SISTEMAS!', '#06b6d4');
         }
       } else if (b.state === 'idle') {
-        b.vx += Math.sign(this.player.x - b.x) * 0.04;
+        // 2. IDLE & REPOSITIONING
+        b.shield = false;
+        b.slashHitbox = undefined;
+        b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+        b.vx += Math.sign(p.x - b.x) * 0.08;
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
 
-        // Continuous Chrono-Pulse fire in Idle (Aimed directly at Zion)
-        b.shotTimer--;
-        if (b.shotTimer <= 0) {
-          sound.playSfx('bossShot');
-          const startX = b.x + (b.facing > 0 ? b.w : -8);
-          const startY = b.y + 26;
-          const targetX = this.player.x + this.player.w / 2;
-          const targetY = this.player.y + this.player.h / 2;
-          const angle = Math.atan2(targetY - startY, targetX - startX);
-          const spd = 3.6;
-          this.projectiles.push({
-            x: startX,
-            y: startY,
-            w: 8,
-            h: 8,
-            vx: Math.cos(angle) * spd,
-            vy: Math.sin(angle) * spd,
-            life: 140,
-            isHero: false,
-            kind: 'plasma',
-          });
-          b.shotTimer = b.phase === 3 ? 24 : 38;
-        }
-
         b.stateTimer--;
         if (b.stateTimer <= 0) {
+          const dist = Math.abs(p.x - (b.x + b.w / 2));
           const roll = Math.random();
-          if (roll < 0.32) {
-            // Mega Chrono-Laser Cannon Sweep
-            b.state = 'charging';
-            b.stateTimer = 30;
-            b.telegraphTimer = 30;
-            sound.playSfx('laserCharge');
-            this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚠️ ¡CARGA DE CAÑÓN CHRONO-LÁSER!', '#f43f5e');
-          } else if (roll < 0.62) {
-            // High-Altitude Titan Drop Slam
-            b.state = 'slamming';
-            b.vy = -7.5;
-            b.thrusterFlame = 45;
-            sound.playSfx('jump');
-            this.createBurst(b.x + b.w / 2, b.y + b.h, 20, '#06b6d4');
-            this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚡ ¡SALTO PROPULSADO TITÁNICO!', '#06b6d4');
-          } else if (roll < 0.84) {
-            // Homing Plasma Missile Barrage
-            b.state = 'missileBarrage';
-            b.stateTimer = 40;
-            b.telegraphTimer = 22;
-            sound.playSfx('bossWarning');
-            this.addFloatingText(b.x + b.w / 2, b.y - 18, '🚀 ¡DESPLIEGUE DE MISILES RASTREADORES!', '#ea580c');
-          } else {
-            // Overheat High-Output EMP Blast -> Triggers Overheated Vulnerability!
-            b.state = 'emp';
-            b.stateTimer = 28;
-            b.telegraphTimer = 28;
-            sound.playSfx('special');
-            this.addFloatingText(b.x + b.w / 2, b.y - 18, '⚡ ¡DESCARGA EMP TOTAL!', '#a855f7');
-          }
-        }
-      } else if (b.state === 'charging') {
-        b.vx *= 0.75;
-        b.stateTimer--;
-        if (b.stateTimer <= 0) {
-          b.state = 'laser';
-          b.stateTimer = b.phase === 3 ? 40 : 32;
-          sound.playSfx('laserFire');
-          this.screenShake = 6;
-          const laserThickness = 26;
-          const laserY = Math.min(124, Math.max(92, this.player.y + this.player.h / 2 - laserThickness / 2));
-          b.laser = {
-            active: true,
-            charging: false,
-            chargeTimer: 0,
-            maxCharge: 30,
-            dir: b.facing,
-            x: b.facing > 0 ? b.x + b.w : b.x - 340,
-            y: laserY,
-            length: 340,
-            thickness: laserThickness,
-            duration: b.phase === 3 ? 40 : 32,
-          };
-        }
-      } else if (b.state === 'laser') {
-        b.stateTimer--;
-        if (b.laser) {
-          b.laser.x = b.facing > 0 ? b.x + b.w : b.x - b.laser.length;
-
-          const laserHitbox = {
-            x: b.laser.x,
-            y: b.laser.y,
-            w: b.laser.length,
-            h: b.laser.thickness,
-          };
-
-          if (this.checkAABB(this.player, laserHitbox) && this.player.inv <= 0 && !this.player.isDashing && !this.settings.godMode) {
-            if (this.player.isBlocking && !this.player.isShieldBroken) {
-              if (this.player.perfectParryTimer > 0) {
-                sound.playSfx('parry');
-                this.addEnergy(35);
-                this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 22, '#facc15');
-                this.addFloatingText(this.player.x, this.player.y - 20, '✦ PARRY CHRONO-LÁSER!', '#facc15');
-              } else {
-                this.player.shieldEnergy = Math.max(0, this.player.shieldEnergy - 18);
-                sound.playSfx('block');
-                this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 10, '#38bdf8');
-                if (this.player.shieldEnergy <= 0) {
-                  this.player.isBlocking = false;
-                  this.player.isShieldBroken = true;
-                  this.player.shieldBreakTimer = 120;
-                  sound.playSfx('shieldBreak');
-                  this.addFloatingText(this.player.x, this.player.y - 18, '⚡ ¡ESCUDO ROTO!', '#ef4444');
-                }
-              }
+          if (dist < 55) {
+            // Close range: Melee Sword Attack or Defensive Escudo
+            if (roll < 0.65) {
+              b.state = 'attack';
+              b.stateTimer = 34;
+              b.telegraphTimer = 14;
+              sound.playSfx('slash');
+              this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚔️ ¡PREPARANDO TAJO!', '#f43f5e');
             } else {
-              this.handlePlayerDamage('¡Impacto de Cañón Chrono-Láser!');
+              b.state = 'shield';
+              b.stateTimer = b.phase === 3 ? 42 : 55;
+              b.shield = true;
+              sound.playSfx('block');
+              this.addFloatingText(b.x + b.w / 2, b.y - 20, '🛡️ ¡ESCUDO TEMPORAL ACTIVADO!', '#38bdf8');
+            }
+          } else {
+            // Mid / Long range: Cyber Dash Thrust or Advance with Shield
+            if (roll < 0.60) {
+              b.state = 'dash';
+              b.stateTimer = 32;
+              b.telegraphTimer = 8;
+              b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+              sound.playSfx('bossWarning');
+              this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡EMBESTIDA DASH!', '#06b6d4');
+            } else if (roll < 0.85) {
+              b.state = 'attack';
+              b.stateTimer = 36;
+              b.telegraphTimer = 16;
+              sound.playSfx('slash');
+              this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚔️ ¡PASO ADELANTE Y TAJO!', '#f43f5e');
+            } else {
+              b.state = 'shield';
+              b.stateTimer = 48;
+              b.shield = true;
+              sound.playSfx('block');
+              this.addFloatingText(b.x + b.w / 2, b.y - 20, '🛡️ ¡ESCUDO TEMPORAL!', '#38bdf8');
             }
           }
         }
-        if (b.stateTimer <= 0) {
-          b.laser = undefined;
-          b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 18 : 28;
-        }
-      } else if (b.state === 'missileBarrage') {
-        b.stateTimer--;
-        if (b.stateTimer % 10 === 0 && b.stateTimer > 8) {
-          const missileCount = b.phase === 3 ? 3 : 2;
-          for (let m = 0; m < missileCount; m++) {
-            const angleOffset = (m - (missileCount - 1) / 2) * 0.4;
-            this.projectiles.push({
-              x: b.x + (b.facing > 0 ? b.w : -8),
-              y: b.y + 4 + m * 8,
-              w: 9,
-              h: 7,
-              vx: b.facing * (2.8 + m * 0.3),
-              vy: Math.sin(angleOffset) * 2.0,
-              life: 160,
-              isHero: false,
-              kind: 'plasma',
-              homingTimer: 70,
-            });
-          }
-          sound.playSfx('bossShot');
-        }
-        if (b.stateTimer <= 0) {
-          b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 20 : 30;
-        }
-      } else if (b.state === 'emp') {
+      } else if (b.state === 'shield') {
+        // 3. ESCUDO: Barrera frontal impenetrable (vulnerable solo por la espalda con Dash)
+        b.shield = true;
+        b.slashHitbox = undefined;
+        b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+        b.vx = Math.sign(p.x - b.x) * 0.32;
+        b.x += b.vx;
+
         b.stateTimer--;
         if (b.stateTimer <= 0) {
-          // Fire 360 EMP Shockwave Ring & Enter Overheated Exhaust State!
-          sound.playSfx('special');
-          this.screenShake = 10;
-          this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 40, '#a855f7');
-          for (let a = 0; a < 8; a++) {
-            const angle = (a * Math.PI * 2) / 8;
-            this.projectiles.push({
-              x: b.x + b.w / 2,
-              y: b.y + b.h / 2,
-              w: 8,
-              h: 8,
-              vx: Math.cos(angle) * 3.0,
-              vy: Math.sin(angle) * 3.0,
-              life: 100,
-              isHero: false,
-              kind: 'plasma',
-            });
-          }
-          // Enter Overheated vulnerable state!
-          b.state = 'overheat';
-          b.stateTimer = 110;
-          this.addFloatingText(b.x + b.w / 2, b.y - 28, '🔥 ¡NÚCLEO SOBRECALENTADO! ¡VULNERABLE (DAÑO x2)!', '#f97316');
+          b.shield = false;
+          // Contragolpe inmediato tras bajar el escudo
+          b.state = 'attack';
+          b.stateTimer = 32;
+          b.telegraphTimer = 12;
+          sound.playSfx('slash');
+          this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚔️ ¡CONTRAATAQUE TRAS ESCUDO!', '#f43f5e');
         }
-      } else if (b.state === 'slamming') {
-        if (b.vy > 0) {
-          b.vy += 0.55;
+      } else if (b.state === 'dash') {
+        // 4. DASH: Embestida veloz hacia Zion con estela de clones cibernéticos
+        b.shield = false;
+        b.slashHitbox = undefined;
+        b.stateTimer--;
+
+        if (b.stateTimer > 24) {
+          // Fase 1: Preparación (8 frames)
+          b.vx *= 0.5;
+          b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+        } else if (b.stateTimer >= 8) {
+          // Fase 2: Impulso supersónico (16 frames de pura embestida que hace daño)
+          const dashSpeed = b.phase === 3 ? 5.8 : b.phase === 2 ? 4.9 : 4.2;
+          b.vx = b.facing * dashSpeed;
+          b.x += b.vx;
+
+          b.afterimages = b.afterimages || [];
+          if (this.time % 2 === 0) {
+            b.afterimages.push({ x: b.x, y: b.y, alpha: 0.65, facing: b.facing });
+          }
+
+          // Colisión de la embestida contra el jugador (DAÑO GARANTIZADO si no bloquea ni dashea)
+          const dashHitbox = {
+            x: b.x - 2,
+            y: b.y + 4,
+            w: b.w + 4,
+            h: b.h - 6,
+          };
+
+          if (this.checkAABB(p, dashHitbox) && p.inv <= 0 && !this.settings.godMode) {
+            if (p.isBlocking && !p.isShieldBroken) {
+              if (p.perfectParryTimer > 0) {
+                sound.playSfx('parry');
+                sound.playSfx('stagger');
+                this.screenShake = 8;
+                b.isStaggered = true;
+                b.state = 'staggered';
+                b.stateTimer = 160;
+                b.stagger = b.maxStagger;
+                b.vx = -b.facing * 3.5;
+                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#facc15');
+                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! ¡KRONOS ATURDIDO!', '#facc15');
+                this.addEnergy(45);
+              } else {
+                sound.playSfx('block');
+                p.shieldEnergy = Math.max(0, p.shieldEnergy - 24);
+                p.vx = b.facing * 3.2;
+                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 12, '#38bdf8');
+                if (p.shieldEnergy <= 0) {
+                  p.isBlocking = false;
+                  p.isShieldBroken = true;
+                  p.shieldBreakTimer = 120;
+                  sound.playSfx('shieldBreak');
+                  this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ef4444');
+                  this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR LA EMBESTIDA!', '#ef4444');
+                } else {
+                  this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Embestida Bloqueada! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+                }
+              }
+            } else if (p.isDashing) {
+              this.addFloatingText(p.x, p.y - 14, '💨 ¡ESQUIVADO CON DASH!', '#38bdf8');
+            } else {
+              this.handlePlayerDamage('¡Embestida Titánica de Kronos!');
+            }
+          }
+        } else {
+          // Fase 3: Frenada
+          b.vx *= 0.72;
+          if (b.stateTimer <= 0) {
+            b.state = 'idle';
+            b.stateTimer = b.phase === 3 ? 14 : 22;
+          }
+        }
+      } else if (b.state === 'attack') {
+        // 5. ATAQUE: Tajo de Gran Espada Temporal (hace daño directo al jugador)
+        b.shield = false;
+        b.stateTimer--;
+
+        if (b.stateTimer > 20) {
+          // Fase 1: Carga y telegrafiado (14 frames)
+          b.vx *= 0.65;
+          b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+          b.telegraphTimer = Math.max(0, b.stateTimer - 20);
+        } else if (b.stateTimer >= 8) {
+          // Fase 2: Golpe con la espada (12 frames de tajo activo)
+          if (b.stateTimer === 20) {
+            sound.playSfx('slash');
+            this.screenShake = 6;
+          }
+          const slashHitbox = {
+            x: b.facing > 0 ? b.x + 8 : b.x - 48,
+            y: b.y + 6,
+            w: 52,
+            h: 58,
+            active: true,
+          };
+          b.slashHitbox = slashHitbox;
+
+          // Colisión del tajo contra el jugador (DAÑO GARANTIZADO)
+          if (this.checkAABB(p, slashHitbox) && p.inv <= 0 && !this.settings.godMode) {
+            if (p.isBlocking && !p.isShieldBroken) {
+              if (p.perfectParryTimer > 0) {
+                sound.playSfx('parry');
+                sound.playSfx('stagger');
+                this.screenShake = 8;
+                b.isStaggered = true;
+                b.state = 'staggered';
+                b.stateTimer = 160;
+                b.stagger = b.maxStagger;
+                b.slashHitbox = undefined;
+                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#facc15');
+                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! ¡KRONOS ATURDIDO!', '#facc15');
+                this.addEnergy(45);
+              } else {
+                sound.playSfx('block');
+                p.shieldEnergy = Math.max(0, p.shieldEnergy - 22);
+                p.vx = -p.facing * 2.5;
+                this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 12, '#38bdf8');
+                if (p.shieldEnergy <= 0) {
+                  p.isBlocking = false;
+                  p.isShieldBroken = true;
+                  p.shieldBreakTimer = 120;
+                  sound.playSfx('shieldBreak');
+                  this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 22, '#ef4444');
+                  this.addFloatingText(p.x, p.y - 18, '⚡ ¡ESCUDO ROTO POR EL TAJO!', '#ef4444');
+                } else {
+                  this.addFloatingText(p.x, p.y - 14, `🛡️ ¡Tajo Bloqueado! (${Math.round(p.shieldEnergy)}%)`, '#38bdf8');
+                }
+              }
+            } else if (p.isDashing) {
+              this.addFloatingText(p.x, p.y - 14, '💨 ¡ESQUIVADO CON DASH!', '#38bdf8');
+            } else {
+              this.handlePlayerDamage('¡Tajo de Espada de Kronos!');
+            }
+          }
+        } else {
+          // Fase 3: Recuperación post-tajo (ventana para que el jugador contraataque)
+          b.slashHitbox = undefined;
+          b.vx *= 0.8;
+          if (b.stateTimer <= 0) {
+            b.state = 'idle';
+            b.stateTimer = b.phase === 3 ? 14 : 24;
+          }
         }
       }
 
-      // Gravity & Ground Slam Collision for Kronos-Ω
+      // Gravedad y suelo firme para Kronos-Ω
       b.vy = Math.min(b.vy + GRAVITY, 9);
       b.y += b.vy;
       if (b.y + b.h >= 148) {
-        if (b.state === 'slamming' && b.vy > 3) {
-          sound.playSfx('bossSlam');
-          this.screenShake = 12;
-          this.createBurst(b.x + b.w / 2, 148, 32, '#06b6d4');
-
-          b.shockwaves.push(
-            { x: b.x - 14, y: 136, vx: -4.2, w: 18, h: 12, life: 90, maxLife: 90, color: '#06b6d4' },
-            { x: b.x + b.w, y: 136, vx: 4.2, w: 18, h: 12, life: 90, maxLife: 90, color: '#06b6d4' }
-          );
-
-          if (b.phase >= 2) {
-            b.shockwaves.push(
-              { x: b.x - 14, y: 136, vx: -5.6, w: 20, h: 14, life: 110, maxLife: 110, color: '#f43f5e' },
-              { x: b.x + b.w, y: 136, vx: 5.6, w: 20, h: 14, life: 110, maxLife: 110, color: '#f43f5e' }
-            );
-          }
-          this.addFloatingText(b.x + b.w / 2, b.y - 12, '💥 ¡COLAPSO TEMPORAL TITÁNICO!', '#06b6d4');
-          b.state = 'idle';
-          b.stateTimer = b.phase === 3 ? 16 : 26;
-        }
         b.y = 148 - b.h;
         b.vy = 0;
       }
@@ -8499,7 +8529,8 @@ export class GameEngine {
     this.player.y = respawnTarget.y;
     this.player.vx = 0;
     this.player.vy = 0;
-    this.player.inv = 220; // 3.6+ seconds of solid sanctuary invulnerability!
+    this.player.inv = (this.boss && this.boss.alive) ? 40 : 180;
+    this.player.damageInvTimer = (this.boss && this.boss.alive) ? 40 : 180;
     this.player.shieldEnergy = this.player.maxShieldEnergy;
     this.player.isShieldBroken = false;
     this.daggers = DAGGER_MAX_AMMO;

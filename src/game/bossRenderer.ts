@@ -746,6 +746,20 @@ export class BossRenderer {
 
     ctx.save();
 
+    // A0. CYBER AFTERIMAGES DURING DASH
+    if (boss.afterimages && boss.afterimages.length > 0) {
+      for (const img of boss.afterimages) {
+        const imgX = Math.round(x + (img.x - boss.x));
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(0.5, img.alpha * 0.6));
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(imgX + 4, y + 8, boss.w - 8, boss.h - 16);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(imgX + 8, y + 14, boss.w - 16, 20);
+        ctx.restore();
+      }
+    }
+
     // A. PHASE 2 & 3: MAJESTIC TEMPORAL CHRONO WINGS (Geometric Ethereal Wings)
     if (boss.phase >= 2) {
       const wingCount = boss.phase === 3 ? 4 : 2;
@@ -995,53 +1009,202 @@ export class BossRenderer {
     ctx.fillStyle = goldFiligree;
     ctx.fillRect(cx - 4, headY + 11, 8, 1);
 
-    // G. MASSIVE ARTICULATED HYDRAULIC CANNON ARMS
-    // Front Arm (Heavy Multi-Barrel Railgun & Plasma Muzzle)
-    const armX = isFacingLeft ? x - 13 : x + boss.w - 3;
-    const armOtherX = isFacingLeft ? x + boss.w - 1 : x - 13;
+    // G. ARTICULATED COMBAT ARMS: CHRONO-GREATSWORD & CHRONO-SHIELD
+    const isAttacking = boss.state === 'attack';
+    const isDashing = boss.state === 'dash';
+    const isShielding = boss.shield || boss.state === 'shield';
+    const armX = isFacingLeft ? x - 12 : x + boss.w - 2;
+    const armOtherX = isFacingLeft ? x + boss.w - 2 : x - 12;
 
-    // Rear Stabilizer Arm (Depth layer)
+    // 1. REAR ARM: CHRONO-SHIELD BUCKLER & ACTIVE HEXAGONAL ENERGY BARRIER
     ctx.fillStyle = '#0d1322';
-    ctx.fillRect(armOtherX, y + 14 + bob, 12, 24);
+    ctx.fillRect(armOtherX, y + 15 + bob, 11, 20);
     ctx.fillStyle = '#162035';
-    ctx.fillRect(armOtherX + 2, y + 16 + bob, 8, 20);
+    ctx.fillRect(armOtherX + 2, y + 17 + bob, 7, 16);
+    // Buckler Plate
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(armOtherX + (isFacingLeft ? 4 : -1), y + 22 + bob, 8, 14);
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(armOtherX + (isFacingLeft ? 5 : 0), y + 23 + bob, 6, 2);
 
-    // Front Main Battle Arm
+    // Active Radiant Hexagonal Shield Barrier
+    if (isShielding) {
+      const shieldX = isFacingLeft ? x - 22 : x + boss.w + 2;
+      const shieldY = y + 6 + bob;
+      const shieldH = boss.h - 10;
+      const shieldW = 16;
+      const shieldPulse = Math.sin(time * 0.15) * 0.15 + 0.85;
+
+      ctx.save();
+      // Translucent energy aura
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.22)';
+      ctx.fillRect(shieldX - 2, shieldY, shieldW + 4, shieldH);
+
+      // Main Barrier Frame (Hexagonal Bevel)
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(shieldX + shieldW / 2, shieldY);
+      ctx.lineTo(shieldX + shieldW, shieldY + 12);
+      ctx.lineTo(shieldX + shieldW, shieldY + shieldH - 12);
+      ctx.lineTo(shieldX + shieldW / 2, shieldY + shieldH);
+      ctx.lineTo(shieldX, shieldY + shieldH - 12);
+      ctx.lineTo(shieldX, shieldY + 12);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Inner Hexagonal Grid Lines
+      ctx.strokeStyle = `rgba(56, 189, 248, ${0.45 * shieldPulse})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(shieldX + 3, shieldY + 16);
+      ctx.lineTo(shieldX + shieldW - 3, shieldY + 16);
+      ctx.moveTo(shieldX + 3, shieldY + shieldH / 2);
+      ctx.lineTo(shieldX + shieldW - 3, shieldY + shieldH / 2);
+      ctx.moveTo(shieldX + 3, shieldY + shieldH - 16);
+      ctx.lineTo(shieldX + shieldW - 3, shieldY + shieldH - 16);
+      ctx.stroke();
+
+      // Golden Node Core in Center of Barrier
+      ctx.fillStyle = goldFiligree;
+      ctx.fillRect(shieldX + shieldW / 2 - 2, shieldY + shieldH / 2 - 4, 4, 8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(shieldX + shieldW / 2 - 1, shieldY + shieldH / 2 - 2, 2, 4);
+      ctx.restore();
+    }
+
+    // 2. FRONT ARM: HYDRAULIC SHOULDER & CHRONO-GREATSWORD
     // Shoulder Joint
     ctx.fillStyle = goldFiligree;
     ctx.beginPath();
-    ctx.arc(armX + 7, y + 15 + bob, 5, 0, Math.PI * 2);
+    ctx.arc(armX + 6, y + 16 + bob, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Bicep & Hydraulic Ram
+    // Bicep
     ctx.fillStyle = primaryArmor;
-    ctx.fillRect(armX + 2, y + 16 + bob, 11, 12);
-    ctx.fillStyle = highlightEdge;
-    ctx.fillRect(armX + 4, y + 18 + bob, 3, 8); // Hydraulic cylinder
+    ctx.fillRect(armX + 2, y + 17 + bob, 9, 11);
     ctx.fillStyle = conduitCyan;
-    ctx.fillRect(armX + 8, y + 18 + bob, 2, 8); // Power line
+    ctx.fillRect(armX + 5, y + 19 + bob, 3, 7);
 
-    // Forearm Heavy Twin-Barrel Cannon
+    // Forearm & Hand Gauntlet
     ctx.fillStyle = secondaryArmor;
-    ctx.fillRect(armX, y + 26 + bob, 15, 20);
+    ctx.fillRect(armX + 1, y + 27 + bob, 11, 14);
     ctx.fillStyle = highlightEdge;
-    ctx.fillRect(armX + 2, y + 27 + bob, 11, 2);
+    ctx.fillRect(armX + 2, y + 28 + bob, 9, 2);
 
-    // Twin Plasma Muzzles pointing in facing direction
-    const muzzleX = isFacingLeft ? armX - 5 : armX + 13;
-    ctx.fillStyle = '#0a0f1d';
-    ctx.fillRect(muzzleX, y + 31 + bob, 7, 5); // Upper barrel
-    ctx.fillRect(muzzleX, y + 38 + bob, 7, 5); // Lower barrel
+    // Blade Hilt & Pommel
+    const hiltX = isFacingLeft ? armX - 3 : armX + 9;
+    const hiltY = y + 36 + bob;
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(hiltX, hiltY, 4, 6);
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(hiltX - 3, hiltY + 1, 10, 2); // Crossguard
 
-    // Muzzle Emitter Coils (Glows intensely when preparing to fire)
-    const isAttacking = boss.state === 'charging' || boss.state === 'laser';
-    const muzzleGlow = isAttacking ? '#ef4444' : eyeColor;
-    ctx.fillStyle = muzzleGlow;
-    ctx.fillRect(muzzleX + (isFacingLeft ? 0 : 4), y + 32 + bob, 3, 3);
-    ctx.fillRect(muzzleX + (isFacingLeft ? 0 : 4), y + 39 + bob, 3, 3);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(muzzleX + (isFacingLeft ? 1 : 5), y + 32.5 + bob, 1.5, 2);
-    ctx.fillRect(muzzleX + (isFacingLeft ? 1 : 5), y + 39.5 + bob, 1.5, 2);
+    // Chrono-Greatsword Blade Dynamic Poses
+    const bladeColor = isAttacking && boss.stateTimer <= 20 && boss.stateTimer >= 8
+      ? '#ffffff'
+      : isAttacking
+      ? '#f43f5e'
+      : isDashing
+      ? '#38bdf8'
+      : '#06b6d4';
+    const bladeAura = isAttacking ? '#f43f5e' : '#0ea5e9';
+
+    if (isAttacking && boss.stateTimer > 20) {
+      // Wind-up: Greatsword raised back, charging energy
+      const swordAngle = isFacingLeft ? 0.6 : -0.6;
+      ctx.save();
+      ctx.translate(hiltX + 2, hiltY);
+      ctx.rotate(swordAngle);
+      ctx.fillStyle = bladeAura;
+      ctx.fillRect(-3, -34, 6, 34);
+      ctx.fillStyle = bladeColor;
+      ctx.fillRect(-2, -32, 4, 30);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-1, -30, 2, 26);
+      ctx.restore();
+    } else if (isAttacking && boss.stateTimer <= 20 && boss.stateTimer >= 8) {
+      // Active Slash Strike: Sweeping downward arc
+      const slashProgress = (20 - boss.stateTimer) / 12; // 0 to 1
+      const slashAngle = isFacingLeft
+        ? -0.5 - slashProgress * 1.6
+        : 0.5 + slashProgress * 1.6;
+
+      ctx.save();
+      ctx.translate(hiltX + 2, hiltY);
+      ctx.rotate(slashAngle);
+      ctx.fillStyle = bladeAura;
+      ctx.fillRect(-4, -40, 8, 40);
+      ctx.fillStyle = bladeColor;
+      ctx.fillRect(-2, -38, 4, 36);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-1, -36, 2, 32);
+      ctx.restore();
+
+      // Crescent Energy Slash Wave Effect
+      const slashArcX = isFacingLeft ? x - 42 : x + boss.w + 6;
+      const slashArcY = y + 10 + bob;
+      ctx.save();
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(slashArcX + (isFacingLeft ? 24 : 0), slashArcY + 22, 26, isFacingLeft ? Math.PI * 0.7 : -Math.PI * 0.3, isFacingLeft ? Math.PI * 1.3 : Math.PI * 0.3);
+      ctx.stroke();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    } else if (isDashing) {
+      // Dash Pose: Blade leveled horizontally forward into thrust
+      const swordDir = isFacingLeft ? -1 : 1;
+      const bx = hiltX + (isFacingLeft ? -34 : 4);
+      ctx.fillStyle = bladeAura;
+      ctx.fillRect(bx, hiltY - 2, 34, 6);
+      ctx.fillStyle = bladeColor;
+      ctx.fillRect(bx + (isFacingLeft ? 0 : 2), hiltY - 1, 32, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(bx + (isFacingLeft ? 2 : 4), hiltY, 28, 2);
+    } else {
+      // Battle Ready Guard: Sword resting diagonally forward
+      const guardAngle = isFacingLeft ? -0.4 : 0.4;
+      ctx.save();
+      ctx.translate(hiltX + 2, hiltY);
+      ctx.rotate(guardAngle);
+      ctx.fillStyle = bladeAura;
+      ctx.fillRect(-3, -28, 6, 28);
+      ctx.fillStyle = bladeColor;
+      ctx.fillRect(-2, -26, 4, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-1, -24, 2, 20);
+      ctx.restore();
+    }
+
+    // 3. TELEGRAPH WARNING VISUALS (Clear, reactable, anti-dizziness telegraph)
+    if (boss.telegraphTimer > 0) {
+      ctx.save();
+      if (isAttacking) {
+        // Red dashed telegraph arc for sword slash
+        const arcCenter = isFacingLeft ? x - 18 : x + boss.w + 18;
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.arc(arcCenter, y + 36 + bob, 32, isFacingLeft ? Math.PI * 0.6 : -Math.PI * 0.4, isFacingLeft ? Math.PI * 1.4 : Math.PI * 0.4);
+        ctx.stroke();
+      } else if (isDashing) {
+        // Red dashed vector line for cyber dash
+        const lineStart = isFacingLeft ? x : x + boss.w;
+        const lineEnd = lineStart + (isFacingLeft ? -120 : 120);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(lineStart, y + boss.h - 10 + bob);
+        ctx.lineTo(lineEnd, y + boss.h - 10 + bob);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     // H. HEAVY DUAL MECH LEGS & MAGNETIC TREAD STABILIZERS
     const legW = 12;
