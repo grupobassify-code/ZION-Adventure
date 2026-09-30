@@ -16,6 +16,7 @@ interface TouchControlsProps {
   controlMode?: 'joystick' | 'dpad';
   onToggleControlMode?: () => void;
   isPortrait?: boolean;
+  isFinalBoss?: boolean;
 }
 
 export const TouchControls: React.FC<TouchControlsProps> = ({
@@ -29,6 +30,7 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
   controlMode = 'joystick',
   onToggleControlMode,
   isPortrait = false,
+  isFinalBoss = false,
 }) => {
   const { t } = useLanguage();
   const joystickBaseRef = useRef<HTMLDivElement>(null);
@@ -321,85 +323,154 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
 
           {/* Right: Primary Action Buttons */}
           <div className={`flex items-center ${isIPad ? 'gap-3' : 'gap-1.5 sm:gap-2.5'} touch-control-surface`}>
-            {/* Dagger Throw */}
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onUpdateInput('dagger', true);
-              }}
-              onPointerUp={() => onUpdateInput('dagger', false)}
-              onPointerCancel={() => onUpdateInput('dagger', false)}
-              className={`relative overflow-hidden ${
-                isIPad ? 'w-16 h-16 md:w-18 md:h-18 rounded-2xl' : 'w-11 h-11 sm:w-13 sm:h-13 rounded-xl'
-              } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
-                inputs.dagger
-                  ? 'bg-purple-600/40 text-white border-purple-300/80 shadow-[0_0_14px_rgba(168,85,247,0.7)]'
-                  : daggersAvailable > 0
-                  ? 'bg-black/20 text-purple-200/80 border-purple-500/30 hover:bg-black/30'
-                  : 'bg-black/10 text-slate-500/50 border-purple-950/20'
-              }`}
-            >
-              <svg viewBox="0 0 10 18" className={`${isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-5 sm:h-5'} mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.5)]`}>
-                <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
-                <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
-                <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
-                <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
-              </svg>
-              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
-                {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
-              </span>
-              {daggerRechargePercent > 0 && daggersAvailable < 3 && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
-                    style={{ width: `${daggerRechargePercent}%` }}
-                  />
-                </div>
-              )}
-            </button>
+            {isFinalBoss ? (
+              /* Final Boss Duel: Strictly Escudo (Shield), Dash, and Ataque (Attack) */
+              <>
+                {/* Shield / Block */}
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('block', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('block', false)}
+                  onPointerCancel={() => onUpdateInput('block', false)}
+                  className={`${
+                    isIPad ? 'w-18 h-18 md:w-20 md:h-20 rounded-2xl' : 'w-12 h-12 sm:w-13 sm:h-13 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
+                    inputs.block
+                      ? 'bg-amber-400/45 text-amber-100 border-amber-300/85 shadow-[0_0_14px_rgba(251,191,36,0.7)]'
+                      : 'bg-black/25 text-amber-200/85 border-amber-500/30 hover:bg-black/35'
+                  }`}
+                  title="Escudo / Shield"
+                >
+                  <Shield className={isIPad ? 'w-8 h-8 md:w-9 md:h-9' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
+                  <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono font-black`}>{t('touch_shield')}</span>
+                </button>
 
-            {/* Sword Attack */}
-            <button
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onUpdateInput('attack', true);
-              }}
-              onPointerUp={() => onUpdateInput('attack', false)}
-              onPointerCancel={() => onUpdateInput('attack', false)}
-              className={`${
-                isIPad ? 'w-20 h-20 md:w-22 md:h-22 rounded-2xl' : 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl'
-              } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
-                inputs.attack
-                  ? 'bg-cyan-400/40 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
-                  : 'bg-black/20 text-cyan-200/80 border-cyan-400/30 hover:bg-black/30'
-              }`}
-            >
-              <Swords className={isIPad ? 'w-8 h-8 md:w-9 md:h-9' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
-              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono font-black`}>{t('touch_attack')}</span>
-            </button>
+                {/* Dash / Esquiva */}
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('dash', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('dash', false)}
+                  onPointerCancel={() => onUpdateInput('dash', false)}
+                  className={`${
+                    isIPad ? 'w-18 h-18 md:w-20 md:h-20 rounded-2xl' : 'w-12 h-12 sm:w-13 sm:h-13 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
+                    inputs.dash
+                      ? 'bg-sky-400/45 text-sky-100 border-sky-300/85 shadow-[0_0_14px_rgba(56,189,248,0.7)]'
+                      : 'bg-black/25 text-sky-200/85 border-sky-500/30 hover:bg-black/35'
+                  }`}
+                  title="Dash"
+                >
+                  <Wind className={isIPad ? 'w-8 h-8 md:w-9 md:h-9' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
+                  <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono font-black`}>{t('touch_dash')}</span>
+                </button>
 
-            {/* Jump Button */}
-            <button
-              id="portrait-btn-jump"
-              onPointerDown={(e) => {
-                e.preventDefault();
-                onUpdateInput('jump', true);
-              }}
-              onPointerUp={() => onUpdateInput('jump', false)}
-              onPointerCancel={() => onUpdateInput('jump', false)}
-              className={`${
-                isIPad ? 'w-22 h-22 md:w-24 md:h-24 rounded-2xl' : 'w-13 h-13 sm:w-15 sm:h-15 rounded-xl'
-              } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
-                inputs.jump
-                  ? 'bg-rose-500/45 text-rose-100 border-rose-200/90 shadow-[0_0_18px_rgba(244,63,94,0.7)]'
-                  : 'bg-black/25 text-rose-200/85 border-rose-400/35 hover:bg-black/35'
-              }`}
-            >
-              <ArrowUp className={`${isIPad ? 'w-10 h-10 md:w-11 md:h-11 stroke-[3.5]' : 'w-6 h-6 sm:w-7 sm:h-7 stroke-[3]'} shrink-0`} />
-              <span className={`${isIPad ? 'text-sm md:text-base' : 'text-[10px] sm:text-xs'} font-black tracking-wider leading-none truncate max-w-full`}>
-                {t('touch_jump')}
-              </span>
-            </button>
+                {/* Sword Attack */}
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('attack', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('attack', false)}
+                  onPointerCancel={() => onUpdateInput('attack', false)}
+                  className={`${
+                    isIPad ? 'w-20 h-20 md:w-22 md:h-22 rounded-2xl' : 'w-13 h-13 sm:w-14 sm:h-14 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
+                    inputs.attack
+                      ? 'bg-cyan-400/45 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
+                      : 'bg-black/25 text-cyan-200/85 border-cyan-400/35 hover:bg-black/35'
+                  }`}
+                >
+                  <Swords className={isIPad ? 'w-9 h-9 md:w-10 md:h-10' : 'w-6 h-6 sm:w-6.5 sm:h-6.5'} />
+                  <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono font-black`}>{t('touch_attack')}</span>
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Dagger Throw */}
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('dagger', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('dagger', false)}
+                  onPointerCancel={() => onUpdateInput('dagger', false)}
+                  className={`relative overflow-hidden ${
+                    isIPad ? 'w-16 h-16 md:w-18 md:h-18 rounded-2xl' : 'w-11 h-11 sm:w-13 sm:h-13 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
+                    inputs.dagger
+                      ? 'bg-purple-600/40 text-white border-purple-300/80 shadow-[0_0_14px_rgba(168,85,247,0.7)]'
+                      : daggersAvailable > 0
+                      ? 'bg-black/20 text-purple-200/80 border-purple-500/30 hover:bg-black/30'
+                      : 'bg-black/10 text-slate-500/50 border-purple-950/20'
+                  }`}
+                >
+                  <svg viewBox="0 0 10 18" className={`${isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-5 sm:h-5'} mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.5)]`}>
+                    <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
+                    <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
+                    <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
+                    <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
+                  </svg>
+                  <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
+                    {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
+                  </span>
+                  {daggerRechargePercent > 0 && daggersAvailable < 3 && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
+                        style={{ width: `${daggerRechargePercent}%` }}
+                      />
+                    </div>
+                  )}
+                </button>
+
+                {/* Sword Attack */}
+                <button
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('attack', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('attack', false)}
+                  onPointerCancel={() => onUpdateInput('attack', false)}
+                  className={`${
+                    isIPad ? 'w-20 h-20 md:w-22 md:h-22 rounded-2xl' : 'w-12 h-12 sm:w-14 sm:h-14 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 ${
+                    inputs.attack
+                      ? 'bg-cyan-400/40 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
+                      : 'bg-black/20 text-cyan-200/80 border-cyan-400/30 hover:bg-black/30'
+                  }`}
+                >
+                  <Swords className={isIPad ? 'w-8 h-8 md:w-9 md:h-9' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
+                  <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono font-black`}>{t('touch_attack')}</span>
+                </button>
+
+                {/* Jump Button */}
+                <button
+                  id="portrait-btn-jump"
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    onUpdateInput('jump', true);
+                  }}
+                  onPointerUp={() => onUpdateInput('jump', false)}
+                  onPointerCancel={() => onUpdateInput('jump', false)}
+                  className={`${
+                    isIPad ? 'w-22 h-22 md:w-24 md:h-24 rounded-2xl' : 'w-13 h-13 sm:w-15 sm:h-15 rounded-xl'
+                  } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
+                    inputs.jump
+                      ? 'bg-rose-500/45 text-rose-100 border-rose-200/90 shadow-[0_0_18px_rgba(244,63,94,0.7)]'
+                      : 'bg-black/25 text-rose-200/85 border-rose-400/35 hover:bg-black/35'
+                  }`}
+                >
+                  <ArrowUp className={`${isIPad ? 'w-10 h-10 md:w-11 md:h-11 stroke-[3.5]' : 'w-6 h-6 sm:w-7 sm:h-7 stroke-[3]'} shrink-0`} />
+                  <span className={`${isIPad ? 'text-sm md:text-base' : 'text-[10px] sm:text-xs'} font-black tracking-wider leading-none truncate max-w-full`}>
+                    {t('touch_jump')}
+                  </span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -528,156 +599,225 @@ export const TouchControls: React.FC<TouchControlsProps> = ({
         )}
       </div>
 
-      {/* RIGHT SIDE: Action Buttons Array (Bigger on iPad, translucent on both) */}
+      {/* RIGHT SIDE: Action Buttons Array */}
       <div className={`flex flex-col items-end ${isIPad ? 'gap-2 md:gap-3 p-3 md:p-5' : 'gap-1.5 sm:gap-2 p-1 sm:p-2'} pointer-events-auto`}>
-        {/* Secondary Row: Dash, Block, Special */}
-        <div className={`flex items-center ${isIPad ? 'gap-2 md:gap-2.5 p-1 md:p-1.5 rounded-2xl' : 'gap-1.5 sm:gap-2 p-0.5 sm:p-1 rounded-xl'} bg-black/15 border border-white/10 shadow-none`}>
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              onUpdateInput('dash', true);
-            }}
-            onPointerUp={() => onUpdateInput('dash', false)}
-            onPointerCancel={() => onUpdateInput('dash', false)}
-            className={`${
-              isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
-            } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
-              inputs.dash
-                ? 'bg-sky-400/40 text-sky-100 border-sky-300/80 shadow-[0_0_12px_rgba(56,189,248,0.65)]'
-                : 'bg-black/20 text-sky-200/80 border-sky-500/25 hover:bg-black/30'
-            }`}
-            title="Dash (Shift)"
-          >
-            <Wind className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
-            <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_dash')}</span>
-          </button>
+        {isFinalBoss ? (
+          /* Final Boss Duel: Pure 3-Button Suite (Escudo, Dash, Ataque) */
+          <div className={`flex items-center ${isIPad ? 'gap-3 md:gap-4 p-2 md:p-2.5 rounded-3xl' : 'gap-2 sm:gap-2.5 p-1 sm:p-1.5 rounded-2xl'} bg-black/20 border border-white/10 shadow-none`}>
+            {/* Escudo / Shield */}
+            <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                onUpdateInput('block', true);
+              }}
+              onPointerUp={() => onUpdateInput('block', false)}
+              onPointerCancel={() => onUpdateInput('block', false)}
+              className={`${
+                isIPad ? 'w-20 h-20 md:w-22 md:h-22 rounded-2xl' : 'w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl'
+              } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
+                inputs.block
+                  ? 'bg-amber-400/45 text-amber-100 border-amber-300/85 shadow-[0_0_14px_rgba(251,191,36,0.7)]'
+                  : 'bg-black/25 text-amber-200/85 border-amber-500/30 hover:bg-black/35'
+              }`}
+              title="Escudo / Shield"
+            >
+              <Shield className={isIPad ? 'w-9 h-9 md:w-10 md:h-10' : 'w-6 h-6 sm:w-6.5 sm:h-6.5'} />
+              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black`}>{t('touch_shield')}</span>
+            </button>
 
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              onUpdateInput('block', true);
-            }}
-            onPointerUp={() => onUpdateInput('block', false)}
-            onPointerCancel={() => onUpdateInput('block', false)}
-            className={`${
-              isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
-            } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
-              inputs.block
-                ? 'bg-amber-400/40 text-amber-100 border-amber-300/80 shadow-[0_0_12px_rgba(251,191,36,0.65)]'
-                : 'bg-black/20 text-amber-200/80 border-amber-500/25 hover:bg-black/30'
-            }`}
-            title="Escudo / Shield"
-          >
-            <Shield className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
-            <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_shield')}</span>
-          </button>
+            {/* Dash / Esquiva */}
+            <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                onUpdateInput('dash', true);
+              }}
+              onPointerUp={() => onUpdateInput('dash', false)}
+              onPointerCancel={() => onUpdateInput('dash', false)}
+              className={`${
+                isIPad ? 'w-20 h-20 md:w-22 md:h-22 rounded-2xl' : 'w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl'
+              } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
+                inputs.dash
+                  ? 'bg-sky-400/45 text-sky-100 border-sky-300/85 shadow-[0_0_14px_rgba(56,189,248,0.7)]'
+                  : 'bg-black/25 text-sky-200/85 border-sky-500/30 hover:bg-black/35'
+              }`}
+              title="Dash"
+            >
+              <Wind className={isIPad ? 'w-9 h-9 md:w-10 md:h-10' : 'w-6 h-6 sm:w-6.5 sm:h-6.5'} />
+              <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[9px] sm:text-[10px]'} font-mono leading-none font-black`}>{t('touch_dash')}</span>
+            </button>
 
-          <button
-            disabled={!canUseSpecial}
-            onPointerDown={(e) => {
-              e.preventDefault();
-              if (canUseSpecial) onUpdateInput('special', true);
-            }}
-            onPointerUp={() => onUpdateInput('special', false)}
-            onPointerCancel={() => onUpdateInput('special', false)}
-            className={`${
-              isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
-            } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
-              inputs.special
-                ? 'bg-rose-500/45 text-white border-rose-300/80 shadow-[0_0_14px_rgba(244,63,94,0.7)]'
-                : canUseSpecial
-                ? 'bg-gradient-to-tr from-rose-600/30 to-amber-500/30 text-rose-100 border-rose-400/40 animate-pulse'
-                : 'bg-black/15 text-slate-500/60 border-slate-800/30'
-            }`}
-            title="Especial (Q)"
-          >
-            <Zap className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
-            <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_sp')} {energy}</span>
-          </button>
-        </div>
+            {/* Ataque / Attack */}
+            <button
+              onPointerDown={(e) => {
+                e.preventDefault();
+                onUpdateInput('attack', true);
+              }}
+              onPointerUp={() => onUpdateInput('attack', false)}
+              onPointerCancel={() => onUpdateInput('attack', false)}
+              className={`${
+                isIPad ? 'w-22 h-22 md:w-24 md:h-24 rounded-2xl' : 'w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-xl'
+              } flex flex-col items-center justify-center font-bold border transition-transform active:scale-95 ${
+                inputs.attack
+                  ? 'bg-cyan-400/45 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
+                  : 'bg-black/25 text-cyan-200/85 border-cyan-400/35 hover:bg-black/35'
+              }`}
+            >
+              <Swords className={isIPad ? 'w-10 h-10 md:w-11 md:h-11' : 'w-7 h-7 sm:w-7.5 sm:h-7.5'} />
+              <span className={`${isIPad ? 'text-sm md:text-base' : 'text-[10px] sm:text-xs'} font-mono font-black`}>{t('touch_attack')}</span>
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Secondary Row: Dash, Block, Special */}
+            <div className={`flex items-center ${isIPad ? 'gap-2 md:gap-2.5 p-1 md:p-1.5 rounded-2xl' : 'gap-1.5 sm:gap-2 p-0.5 sm:p-1 rounded-xl'} bg-black/15 border border-white/10 shadow-none`}>
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUpdateInput('dash', true);
+                }}
+                onPointerUp={() => onUpdateInput('dash', false)}
+                onPointerCancel={() => onUpdateInput('dash', false)}
+                className={`${
+                  isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
+                } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
+                  inputs.dash
+                    ? 'bg-sky-400/40 text-sky-100 border-sky-300/80 shadow-[0_0_12px_rgba(56,189,248,0.65)]'
+                    : 'bg-black/20 text-sky-200/80 border-sky-500/25 hover:bg-black/30'
+                }`}
+                title="Dash (Shift)"
+              >
+                <Wind className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
+                <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_dash')}</span>
+              </button>
 
-        {/* Primary Row: Daggers, Sword Attack, Jump */}
-        <div className={`flex items-center ${isIPad ? 'gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-3xl' : 'gap-1.5 sm:gap-2 p-1 rounded-2xl'} bg-black/15 border border-white/10 shadow-none`}>
-          {/* Dagger Throw with Live Recharge Visualizer */}
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              onUpdateInput('dagger', true);
-            }}
-            onPointerUp={() => onUpdateInput('dagger', false)}
-            onPointerCancel={() => onUpdateInput('dagger', false)}
-            className={`relative overflow-hidden ${
-              isIPad ? 'w-18 h-18 md:w-20 md:h-20 rounded-2xl' : 'w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-xl'
-            } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 ${
-              inputs.dagger
-                ? 'bg-purple-600/40 text-white border-purple-300/80 shadow-[0_0_14px_rgba(168,85,247,0.7)]'
-                : daggersAvailable > 0
-                ? 'bg-black/20 text-purple-200/80 border-purple-500/30 hover:bg-black/30'
-                : 'bg-black/10 text-slate-500/50 border-purple-950/20'
-            }`}
-          >
-            <svg viewBox="0 0 10 18" className={`${isIPad ? 'w-7 h-7 md:w-8 md:h-8' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.5)]`}>
-              <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
-              <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
-              <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
-              <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
-            </svg>
-            <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
-              {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
-            </span>
-            {daggerRechargePercent > 0 && daggersAvailable < 3 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
-                  style={{ width: `${daggerRechargePercent}%` }}
-                />
-              </div>
-            )}
-          </button>
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUpdateInput('block', true);
+                }}
+                onPointerUp={() => onUpdateInput('block', false)}
+                onPointerCancel={() => onUpdateInput('block', false)}
+                className={`${
+                  isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
+                } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
+                  inputs.block
+                    ? 'bg-amber-400/40 text-amber-100 border-amber-300/80 shadow-[0_0_12px_rgba(251,191,36,0.65)]'
+                    : 'bg-black/20 text-amber-200/80 border-amber-500/25 hover:bg-black/30'
+                }`}
+                title="Escudo / Shield"
+              >
+                <Shield className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
+                <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_shield')}</span>
+              </button>
 
-          {/* Sword Attack Button */}
-          <button
-            onPointerDown={(e) => {
-              e.preventDefault();
-              onUpdateInput('attack', true);
-            }}
-            onPointerUp={() => onUpdateInput('attack', false)}
-            onPointerCancel={() => onUpdateInput('attack', false)}
-            className={`${
-              isIPad ? 'w-22 h-22 md:w-24 md:h-24 rounded-2xl' : 'w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl'
-            } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 ${
-              inputs.attack
-                ? 'bg-cyan-400/40 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
-                : 'bg-black/20 text-cyan-200/80 border-cyan-400/30 hover:bg-black/30'
-            }`}
-          >
-            <Swords className={isIPad ? 'w-9 h-9 md:w-10 md:h-10' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
-            <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono font-black`}>{t('touch_attack')}</span>
-          </button>
+              <button
+                disabled={!canUseSpecial}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  if (canUseSpecial) onUpdateInput('special', true);
+                }}
+                onPointerUp={() => onUpdateInput('special', false)}
+                onPointerCancel={() => onUpdateInput('special', false)}
+                className={`${
+                  isIPad ? 'w-15 h-15 md:w-17 md:h-17 rounded-2xl' : 'w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg'
+                } flex flex-col items-center justify-center font-black border transition-transform active:scale-95 ${
+                  inputs.special
+                    ? 'bg-rose-500/45 text-white border-rose-300/80 shadow-[0_0_14px_rgba(244,63,94,0.7)]'
+                    : canUseSpecial
+                    ? 'bg-gradient-to-tr from-rose-600/30 to-amber-500/30 text-rose-100 border-rose-400/40 animate-pulse'
+                    : 'bg-black/15 text-slate-500/60 border-slate-800/30'
+                }`}
+                title="Especial (Q)"
+              >
+                <Zap className={isIPad ? 'w-6 h-6 md:w-7 md:h-7' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} />
+                <span className={`${isIPad ? 'text-[10px] md:text-[11px]' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black`}>{t('touch_sp')} {energy}</span>
+              </button>
+            </div>
 
-          {/* Jump Button */}
-          <button
-            id="landscape-btn-jump"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              onUpdateInput('jump', true);
-            }}
-            onPointerUp={() => onUpdateInput('jump', false)}
-            onPointerCancel={() => onUpdateInput('jump', false)}
-            className={`${
-              isIPad ? 'w-24 h-24 md:w-26 md:h-26 rounded-2xl' : 'w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-xl'
-            } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
-              inputs.jump
-                ? 'bg-rose-500/45 text-rose-100 border-rose-200/90 shadow-[0_0_18px_rgba(244,63,94,0.7)]'
-                : 'bg-black/25 text-rose-200/85 border-rose-400/35 hover:bg-black/35'
-            }`}
-          >
-            <ArrowUp className={`${isIPad ? 'w-11 h-11 md:w-12 md:h-12 stroke-[3.5]' : 'w-6 h-6 sm:w-7 sm:h-7 stroke-[3]'} shrink-0`} />
-            <span className={`${isIPad ? 'text-sm md:text-base' : 'text-[9px] sm:text-[10px]'} font-black tracking-wider leading-none truncate max-w-full`}>
-              {t('touch_jump')}
-            </span>
-          </button>
-        </div>
+            {/* Primary Row: Daggers, Sword Attack, Jump */}
+            <div className={`flex items-center ${isIPad ? 'gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-3xl' : 'gap-1.5 sm:gap-2 p-1 rounded-2xl'} bg-black/15 border border-white/10 shadow-none`}>
+              {/* Dagger Throw with Live Recharge Visualizer */}
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUpdateInput('dagger', true);
+                }}
+                onPointerUp={() => onUpdateInput('dagger', false)}
+                onPointerCancel={() => onUpdateInput('dagger', false)}
+                className={`relative overflow-hidden ${
+                  isIPad ? 'w-18 h-18 md:w-20 md:h-20 rounded-2xl' : 'w-11 h-11 sm:w-12 sm:h-12 md:w-13 md:h-13 rounded-xl'
+                } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 ${
+                  inputs.dagger
+                    ? 'bg-purple-600/40 text-white border-purple-300/80 shadow-[0_0_14px_rgba(168,85,247,0.7)]'
+                    : daggersAvailable > 0
+                    ? 'bg-black/20 text-purple-200/80 border-purple-500/30 hover:bg-black/30'
+                    : 'bg-black/10 text-slate-500/50 border-purple-950/20'
+                }`}
+              >
+                <svg viewBox="0 0 10 18" className={`${isIPad ? 'w-7 h-7 md:w-8 md:h-8' : 'w-4 h-4 sm:w-4.5 sm:h-4.5'} mb-0.5 drop-shadow-[0_0_4px_rgba(192,132,252,0.5)]`}>
+                  <circle cx="5" cy="16" r="1.5" fill="none" stroke={daggersAvailable > 0 ? '#facc15' : '#475569'} strokeWidth="1" />
+                  <rect x="4.5" y="11" width="1" height="4" fill={daggersAvailable > 0 ? '#c084fc' : '#334155'} />
+                  <rect x="2.5" y="10.5" width="5" height="1" rx="0.5" fill={daggersAvailable > 0 ? '#facc15' : '#475569'} />
+                  <polygon points="5,1 9,10.5 1,10.5" fill={daggersAvailable > 0 ? '#c084fc' : '#1e293b'} stroke={daggersAvailable > 0 ? '#ffffff' : '#475569'} strokeWidth="0.8" />
+                </svg>
+                <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono leading-none font-black ${daggersAvailable === 0 ? 'text-red-400' : ''}`}>
+                  {daggersAvailable > 0 ? `${daggersAvailable}/3` : '0/3'}
+                </span>
+                {daggerRechargePercent > 0 && daggersAvailable < 3 && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500/70 via-fuchsia-400/70 to-cyan-300/70 transition-all duration-75"
+                      style={{ width: `${daggerRechargePercent}%` }}
+                    />
+                  </div>
+                )}
+              </button>
+
+              {/* Sword Attack Button */}
+              <button
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUpdateInput('attack', true);
+                }}
+                onPointerUp={() => onUpdateInput('attack', false)}
+                onPointerCancel={() => onUpdateInput('attack', false)}
+                className={`${
+                  isIPad ? 'w-22 h-22 md:w-24 md:h-24 rounded-2xl' : 'w-13 h-13 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-xl'
+                } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 ${
+                  inputs.attack
+                    ? 'bg-cyan-400/40 text-cyan-100 border-cyan-200/90 shadow-[0_0_16px_rgba(34,211,238,0.7)]'
+                    : 'bg-black/20 text-cyan-200/80 border-cyan-400/30 hover:bg-black/30'
+                }`}
+              >
+                <Swords className={isIPad ? 'w-9 h-9 md:w-10 md:h-10' : 'w-5.5 h-5.5 sm:w-6 sm:h-6'} />
+                <span className={`${isIPad ? 'text-xs md:text-sm' : 'text-[8px] sm:text-[9px]'} font-mono font-black`}>{t('touch_attack')}</span>
+              </button>
+
+              {/* Jump Button */}
+              <button
+                id="landscape-btn-jump"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  onUpdateInput('jump', true);
+                }}
+                onPointerUp={() => onUpdateInput('jump', false)}
+                onPointerCancel={() => onUpdateInput('jump', false)}
+                className={`${
+                  isIPad ? 'w-24 h-24 md:w-26 md:h-26 rounded-2xl' : 'w-14 h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-xl'
+                } flex flex-col items-center justify-center font-bold border transition-transform active:scale-90 shrink-0 overflow-hidden select-none p-1 ${
+                  inputs.jump
+                    ? 'bg-rose-500/45 text-rose-100 border-rose-200/90 shadow-[0_0_18px_rgba(244,63,94,0.7)]'
+                    : 'bg-black/25 text-rose-200/85 border-rose-400/35 hover:bg-black/35'
+                }`}
+              >
+                <ArrowUp className={`${isIPad ? 'w-11 h-11 md:w-12 md:h-12 stroke-[3.5]' : 'w-6 h-6 sm:w-7 sm:h-7 stroke-[3]'} shrink-0`} />
+                <span className={`${isIPad ? 'text-sm md:text-base' : 'text-[9px] sm:text-[10px]'} font-black tracking-wider leading-none truncate max-w-full`}>
+                  {t('touch_jump')}
+                </span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

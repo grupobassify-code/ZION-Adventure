@@ -732,58 +732,164 @@ export class BossRenderer {
   }
 
   // ---------------------------------------------------------------------------
-  // 5. TITÁN MECÁNICO KRONOS-Ω (ZONE 5 FINAL BOSS)
-  // Handcrafted Monumental Chronos Mech Titan with Rotating Gear Core & Holographic Wings
+  // 5. TITÁN MECÁNICO KRONOS-Ω (FINAL BOSS)
+  // Handcrafted Grand Chrono Mech Titan: Multi-tiered titanium armor, rotating
+  // quantum gyro core, hydraulic pistons, dual-barrel chrono cannon, and majestic wings.
   // ---------------------------------------------------------------------------
   private renderKronosOmega(boss: Boss, x: number, y: number, time: number) {
     const ctx = this.ctx;
     const isOverheated = boss.state === 'overheat';
     const isFacingLeft = boss.facing < 0;
-    const bob = Math.floor(Math.sin(time * 0.12) * 1.5);
+    const bob = isOverheated ? 1 : Math.floor(Math.sin(time * 0.08) * 1.5);
+    const cx = x + boss.w / 2;
+    const cy = y + 27 + bob;
 
     ctx.save();
-    // A. Phase 3: Grand Chrono-Temporal Hologram Wings
-    if (boss.phase === 3) {
-      for (let w = 0; w < 3; w++) {
-        const wingSpread = 24 + w * 12;
-        const wingFlap = Math.sin(time * 0.18 + w * 0.8) * 5;
-        const wingAlpha = 0.45 - w * 0.08;
 
-        ctx.fillStyle = w % 2 === 0 ? `rgba(6, 182, 212, ${wingAlpha})` : `rgba(168, 85, 247, ${wingAlpha})`;
-        // Left Wing Shard
+    // A. PHASE 2 & 3: MAJESTIC TEMPORAL CHRONO WINGS (Geometric Ethereal Wings)
+    if (boss.phase >= 2) {
+      const wingCount = boss.phase === 3 ? 4 : 2;
+      for (let w = 0; w < wingCount; w++) {
+        const wingSpread = 22 + w * 11;
+        const wingFlap = Math.sin(time * 0.12 + w * 0.6) * 4;
+        const wingAlpha = (boss.phase === 3 ? 0.38 : 0.28) - w * 0.05;
+
+        // Wing Blade Gradient (Ethereal Cyan & Temporal Amethyst)
+        const wingColor = w % 2 === 0
+          ? `rgba(56, 189, 248, ${Math.max(0.1, wingAlpha)})`
+          : `rgba(168, 85, 247, ${Math.max(0.1, wingAlpha)})`;
+        ctx.fillStyle = wingColor;
+
+        // Left Wing Geometry
         ctx.beginPath();
-        ctx.moveTo(x + 12, y + 18 + bob);
-        ctx.lineTo(x - wingSpread, y - 10 + wingFlap + bob);
-        ctx.lineTo(x - wingSpread + 10, y + 14 + wingFlap + bob);
+        ctx.moveTo(cx - 10, y + 14 + bob);
+        ctx.lineTo(cx - 16 - wingSpread, y - 8 + wingFlap + bob + w * 4);
+        ctx.lineTo(cx - 20 - wingSpread + 8, y + 8 + wingFlap + bob + w * 4);
+        ctx.lineTo(cx - 10, y + 26 + bob);
+        ctx.closePath();
         ctx.fill();
 
-        // Right Wing Shard
+        // Right Wing Geometry
         ctx.beginPath();
-        ctx.moveTo(x + boss.w - 12, y + 18 + bob);
-        ctx.lineTo(x + boss.w + wingSpread, y - 10 + wingFlap + bob);
-        ctx.lineTo(x + boss.w + wingSpread - 10, y + 14 + wingFlap + bob);
+        ctx.moveTo(cx + 10, y + 14 + bob);
+        ctx.lineTo(cx + 16 + wingSpread, y - 8 + wingFlap + bob + w * 4);
+        ctx.lineTo(cx + 20 + wingSpread - 8, y + 8 + wingFlap + bob + w * 4);
+        ctx.lineTo(cx + 10, y + 26 + bob);
+        ctx.closePath();
         ctx.fill();
+
+        // Subtle Wing Feather Ribs
+        ctx.strokeStyle = `rgba(255, 255, 255, ${wingAlpha * 0.6})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx - 12, y + 16 + bob);
+        ctx.lineTo(cx - 14 - wingSpread, y - 4 + wingFlap + bob + w * 4);
+        ctx.moveTo(cx + 12, y + 16 + bob);
+        ctx.lineTo(cx + 14 + wingSpread, y - 4 + wingFlap + bob + w * 4);
+        ctx.stroke();
       }
     }
 
-    // B. Monumental Armored Exoskeleton (Heavy Titanium & Gold Accents)
-    const baseColor = isOverheated ? '#3f1d1d' : '#090d16';
-    const plateColor = isOverheated ? '#7f1d1d' : '#1e293b';
-    const ridgeColor = isOverheated ? '#ea580c' : '#334155';
-    const goldTrim = '#f59e0b';
+    // B. REAR EXHAUST / HEAT SINKS (Cooling vents & shadow understructure)
+    ctx.fillStyle = '#060913';
+    ctx.fillRect(x + 2, y + 10 + bob, boss.w - 4, boss.h - 14);
 
-    ctx.fillStyle = baseColor;
-    ctx.fillRect(x + 4, y + 10 + bob, boss.w - 8, boss.h - 12);
-    ctx.fillStyle = plateColor;
-    ctx.fillRect(x + 6, y + 12 + bob, boss.w - 12, boss.h - 16);
+    // C. MULTI-LAYERED TITANIUM & CARBON ARMOR PLATING
+    const primaryArmor = isOverheated ? '#451a1a' : '#141d2f';
+    const secondaryArmor = isOverheated ? '#7f1d1d' : '#223249';
+    const highlightEdge = isOverheated ? '#b91c1c' : '#384d6b';
+    const goldFiligree = isOverheated ? '#d97706' : '#d4af37';
+    const conduitCyan = isOverheated ? '#ea580c' : '#0ea5e9';
 
-    // Titanium Armor Ridges
-    ctx.fillStyle = ridgeColor;
-    ctx.fillRect(x + 8, y + 12 + bob, boss.w - 16, 4);
-    ctx.fillRect(x + 8, y + boss.h - 10 + bob, boss.w - 16, 3);
+    // Main Torso Chassis (Beveled Hexagonal Aesthetic)
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(x + 5, y + 8 + bob, boss.w - 10, boss.h - 18);
 
-    // C. Chrono-Quantum Reactor Core (Rotating Clock Gear Core)
-    const corePulse = Math.sin(time * (isOverheated ? 0.5 : 0.2)) * 0.4 + 0.6;
+    // Upper Chest Plates & Shoulder Harness
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x + 7, y + 10 + bob, boss.w - 14, 18);
+    // Lower Abdominal Articulated Segments
+    ctx.fillRect(x + 9, y + 36 + bob, boss.w - 18, 5);
+    ctx.fillRect(x + 11, y + 43 + bob, boss.w - 22, 5);
+
+    // Armor Bevel Highlights
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x + 7, y + 10 + bob, boss.w - 14, 2);
+    ctx.fillRect(x + 9, y + 36 + bob, boss.w - 18, 1);
+    ctx.fillRect(x + 11, y + 43 + bob, boss.w - 22, 1);
+
+    // Royal Gold Trim Border on Chest
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(x + 5, y + 8 + bob, 2, 20);
+    ctx.fillRect(x + boss.w - 7, y + 8 + bob, 2, 20);
+    ctx.fillRect(cx - 12, y + 8 + bob, 24, 2);
+
+    // Dynamic Chrono-Energy Circuit Lines (Luminescent micro-conduits)
+    ctx.fillStyle = conduitCyan;
+    ctx.fillRect(x + 7, y + 14 + bob, 3, 14);
+    ctx.fillRect(x + boss.w - 10, y + 14 + bob, 3, 14);
+    ctx.fillRect(cx - 14, y + 32 + bob, 5, 2);
+    ctx.fillRect(cx + 9, y + 32 + bob, 5, 2);
+
+    // D. REAR SHOULDER MISSILE BAYS / PAULDRONS
+    const podW = 11;
+    const podH = 16;
+    // Left Pauldron
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x - 3, y + 5 + bob, podW, podH);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x - 3, y + 5 + bob, podW, 2);
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(x - 3, y + 7 + bob, 2, podH - 2);
+
+    // Right Pauldron
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x + boss.w - 8, y + 5 + bob, podW, podH);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x + boss.w - 8, y + 5 + bob, podW, 2);
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(x + boss.w + 1, y + 7 + bob, 2, podH - 2);
+
+    // Missile Tubes (Active warning during missile barrage / charging)
+    const missileWarning = boss.state === 'missileBarrage' || boss.state === 'charging';
+    const tubeColor = missileWarning ? '#f97316' : '#090d16';
+    const tubeGlow = missileWarning ? '#ffffff' : conduitCyan;
+    // 2 tubes per pod
+    ctx.fillStyle = tubeColor;
+    ctx.fillRect(x - 1, y + 9 + bob, 3, 4);
+    ctx.fillRect(x + 4, y + 9 + bob, 3, 4);
+    ctx.fillRect(x + boss.w - 6, y + 9 + bob, 3, 4);
+    ctx.fillRect(x + boss.w - 1, y + 9 + bob, 3, 4);
+    ctx.fillStyle = tubeGlow;
+    ctx.fillRect(x, y + 10 + bob, 1, 2);
+    ctx.fillRect(x + 5, y + 10 + bob, 1, 2);
+    ctx.fillRect(x + boss.w - 5, y + 10 + bob, 1, 2);
+    ctx.fillRect(x + boss.w, y + 10 + bob, 1, 2);
+
+    // E. CHRONO-TEMPORAL QUANTUM GYRO CORE
+    // Heavy circular housing with counter-rotating gears and singularity pulse
+    const corePulse = Math.sin(time * (isOverheated ? 0.4 : 0.15)) * 0.3 + 0.7;
+    const coreRadius = 9;
+
+    // Core Outer Bezel Housing
+    ctx.fillStyle = '#0a0f1d';
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreRadius + 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = goldFiligree;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Rotating Outer Gear Teeth (4 cardinal teeth that rotate)
+    for (let g = 0; g < 6; g++) {
+      const gAngle = time * 0.04 + (g * Math.PI) / 3;
+      const gx = cx + Math.cos(gAngle) * (coreRadius + 2);
+      const gy = cy + Math.sin(gAngle) * (coreRadius + 2);
+      ctx.fillStyle = goldFiligree;
+      ctx.fillRect(gx - 1.5, gy - 1.5, 3, 3);
+    }
+
+    // Inner Core Plasma Well
     const coreColor = isOverheated
       ? '#ea580c'
       : boss.phase === 3
@@ -792,103 +898,184 @@ export class BossRenderer {
       ? '#38bdf8'
       : '#06b6d4';
 
-    const cx = x + boss.w / 2;
-    const cy = y + 26 + bob;
-
-    // Core housing
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(cx - 10, cy - 10, 20, 20);
     ctx.fillStyle = coreColor;
-    ctx.fillRect(cx - 8, cy - 8, 16, 16);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(cx - 3, cy - 3, 6, 6); // Singularity core
-
-    // Orbiting Chrono Light Rings & Gear Cogs
-    ctx.strokeStyle = isOverheated ? '#facc15' : '#67e8f9';
-    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.ellipse(cx, cy, 18, 9, time * 0.08, 0, Math.PI * 2);
+    ctx.arc(cx, cy, coreRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Inner Counter-Rotating Chrono Ring
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, coreRadius - 2, (coreRadius - 2) * 0.5, -time * 0.06, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Four Gear Teeth on Housing
-    ctx.fillStyle = goldTrim;
-    ctx.fillRect(cx - 11, cy - 2, 2, 4);
-    ctx.fillRect(cx + 9, cy - 2, 2, 4);
-    ctx.fillRect(cx - 2, cy - 11, 4, 2);
-    ctx.fillRect(cx - 2, cy + 9, 4, 2);
-
-    // D. Heavy Mecha Head & Dual Visor Array
-    ctx.fillStyle = baseColor;
-    ctx.fillRect(x + 12, y + bob, boss.w - 24, 12);
-    ctx.fillStyle = plateColor;
-    ctx.fillRect(x + 14, y + 2 + bob, boss.w - 28, 8);
-
-    // Mecha Crown Antenna Crest
-    ctx.fillStyle = goldTrim;
-    ctx.fillRect(cx - 4, y - 6 + bob, 8, 6);
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(cx - 1, y - 8 + bob, 2, 3); // Signal mast
-
-    // Glowing Optical Visor (Twin Angular Visors)
-    const eyeColor = isOverheated ? '#facc15' : boss.phase === 3 ? '#a855f7' : '#22d3ee';
-    const eyeX = isFacingLeft ? x + 16 : x + boss.w - 26;
-    ctx.fillStyle = eyeColor;
-    ctx.fillRect(eyeX, y + 5 + bob, 10, 3);
+    // Singularity Center Core (White-hot energy core)
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(eyeX + (isFacingLeft ? 2 : 5), y + 5 + bob, 3, 2);
+    ctx.fillRect(cx - 2, cy - 2, 4, 4);
 
-    // E. Heavy Twin Shoulder Missile Racks / Thruster Pods
-    ctx.fillStyle = plateColor;
-    ctx.fillRect(x - 4, y + 4 + bob, 10, 14); // Left pod
-    ctx.fillRect(x + boss.w - 6, y + 4 + bob, 10, 14); // Right pod
-    ctx.fillStyle = ridgeColor;
-    ctx.fillRect(x - 4, y + 4 + bob, 10, 3);
-    ctx.fillRect(x + boss.w - 6, y + 4 + bob, 10, 3);
-
-    // Missile Tubes (Open warning glow during barrage)
-    const tubeGlow = boss.state === 'missileBarrage' ? '#ea580c' : '#334155';
-    ctx.fillStyle = tubeGlow;
-    ctx.fillRect(x - 2, y + 8 + bob, 3, 3);
-    ctx.fillRect(x + 2, y + 8 + bob, 3, 3);
-    ctx.fillRect(x + boss.w - 4, y + 8 + bob, 3, 3);
-    ctx.fillRect(x + boss.w, y + 8 + bob, 3, 3);
-
-    // F. Massive Articulated Hydraulic Pincer Cannon Arms
-    const armX = isFacingLeft ? x - 10 : x + boss.w - 4;
-    const armOtherX = isFacingLeft ? x + boss.w - 2 : x - 12;
-
-    // Front Cannon Arm
-    ctx.fillStyle = plateColor;
-    ctx.fillRect(armX, y + 16 + bob, 14, 24);
-    ctx.fillStyle = ridgeColor;
-    ctx.fillRect(armX + 2, y + 18 + bob, 10, 18);
-    // Double Barrel Chrono-Beam
-    ctx.fillStyle = isOverheated ? '#ea580c' : '#0891b2';
-    ctx.fillRect(armX + (isFacingLeft ? -4 : 10), y + 26 + bob, 6, 12);
-    ctx.fillStyle = eyeColor;
-    ctx.fillRect(armX + (isFacingLeft ? -3 : 11), y + 28 + bob, 4, 3);
-    ctx.fillRect(armX + (isFacingLeft ? -3 : 11), y + 33 + bob, 4, 3);
-
-    // Rear Arm
-    ctx.fillStyle = baseColor;
-    ctx.fillRect(armOtherX, y + 14 + bob, 12, 22);
-
-    // G. Heavy Quad-Piston Legs & Ground Tread Stabilizers
-    ctx.fillStyle = baseColor;
-    ctx.fillRect(x + 8, y + boss.h - 6 + bob, 10, 7);
-    ctx.fillRect(x + boss.w - 18, y + boss.h - 6 + bob, 10, 7);
-    ctx.fillStyle = ridgeColor;
-    ctx.fillRect(x + 6, y + boss.h - 2 + bob, 14, 4); // Left tread
-    ctx.fillRect(x + boss.w - 20, y + boss.h - 2 + bob, 14, 4); // Right tread
-    ctx.fillStyle = isOverheated ? '#facc15' : '#06b6d4';
-    ctx.fillRect(x + 8, y + boss.h + bob, 10, 1);
-    ctx.fillRect(x + boss.w - 18, y + boss.h + bob, 10, 1);
-
-    // Overheat warning vents
+    // Overheat Cooling Steam Vents (Visually show vulnerability)
     if (isOverheated) {
-      ctx.fillStyle = '#ea580c';
-      ctx.fillRect(x + 8, y + boss.h - 8 + bob, boss.w - 16, 2);
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(cx - 14, y + 26 + bob, 4, 8);
+      ctx.fillRect(cx + 10, y + 26 + bob, 4, 8);
+      // Flickering overheat grill
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(cx - 13, y + 28 + bob, 2, 4);
+      ctx.fillRect(cx + 11, y + 28 + bob, 2, 4);
     }
+
+    // F. REGAL CYBERNETIC MECHA HEAD & VISOR ARRAY
+    const headW = 20;
+    const headH = 14;
+    const headX = cx - headW / 2;
+    const headY = y - 4 + bob;
+
+    // Neck Understructure
+    ctx.fillStyle = '#0a0f1d';
+    ctx.fillRect(cx - 5, y + 6 + bob, 10, 4);
+
+    // Main Helmet Geometry
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(headX, headY, headW, headH);
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(headX + 2, headY + 2, headW - 4, headH - 3);
+
+    // Horned Samurai Antenna Crest (Crown of Chronos)
+    ctx.fillStyle = goldFiligree;
+    // Left Wing Crest
+    ctx.beginPath();
+    ctx.moveTo(cx - 4, headY);
+    ctx.lineTo(cx - 13, headY - 8);
+    ctx.lineTo(cx - 9, headY - 8);
+    ctx.lineTo(cx - 2, headY);
+    ctx.closePath();
+    ctx.fill();
+    // Right Wing Crest
+    ctx.beginPath();
+    ctx.moveTo(cx + 4, headY);
+    ctx.lineTo(cx + 13, headY - 8);
+    ctx.lineTo(cx + 9, headY - 8);
+    ctx.lineTo(cx + 2, headY);
+    ctx.closePath();
+    ctx.fill();
+    // Central Horn Tip
+    ctx.fillStyle = conduitCyan;
+    ctx.fillRect(cx - 1, headY - 9, 2, 5);
+
+    // Brow Ridge
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(headX + 2, headY + 4, headW - 4, 2);
+
+    // Luminous Dual Optics Visor (Reactive Cyber Eyes with scanning slit)
+    const eyeColor = isOverheated
+      ? '#ea580c'
+      : boss.phase === 3
+      ? '#c084fc'
+      : boss.phase === 2
+      ? '#38bdf8'
+      : '#22d3ee';
+
+    const eyeOffset = isFacingLeft ? -2 : 2;
+    // Left Eye
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(cx - 6 + eyeOffset, headY + 6, 4, 2.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 5 + eyeOffset, headY + 6.5, 2, 1.5);
+
+    // Right Eye
+    ctx.fillStyle = eyeColor;
+    ctx.fillRect(cx + 2 + eyeOffset, headY + 6, 4, 2.5);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx + 3 + eyeOffset, headY + 6.5, 2, 1.5);
+
+    // Armored Jaw Guard & Audio Filter Grille
+    ctx.fillStyle = '#0a0f1d';
+    ctx.fillRect(cx - 5, headY + 10, 10, 3);
+    ctx.fillStyle = goldFiligree;
+    ctx.fillRect(cx - 4, headY + 11, 8, 1);
+
+    // G. MASSIVE ARTICULATED HYDRAULIC CANNON ARMS
+    // Front Arm (Heavy Multi-Barrel Railgun & Plasma Muzzle)
+    const armX = isFacingLeft ? x - 13 : x + boss.w - 3;
+    const armOtherX = isFacingLeft ? x + boss.w - 1 : x - 13;
+
+    // Rear Stabilizer Arm (Depth layer)
+    ctx.fillStyle = '#0d1322';
+    ctx.fillRect(armOtherX, y + 14 + bob, 12, 24);
+    ctx.fillStyle = '#162035';
+    ctx.fillRect(armOtherX + 2, y + 16 + bob, 8, 20);
+
+    // Front Main Battle Arm
+    // Shoulder Joint
+    ctx.fillStyle = goldFiligree;
+    ctx.beginPath();
+    ctx.arc(armX + 7, y + 15 + bob, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bicep & Hydraulic Ram
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(armX + 2, y + 16 + bob, 11, 12);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(armX + 4, y + 18 + bob, 3, 8); // Hydraulic cylinder
+    ctx.fillStyle = conduitCyan;
+    ctx.fillRect(armX + 8, y + 18 + bob, 2, 8); // Power line
+
+    // Forearm Heavy Twin-Barrel Cannon
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(armX, y + 26 + bob, 15, 20);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(armX + 2, y + 27 + bob, 11, 2);
+
+    // Twin Plasma Muzzles pointing in facing direction
+    const muzzleX = isFacingLeft ? armX - 5 : armX + 13;
+    ctx.fillStyle = '#0a0f1d';
+    ctx.fillRect(muzzleX, y + 31 + bob, 7, 5); // Upper barrel
+    ctx.fillRect(muzzleX, y + 38 + bob, 7, 5); // Lower barrel
+
+    // Muzzle Emitter Coils (Glows intensely when preparing to fire)
+    const isAttacking = boss.state === 'charging' || boss.state === 'laser';
+    const muzzleGlow = isAttacking ? '#ef4444' : eyeColor;
+    ctx.fillStyle = muzzleGlow;
+    ctx.fillRect(muzzleX + (isFacingLeft ? 0 : 4), y + 32 + bob, 3, 3);
+    ctx.fillRect(muzzleX + (isFacingLeft ? 0 : 4), y + 39 + bob, 3, 3);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(muzzleX + (isFacingLeft ? 1 : 5), y + 32.5 + bob, 1.5, 2);
+    ctx.fillRect(muzzleX + (isFacingLeft ? 1 : 5), y + 39.5 + bob, 1.5, 2);
+
+    // H. HEAVY DUAL MECH LEGS & MAGNETIC TREAD STABILIZERS
+    const legW = 12;
+    const legH = 16;
+    // Left Leg
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(x + 7, y + boss.h - 18 + bob, legW, legH);
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x + 9, y + boss.h - 16 + bob, legW - 4, legH - 2);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x + 10, y + boss.h - 14 + bob, 2, 8); // Piston ram
+
+    // Right Leg
+    ctx.fillStyle = primaryArmor;
+    ctx.fillRect(x + boss.w - 19, y + boss.h - 18 + bob, legW, legH);
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x + boss.w - 17, y + boss.h - 16 + bob, legW - 4, legH - 2);
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x + boss.w - 16, y + boss.h - 14 + bob, 2, 8); // Piston ram
+
+    // Heavy Treaded Foot Stabilizers (Ground Clamps)
+    ctx.fillStyle = secondaryArmor;
+    ctx.fillRect(x + 4, y + boss.h - 4 + bob, 18, 5);
+    ctx.fillRect(x + boss.w - 22, y + boss.h - 4 + bob, 18, 5);
+
+    ctx.fillStyle = highlightEdge;
+    ctx.fillRect(x + 4, y + boss.h - 4 + bob, 18, 1);
+    ctx.fillRect(x + boss.w - 22, y + boss.h - 4 + bob, 18, 1);
+
+    // Ground Magnet Clamps & Suspension Tread Grips
+    ctx.fillStyle = conduitCyan;
+    ctx.fillRect(x + 6, y + boss.h + bob, 14, 1);
+    ctx.fillRect(x + boss.w - 20, y + boss.h + bob, 14, 1);
+
     ctx.restore();
   }
 

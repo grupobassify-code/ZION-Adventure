@@ -163,6 +163,15 @@ export class GameEngine {
   public onlyUpLavaY: number = 215;
   public onlyUpLavaSpeed: number = 0;
   public onlyUpGraceTimer: number = 180; // 3 seconds head start / ventaja
+
+  public get isFinalBossFight(): boolean {
+    const cfg = LEVEL_CONFIGS[this.levelIndex];
+    if (cfg && (cfg.id === 'krono-3' || cfg.id === 'themoon-3')) return true;
+    if (this.boss && (this.boss.name.includes('Kronos') || this.boss.name.includes('Doomsday') || this.boss.name.includes('Dreadnought'))) {
+      return true;
+    }
+    return false;
+  }
   public onlyUpAltitude: number = 0;
   public onlyUpMaxAltitude: number = 0;
   public onlyUpRecord: number = 0;
@@ -1388,6 +1397,13 @@ export class GameEngine {
       if (this.timeAttackGhostFrames.length > 0) {
         this.remotePlayer = sampleGhostAtTime(this.timeAttackGhostFrames, this.timeAttackCurrentMs, this.goal.x);
       }
+    }
+
+    if (this.isFinalBossFight) {
+      // In the final boss duel: strictly pure combat with Escudo (Shield), Dash, and Attack!
+      inputs.jump = false;
+      inputs.dagger = false;
+      inputs.special = false;
     }
 
     this.updatePlayerMovement(inputs);
@@ -5769,18 +5785,24 @@ export class GameEngine {
         b.vx = Math.max(-speed, Math.min(speed, b.vx));
         b.x += b.vx;
 
-        // Continuous Chrono-Pulse fire in Idle (Relentless Attacks)
+        // Continuous Chrono-Pulse fire in Idle (Aimed directly at Zion)
         b.shotTimer--;
         if (b.shotTimer <= 0) {
           sound.playSfx('bossShot');
+          const startX = b.x + (b.facing > 0 ? b.w : -8);
+          const startY = b.y + 26;
+          const targetX = this.player.x + this.player.w / 2;
+          const targetY = this.player.y + this.player.h / 2;
+          const angle = Math.atan2(targetY - startY, targetX - startX);
+          const spd = 3.6;
           this.projectiles.push({
-            x: b.x + (b.facing > 0 ? b.w : -8),
-            y: b.y + 14,
+            x: startX,
+            y: startY,
             w: 8,
             h: 8,
-            vx: b.facing * 3.2,
-            vy: (Math.random() - 0.5) * 0.9,
-            life: 120,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            life: 140,
             isHero: false,
             kind: 'plasma',
           });
@@ -5828,7 +5850,9 @@ export class GameEngine {
           b.state = 'laser';
           b.stateTimer = b.phase === 3 ? 40 : 32;
           sound.playSfx('laserFire');
-          this.screenShake = 8;
+          this.screenShake = 6;
+          const laserThickness = 26;
+          const laserY = Math.min(124, Math.max(92, this.player.y + this.player.h / 2 - laserThickness / 2));
           b.laser = {
             active: true,
             charging: false,
@@ -5836,9 +5860,9 @@ export class GameEngine {
             maxCharge: 30,
             dir: b.facing,
             x: b.facing > 0 ? b.x + b.w : b.x - 340,
-            y: b.y + 22,
+            y: laserY,
             length: 340,
-            thickness: 14,
+            thickness: laserThickness,
             duration: b.phase === 3 ? 40 : 32,
           };
         }
@@ -5846,7 +5870,6 @@ export class GameEngine {
         b.stateTimer--;
         if (b.laser) {
           b.laser.x = b.facing > 0 ? b.x + b.w : b.x - b.laser.length;
-          b.laser.y = b.y + 22;
 
           const laserHitbox = {
             x: b.laser.x,
@@ -5855,16 +5878,24 @@ export class GameEngine {
             h: b.laser.thickness,
           };
 
-          if (this.checkAABB(this.player, laserHitbox) && this.player.inv <= 0 && !this.settings.godMode) {
-            if (this.player.isBlocking) {
+          if (this.checkAABB(this.player, laserHitbox) && this.player.inv <= 0 && !this.player.isDashing && !this.settings.godMode) {
+            if (this.player.isBlocking && !this.player.isShieldBroken) {
               if (this.player.perfectParryTimer > 0) {
                 sound.playSfx('parry');
                 this.addEnergy(35);
                 this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 22, '#facc15');
                 this.addFloatingText(this.player.x, this.player.y - 20, '✦ PARRY CHRONO-LÁSER!', '#facc15');
               } else {
+                this.player.shieldEnergy = Math.max(0, this.player.shieldEnergy - 18);
                 sound.playSfx('block');
                 this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 10, '#38bdf8');
+                if (this.player.shieldEnergy <= 0) {
+                  this.player.isBlocking = false;
+                  this.player.isShieldBroken = true;
+                  this.player.shieldBreakTimer = 120;
+                  sound.playSfx('shieldBreak');
+                  this.addFloatingText(this.player.x, this.player.y - 18, '⚡ ¡ESCUDO ROTO!', '#ef4444');
+                }
               }
             } else {
               this.handlePlayerDamage('¡Impacto de Cañón Chrono-Láser!');
@@ -7873,46 +7904,31 @@ export class GameEngine {
         }
       }
 
-      // Boss Body Collision (Fair Collision Design: Only when boss is actively performing physical body moves like dash tackles or ground-slam drops, NEVER during charging, stationary projectile attacks, overheat, or teleport)
-      const isDoomsdayFight = LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3' || (this.boss && (this.boss.name.includes('Doomsday') || this.boss.name.includes('Dreadnought')));
-
-      const isPhysicalBodyAttack =
-        this.boss &&
-        (this.boss.state === 'dash' ||
-         (this.boss.state === 'slamming' && this.boss.vy > 1.5) ||
-         (isDoomsdayFight && !p.flightBoost));
-
+      // Boss Body Collision & Physical Contact
+      // Active boss body deals damage to Zion if touched, unless Zion is dashing or blocking with Shield
       const bossCanDamage =
         this.boss &&
         this.boss.alive &&
         !this.boss.isStaggered &&
         this.boss.state !== 'staggered' &&
-        (isDoomsdayFight || (
-          this.boss.state !== 'idle' &&
-          this.boss.state !== 'overheat' &&
-          this.boss.state !== 'charging' &&
-          this.boss.state !== 'teleport' &&
-          this.boss.state !== 'laser' &&
-          this.boss.state !== 'missileBarrage' &&
-          this.boss.state !== 'emp'
-        )) &&
-        isPhysicalBodyAttack &&
-        this.boss.inv < 15 &&
+        this.boss.state !== 'overheat' &&
+        this.boss.state !== 'teleport' &&
+        this.boss.inv < 20 &&
         (this.boss.introTimer || 0) <= 0;
 
       if (bossCanDamage && this.boss) {
         const bossHurtbox = {
-          x: this.boss.x + 4,
-          y: this.boss.y + 4,
-          w: Math.max(8, this.boss.w - 8),
-          h: Math.max(8, this.boss.h - 8),
+          x: this.boss.x + 3,
+          y: this.boss.y + 3,
+          w: Math.max(8, this.boss.w - 6),
+          h: Math.max(8, this.boss.h - 6),
         };
         if (this.checkAABB(p, bossHurtbox)) {
           if (p.isBlocking && !p.isShieldBroken) {
             if (p.perfectParryTimer > 0) {
               sound.playSfx('parry');
               sound.playSfx('stagger');
-              this.screenShake = 10;
+              this.screenShake = 6;
               this.boss.isStaggered = true;
               this.boss.state = 'staggered';
               this.boss.stateTimer = 180;
@@ -7938,7 +7954,7 @@ export class GameEngine {
               }
             }
           } else {
-            this.handlePlayerDamage('¡Embestida del jefe!');
+            this.handlePlayerDamage('¡Colisión contra el Titán!');
           }
         }
       }

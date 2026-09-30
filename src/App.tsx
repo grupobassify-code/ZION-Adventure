@@ -849,7 +849,7 @@ export default function App() {
             width={GAME_WIDTH}
             height={GAME_HEIGHT}
             className="w-full h-full object-contain image-rendering-pixelated touch-none select-none"
-            style={{ imageRendering: 'pixelated' }}
+            style={{ imageRendering: 'pixelated', filter: 'saturate(0.85) contrast(0.98)' }}
           />
         </div>
       ) : (
@@ -861,7 +861,7 @@ export default function App() {
             width={GAME_WIDTH}
             height={GAME_HEIGHT}
             className="w-full h-full object-contain image-rendering-pixelated shadow-2xl rounded-lg touch-none select-none"
-            style={{ imageRendering: 'pixelated' }}
+            style={{ imageRendering: 'pixelated', filter: 'saturate(0.85) contrast(0.98)' }}
           />
         </div>
       )}
@@ -870,6 +870,7 @@ export default function App() {
       {!inMainMenu && (
         <TouchControls
           isPortrait={isPortrait}
+          isFinalBoss={engine.isFinalBossFight}
           inputs={inputsRef.current}
           daggersAvailable={engine.daggers}
           daggerRechargePercent={Math.min(100, Math.round((engine.daggerRechargeTimer / DAGGER_RECHARGE_TIME) * 100))}

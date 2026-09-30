@@ -345,13 +345,14 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     subtitle: 'Batalla Definitiva: Titán Mecánico Kronos-Ω',
     lore: [
       {
-        title: '🤖 EL TITÁN MECÁNICO KRONOS-Ω',
+        title: '🤖 EL TITÁN MECÁNICO KRONOS-Ω — DUELO DEFINITIVO',
         lines: [
           'En el pináculo de Krono City despierta el arma definitiva: el Titán Mecánico Kronos-Ω.',
-          '⚠️ ALERTA MÁXIMA — SOLO TIENES 1 OPORTUNIDAD: Si caes en este combate definitivo, el sistema reiniciará la red de Krono City.',
-          '• Dispara dagas a sus 2 Núcleos de Energía elevados para apagar su Escudo de Sobrecarga.',
-          '• Cuando lance su ráfaga masiva de misiles, entrará en fase de SOBRECALENTAMIENTO: ¡golpea sus ventiladores expuestos!',
-          '• Realiza Bloqueos Perfectos (Parry) ante sus megacañones para noquearlo y desatar tu combo definitivo.'
+          '⚔️ COMBATE FINAL PURO: Tus únicas armas en este duelo son tu ESCUDO, tu DASH y tu ATAQUE cuerpo a cuerpo.',
+          '• ESCUDO: Bloquea o realiza Parry ante los proyectiles de plasma, rayos láser y embestidas físicas del Titán.',
+          '• DASH: Deslízate con total invulnerabilidad a través de sus devastadores cañones y ondas de choque sísmicas.',
+          '• ATAQUE: ¡Aprovecha la fase de sobrecalentamiento del Titán para conectar combos con tu espada y reducir su blindaje!',
+          '⚠️ ¡CUIDADO! Todos los ataques y el chasis del jefe te causan daño real si no bloqueas ni esquivas a tiempo.'
         ],
         author: 'Directiva de Emergencia 00'
       }

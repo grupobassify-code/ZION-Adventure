@@ -870,25 +870,23 @@ export class GameRenderer {
         grad.addColorStop(1, '#b91c1c');
       }
     } else if (zone === 'krono') {
-      // Krono City: Futuristic Cyberpunk Metropolis
+      // Krono City: Futuristic Metropolis - Calmed and desaturated to prevent visual fatigue
       if (act === 1) {
-        // Upper Commercial Cyber-District
-        grad.addColorStop(0, '#020617');
-        grad.addColorStop(0.35, '#0b132b');
-        grad.addColorStop(0.7, '#1c2541');
-        grad.addColorStop(1, '#0e7490');
+        grad.addColorStop(0, '#040711');
+        grad.addColorStop(0.35, '#0a1020');
+        grad.addColorStop(0.7, '#141d30');
+        grad.addColorStop(1, '#1b2c42');
       } else if (act === 2) {
-        // High Orbital Station & Quantum Reactor
-        grad.addColorStop(0, '#020617');
-        grad.addColorStop(0.4, '#0f172a');
-        grad.addColorStop(0.75, '#2e1065');
-        grad.addColorStop(1, '#4338ca');
+        grad.addColorStop(0, '#040711');
+        grad.addColorStop(0.4, '#0a1224');
+        grad.addColorStop(0.75, '#191b35');
+        grad.addColorStop(1, '#25294a');
       } else {
-        // The Mechanical Throne of Kronos
-        grad.addColorStop(0, '#000000');
-        grad.addColorStop(0.35, '#1e0a38');
-        grad.addColorStop(0.75, '#3b0764');
-        grad.addColorStop(1, '#0284c7');
+        // Act 3: The Mechanical Throne of Kronos - Restrained, elegant dark slate atmosphere
+        grad.addColorStop(0, '#03050c');
+        grad.addColorStop(0.4, '#090e1c');
+        grad.addColorStop(0.75, '#131b2e');
+        grad.addColorStop(1, '#1e293b');
       }
     } else if (zone === 'travel') {
       // Kronos Travel: Dimensional Rift / Chrono Aurora / Cosmic Convergence
@@ -1130,77 +1128,71 @@ export class GameRenderer {
         }
       }
     } else if (zone === 'krono') {
-      // Krono City: Giant Quantum Chrono-Reactor Ring in Sky & Cyber Skyways with Aerocars
-      const ringPulse = Math.sin(time * 0.05) * 4;
-      ctx.strokeStyle = '#06b6d444';
-      ctx.lineWidth = 4;
+      // Krono City: Giant Quantum Chrono-Reactor Ring in Sky - Soft, subtle & non-intrusive
+      const ringPulse = Math.sin(time * 0.03) * 2;
+      ctx.strokeStyle = '#06b6d418';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.arc(230, 42, 36 + ringPulse * 0.3, 0, Math.PI * 2);
+      ctx.arc(230, 42, 34 + ringPulse * 0.2, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = '#a855f766';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#a855f720';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(230, 42, 24, 0, Math.PI * 2);
+      ctx.arc(230, 42, 22, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.fillStyle = '#06b6d422';
+      ctx.fillStyle = '#06b6d40d';
       ctx.beginPath();
-      ctx.arc(230, 42, 14, 0, Math.PI * 2);
+      ctx.arc(230, 42, 12, 0, Math.PI * 2);
       ctx.fill();
 
-      // Rotating Chrono Ring Ticks
-      for (let tk = 0; tk < 8; tk++) {
-        const angle = time * 0.02 + (tk * Math.PI) / 4;
-        const tx1 = 230 + Math.cos(angle) * 32;
-        const ty1 = 42 + Math.sin(angle) * 32;
-        const tx2 = 230 + Math.cos(angle) * 38;
-        const ty2 = 42 + Math.sin(angle) * 38;
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
+      // Rotating Chrono Ring Ticks (Soft subdued lines)
+      for (let tk = 0; tk < 6; tk++) {
+        const angle = time * 0.01 + (tk * Math.PI) / 3;
+        const tx1 = 230 + Math.cos(angle) * 30;
+        const ty1 = 42 + Math.sin(angle) * 30;
+        const tx2 = 230 + Math.cos(angle) * 35;
+        const ty2 = 42 + Math.sin(angle) * 35;
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(tx1, ty1);
         ctx.lineTo(tx2, ty2);
         ctx.stroke();
       }
 
-      // Matrix Perspective Cyber-Grid in Sky
-      ctx.strokeStyle = '#0284c718';
+      // Matrix Perspective Cyber-Grid in Sky (Soft and low contrast)
+      ctx.strokeStyle = 'rgba(2, 132, 199, 0.06)';
       ctx.lineWidth = 1;
-      for (let gy = 60; gy < 145; gy += 12) {
+      for (let gy = 65; gy < 145; gy += 16) {
         ctx.beginPath();
         ctx.moveTo(0, gy);
         ctx.lineTo(GAME_WIDTH, gy);
         ctx.stroke();
       }
 
-      // Flying Aerocars / Cyber-Vehicles in skyways
-      for (let v = 0; v < 4; v++) {
-        const speed = 1.8 + v * 0.7;
+      // Flying Aerocars in skyways - Relaxed speed and gentle light
+      for (let v = 0; v < 3; v++) {
+        const speed = 1.0 + v * 0.4;
         const dir = v % 2 === 0 ? 1 : -1;
-        const carX = ((v * 110 + (time * speed * dir)) % (GAME_WIDTH + 80) + GAME_WIDTH + 80) % (GAME_WIDTH + 80) - 40;
-        const carY = 24 + v * 14;
+        const carX = ((v * 130 + (time * speed * dir)) % (GAME_WIDTH + 80) + GAME_WIDTH + 80) % (GAME_WIDTH + 80) - 40;
+        const carY = 26 + v * 16;
 
         // Vehicle Body
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(carX, carY, 14, 4);
-        // Headlights (Cyan/White) & Taillights (Red)
+        ctx.fillStyle = '#0b1120';
+        ctx.fillRect(carX, carY, 12, 3);
+        // Headlights & Taillights (Muted, comfortable illumination)
         if (dir > 0) {
-          ctx.fillStyle = '#f43f5e';
-          ctx.fillRect(carX - 2, carY + 1, 3, 2);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(carX + 13, carY + 1, 3, 2);
-          // Light beam
-          ctx.fillStyle = '#38bdf822';
-          ctx.fillRect(carX + 16, carY, 16, 4);
+          ctx.fillStyle = '#e11d4888';
+          ctx.fillRect(carX - 1, carY + 1, 2, 1);
+          ctx.fillStyle = '#38bdf888';
+          ctx.fillRect(carX + 11, carY + 1, 2, 1);
         } else {
-          ctx.fillStyle = '#f43f5e';
-          ctx.fillRect(carX + 13, carY + 1, 3, 2);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(carX - 2, carY + 1, 3, 2);
-          // Light beam
-          ctx.fillStyle = '#38bdf822';
-          ctx.fillRect(carX - 18, carY, 16, 4);
+          ctx.fillStyle = '#e11d4888';
+          ctx.fillRect(carX + 11, carY + 1, 2, 1);
+          ctx.fillStyle = '#38bdf888';
+          ctx.fillRect(carX - 1, carY + 1, 2, 1);
         }
       }
     } else if (zone === 'jungle') {
@@ -3896,33 +3888,29 @@ export class GameRenderer {
         }
       }
     }
-    const count = zone === 'blizzard' ? 44 : zone === 'themoon' ? 40 : zone === 'steampunk' ? 38 : zone === 'castlesmash' ? 36 : zone === 'lavacliff' ? 32 : zone === 'krono' ? 30 : zone === 'desert' ? 28 : zone === 'jungle' ? 30 : isNight ? 26 : 18;
+    const count = zone === 'blizzard' ? 22 : zone === 'themoon' ? 14 : zone === 'steampunk' ? 16 : zone === 'castlesmash' ? 14 : zone === 'lavacliff' ? 14 : zone === 'krono' ? 10 : zone === 'desert' ? 12 : zone === 'jungle' ? 14 : isNight ? 12 : 10;
     for (let i = 0; i < count; i++) {
-      const px = ((i * 47 - cameraX * (zone === 'blizzard' ? 0.45 : zone === 'desert' ? 0.35 : zone === 'castlesmash' ? 0.3 : zone === 'krono' ? 0.28 : zone === 'jungle' ? 0.25 : zone === 'steampunk' ? 0.2 : 0.15) + (time * (zone === 'blizzard' ? 3.5 : zone === 'lavacliff' ? -0.6 : zone === 'desert' ? 1.2 : zone === 'steampunk' ? 0.4 : 0.65))) % (GAME_WIDTH + 40)) - 20;
-      const py = (i * 25 + Math.sin(time * 0.05 + i) * 14) % (GAME_HEIGHT - 25);
+      const px = ((i * 58 - cameraX * (zone === 'blizzard' ? 0.35 : zone === 'desert' ? 0.25 : zone === 'castlesmash' ? 0.2 : zone === 'krono' ? 0.18 : zone === 'jungle' ? 0.18 : zone === 'steampunk' ? 0.15 : 0.12) + (time * (zone === 'blizzard' ? 2.0 : zone === 'lavacliff' ? -0.35 : zone === 'desert' ? 0.7 : zone === 'steampunk' ? 0.25 : 0.35))) % (GAME_WIDTH + 40)) - 20;
+      const py = (i * 28 + Math.sin(time * 0.03 + i) * 10) % (GAME_HEIGHT - 25);
 
       if (zone === 'neon') {
-        ctx.fillStyle = i % 2 === 0 ? '#4ade80bb' : '#22d3eebb';
-        ctx.fillRect(px, py, 2, 2);
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(74, 222, 128, 0.35)' : 'rgba(34, 211, 238, 0.35)';
+        ctx.fillRect(px, py, 1.5, 1.5);
       } else if (zone === 'sakura') {
-        ctx.fillStyle = isNight ? '#f472b6cc' : '#ffd1e8dd';
+        ctx.fillStyle = isNight ? 'rgba(244, 114, 182, 0.35)' : 'rgba(255, 209, 232, 0.45)';
         ctx.beginPath();
-        ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+        ctx.arc(px, py, 1.5, 0, Math.PI * 2);
         ctx.fill();
       } else if (zone === 'lavacliff') {
-        // Floating incandescent volcanic embers rising upwards
-        const emberY = (GAME_HEIGHT - ((time * 0.8 + i * 28) % (GAME_HEIGHT + 10)));
-        ctx.fillStyle = i % 3 === 0 ? '#fbbf24dd' : i % 2 === 0 ? '#f97316dd' : '#ef4444dd';
-        ctx.fillRect(px, emberY, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
+        // Floating volcanic embers rising softly
+        const emberY = (GAME_HEIGHT - ((time * 0.45 + i * 28) % (GAME_HEIGHT + 10)));
+        ctx.fillStyle = i % 3 === 0 ? 'rgba(251, 191, 36, 0.45)' : i % 2 === 0 ? 'rgba(249, 115, 22, 0.4)' : 'rgba(239, 68, 68, 0.35)';
+        ctx.fillRect(px, emberY, 1.5, 1.5);
       } else if (zone === 'krono') {
-        // Floating digital data bits & glowing cyber sparks
-        const digitY = ((time * 0.9 + i * 24) % (GAME_HEIGHT + 10));
-        ctx.fillStyle = i % 3 === 0 ? '#38bdf8dd' : i % 2 === 0 ? '#a855f7dd' : '#06b6d4ee';
-        ctx.fillRect(px, digitY, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
-        if (i % 5 === 0) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(px + 0.5, digitY + 0.5, 1, 1);
-        }
+        // Subtle digital data motes - Desaturated, soft and tranquil
+        const digitY = ((time * 0.4 + i * 26) % (GAME_HEIGHT + 10));
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(56, 189, 248, 0.3)' : 'rgba(168, 85, 247, 0.25)';
+        ctx.fillRect(px, digitY, 1.5, 1.5);
       } else if (zone === 'castlesmash') {
         // Floating torch sparks and castle dust motes
         if (i % 2 === 0) {

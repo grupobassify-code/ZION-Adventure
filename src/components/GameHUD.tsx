@@ -135,20 +135,22 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             </div>
           </div>
 
-          {/* SP Energy Gauge */}
-          <div className="flex items-center gap-1 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-amber-500/40 shadow-sm" title={`${language === 'es' ? 'Energía SP' : 'SP Energy'}: ${p.energy}/${p.maxEnergy}`}>
-            <Zap className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.energy >= 70 ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
-            <div className="w-7 sm:w-10 h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-amber-900/60">
-              <div
-                className={`h-full transition-all duration-200 ${
-                  p.energy >= 70
-                    ? 'bg-gradient-to-r from-amber-400 to-rose-500'
-                    : 'bg-amber-600'
-                }`}
-                style={{ width: `${energyPercent}%` }}
-              />
+          {/* SP Energy Gauge (Hidden in Final Boss Duel) */}
+          {!engine.isFinalBossFight && (
+            <div className="flex items-center gap-1 bg-slate-950/85 backdrop-blur-md px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-xl border border-amber-500/40 shadow-sm" title={`${language === 'es' ? 'Energía SP' : 'SP Energy'}: ${p.energy}/${p.maxEnergy}`}>
+              <Zap className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${p.energy >= 70 ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
+              <div className="w-7 sm:w-10 h-1.5 sm:h-2 bg-slate-900 rounded-full overflow-hidden border border-amber-900/60">
+                <div
+                  className={`h-full transition-all duration-200 ${
+                    p.energy >= 70
+                      ? 'bg-gradient-to-r from-amber-400 to-rose-500'
+                      : 'bg-amber-600'
+                  }`}
+                  style={{ width: `${energyPercent}%` }}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right: Score, Crystals, Audio, Orientation, Pause */}
