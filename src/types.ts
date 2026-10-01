@@ -453,7 +453,7 @@ export interface Boss {
   subtitle?: string;
   startX?: number;
   startY?: number;
-  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult' | 'shooting' | 'smashing' | 'roaring' | 'shield';
+  state: 'idle' | 'charging' | 'slamming' | 'laser' | 'teleport' | 'dash' | 'staggered' | 'summon' | 'overheat' | 'emp' | 'missileBarrage' | 'pounce' | 'slash' | 'roar' | 'jumping' | 'slam' | 'run' | 'attack' | 'catapult' | 'shooting' | 'smashing' | 'roaring' | 'shield' | 'invisible';
   stateTimer: number;
   telegraphTimer: number;
   stagger: number;
@@ -468,6 +468,9 @@ export interface Boss {
   overheatTimer?: number;
   slashHitbox?: { x: number; y: number; w: number; h: number; active: boolean };
   afterimages?: Array<{ x: number; y: number; alpha: number; facing: 1 | -1 }>;
+  isInvisible?: boolean;
+  invisibilityTimer?: number;
+  hasTriggeredPhase2Invis?: boolean;
   shieldCores?: number;
   immuneToStun?: boolean;
 }

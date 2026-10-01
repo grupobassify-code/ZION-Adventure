@@ -743,8 +743,21 @@ export class BossRenderer {
     const bob = isOverheated ? 1 : Math.floor(Math.sin(time * 0.08) * 1.5);
     const cx = x + boss.w / 2;
     const cy = y + 27 + bob;
+    const isInvisible = boss.isInvisible || boss.state === 'invisible';
 
     ctx.save();
+
+    // Invisibility Cloaking Mode: Optical Refraction & Ghost Shimmer
+    if (isInvisible) {
+      ctx.globalAlpha = 0.08 + Math.sin(time * 0.2) * 0.04;
+      // Faint distortion ripple outline
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      ctx.strokeRect(x + 3, y + 4 + bob, boss.w - 6, boss.h - 8);
+      ctx.restore();
+    }
 
     // A0. CYBER AFTERIMAGES DURING DASH
     if (boss.afterimages && boss.afterimages.length > 0) {

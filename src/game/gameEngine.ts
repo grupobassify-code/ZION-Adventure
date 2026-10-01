@@ -2620,6 +2620,14 @@ export class GameEngine {
             this.createBurst(p.facing > 0 ? this.boss.x : this.boss.x + this.boss.w, p.y + p.h / 2, 8, '#38bdf8');
             this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 18, '🛡️ ¡ESCUDO ACTIVO! Destruye los Nodos', '#38bdf8');
           } else if (this.boss.inv <= 0) {
+            if (this.boss.isInvisible) {
+              this.boss.isInvisible = false;
+              this.boss.state = 'attack';
+              this.boss.stateTimer = 25;
+              sound.playSfx('shieldBreak');
+              this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 22, '#38bdf8');
+              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 25, '⚡ ¡CAMUFLAJE ROTO POR TU ESPADA!', '#facc15');
+            }
             this.applyDamageToBoss(dmg);
             this.addEnergy(10);
           }
@@ -5783,10 +5791,23 @@ export class GameEngine {
         b.afterimages = b.afterimages.filter((img) => img.alpha > 0);
       }
 
+      // Invisibility Phase Trigger: Al llegar al 65% de vida Kronos despliega su camuflaje temporal
+      if (b.hp <= b.maxHp * 0.65 && !b.hasTriggeredPhase2Invis && b.state !== 'staggered') {
+        b.hasTriggeredPhase2Invis = true;
+        b.isInvisible = true;
+        b.state = 'invisible';
+        b.stateTimer = 160;
+        sound.playSfx('special');
+        this.screenShake = 7;
+        this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#06b6d4');
+        this.addFloatingText(b.x + b.w / 2, b.y - 25, '🌀 ¡CAMUFLAJE ÓPTICO! ¡KRONOS SE HACE INVISIBLE!', '#38bdf8');
+      }
+
       // 1. STAGGERED STATE (Aturdido tras Perfect Parry o rotura de guardia)
       if (b.state === 'staggered') {
         b.isStaggered = true;
         b.shield = false;
+        b.isInvisible = false;
         b.slashHitbox = undefined;
         b.stateTimer--;
         b.vx *= 0.8;
@@ -5797,6 +5818,36 @@ export class GameEngine {
           b.stateTimer = 22;
           b.inv = 15;
           this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡KRONOS REINICIA SISTEMAS!', '#06b6d4');
+        }
+      } else if (b.state === 'invisible') {
+        // CAMUFLAJE ÓPTICO: Kronos se vuelve invisible y se reposiciona sigilosamente
+        b.isInvisible = true;
+        b.shield = false;
+        b.slashHitbox = undefined;
+        b.facing = p.x >= b.x + b.w / 2 ? 1 : -1;
+        b.vx += Math.sign(p.x - b.x) * 0.12;
+        b.vx = Math.max(-speed * 1.25, Math.min(speed * 1.25, b.vx));
+        b.x += b.vx;
+
+        // Ondas de distorsión sutiles bajo sus pies para dar pista al jugador
+        if (this.time % 16 === 0) {
+          this.createBurst(b.x + b.w / 2, b.y + b.h - 2, 4, 'rgba(56, 189, 248, 0.4)');
+        }
+
+        b.stateTimer--;
+        if (b.stateTimer <= 20) {
+          b.telegraphTimer = Math.max(0, b.stateTimer);
+        }
+
+        if (b.stateTimer <= 0) {
+          // Reaparece de sorpresa con un tajo o embestida
+          b.isInvisible = false;
+          b.state = 'attack';
+          b.stateTimer = 34;
+          b.telegraphTimer = 12;
+          sound.playSfx('slash');
+          this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 22, '#06b6d4');
+          this.addFloatingText(b.x + b.w / 2, b.y - 22, '⚔️ ¡EMBOSCADA DE KRONOS!', '#f43f5e');
         }
       } else if (b.state === 'idle') {
         // 2. IDLE & REPOSITIONING
@@ -5811,7 +5862,15 @@ export class GameEngine {
         if (b.stateTimer <= 0) {
           const dist = Math.abs(p.x - (b.x + b.w / 2));
           const roll = Math.random();
-          if (dist < 55) {
+          // En fase avanzada, puede activar camuflaje táctico
+          if (b.phase >= 2 && roll < 0.20 && !b.isInvisible) {
+            b.state = 'invisible';
+            b.stateTimer = 120;
+            b.isInvisible = true;
+            sound.playSfx('special');
+            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 18, '#38bdf8');
+            this.addFloatingText(b.x + b.w / 2, b.y - 20, '🌀 ¡KRONOS SE VUELVE INVISIBLE!', '#38bdf8');
+          } else if (dist < 55) {
             // Close range: Melee Sword Attack or Defensive Escudo
             if (roll < 0.65) {
               b.state = 'attack';

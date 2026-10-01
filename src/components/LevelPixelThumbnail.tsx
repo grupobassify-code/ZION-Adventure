@@ -1,5 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ZoneId } from '../types';
+
+const ZONE_AI_IMAGES: Partial<Record<ZoneId, string>> = {
+  krono: '/src/assets/images/krono_city_thumb_1790820471461.jpg',
+  travel: '/src/assets/images/krono_city_thumb_1790820471461.jpg',
+  neon: '/src/assets/images/neon_forest_thumb_1790820483120.jpg',
+  sakura: '/src/assets/images/sakura_pagoda_thumb_1790820493019.jpg',
+  lavacliff: '/src/assets/images/lavacliff_magma_thumb_1790820502527.jpg',
+  themoon: '/src/assets/images/themoon_space_thumb_1790820511073.jpg',
+};
 
 interface LevelPixelThumbnailProps {
   zone: ZoneId;
@@ -23,6 +32,8 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [imgError, setImgError] = useState(false);
+  const aiImageUrl = !isUnderConstruction && !imgError ? ZONE_AI_IMAGES[zone] : undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -2074,7 +2085,58 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, [zone, act, isLocked, isBoss, isUnderConstruction]);
+  }, [zone, act, isLocked, isBoss, isUnderConstruction, aiImageUrl]);
+
+  if (aiImageUrl) {
+    return (
+      <div
+        className={`relative overflow-hidden rounded-xl border border-slate-700/80 shadow-md transition-transform group-hover:scale-[1.02] select-none ${className}`}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <img
+          src={aiImageUrl}
+          alt={`${zone} Acto ${act}`}
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+
+        {/* Ambient Gradient & Vignette Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-black/30 pointer-events-none" />
+
+        {/* Retro Pixel Scanline Texture */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.45) 3px, rgba(0, 0, 0, 0.45) 4px)',
+          }}
+        />
+
+        {/* Boss Badge */}
+        {isBoss && (
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-rose-950/90 text-rose-300 font-mono text-[10px] font-black px-2 py-0.5 rounded-md border border-rose-500/60 shadow-lg shadow-rose-950/50">
+            <span>⚔️ JEFE</span>
+          </div>
+        )}
+
+        {/* Act Number Badge */}
+        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 bg-slate-900/90 text-cyan-300 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border border-cyan-500/40 backdrop-blur-sm shadow-sm">
+          <span>ACTO {act}</span>
+        </div>
+
+        {/* Lock Overlay */}
+        {isLocked && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-[2px]">
+            <div className="w-10 h-10 rounded-full bg-slate-900/90 border border-amber-500/50 flex items-center justify-center shadow-lg mb-1">
+              <span className="text-amber-400 text-lg">🔒</span>
+            </div>
+            <span className="text-[11px] font-mono font-bold text-amber-300/90 tracking-wider">BLOQUEADO</span>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
