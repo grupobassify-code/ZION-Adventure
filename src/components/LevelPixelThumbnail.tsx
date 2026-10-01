@@ -1,13 +1,56 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ZoneId } from '../types';
 
-const ZONE_AI_IMAGES: Partial<Record<ZoneId, string>> = {
-  krono: '/src/assets/images/krono_city_thumb_1790820471461.jpg',
-  travel: '/src/assets/images/krono_city_thumb_1790820471461.jpg',
-  neon: '/src/assets/images/neon_forest_thumb_1790820483120.jpg',
-  sakura: '/src/assets/images/sakura_pagoda_thumb_1790820493019.jpg',
-  lavacliff: '/src/assets/images/lavacliff_magma_thumb_1790820502527.jpg',
-  themoon: '/src/assets/images/themoon_space_thumb_1790820511073.jpg',
+const LEVEL_EXACT_IMAGES: Record<string, string> = {
+  // Krono City
+  'krono-1': '/src/assets/images/krono_city_thumb_1790820471461.jpg',
+  'krono-2': '/src/assets/images/krono_city_thumb_1790820471461.jpg',
+  'krono-3': '/src/assets/images/krono_boss_thumb_1790821933692.jpg',
+  'krono-travel': '/src/assets/images/krono_city_thumb_1790820471461.jpg',
+  // Neon Forest & Cyberpunk Metropolis
+  'neon-1': '/src/assets/images/neon_forest_thumb_1790820483120.jpg',
+  'neon-2': '/src/assets/images/neon_forest_thumb_1790820483120.jpg',
+  'neon-3': '/src/assets/images/neon_forest_thumb_1790820483120.jpg',
+  // Sakura Mountain Pagoda
+  'sakura-1': '/src/assets/images/sakura_pagoda_thumb_1790820493019.jpg',
+  'sakura-2': '/src/assets/images/sakura_pagoda_thumb_1790820493019.jpg',
+  'sakura-3': '/src/assets/images/sakura_pagoda_thumb_1790820493019.jpg',
+  // Lava Cliff Volcano
+  'lavacliff-1': '/src/assets/images/lavacliff_magma_thumb_1790820502527.jpg',
+  'lavacliff-2': '/src/assets/images/lavacliff_magma_thumb_1790820502527.jpg',
+  'lavacliff-3': '/src/assets/images/lavacliff_magma_thumb_1790820502527.jpg',
+  // Egyptian Desert Pyramids
+  'desert-1': '/src/assets/images/desert_pyramid_thumb_1790821852802.jpg',
+  'desert-2': '/src/assets/images/desert_pyramid_thumb_1790821852802.jpg',
+  'desert-3': '/src/assets/images/desert_pyramid_thumb_1790821852802.jpg',
+  // Ancient Mayan Jungle
+  'jungle-1': '/src/assets/images/jungle_temple_thumb_1790821867498.jpg',
+  'jungle-2': '/src/assets/images/jungle_temple_thumb_1790821867498.jpg',
+  'jungle-3': '/src/assets/images/jungle_temple_thumb_1790821867498.jpg',
+  // Alpine Snow Blizzard
+  'blizzard-1': '/src/assets/images/blizzard_peak_thumb_1790821880471.jpg',
+  'blizzard-2': '/src/assets/images/blizzard_peak_thumb_1790821880471.jpg',
+  'blizzard-3': '/src/assets/images/blizzard_peak_thumb_1790821880471.jpg',
+  // Victorian Steampunk Factory
+  'steampunk-1': '/src/assets/images/steampunk_gear_thumb_1790821890653.jpg',
+  'steampunk-2': '/src/assets/images/steampunk_gear_thumb_1790821890653.jpg',
+  'steampunk-3': '/src/assets/images/steampunk_gear_thumb_1790821890653.jpg',
+  // Medieval Castle Fortress Siege
+  'castlesmash-1': '/src/assets/images/castlesmash_thumb_1790821901642.jpg',
+  'castlesmash-2': '/src/assets/images/castlesmash_thumb_1790821901642.jpg',
+  'castlesmash-3': '/src/assets/images/castlesmash_thumb_1790821901642.jpg',
+  // Pirate\'s Island Treasure
+  'piratestreasure-1': '/src/assets/images/pirate_island_thumb_1790821911759.jpg',
+  'piratestreasure-2': '/src/assets/images/pirate_island_thumb_1790821911759.jpg',
+  'piratestreasure-3': '/src/assets/images/pirate_island_thumb_1790821911759.jpg',
+  // Prehistoric Jurassic Draft
+  'jurasicdraft-1': '/src/assets/images/jurasic_valley_thumb_1790821921565.jpg',
+  'jurasicdraft-2': '/src/assets/images/jurasic_valley_thumb_1790821921565.jpg',
+  'jurasicdraft-3': '/src/assets/images/jurasic_valley_thumb_1790821921565.jpg',
+  // Cosmic The Moon
+  'themoon-1': '/src/assets/images/themoon_space_thumb_1790820511073.jpg',
+  'themoon-2': '/src/assets/images/themoon_space_thumb_1790820511073.jpg',
+  'themoon-3': '/src/assets/images/themoon_space_thumb_1790820511073.jpg',
 };
 
 interface LevelPixelThumbnailProps {
@@ -33,7 +76,8 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [imgError, setImgError] = useState(false);
-  const aiImageUrl = !isUnderConstruction && !imgError ? ZONE_AI_IMAGES[zone] : undefined;
+  const levelKey = `${zone}-${act}`;
+  const aiImageUrl = !isUnderConstruction && !imgError ? (LEVEL_EXACT_IMAGES[levelKey] || LEVEL_EXACT_IMAGES[`${zone}-1`]) : undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -2099,6 +2143,9 @@ export const LevelPixelThumbnail: React.FC<LevelPixelThumbnailProps> = ({
           referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          style={{
+            filter: act === 2 ? 'hue-rotate(18deg) contrast(1.04)' : act === 3 ? 'contrast(1.1) saturate(1.12)' : undefined,
+          }}
         />
 
         {/* Ambient Gradient & Vignette Overlay */}
