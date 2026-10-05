@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
+import { CharacterSkin } from '../types';
 
 interface PixelCharacterProps {
   scale?: number;
   interactive?: boolean;
   actionPose?: boolean;
+  characterId?: CharacterSkin | 'zyssa' | string;
   className?: string;
 }
 
@@ -11,6 +13,7 @@ export const PixelCharacter: React.FC<PixelCharacterProps> = ({
   scale = 4,
   interactive = true,
   actionPose = false,
+  characterId = 'zion',
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -19,6 +22,31 @@ export const PixelCharacter: React.FC<PixelCharacterProps> = ({
     isHovered: false,
     slashAnim: 0,
   });
+
+  const skin: CharacterSkin =
+    characterId === 'zizz' || characterId === 'zyssa'
+      ? 'zizz'
+      : characterId === 'kael'
+      ? 'kael'
+      : characterId === 'anuk'
+      ? 'anuk'
+      : characterId === 'vector'
+      ? 'vector'
+      : characterId === 'balam'
+      ? 'balam'
+      : characterId === 'blizzard'
+      ? 'blizzard'
+      : characterId === 'steampunk'
+      ? 'steampunk'
+      : characterId === 'castlesmash'
+      ? 'castlesmash'
+      : characterId === 'pirate'
+      ? 'pirate'
+      : characterId === 'jurassic'
+      ? 'jurassic'
+      : characterId === 'moon'
+      ? 'moon'
+      : 'zion';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,36 +59,68 @@ export const PixelCharacter: React.FC<PixelCharacterProps> = ({
     const render = () => {
       stateRef.current.tick++;
       const t = stateRef.current.tick;
-      const isHovered = stateRef.current.isHovered || actionPose;
       if (stateRef.current.slashAnim > 0) stateRef.current.slashAnim--;
 
       const width = canvas.width;
       const height = canvas.height;
       ctx.clearRect(0, 0, width, height);
 
-      // Disable image smoothing for pure retro pixel crispness
+      // Pure retro pixel sharpness
       ctx.imageSmoothingEnabled = false;
 
-      // Base coordinate center
       const cx = Math.floor(width / 2);
       const cy = Math.floor(height / 2) + 12;
-
-      // Breathing bounce
       const bounce = Math.floor(Math.sin(t * 0.08) * 1.8);
       const sc = scale;
 
-      // Energy Aura Glow behind character
+      // 1. Energy Aura Glow behind character
       const auraPulse = 0.4 + Math.sin(t * 0.1) * 0.2;
       const auraGrad = ctx.createRadialGradient(cx, cy - 20 * sc, 10 * sc, cx, cy - 20 * sc, 45 * sc);
-      auraGrad.addColorStop(0, `rgba(34, 211, 238, ${auraPulse * 0.7})`);
-      auraGrad.addColorStop(0.5, `rgba(168, 85, 247, ${auraPulse * 0.35})`);
+
+      if (skin === 'zizz') {
+        auraGrad.addColorStop(0, `rgba(244, 114, 182, ${auraPulse * 0.75})`);
+        auraGrad.addColorStop(0.5, `rgba(192, 132, 252, ${auraPulse * 0.35})`);
+      } else if (skin === 'kael') {
+        auraGrad.addColorStop(0, `rgba(249, 115, 22, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(239, 68, 68, ${auraPulse * 0.4})`);
+      } else if (skin === 'anuk') {
+        auraGrad.addColorStop(0, `rgba(234, 179, 8, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(2, 132, 199, ${auraPulse * 0.4})`);
+      } else if (skin === 'vector') {
+        auraGrad.addColorStop(0, `rgba(99, 102, 241, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(56, 189, 248, ${auraPulse * 0.4})`);
+      } else if (skin === 'balam') {
+        auraGrad.addColorStop(0, `rgba(16, 185, 129, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(245, 158, 11, ${auraPulse * 0.4})`);
+      } else if (skin === 'blizzard') {
+        auraGrad.addColorStop(0, `rgba(56, 189, 248, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(224, 242, 254, ${auraPulse * 0.4})`);
+      } else if (skin === 'steampunk') {
+        auraGrad.addColorStop(0, `rgba(245, 158, 11, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(180, 83, 9, ${auraPulse * 0.4})`);
+      } else if (skin === 'castlesmash') {
+        auraGrad.addColorStop(0, `rgba(59, 130, 246, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(147, 197, 253, ${auraPulse * 0.4})`);
+      } else if (skin === 'pirate') {
+        auraGrad.addColorStop(0, `rgba(20, 184, 166, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(244, 63, 94, ${auraPulse * 0.4})`);
+      } else if (skin === 'jurassic') {
+        auraGrad.addColorStop(0, `rgba(132, 204, 22, ${auraPulse * 0.85})`);
+        auraGrad.addColorStop(0.5, `rgba(250, 204, 21, ${auraPulse * 0.4})`);
+      } else if (skin === 'moon') {
+        auraGrad.addColorStop(0, `rgba(168, 85, 247, ${auraPulse * 0.9})`);
+        auraGrad.addColorStop(0.5, `rgba(232, 121, 249, ${auraPulse * 0.45})`);
+      } else {
+        auraGrad.addColorStop(0, `rgba(34, 211, 238, ${auraPulse * 0.7})`);
+        auraGrad.addColorStop(0.5, `rgba(168, 85, 247, ${auraPulse * 0.35})`);
+      }
       auraGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = auraGrad;
       ctx.beginPath();
       ctx.arc(cx, cy - 20 * sc, 45 * sc, 0, Math.PI * 2);
       ctx.fill();
 
-      // Ambient Cyber Scarf Waving Physics (Long trailing scarf)
+      // 2. Waving Scarf / Cape Physics
       const scarfSegments = 8;
       for (let i = scarfSegments; i >= 0; i--) {
         const sx = cx - (14 + i * 4) * sc + Math.sin(t * 0.12 - i * 0.5) * (3 + i * 1.5) * sc;
@@ -68,255 +128,518 @@ export const PixelCharacter: React.FC<PixelCharacterProps> = ({
         const sw = Math.max(2, (8 - i * 0.7)) * sc;
         const sh = (5 + (scarfSegments - i) * 0.4) * sc;
 
-        ctx.fillStyle = i % 2 === 0 ? '#22d3ee' : '#06b6d4';
-        ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
-
-        // Glow edge on scarf
-        ctx.fillStyle = '#67e8f9';
-        ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        if (skin === 'zizz') {
+          // Flowing Sakura Ribbon
+          ctx.fillStyle = i % 2 === 0 ? '#f472b6' : '#ec4899';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#fbcfe8';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        } else if (skin === 'kael') {
+          // Fiery Magma Plume Cape
+          ctx.fillStyle = i % 2 === 0 ? '#ea580c' : '#c2410c';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(sh * 1.2));
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(2 * sc));
+        } else if (skin === 'anuk') {
+          // Desert Solar Gold & Lapis Mantle
+          ctx.fillStyle = i % 2 === 0 ? '#eab308' : '#ca8a04';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        } else if (skin === 'vector') {
+          // Digital Data Stream Scarf
+          ctx.fillStyle = i % 2 === 0 ? '#6366f1' : '#4f46e5';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        } else if (skin === 'balam') {
+          ctx.fillStyle = i % 2 === 0 ? '#10b981' : '#047857';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(sh * 1.1));
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(2 * sc));
+        } else if (skin === 'blizzard') {
+          ctx.fillStyle = i % 2 === 0 ? '#38bdf8' : '#0284c7';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        } else if (skin === 'steampunk') {
+          ctx.fillStyle = i % 2 === 0 ? '#f59e0b' : '#b45309';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(sh * 1.1));
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(2 * sc));
+        } else if (skin === 'castlesmash') {
+          ctx.fillStyle = i % 2 === 0 ? '#3b82f6' : '#1d4ed8';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(sh * 1.2));
+          ctx.fillStyle = '#93c5fd';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(2 * sc));
+        } else if (skin === 'pirate') {
+          ctx.fillStyle = i % 2 === 0 ? '#14b8a6' : '#0f766e';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        } else if (skin === 'jurassic') {
+          ctx.fillStyle = i % 2 === 0 ? '#84cc16' : '#4d7c0f';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(sh * 1.1));
+          ctx.fillStyle = '#bef264';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.1), Math.floor(2 * sc));
+        } else if (skin === 'moon') {
+          ctx.fillStyle = i % 2 === 0 ? '#a855f7' : '#7e22ce';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(sh * 1.2));
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw * 1.2), Math.floor(2 * sc));
+        } else {
+          // Cyan Cyber Scarf
+          ctx.fillStyle = i % 2 === 0 ? '#22d3ee' : '#06b6d4';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(sh));
+          ctx.fillStyle = '#67e8f9';
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.floor(sw), Math.floor(2 * sc));
+        }
       }
 
-      // Shadow on ground
+      // Ground shadow
       ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
       ctx.beginPath();
       ctx.ellipse(cx, cy + 12 * sc, 18 * sc, 6 * sc, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // --- ZION PIXEL SPRITE (CYBER SHINOBI HERO) ---
       const py = cy + bounce;
 
-      // 0. Shinobi Headband Ribbons (Flowing behind from back of metal forehead protector)
-      for (let k = 4; k >= 1; k--) {
-        const rx = cx - (8 + k * 3.5) * sc;
-        const ry = py - (34 - Math.sin(t * 0.18 - k * 0.8) * 3) * sc;
-        ctx.fillStyle = k % 2 === 0 ? '#0891b2' : '#06b6d4';
-        ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(2.5 * sc));
-        ctx.fillStyle = '#22d3ee';
-        ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(1 * sc));
-      }
+      // =======================================================================
+      // CHARACTER SPRITE DRAWING PER SKIN
+      // =======================================================================
 
-      // 1. Legs & Cyber-Ninja Tabi Boots
-      // Left leg
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 3 * sc); // Knee armor
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(cx - 7 * sc, py + 5 * sc, 5 * sc, 5 * sc); // Tabi boot trim
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(cx - 7 * sc, py + 9 * sc, 5 * sc, 2 * sc); // Cyan split sole neon
-
-      // Right leg
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 3 * sc);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(cx + 2 * sc, py + 5 * sc, 5 * sc, 5 * sc);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(cx + 2 * sc, py + 9 * sc, 5 * sc, 2 * sc);
-
-      // 2. Torso, V-Taper Shinobi Armor & Pauldrons
-      // Undersuit base
-      ctx.fillStyle = '#090d16';
-      ctx.fillRect(cx - 8 * sc, py - 20 * sc, 16 * sc, 17 * sc);
-
-      // Pauldrons (Angular cyber shoulder plates extending outward)
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx - 12 * sc, py - 21 * sc, 5 * sc, 6 * sc); // Left shoulder
-      ctx.fillRect(cx + 7 * sc, py - 21 * sc, 5 * sc, 6 * sc);  // Right shoulder
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(cx - 12 * sc, py - 21 * sc, 5 * sc, 2 * sc); // Cyan shoulder trims
-      ctx.fillRect(cx + 7 * sc, py - 21 * sc, 5 * sc, 2 * sc);
-
-      // Chestplate armor plating
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx - 6 * sc, py - 19 * sc, 12 * sc, 11 * sc);
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(cx - 4 * sc, py - 19 * sc, 8 * sc, 3 * sc);
-
-      // Cyber Reactor Core (Glowing Diamond in Center of Chest)
-      const corePulse = Math.sin(t * 0.15) * 0.3 + 0.7;
-      ctx.fillStyle = `rgba(34, 211, 238, ${corePulse})`;
-      ctx.fillRect(cx - 2 * sc, py - 15 * sc, 4 * sc, 5 * sc);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(cx - 1 * sc, py - 14 * sc, 2 * sc, 3 * sc);
-
-      // Shinobi Obi / Azure Utility Sash & Gold Buckle
-      ctx.fillStyle = '#0284c7';
-      ctx.fillRect(cx - 8 * sc, py - 6 * sc, 16 * sc, 3.5 * sc);
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 3.5 * sc); // Gold central buckle
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(cx - 8 * sc, py - 7 * sc, 3 * sc, 4 * sc); // Left kunai pouch
-      ctx.fillRect(cx + 5 * sc, py - 7 * sc, 3 * sc, 4 * sc); // Right pouch
-
-      // 3. Head: Shinobi Mask, Forehead Protector, Optic Eyes & Hair
-      // Ninja cowl & angular jawline
-      ctx.fillStyle = '#090d16';
-      ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
-
-      // Mouth mask cover
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(cx - 6 * sc, py - 27 * sc, 12 * sc, 6 * sc);
-      // Cyber breather vents on mask
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(cx - 2 * sc, py - 26 * sc, 4 * sc, 2 * sc);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(cx - 1 * sc, py - 25 * sc, 2 * sc, 1 * sc);
-
-      // Shinobi Forehead Protector (Metallic band with Gold Crest)
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 4 * sc);
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(cx - 6 * sc, py - 35 * sc, 12 * sc, 1.5 * sc); // Metallic reflection
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(cx - 2 * sc, py - 35 * sc, 4 * sc, 3 * sc); // Gold ninja crest emblem
-
-      // Cyber-Shinobi Twin Sharp Optic Eyes
-      const eyeGlow = Math.sin(t * 0.12) * 0.2 + 0.8;
-      ctx.fillStyle = `rgba(34, 211, 238, ${eyeGlow})`;
-      ctx.fillRect(cx - 5 * sc, py - 30 * sc, 4 * sc, 2.5 * sc); // Left sharp eye
-      ctx.fillRect(cx + 1 * sc, py - 30 * sc, 4 * sc, 2.5 * sc); // Right sharp eye
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(cx - 3 * sc, py - 30 * sc, 1.8 * sc, 2 * sc); // White hot pupil sparks
-      ctx.fillRect(cx + 3 * sc, py - 30 * sc, 1.8 * sc, 2 * sc);
-
-      // Spiky Anime Ninja Hair (Cyberpunk Royal Violet / Electric Purple Gradient)
-      ctx.fillStyle = '#6b21a8'; // Deep royal violet base
-      ctx.fillRect(cx - 8 * sc, py - 40 * sc, 16 * sc, 6 * sc);
-      ctx.fillStyle = '#9333ea'; // Electric cyber purple midtone
-      ctx.fillRect(cx - 6 * sc, py - 43 * sc, 12 * sc, 4 * sc);
-      ctx.fillStyle = '#c084fc'; // Vibrant radiant lilac spikes
-      ctx.fillRect(cx - 9 * sc, py - 41 * sc, 4 * sc, 3 * sc); // Swept-back rear spike
-      ctx.fillRect(cx + 2 * sc, py - 44 * sc, 5 * sc, 3 * sc); // Windblown top crest
-      ctx.fillRect(cx + 5 * sc, py - 41 * sc, 3 * sc, 3 * sc); // Forward spike
-      ctx.fillStyle = '#e9d5ff'; // Crystalline glint highlight
-      ctx.fillRect(cx + 3 * sc, py - 44 * sc, 2 * sc, 1.5 * sc);
-
-      // Shinobi Scarf Collar around neck
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(cx - 8 * sc, py - 22 * sc, 16 * sc, 4 * sc);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(cx - 7 * sc, py - 21 * sc, 14 * sc, 2 * sc);
-
-      // 4. Arms & High-Frequency Beam Ninjato
-      if (isHovered || stateRef.current.slashAnim > 0) {
-        // Dynamic Attack / Combat Stance
-        // Left arm holding guard
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(cx - 14 * sc, py - 19 * sc, 6 * sc, 12 * sc);
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(cx - 14 * sc, py - 11 * sc, 5 * sc, 4 * sc); // Gauntlet
-
-        // Right arm raised with glowing Ninjato Beam
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(cx + 8 * sc, py - 24 * sc, 7 * sc, 14 * sc);
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(cx + 10 * sc, py - 27 * sc, 5 * sc, 5 * sc);
-
-        // Sword Hilt & Gold Tsuba
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(cx + 11 * sc, py - 31 * sc, 3 * sc, 6 * sc);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(cx + 8 * sc, py - 30 * sc, 9 * sc, 2.5 * sc); // Crossguard (Tsuba)
-
-        // Energy Blade (High Frequency Plasma Ninjato)
-        const bladePulse = Math.sin(t * 0.2) * 0.15 + 0.85;
-        // Outer blade glow
-        ctx.fillStyle = `rgba(34, 211, 238, ${bladePulse * 0.6})`;
-        ctx.fillRect(cx + 9 * sc, py - 66 * sc, 7 * sc, 36 * sc);
-
-        // Core sharp blade
-        ctx.fillStyle = '#22d3ee';
-        ctx.fillRect(cx + 10 * sc, py - 64 * sc, 5 * sc, 34 * sc);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx + 11 * sc, py - 62 * sc, 3 * sc, 30 * sc); // White hot core
-
-        // Energy Sparkles around blade
-        for (let p = 0; p < 4; p++) {
-          const px = cx + (8 + (p * 3) % 7) * sc + Math.sin(t * 0.3 + p) * 4 * sc;
-          const py_spark = py - (37 + p * 7) * sc;
-          ctx.fillStyle = p % 2 === 0 ? '#38bdf8' : '#facc15';
-          ctx.fillRect(Math.floor(px), Math.floor(py_spark), Math.floor(2 * sc), Math.floor(2 * sc));
-        }
-
-        // Sword Slash Arc Effect if clicking / hover
-        if (stateRef.current.slashAnim > 0) {
-          ctx.strokeStyle = '#38bdf8';
-          ctx.lineWidth = 4 * sc;
-          ctx.beginPath();
-          ctx.arc(cx + 5 * sc, py - 35 * sc, 42 * sc, -Math.PI * 0.85, -Math.PI * 0.05);
-          ctx.stroke();
-
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2 * sc;
-          ctx.beginPath();
-          ctx.arc(cx + 5 * sc, py - 35 * sc, 42 * sc, -Math.PI * 0.75, -Math.PI * 0.15);
-          ctx.stroke();
-        }
-      } else {
-        // Idle Ninja Stance — Diagonal Scabbard (Saya) on Back
-        // Arms resting naturally
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(cx - 12 * sc, py - 18 * sc, 5 * sc, 14 * sc);
-        ctx.fillRect(cx + 7 * sc, py - 18 * sc, 5 * sc, 14 * sc);
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(cx - 12 * sc, py - 8 * sc, 5 * sc, 4 * sc);
-        ctx.fillRect(cx + 7 * sc, py - 8 * sc, 5 * sc, 4 * sc);
-
-        // Diagonal Ninjato Scabbard (Saya) strapped across Zion's back with gold Sageo cord rings
-        ctx.save();
-        ctx.translate(cx + 8 * sc, py - 20 * sc);
-        ctx.rotate(-0.38); // 22 degree diagonal angle matching in-game sprite
-        // Scabbard body
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(-2 * sc, -18 * sc, 4.5 * sc, 32 * sc);
-        // Gold Sageo cord rings
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(-2.5 * sc, -10 * sc, 5.5 * sc, 2 * sc);
-        ctx.fillRect(-2.5 * sc, -4 * sc, 5.5 * sc, 2 * sc);
-        // Scabbard gold chape (tip)
+      if (skin === 'anuk') {
+        // --- ANUK: PHARAOH SOLAR SENTINEL (DESERT ZONE 4) ---
+        // Legs & Golden Greaves
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 4 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 4 * sc);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx - 7 * sc, py + 6 * sc, 5 * sc, 4 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 6 * sc, 5 * sc, 4 * sc);
         ctx.fillStyle = '#facc15';
-        ctx.fillRect(-2 * sc, 12 * sc, 4.5 * sc, 2 * sc);
-        // Ninjato Hilt emerging from top
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(-1.5 * sc, -25 * sc, 3.5 * sc, 7 * sc);
+        ctx.fillRect(cx - 7 * sc, py + 10 * sc, 5 * sc, 2 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 10 * sc, 5 * sc, 2 * sc);
+
+        // Torso: Royal Shendyt Kilt & Gold Sun Amulet
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(cx - 7 * sc, py - 20 * sc, 14 * sc, 17 * sc);
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx - 8 * sc, py - 21 * sc, 4 * sc, 5 * sc);
+        ctx.fillRect(cx + 4 * sc, py - 21 * sc, 4 * sc, 5 * sc);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx - 6 * sc, py - 19 * sc, 12 * sc, 4 * sc);
+
+        // Solar Core / Eye of Horus Brooch
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - 3 * sc, py - 15 * sc, 6 * sc, 6 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 1.5 * sc, py - 13.5 * sc, 3 * sc, 3 * sc);
+
+        // Golden Belt & Lapis Sash
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx - 8 * sc, py - 6 * sc, 16 * sc, 4 * sc);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 8 * sc);
+
+        // Head: Nemes Headdress (Striped Gold & Lapis)
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx - 8 * sc, py - 37 * sc, 16 * sc, 6 * sc);
+        ctx.fillRect(cx - 8 * sc, py - 31 * sc, 3 * sc, 10 * sc);
+        ctx.fillRect(cx + 5 * sc, py - 31 * sc, 3 * sc, 10 * sc);
+
+        // Golden Cobra Uraeus Crest
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - 1.5 * sc, py - 39 * sc, 3 * sc, 3 * sc);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(cx - 0.5 * sc, py - 38 * sc, 1 * sc, 1 * sc);
+
+        // Glowing Blue Eye of Horus Visor
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 5 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillRect(cx + 1 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 4 * sc, py - 29.5 * sc, 2 * sc, 1.5 * sc);
+        ctx.fillRect(cx + 2 * sc, py - 29.5 * sc, 2 * sc, 1.5 * sc);
+
+        // Curved Golden Khopesh Sword
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(cx + 8 * sc, py - 28 * sc, 3 * sc, 26 * sc);
+        ctx.fillRect(cx + 10 * sc, py - 34 * sc, 4 * sc, 10 * sc); // Khopesh curve hook
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(cx + 9 * sc, py - 32 * sc, 1.5 * sc, 24 * sc);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx + 7 * sc, py - 3 * sc, 5 * sc, 2 * sc);
+      } else if (skin === 'vector') {
+        // --- VECTOR: CYBER FUSION SPECIALIST (KRONO CITY ZONE 5) ---
+        // High-density Exo-Legs in Graphite & Indigo
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 7 * sc, py + 8 * sc, 5 * sc, 2 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 8 * sc, 5 * sc, 2 * sc);
+
+        // Torso: Carbon Nano-Armor & Fusion Reactor
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(cx - 8 * sc, py - 20 * sc, 16 * sc, 17 * sc);
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(cx - 11 * sc, py - 21 * sc, 4 * sc, 5 * sc);
+        ctx.fillRect(cx + 7 * sc, py - 21 * sc, 4 * sc, 5 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 11 * sc, py - 21 * sc, 4 * sc, 1.5 * sc);
+        ctx.fillRect(cx + 7 * sc, py - 21 * sc, 4 * sc, 1.5 * sc);
+
+        // Indigo Fusion Core
+        const corePulse = Math.sin(t * 0.2) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(99, 102, 241, ${corePulse})`;
+        ctx.fillRect(cx - 2.5 * sc, py - 16 * sc, 5 * sc, 5 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 1 * sc, py - 14.5 * sc, 2 * sc, 2 * sc);
+
+        // Belt & Data Modules
+        ctx.fillStyle = '#312e81';
+        ctx.fillRect(cx - 8 * sc, py - 6 * sc, 16 * sc, 3.5 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 3.5 * sc);
+
+        // Head: Tactical Stealth Cowl & Angular HUD Visor
+        ctx.fillStyle = '#09090b';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
+        ctx.fillStyle = '#4f46e5';
+        ctx.fillRect(cx - 8 * sc, py - 37 * sc, 16 * sc, 5 * sc);
+
+        // Angular Electric Cyan HUD Scanner Slit
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 6 * sc, py - 30 * sc, 12 * sc, 3 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 2 * sc, py - 29.5 * sc, 4 * sc, 2 * sc);
+
+        // Dual Ion Nano-Blades
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(cx + 8 * sc, py - 32 * sc, 2.5 * sc, 30 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx + 9 * sc, py - 34 * sc, 1.5 * sc, 28 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx + 9 * sc, py - 34 * sc, 1.5 * sc, 10 * sc);
+
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(cx - 10 * sc, py - 24 * sc, 2.5 * sc, 22 * sc);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(cx - 9 * sc, py - 26 * sc, 1.5 * sc, 20 * sc);
+      } else if (skin === 'balam') {
+        // --- BALAM: MAYAN SUN JAGUAR WARRIOR (JUNGLE ZONE 6) ---
+        // Tribal Legs with Jade Bindings & Jaguar Claw Soles
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 4 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 4 * sc);
         ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(-3 * sc, -19 * sc, 6.5 * sc, 1.5 * sc); // Tsuba crossguard
-        ctx.restore();
+        ctx.fillRect(cx - 7 * sc, py + 7 * sc, 5 * sc, 2 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 7 * sc, 5 * sc, 2 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 7 * sc, py + 10 * sc, 5 * sc, 2 * sc); // Claw trim
+        ctx.fillRect(cx + 2 * sc, py + 10 * sc, 5 * sc, 2 * sc);
+
+        // Torso: Jaguar Pelt Vest & Jade Pectoral
+        ctx.fillStyle = '#b45309'; // Spotted tawny pelt
+        ctx.fillRect(cx - 8 * sc, py - 20 * sc, 16 * sc, 17 * sc);
+        ctx.fillStyle = '#451a03'; // Jaguar spots
+        ctx.fillRect(cx - 6 * sc, py - 17 * sc, 2 * sc, 2 * sc);
+        ctx.fillRect(cx + 4 * sc, py - 16 * sc, 2 * sc, 2 * sc);
+        ctx.fillRect(cx - 5 * sc, py - 11 * sc, 2 * sc, 2 * sc);
+
+        // Sacred Jade Collar & Solar Medallion
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(cx - 7 * sc, py - 20 * sc, 14 * sc, 5 * sc);
+        ctx.fillStyle = '#f59e0b'; // Gold solar medallion
+        ctx.fillRect(cx - 3 * sc, py - 15 * sc, 6 * sc, 6 * sc);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(cx - 1.5 * sc, py - 13.5 * sc, 3 * sc, 3 * sc);
+
+        // Mayan Belt & Jade Tassels
+        ctx.fillStyle = '#047857';
+        ctx.fillRect(cx - 8 * sc, py - 6 * sc, 16 * sc, 4 * sc);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 7 * sc);
+
+        // Head: Carved Jade Jaguar Helmet & Quetzal Headdress
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
+        // Jaguar Jade Jaws
+        ctx.fillStyle = '#059669';
+        ctx.fillRect(cx - 8 * sc, py - 37 * sc, 16 * sc, 8 * sc);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(cx - 7 * sc, py - 38 * sc, 14 * sc, 4 * sc);
+        // Fangs
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 6 * sc, py - 28 * sc, 2 * sc, 3 * sc);
+        ctx.fillRect(cx + 4 * sc, py - 28 * sc, 2 * sc, 3 * sc);
+
+        // Piercing Amber Jaguar Eyes
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(cx - 5 * sc, py - 31 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillRect(cx + 1 * sc, py - 31 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 4 * sc, py - 30.5 * sc, 2 * sc, 1.5 * sc);
+        ctx.fillRect(cx + 2 * sc, py - 30.5 * sc, 2 * sc, 1.5 * sc);
+
+        // Mayan Obsidian Macuahuitl War Club
+        ctx.fillStyle = '#78350f'; // Hardwood shaft
+        ctx.fillRect(cx + 8 * sc, py - 36 * sc, 4 * sc, 34 * sc);
+        // Obsidian & Jade blades on sides
+        ctx.fillStyle = '#0f172a'; // Black obsidian blades
+        ctx.fillRect(cx + 6.5 * sc, py - 34 * sc, 1.5 * sc, 26 * sc);
+        ctx.fillRect(cx + 12 * sc, py - 34 * sc, 1.5 * sc, 26 * sc);
+        ctx.fillStyle = '#10b981'; // Inlaid jade stones
+        ctx.fillRect(cx + 9 * sc, py - 32 * sc, 2 * sc, 3 * sc);
+        ctx.fillRect(cx + 9 * sc, py - 24 * sc, 2 * sc, 3 * sc);
+        ctx.fillRect(cx + 9 * sc, py - 16 * sc, 2 * sc, 3 * sc);
+      } else if (skin === 'zizz') {
+        // --- ZIZZ: ASTRAL SAKURA KUNOICHI (SAKURA ZONE 2) ---
+        for (let k = 4; k >= 1; k--) {
+          const rx = cx - (8 + k * 3.5) * sc;
+          const ry = py - (34 - Math.sin(t * 0.18 - k * 0.8) * 3) * sc;
+          ctx.fillStyle = k % 2 === 0 ? '#db2777' : '#f472b6';
+          ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(2.5 * sc));
+          ctx.fillStyle = '#fbcfe8';
+          ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(1 * sc));
+        }
+
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#db2777';
+        ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx - 7 * sc, py + 5 * sc, 5 * sc, 5 * sc);
+        ctx.fillStyle = '#fbcfe8';
+        ctx.fillRect(cx - 7 * sc, py + 9 * sc, 5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#db2777';
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx + 2 * sc, py + 5 * sc, 5 * sc, 5 * sc);
+        ctx.fillStyle = '#fbcfe8';
+        ctx.fillRect(cx + 2 * sc, py + 9 * sc, 5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(cx - 7 * sc, py - 20 * sc, 14 * sc, 17 * sc);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(cx - 6 * sc, py - 19 * sc, 12 * sc, 12 * sc);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx - 6 * sc, py - 19 * sc, 3 * sc, 12 * sc);
+        ctx.fillRect(cx + 3 * sc, py - 19 * sc, 3 * sc, 12 * sc);
+
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - 2 * sc, py - 15 * sc, 4 * sc, 4 * sc);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx - 1 * sc, py - 14 * sc, 2 * sc, 2 * sc);
+
+        ctx.fillStyle = '#be185d';
+        ctx.fillRect(cx - 7 * sc, py - 6 * sc, 14 * sc, 3.5 * sc);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 3.5 * sc);
+
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
+        ctx.fillStyle = '#312e81';
+        ctx.fillRect(cx - 8 * sc, py - 38 * sc, 16 * sc, 6 * sc);
+
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx + 5 * sc, py - 37 * sc, 4 * sc, 4 * sc);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx + 6.5 * sc, py - 35.5 * sc, 1.5 * sc, 1.5 * sc);
+
+        ctx.fillStyle = '#4c1d95';
+        ctx.fillRect(cx - 6 * sc, py - 27 * sc, 12 * sc, 6 * sc);
+        ctx.fillStyle = '#fbcfe8';
+        ctx.fillRect(cx - 5 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillRect(cx + 1 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx + 8 * sc, py - 30 * sc, 2.5 * sc, 28 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx + 9 * sc, py - 32 * sc, 1.5 * sc, 26 * sc);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx + 7 * sc, py - 4 * sc, 4.5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(cx - 10 * sc, py - 24 * sc, 2.5 * sc, 22 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 9 * sc, py - 26 * sc, 1.5 * sc, 20 * sc);
+      } else if (skin === 'kael') {
+        // --- KAEL: SOLAR MAGMA PALADIN (LAVA CLIFF ZONE 3) ---
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(cx - 8 * sc, py - 4 * sc, 6 * sc, 14 * sc);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(cx - 8 * sc, py + 2 * sc, 6 * sc, 3 * sc);
+        ctx.fillRect(cx - 8 * sc, py + 8 * sc, 6 * sc, 3 * sc);
+
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 6 * sc, 14 * sc);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 6 * sc, 3 * sc);
+        ctx.fillRect(cx + 2 * sc, py + 8 * sc, 6 * sc, 3 * sc);
+
+        ctx.fillStyle = '#0c0a09';
+        ctx.fillRect(cx - 9 * sc, py - 22 * sc, 18 * sc, 19 * sc);
+
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(cx - 14 * sc, py - 23 * sc, 6 * sc, 8 * sc);
+        ctx.fillRect(cx + 8 * sc, py - 23 * sc, 6 * sc, 8 * sc);
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(cx - 14 * sc, py - 23 * sc, 6 * sc, 2.5 * sc);
+        ctx.fillRect(cx + 8 * sc, py - 23 * sc, 6 * sc, 2.5 * sc);
+
+        ctx.fillStyle = '#292524';
+        ctx.fillRect(cx - 7 * sc, py - 20 * sc, 14 * sc, 12 * sc);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(cx - 3 * sc, py - 16 * sc, 6 * sc, 6 * sc);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(cx - 1.5 * sc, py - 14.5 * sc, 3 * sc, 3 * sc);
+
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(cx - 9 * sc, py - 6 * sc, 18 * sc, 4 * sc);
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(cx - 3 * sc, py - 6 * sc, 6 * sc, 4 * sc);
+
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(cx - 8 * sc, py - 36 * sc, 16 * sc, 14 * sc);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(cx - 3 * sc, py - 39 * sc, 6 * sc, 5 * sc);
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(cx - 2 * sc, py - 40 * sc, 4 * sc, 2 * sc);
+
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(cx - 6 * sc, py - 29 * sc, 12 * sc, 3 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 2 * sc, py - 28.5 * sc, 4 * sc, 2 * sc);
+
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(cx + 9 * sc, py - 38 * sc, 4 * sc, 36 * sc);
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(cx + 10 * sc, py - 36 * sc, 3 * sc, 32 * sc);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(cx + 11 * sc, py - 34 * sc, 1.5 * sc, 28 * sc);
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(cx + 7 * sc, py - 3 * sc, 8 * sc, 3 * sc);
+      } else {
+        // --- ZION: ORIGINAL CYBER SHINOBI (NEON FOREST ZONE 1) ---
+        for (let k = 4; k >= 1; k--) {
+          const rx = cx - (8 + k * 3.5) * sc;
+          const ry = py - (34 - Math.sin(t * 0.18 - k * 0.8) * 3) * sc;
+          ctx.fillStyle = k % 2 === 0 ? '#0891b2' : '#06b6d4';
+          ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(2.5 * sc));
+          ctx.fillStyle = '#22d3ee';
+          ctx.fillRect(Math.floor(rx), Math.floor(ry), Math.ceil(4 * sc), Math.ceil(1 * sc));
+        }
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(cx - 7 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx - 7 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(cx - 7 * sc, py + 5 * sc, 5 * sc, 5 * sc);
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(cx - 7 * sc, py + 9 * sc, 5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx + 2 * sc, py - 4 * sc, 5 * sc, 14 * sc);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(cx + 2 * sc, py + 2 * sc, 5 * sc, 3 * sc);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(cx + 2 * sc, py + 5 * sc, 5 * sc, 5 * sc);
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(cx + 2 * sc, py + 9 * sc, 5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(cx - 8 * sc, py - 20 * sc, 16 * sc, 17 * sc);
+
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx - 12 * sc, py - 21 * sc, 5 * sc, 6 * sc);
+        ctx.fillRect(cx + 7 * sc, py - 21 * sc, 5 * sc, 6 * sc);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(cx - 12 * sc, py - 21 * sc, 5 * sc, 2 * sc);
+        ctx.fillRect(cx + 7 * sc, py - 21 * sc, 5 * sc, 2 * sc);
+
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx - 6 * sc, py - 19 * sc, 12 * sc, 11 * sc);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(cx - 4 * sc, py - 19 * sc, 8 * sc, 3 * sc);
+
+        const corePulse = Math.sin(t * 0.15) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(34, 211, 238, ${corePulse})`;
+        ctx.fillRect(cx - 2 * sc, py - 15 * sc, 4 * sc, 5 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx - 1 * sc, py - 14 * sc, 2 * sc, 3 * sc);
+
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(cx - 8 * sc, py - 6 * sc, 16 * sc, 3.5 * sc);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(cx - 2 * sc, py - 6 * sc, 4 * sc, 3.5 * sc);
+
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 14 * sc);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(cx - 6 * sc, py - 27 * sc, 12 * sc, 6 * sc);
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(cx - 2 * sc, py - 26 * sc, 4 * sc, 2 * sc);
+
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(cx - 7 * sc, py - 35 * sc, 14 * sc, 4 * sc);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx - 2 * sc, py - 35 * sc, 4 * sc, 3 * sc);
+
+        const eyeGlow = Math.sin(t * 0.12) * 0.2 + 0.8;
+        ctx.fillStyle = `rgba(34, 211, 238, ${eyeGlow})`;
+        ctx.fillRect(cx - 5 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+        ctx.fillRect(cx + 1 * sc, py - 30 * sc, 4 * sc, 2.5 * sc);
+
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(cx + 8 * sc, py - 32 * sc, 2.5 * sc, 30 * sc);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(cx + 9 * sc, py - 34 * sc, 1.5 * sc, 28 * sc);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(cx + 7 * sc, py - 4 * sc, 4.5 * sc, 2 * sc);
       }
 
       animId = requestAnimationFrame(render);
     };
 
-    animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
-  }, [scale, interactive, actionPose]);
+    render();
 
-  const handleClick = () => {
-    if (!interactive) return;
-    stateRef.current.slashAnim = 16;
-  };
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, [scale, interactive, actionPose, skin]);
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center cursor-pointer select-none transition-transform duration-200 active:scale-95 ${className}`}
+      className={`relative inline-block ${className}`}
       onMouseEnter={() => {
         if (interactive) stateRef.current.isHovered = true;
       }}
       onMouseLeave={() => {
         if (interactive) stateRef.current.isHovered = false;
       }}
-      onClick={handleClick}
-      title="Zion — Héroe del Espacio-Tiempo"
     >
       <canvas
         ref={canvasRef}
-        width={320}
-        height={320}
-        className="w-full h-full object-contain image-rendering-pixelated drop-shadow-[0_0_25px_rgba(6,182,212,0.6)]"
-        style={{ imageRendering: 'pixelated' }}
+        width={180 * (scale / 4)}
+        height={220 * (scale / 4)}
+        className="block cursor-pointer select-none drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)]"
       />
     </div>
   );

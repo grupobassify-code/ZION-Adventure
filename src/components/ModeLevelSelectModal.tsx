@@ -34,6 +34,7 @@ const ZONES: { id: ZoneId }[] = [
   { id: 'piratestreasure' },
   { id: 'jurasicdraft' },
   { id: 'themoon' },
+  { id: 'travel' },
 ];
 
 interface ModeLevelSelectModalProps {

@@ -24,6 +24,9 @@ import {
   Filter,
   Search,
   ChevronDown,
+  Terminal,
+  HelpCircle,
+  KeyRound,
 } from 'lucide-react';
 import {
   ACHIEVEMENTS,
@@ -31,6 +34,7 @@ import {
   AchievementTier,
   loadUnlockedAchievements,
   getAchievementStats,
+  unlockAchievement,
 } from '../game/achievements';
 import { useLanguage } from '../utils/i18n';
 import { sound } from '../audio/soundEngine';
@@ -50,11 +54,44 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchMobile, setShowSearchMobile] = useState(false);
 
-  const unlockedMap = loadUnlockedAchievements();
+  const [unlockedMap, setUnlockedMap] = useState(() => loadUnlockedAchievements());
   const stats = getAchievementStats();
+
+  // Secret Terminal Easter Egg Modal State
+  const [showTerminalModal, setShowTerminalModal] = useState(false);
+  const [terminalInput, setTerminalInput] = useState('');
+  const [terminalError, setTerminalError] = useState<string | null>(null);
+  const [terminalSuccess, setTerminalSuccess] = useState(false);
+
+  const handleTerminalSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const clean = terminalInput.trim();
+    if (clean === 'Kr0n0s-M@ster' || clean.toLowerCase() === 'kr0n0s-m@ster') {
+      unlockAchievement('mirando_donde_no_se_debe');
+      sound.playSfx('special');
+      sound.playSfx('crystal');
+      setTerminalSuccess(true);
+      setTerminalError(null);
+      setUnlockedMap(loadUnlockedAchievements());
+      setTimeout(() => {
+        setShowTerminalModal(false);
+        setTerminalSuccess(false);
+        setTerminalInput('');
+      }, 2400);
+    } else {
+      sound.playSfx('hit');
+      setTerminalError(
+        language === 'es'
+          ? 'Contraseña rechazada. Pista: Revisa con mucha atención las anomalías al final de los créditos...'
+          : 'Passcode rejected. Hint: Check the anomalies at the end of the credits very closely...'
+      );
+    }
+  };
 
   const getIcon = (iconName: string, className = 'w-6 h-6') => {
     switch (iconName) {
+      case 'Terminal':
+        return <Terminal className={className} />;
       case 'Shield':
         return <Shield className={className} />;
       case 'Swords':
@@ -200,11 +237,11 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
         <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* 1. Header Bar: Ultra-optimized for mobile phones (landscape & portrait) and desktop */}
-        <div className="px-2.5 sm:px-6 md:px-8 py-2 sm:py-3.5 border-b border-slate-800/90 bg-slate-950/90 flex flex-col gap-1.5 sm:gap-2 shrink-0 relative z-10">
+        <div className="px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 border-b border-slate-800/90 bg-slate-950/95 flex flex-col gap-2 shrink-0 relative z-10">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Left Title & Status */}
             <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
-              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400/25 to-yellow-600/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 shadow-md shadow-amber-950/60 shrink-0">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400/25 to-yellow-600/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 shadow-md shadow-amber-950/60 shrink-0">
                 <Trophy className="w-4 h-4 sm:w-6 sm:h-6 text-amber-400 animate-pulse" />
               </div>
               <div className="min-w-0">
@@ -212,11 +249,11 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                   <h2 className="text-sm sm:text-lg md:text-2xl font-black text-white font-heading tracking-wide truncate">
                     {language === 'es' ? 'LOGROS & MEDALLAS' : 'ACHIEVEMENTS & MEDALS'}
                   </h2>
-                  <span className="text-[9px] sm:text-xs font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/40 px-1.5 sm:px-2 py-0.5 rounded-full shrink-0">
+                  <span className="text-[10px] sm:text-xs font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/40 px-2 py-0.5 rounded-full shrink-0">
                     {stats.unlockedCount}/{stats.total} ({stats.percentage}%)
                   </span>
                 </div>
-                <p className="hidden md:block text-xs text-slate-400 mt-0.5 truncate font-normal">
+                <p className="hidden sm:block text-xs text-slate-400 mt-0.5 truncate font-normal">
                   {language === 'es'
                     ? 'Supera hazañas legendarias a través de todas las zonas para ganar medallas y puntos'
                     : 'Overcome legendary feats across all zones to earn medals and points'}
@@ -225,26 +262,26 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
             </div>
 
             {/* Right: Medals tally & Close Button */}
-            <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               {/* Compact Medals Row (Optimized for Mobile) */}
-              <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 border border-slate-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-mono font-bold">
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 border border-slate-800 px-1.5 sm:px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-mono font-bold">
                 <span className="flex items-center gap-0.5 text-cyan-300" title="Platino">
-                  <Crown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-cyan-400" />
+                  <Crown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400" />
                   <span>{stats.platinum}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-amber-300" title="Oro">
-                  <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-amber-400" />
+                  <Medal className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
                   <span>{stats.gold}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-slate-300" title="Plata">
-                  <Award className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-slate-300" />
+                  <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-300" />
                   <span>{stats.silver}</span>
                 </span>
                 <span className="text-slate-600">|</span>
                 <span className="flex items-center gap-0.5 text-orange-300" title="Bronce">
-                  <Trophy className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-orange-400" />
+                  <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400" />
                   <span>{stats.bronze}</span>
                 </span>
               </div>
@@ -255,7 +292,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                 <span>{stats.earnedPoints} <span className="text-slate-500 font-semibold">/ {stats.totalPoints} PTS</span></span>
               </div>
 
-              {/* Close Button: Large 44px touch target on mobile */}
+              {/* Close Button: Large touch target (min 44px on mobile) */}
               <button
                 id="close-achievements-btn"
                 onClick={() => {
@@ -265,13 +302,13 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
                 title={language === 'es' ? 'Cerrar' : 'Close'}
               >
-                <X className="w-4 h-4 sm:w-6 sm:h-6" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
 
           {/* Integrated Slim Progress Bar */}
-          <div className="w-full bg-slate-800/90 h-1 sm:h-2 rounded-full overflow-hidden border border-slate-700/80 mt-0.5">
+          <div className="w-full bg-slate-800/90 h-1.5 sm:h-2 rounded-full overflow-hidden border border-slate-700/80">
             <div
               className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,158,11,0.5)]"
               style={{ width: `${stats.percentage}%` }}
@@ -280,9 +317,9 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
         </div>
 
         {/* 2. Navigation & Filters Bar: Compact and horizontally scrollable for mobile */}
-        <div className="px-3 sm:px-6 md:px-8 py-2 sm:py-3 bg-slate-950/60 border-b border-slate-800/70 flex flex-col gap-2 shrink-0 relative z-10">
+        <div className="px-3 sm:px-6 md:px-8 py-2 sm:py-2.5 bg-slate-950/70 border-b border-slate-800/70 flex flex-col gap-2 shrink-0 relative z-10">
           {/* Row 1: Category Chips (Smooth Horizontal Scroll on mobile) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none touch-pan-x">
             {categories.map((c) => {
               const countInfo = categoryCounts[c.id];
               const isSelected = selectedCategory === c.id;
@@ -293,7 +330,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                     sound.playSfx('menuSelect');
                     setSelectedCategory(c.id);
                   }}
-                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
                     isSelected
                       ? 'bg-gradient-to-r from-amber-500 to-yellow-500 border-amber-300 text-slate-950 shadow-md shadow-amber-950/50 font-black'
                       : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-800'
@@ -314,16 +351,16 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
           </div>
 
           {/* Row 2: Status Pills, Tier Dropdown & Search Toggle */}
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               {/* Status Pills */}
-              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-[11px] sm:text-xs">
+              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5 text-[11px] sm:text-xs">
                 <button
                   onClick={() => {
                     sound.playSfx('menuSelect');
                     setStatusFilter('all');
                   }}
-                  className={`px-2 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
                     statusFilter === 'all'
                       ? 'bg-slate-700 text-white font-bold shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
@@ -336,7 +373,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                     sound.playSfx('menuSelect');
                     setStatusFilter('unlocked');
                   }}
-                  className={`px-2 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
                     statusFilter === 'unlocked'
                       ? 'bg-emerald-600 text-white font-bold shadow-sm'
                       : 'text-slate-400 hover:text-emerald-300'
@@ -349,7 +386,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                     sound.playSfx('menuSelect');
                     setStatusFilter('locked');
                   }}
-                  className={`px-2 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
                     statusFilter === 'locked'
                       ? 'bg-slate-800 text-amber-300 font-bold shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
@@ -360,7 +397,7 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
               </div>
 
               {/* Tier Filter Dropdown */}
-              <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+              <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1">
                 <Filter className="w-3 h-3 text-slate-400 shrink-0" />
                 <select
                   value={tierFilter}
@@ -379,8 +416,8 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
               </div>
             </div>
 
-            {/* Mobile Search Icon Toggle & Desktop Search Input */}
-            <div className="flex items-center gap-1.5 flex-1 max-w-xs justify-end">
+            {/* Mobile Search Box */}
+            <div className="flex items-center gap-1.5 flex-1 min-w-[140px] max-w-xs justify-end">
               <div className="relative w-full">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -388,12 +425,12 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={language === 'es' ? 'Buscar logro...' : 'Search feat...'}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-7 py-1 text-[11px] sm:text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400 transition-colors"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-7 py-1 text-xs text-white placeholder-slate-500 outline-none focus:border-amber-400 transition-colors"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -436,29 +473,50 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                 const currentProgress = unlocked?.progress || 0;
                 const isUnlocked = currentProgress >= target;
                 const tierStyle = getTierBadge(achievement.tier);
-                const title = language === 'es' ? achievement.titleEs : achievement.titleEn;
-                const desc = language === 'es' ? achievement.descriptionEs : achievement.descriptionEn;
+                const isSecretEasterEgg = achievement.id === 'mirando_donde_no_se_debe';
+
+                const title = !isUnlocked && isSecretEasterEgg
+                  ? '“???”'
+                  : language === 'es' ? achievement.titleEs : achievement.titleEn;
+
+                const desc = !isUnlocked && isSecretEasterEgg
+                  ? (language === 'es'
+                      ? '«Vaya vaya, ¿a quién tenemos aquí? Por favor, introduce la contraseña...» (Toca aquí para abrir la terminal secreta)'
+                      : '«Well well, look who we have here. Please enter the passcode...» (Tap here to open secret terminal)')
+                  : language === 'es' ? achievement.descriptionEs : achievement.descriptionEn;
 
                 return (
                   <div
                     key={achievement.id}
-                    className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between gap-2.5 ${
-                      isUnlocked
-                        ? `bg-slate-950/90 ${tierStyle.cardBorder}`
-                        : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 opacity-95'
+                    onClick={() => {
+                      if (isSecretEasterEgg && !isUnlocked) {
+                        sound.playSfx('menuSelect');
+                        setShowTerminalModal(true);
+                      }
+                    }}
+                    className={`p-3 sm:p-4 rounded-2xl border transition-all relative overflow-hidden flex flex-col justify-between gap-3 ${
+                      isSecretEasterEgg && !isUnlocked
+                        ? 'bg-gradient-to-br from-slate-950 via-emerald-950/40 to-slate-950 border-2 border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)] cursor-pointer active:scale-[0.99]'
+                        : isUnlocked
+                        ? `bg-slate-950/95 ${tierStyle.cardBorder}`
+                        : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 opacity-95'
                     }`}
                   >
                     {/* Top Section: Icon + Details */}
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      {/* Compact Icon Container (40x40 on mobile, 48x48 on tablet/desktop) */}
+                    <div className="flex items-start gap-3 sm:gap-3.5">
+                      {/* Compact Icon Container (44x44 on mobile, 48x48 on tablet/desktop) */}
                       <div
-                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 flex items-center justify-center shrink-0 transition-transform ${
-                          isUnlocked
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center shrink-0 transition-transform ${
+                          isSecretEasterEgg && !isUnlocked
+                            ? 'bg-emerald-950/80 border-emerald-400 text-emerald-300 shadow-md shadow-emerald-950/80 animate-pulse'
+                            : isUnlocked
                             ? `${tierStyle.iconBg}`
                             : 'bg-slate-900 border-slate-800 text-slate-500'
                         }`}
                       >
-                        {isUnlocked ? (
+                        {isSecretEasterEgg && !isUnlocked ? (
+                          <Terminal className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-300 animate-pulse" />
+                        ) : isUnlocked ? (
                           getIcon(achievement.iconName, `w-5 h-5 sm:w-6 sm:h-6 ${tierStyle.accentText}`)
                         ) : (
                           <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
@@ -468,60 +526,81 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
                       {/* Content details */}
                       <div className="flex-1 min-w-0">
                         {/* Upper line: Tier badge and Points pill */}
-                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                        <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                           <span
-                            className={`text-[9px] sm:text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${tierStyle.bg}`}
+                            className={`text-[10px] font-mono font-black px-2 py-0.5 rounded-full border uppercase tracking-wider ${
+                              isSecretEasterEgg && !isUnlocked
+                                ? 'bg-emerald-500/25 text-emerald-200 border-emerald-400/70 shadow-sm shadow-emerald-950/50'
+                                : tierStyle.bg
+                            }`}
                           >
-                            {tierStyle.label}
+                            {isSecretEasterEgg && !isUnlocked ? 'SECRETO' : tierStyle.label}
                           </span>
-                          <span className="text-[9px] sm:text-[10px] font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/30 px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                          <span className="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/15 border border-amber-400/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                             <Sparkles className="w-2.5 h-2.5 text-yellow-400" />
                             +{achievement.points} PTS
                           </span>
+                          {isSecretEasterEgg && !isUnlocked && (
+                            <span className="text-[10px] font-mono font-black text-emerald-300 bg-emerald-950/90 border border-emerald-500/50 px-2 py-0.5 rounded-full uppercase tracking-wide flex items-center gap-1 animate-pulse">
+                              <KeyRound className="w-2.5 h-2.5" />
+                              <span>TOCAR AQUÍ</span>
+                            </span>
+                          )}
                         </div>
 
-                        {/* Title: Clearly visible */}
+                        {/* Title: Highly legible on all screens */}
                         <h4
-                          className={`text-xs sm:text-sm font-bold tracking-tight leading-tight ${
-                            isUnlocked ? 'text-white' : 'text-slate-200'
+                          className={`text-sm sm:text-base font-bold tracking-tight leading-snug ${
+                            isSecretEasterEgg && !isUnlocked
+                              ? 'text-emerald-200 font-mono tracking-wider'
+                              : isUnlocked
+                              ? 'text-white'
+                              : 'text-slate-200'
                           }`}
                         >
                           {title}
                         </h4>
 
                         {/* Full description */}
-                        <p className="text-[11px] sm:text-xs text-slate-400 leading-snug mt-1">
+                        <p
+                          className={`text-xs sm:text-sm leading-relaxed mt-1 ${
+                            isSecretEasterEgg && !isUnlocked ? 'text-emerald-300/90 font-mono' : 'text-slate-300/90'
+                          }`}
+                        >
                           {desc}
                         </p>
                       </div>
                     </div>
 
                     {/* Bottom Section: Progress Bar or Completion Status */}
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 text-[11px] sm:text-xs">
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 text-xs">
                       {achievement.target && achievement.target > 1 ? (
                         <div className="flex items-center gap-2 flex-1 max-w-[80%]">
                           <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
                             <div
                               className={`h-full rounded-full transition-all duration-500 ${
-                                isUnlocked
-                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                                  : 'bg-gradient-to-r from-cyan-500 to-blue-500'
+                                isUnlocked ? 'bg-emerald-400' : 'bg-amber-400'
                               }`}
                               style={{
                                 width: `${Math.min(100, Math.round((currentProgress / target) * 100))}%`,
                               }}
                             />
                           </div>
-                          <span className="font-mono text-[10px] font-bold text-slate-300 shrink-0">
-                            {Math.min(target, currentProgress)}/{target}
+                          <span className="text-[10px] font-mono text-slate-400 whitespace-nowrap">
+                            {currentProgress}/{target}
                           </span>
                         </div>
                       ) : (
-                        <div>
+                        <div className="flex items-center gap-1.5">
                           {isUnlocked ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                              {language === 'es' ? 'Completado' : 'Done'}
+                              {language === 'es' ? 'Desbloqueado' : 'Unlocked'}
+                            </span>
+                          ) : isSecretEasterEgg ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300 font-bold bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                              <KeyRound className="w-3 h-3 text-emerald-400" />
+                              {language === 'es' ? 'Requiere Clave' : 'Requires Passcode'}
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 font-medium bg-slate-900/60 px-2 py-0.5 rounded-full border border-slate-800">
@@ -568,6 +647,105 @@ export const AchievementsOverlay: React.FC<AchievementsOverlayProps> = ({ onClos
             {language === 'es' ? 'VOLVER AL JUEGO' : 'BACK TO GAME'}
           </button>
         </div>
+
+        {/* SECRET TERMINAL MODAL FOR "MIRANDO DONDE NO SE DEBE" EASTER EGG */}
+        {showTerminalModal && (
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowTerminalModal(false);
+            }}
+            className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4"
+          >
+            <div className="w-full max-w-md max-h-[85vh] overflow-y-auto bg-slate-950 border-2 border-emerald-500/70 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-[0_0_50px_rgba(16,185,129,0.35)] relative flex flex-col gap-3 sm:gap-4 text-left">
+              {/* Scanline pattern */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-25"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(16, 185, 129, 0.8) 3px, rgba(16, 185, 129, 0.8) 4px)',
+                }}
+              />
+
+              <div className="flex items-center justify-between z-10">
+                <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold uppercase tracking-widest">
+                  <Terminal className="w-4 h-4 animate-pulse" />
+                  <span>TERMINAL CLASIFICADA // KRONOS</span>
+                </div>
+                <button
+                  onClick={() => setShowTerminalModal(false)}
+                  className="w-9 h-9 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95"
+                  title="Cerrar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Dialogue requested by the user */}
+              <div className="z-10 bg-slate-900/90 p-3.5 sm:p-4 rounded-2xl border border-emerald-500/40">
+                <p className="text-xs sm:text-sm font-mono text-emerald-300 font-bold leading-relaxed">
+                  «Vaya vaya, ¿a quién tenemos aquí?... Por favor, introduce la contraseña:»
+                </p>
+                <p className="text-[11px] font-mono text-slate-400 mt-1">
+                  (Pista: Está encriptada como algo raro al final de los créditos...)
+                </p>
+              </div>
+
+              {/* Success / Error Messages */}
+              {terminalSuccess ? (
+                <div className="z-10 p-4 rounded-2xl bg-emerald-950/90 border-2 border-emerald-400 text-center space-y-2 animate-bounce">
+                  <div className="text-emerald-300 font-mono font-black text-sm">
+                    🔓 ¡ACCESO CONCEDIDO!
+                  </div>
+                  <div className="text-xs text-white font-bold">
+                    Logro Desbloqueado: «Mirando donde no se debe» (+250 PTS)
+                  </div>
+                  <p className="text-[11px] text-emerald-400/90 font-mono leading-relaxed">
+                    «¿Te gusta husmear donde no debes? Esto confirma que Zion Adventure oculta más misterios de los que creías...»
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleTerminalSubmit} className="z-10 flex flex-col gap-3">
+                  <div className="relative">
+                    <KeyRound className="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      autoFocus
+                      value={terminalInput}
+                      onChange={(e) => {
+                        setTerminalInput(e.target.value);
+                        setTerminalError(null);
+                      }}
+                      placeholder="Introduce la contraseña..."
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/60 focus:border-emerald-400 text-emerald-200 placeholder:text-slate-600 font-mono text-base outline-none shadow-inner"
+                    />
+                  </div>
+
+                  {terminalError && (
+                    <div className="text-[11px] font-mono text-rose-400 bg-rose-950/60 p-2.5 rounded-lg border border-rose-500/40 leading-snug">
+                      {terminalError}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowTerminalModal(false)}
+                      className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs font-bold transition-all active:scale-95"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-mono text-xs font-black tracking-wider transition-all shadow-md shadow-emerald-950/50 active:scale-95"
+                    >
+                      VERIFICAR LLAVE
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -361,33 +361,11 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     themeColor: '#8b5cf6',
     accentColor: '#ef4444'
   },
-  {
-    id: 'krono-travel',
-    zone: 'travel',
-    act: 1,
-    title: 'Kronos Travel',
-    subtitle: 'La Fusión Dimensional de las Eras',
-    lore: [
-      {
-        title: '🌌 KRONOS TRAVEL — LA FUSIÓN DE LAS ERAS',
-        lines: [
-          'La derrota del Titán Kronos ha desatado una fisura temporal en el continuo dimensional.',
-          'Todos los mundos, biomas, peligros y enemigos se han fusionado en una única y monumental odisea continua.',
-          'Cruzarás los Bosques Neón, los Templos de Sakura, los Mares de Magma, las Tumbas del Desierto y la Metrópolis Cuántica.',
-          '¡Supera este desafío definitivo para convertirte en el auténtico Amo del Espacio-Tiempo!'
-        ],
-        author: 'Fisura Dimensional Kronos'
-      }
-    ],
-    worldWidth: 9600,
-    themeColor: '#38bdf8',
-    accentColor: '#f43f5e'
-  },
-  {
+    {
     id: 'jungle-1',
     zone: 'jungle',
     act: 1,
-    title: 'Zona 6 · Acto 1 — Jungle Run',
+    title: 'Zona 6 · Acto 1 — Jungle Run: Senderos Ancestrales',
     subtitle: 'La Pirámide Maya y la Selva Esmeralda',
     lore: [
       {
@@ -409,7 +387,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'jungle-2',
     zone: 'jungle',
     act: 2,
-    title: 'Zona 6 · Acto 2 — Jungle Run',
+    title: 'Zona 6 · Acto 2 — Jungle Run: Cenote Sagrado',
     subtitle: 'El Templo Secreto y las Altas Copas',
     lore: [
       {
@@ -431,7 +409,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'jungle-3',
     zone: 'jungle',
     act: 3,
-    title: 'Zona 6 · Acto 3 — Jungle Run (Jefe)',
+    title: 'Zona 6 · Acto 3 — Altar del Jaguar: Balam',
     subtitle: 'Balam, el Jaguar Gigante Ancestral',
     lore: [
       {
@@ -453,7 +431,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'blizzard-1',
     zone: 'blizzard',
     act: 1,
-    title: 'Zona 7 · Acto 1 — Blizzard Rush',
+    title: 'Zona 7 · Acto 1 — Blizzard Rush: Descenso en Esquís',
     subtitle: 'Descenso en Esquís por la Montaña Nevada',
     lore: [
       {
@@ -475,7 +453,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'blizzard-2',
     zone: 'blizzard',
     act: 2,
-    title: 'Zona 7 · Acto 2 — Blizzard Rush',
+    title: 'Zona 7 · Acto 2 — Blizzard Rush: Paso del Glaciar',
     subtitle: 'El Bosque Nevado y Cavernas de Escarcha',
     lore: [
       {
@@ -497,7 +475,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'blizzard-3',
     zone: 'blizzard',
     act: 3,
-    title: 'Zona 7 · Acto 3 — Blizzard Rush (Jefe)',
+    title: 'Zona 7 · Acto 3 — Guarida del Yeti: Yukio',
     subtitle: 'Yeti Colosal, Señor de las Ventiscas',
     lore: [
       {
@@ -519,7 +497,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'steampunk-1',
     zone: 'steampunk',
     act: 1,
-    title: 'Zona 8 · Acto 1 — Fábrica Steampunk',
+    title: 'Zona 8 · Acto 1 — Fábrica Steampunk: Fundición de Cobre',
     subtitle: 'Engranajes de Cobre, Calderas y Válvulas de Presión',
     lore: [
       {
@@ -541,7 +519,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'steampunk-2',
     zone: 'steampunk',
     act: 2,
-    title: 'Zona 8 · Acto 2 — Fábrica Oxidada',
+    title: 'Zona 8 · Acto 2 — Fábrica Oxidada: Cámaras de Vapor',
     subtitle: 'Maquinaria Corroída, Fugas Inestables y Óxido',
     lore: [
       {
@@ -563,7 +541,7 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     id: 'steampunk-3',
     zone: 'steampunk',
     act: 3,
-    title: 'Zona 8 · Acto 3 — Only Up 1000m (Jefe de Vapor)',
+    title: 'Zona 8 · Acto 3 — Only Up 1000m: Ascenso Vertical',
     subtitle: 'Ascenso a la Caldera Central · Evasión de Fugas de 1000m',
     lore: [
       {
@@ -858,6 +836,28 @@ export const LEVEL_CONFIGS: LevelConfig[] = [
     worldWidth: 4200,
     themeColor: '#38bdf8',
     accentColor: '#facc15'
+  },
+  {
+    id: 'krono-travel',
+    zone: 'travel',
+    act: 1,
+    title: 'Zona Final · Kronos Travel — La Convergencia de Todas las Eras',
+    subtitle: 'El Nexo Multiversal · La Odisea Suprema del Espacio-Tiempo',
+    lore: [
+      {
+        title: '🌌 KRONOS TRAVEL — LA CONVERGENCIA DE TODAS LAS ERAS',
+        lines: [
+          'Tras la victoria en la órbita lunar contra el Dreadnought Cósmico, el continuo temporal colapsa en un Nexo Supremo.',
+          'Todos los mundos, épocas, criaturas, trampas y reliquias de la historia se han fusionado en una única y monumental odisea continua.',
+          'Cruzarás los 12 biomas enlazados: Neón, Sakura, Lava, Desierto, Krono City, Selva Maya, Picos Nevados, Steampunk, Castillo Medieval, Cala Pirata, Valle Jurásico y el Vacío Lunar.',
+          '¡Supera este desafío definitivo para convertirte en el auténtico e invencible Maestro del Espacio-Tiempo!'
+        ],
+        author: 'Nexo Multiversal de Kronos'
+      }
+    ],
+    worldWidth: 18000,
+    themeColor: '#38bdf8',
+    accentColor: '#f43f5e'
   }
 ];
 
@@ -3463,462 +3463,6 @@ export function buildLevel(levelIndex: number) {
     };
 
     goal = { x: 1080, y: 88, w: 34, h: 62 };
-  } else if (config.id === 'krono-travel') {
-    // -------------------------------------------------------------
-    // NIVEL EXTRA — KRONOS TRAVEL: LA FUSIÓN DIMENSIONAL
-    // (Junta todos los enemigos, escenarios, mecánicas, obstáculos y peligros en un solo nivel masivo)
-    // -------------------------------------------------------------
-    
-    // -------------------------------------------------------------
-    // SECTOR 1: BOSQUE NEÓN (0 -> 1800)
-    // -------------------------------------------------------------
-    const neonGaps = [{ x: 380, w: 50 }, { x: 850, w: 55 }, { x: 1350, w: 60 }];
-    let nStart = 0;
-    for (const g of neonGaps) {
-      if (nStart < g.x) platforms.push({ x: nStart, y: 148, w: g.x - nStart, h: 40, kind: 'ground' });
-      nStart = g.x + g.w;
-    }
-    platforms.push({ x: nStart, y: 148, w: 1800 - nStart, h: 40, kind: 'ground' });
-
-    for (let s = 0; s < 4; s++) {
-      const bx = 120 + s * 400;
-      platforms.push(
-        { x: bx + 40, y: 112, w: 75, h: 9, kind: 'ledge' },
-        { x: bx + 160, y: 82, w: 75, h: 9, kind: 'ledge' },
-        { x: bx + 270, y: 108, w: 80, h: 9, kind: 'ledge' }
-      );
-      crystals.push(
-        { x: bx + 60, y: 95, w: 8, h: 10, taken: false },
-        { x: bx + 180, y: 65, w: 8, h: 10, taken: false },
-        { x: bx + 290, y: 90, w: 8, h: 10, taken: false }
-      );
-      if (s % 2 === 1) hazards.push({ x: bx + 65, y: 105, w: 18, h: 7, type: 'spike' });
-    }
-
-    hazards.push(
-      { x: 500, y: 95, w: 14, h: 53, type: 'laserGate', active: true, cycleTimer: 0 },
-      { x: 1050, y: 95, w: 14, h: 53, type: 'laserGate', active: true, cycleTimer: 30 },
-      { x: 1550, y: 141, w: 22, h: 7, type: 'spike' }
-    );
-
-    const neonEnemies: Enemy['type'][] = ['patrol', 'sentinel', 'hopper', 'charger', 'sphere'];
-    for (let x = 300, i = 0; x < 1700; x += 280, i++) {
-      const type = neonEnemies[i % neonEnemies.length];
-      const stats = getEnemyStats(type);
-      enemies.push({
-        id: enemyId++,
-        type,
-        x,
-        y: 134,
-        w: 14,
-        h: 14,
-        min: x - 60,
-        max: x + 90,
-        vx: i % 2 === 0 ? 0.45 : -0.45,
-        vy: 0,
-        alive: true,
-        hp: stats.hp,
-        maxHp: stats.hp,
-        xpValue: stats.xp,
-        scoreValue: stats.score,
-        hitFlash: 0,
-        home: x,
-        wait: 0,
-        charge: 0,
-        angle: 0
-      });
-    }
-
-    landmarks.push(
-      { type: 'warp_portal', x: 200, y: 40, scale: 1.4, label: 'ENTRADA A LA FISURA DIMENSIONAL' },
-      { type: 'reactor_core', x: 1200, y: 25, scale: 1.2, label: 'NÚCLEO DE FUSIÓN NEÓN' }
-    );
-
-    checkpoints.push(
-      { x: 1750, y: 108, w: 10, h: 40, active: false, spawn: { x: 1770, y: 110 } }
-    );
-    heals.push({ x: 1760, y: 126, w: 10, h: 10, taken: false });
-
-    // -------------------------------------------------------------
-    // SECTOR 2: BOSQUE DE SAKURA (1800 -> 3600)
-    // -------------------------------------------------------------
-    const sakuraGaps = [{ x: 2150, w: 65 }, { x: 2650, w: 70 }, { x: 3150, w: 65 }];
-    let sStart = 1800;
-    for (const g of sakuraGaps) {
-      if (sStart < g.x) platforms.push({ x: sStart, y: 148, w: g.x - sStart, h: 40, kind: 'ground' });
-      sStart = g.x + g.w;
-    }
-    platforms.push({ x: sStart, y: 148, w: 3600 - sStart, h: 40, kind: 'ground' });
-
-    for (let s = 0; s < 4; s++) {
-      const bx = 1850 + s * 420;
-      platforms.push(
-        { x: bx + 50, y: 114, w: 80, h: 8, kind: 'bridge' },
-        { x: bx + 160, y: 80, w: 75, h: 8, kind: 'moon', phase: s * 1.5 },
-        { x: bx + 270, y: 106, w: 80, h: 8, kind: 'bridge' }
-      );
-      crystals.push(
-        { x: bx + 70, y: 96, w: 8, h: 10, taken: false },
-        { x: bx + 180, y: 64, w: 8, h: 10, taken: false },
-        { x: bx + 290, y: 90, w: 8, h: 10, taken: false }
-      );
-    }
-    platforms.push({ x: 2560, y: 56, w: 75, h: 8, kind: 'bridge' });
-
-    hazards.push(
-      { x: 2100, y: 141, w: 22, h: 7, type: 'spike' },
-      { x: 2800, y: 141, w: 22, h: 7, type: 'spike' },
-      { x: 3300, y: 141, w: 24, h: 7, type: 'spike' }
-    );
-
-    const sakuraEnemies: Enemy['type'][] = ['kage', 'kagered', 'kitsune', 'yurei', 'kodama', 'butterfly'];
-    for (let x = 1950, i = 0; x < 3500; x += 260, i++) {
-      const type = sakuraEnemies[i % sakuraEnemies.length];
-      const stats = getEnemyStats(type);
-      enemies.push({
-        id: enemyId++,
-        type,
-        x,
-        y: type === 'yurei' || type === 'butterfly' ? 90 : 134,
-        w: 14,
-        h: 14,
-        min: x - 70,
-        max: x + 80,
-        vx: i % 2 === 0 ? 0.45 : -0.45,
-        vy: 0,
-        alive: true,
-        hp: stats.hp,
-        maxHp: stats.hp,
-        xpValue: stats.xp,
-        scoreValue: stats.score,
-        hitFlash: 0,
-        home: x,
-        wait: 0,
-        charge: 0,
-        angle: 0
-      });
-    }
-
-    landmarks.push(
-      { type: 'torii', x: 1900, y: 30, scale: 1.3, label: 'TORII DE LA CONVERGENCIA' },
-      { type: 'shrine', x: 2700, y: 30, scale: 1.3, label: 'SANTUARIO ANCESTRAL' },
-      { type: 'bamboo', x: 3400, y: 35, scale: 1.2, label: 'ARBOLEDA DE BAMBÚ ESPIRITUAL' }
-    );
-
-    secrets.push({ x: 2600, y: 20, w: 10, h: 12, taken: false, name: '💠 Brújula del Continuo Espacio-Tiempo' });
-    checkpoints.push(
-      { x: 3550, y: 108, w: 10, h: 40, active: false, spawn: { x: 3570, y: 110 } }
-    );
-    heals.push({ x: 3560, y: 126, w: 10, h: 10, taken: false });
-
-    // -------------------------------------------------------------
-    // SECTOR 3: ACANTILADOS DE LAVA (3600 -> 5400)
-    // -------------------------------------------------------------
-    platforms.push(
-      { x: 3600, y: 148, w: 300, h: 40, kind: 'ground' },
-      { x: 3900, y: 156, w: 1200, h: 40, kind: 'ground' }, // Lava lake basin
-      { x: 5100, y: 148, w: 300, h: 40, kind: 'ground' }
-    );
-
-    // Lava Hazard floor
-    hazards.push({ x: 3900, y: 152, w: 1200, h: 36, type: 'lava' });
-
-    // Sinking basalt rock stepping stones over the magma
-    for (let bx = 3940, i = 0; bx < 5050; bx += 110, i++) {
-      platforms.push({
-        x: bx,
-        y: 130 - (i % 3) * 18,
-        w: 55,
-        h: 12,
-        kind: 'basalt',
-        sinkTimer: 0,
-        isSinking: false,
-        originalY: 130 - (i % 3) * 18
-      });
-      crystals.push({ x: bx + 22, y: 105 - (i % 3) * 18, w: 8, h: 10, taken: false });
-    }
-    platforms.push({ x: 4460, y: 54, w: 75, h: 10, kind: 'basalt' });
-
-    // Lava geysers and dropping stalactites
-    for (let x = 4050, i = 0; x < 5000; x += 180, i++) {
-      if (i % 2 === 0) {
-        hazards.push({
-          x,
-          y: 60,
-          w: 22,
-          h: 90,
-          type: 'geyser'
-        });
-      } else {
-        hazards.push({
-          x,
-          y: 10,
-          w: 12,
-          h: 22,
-          type: 'stalactite'
-        });
-      }
-    }
-
-    const lavaEnemies: Enemy['type'][] = ['magma_golem', 'salamander', 'flame_wisp', 'fire_hopper'];
-    for (let x = 3700, i = 0; x < 5300; x += 220, i++) {
-      const type = lavaEnemies[i % lavaEnemies.length];
-      const stats = getEnemyStats(type);
-      enemies.push({
-        id: enemyId++,
-        type,
-        x,
-        y: type === 'flame_wisp' ? 85 : 120,
-        w: 14,
-        h: 14,
-        min: x - 40,
-        max: x + 60,
-        vx: i % 2 === 0 ? 0.45 : -0.45,
-        vy: 0,
-        alive: true,
-        hp: stats.hp,
-        maxHp: stats.hp,
-        xpValue: stats.xp,
-        scoreValue: stats.score,
-        hitFlash: 0,
-        home: x,
-        wait: 0,
-        charge: 0,
-        angle: 0
-      });
-    }
-
-    landmarks.push(
-      { type: 'volcano_vent', x: 3750, y: 25, scale: 1.4, label: 'CRÁTER MAGMÁTICO DIMENSIONAL' },
-      { type: 'lava_fall', x: 4400, y: 15, scale: 1.4, label: 'CASCADA DE LAVA PURA' },
-      { type: 'basalt_arch', x: 5050, y: 20, scale: 1.3, label: 'ARCO DE BASALTO ÍGNEO' }
-    );
-
-    secrets.push({ x: 4500, y: 15, w: 10, h: 12, taken: false, name: '🌸 Reliquia Trascendente de Sakura' });
-    checkpoints.push(
-      { x: 5350, y: 108, w: 10, h: 40, active: false, spawn: { x: 5370, y: 110 } }
-    );
-    heals.push({ x: 5360, y: 126, w: 10, h: 10, taken: false });
-
-    // -------------------------------------------------------------
-    // SECTOR 4: SANTUARIO DEL DESIERTO (5400 -> 7200)
-    // -------------------------------------------------------------
-    const desertGaps = [{ x: 5750, w: 80 }, { x: 6300, w: 80 }, { x: 6850, w: 80 }];
-    let dStart = 5400;
-    for (const g of desertGaps) {
-      if (dStart < g.x) platforms.push({ x: dStart, y: 148, w: g.x - dStart, h: 40, kind: 'ground' });
-      // Quicksand in gaps
-      platforms.push({ x: g.x, y: 148, w: g.w, h: 40, kind: 'quicksand' });
-      dStart = g.x + g.w;
-    }
-    platforms.push({ x: dStart, y: 148, w: 7200 - dStart, h: 40, kind: 'ground' });
-
-    for (let s = 0; s < 4; s++) {
-      const bx = 5500 + s * 420;
-      platforms.push(
-        { x: bx + 50, y: 112, w: 80, h: 9, kind: 'sandstone' },
-        { x: bx + 160, y: 80, w: 75, h: 9, kind: 'ruins' },
-        { x: bx + 270, y: 106, w: 80, h: 9, kind: 'sandstone' }
-      );
-      crystals.push(
-        { x: bx + 70, y: 94, w: 8, h: 10, taken: false },
-        { x: bx + 180, y: 62, w: 8, h: 10, taken: false },
-        { x: bx + 290, y: 88, w: 8, h: 10, taken: false }
-      );
-    }
-    platforms.push({ x: 6360, y: 54, w: 75, h: 9, kind: 'ruins' });
-
-    // Pendulum scythes and falling blocks
-    hazards.push(
-      { x: 5800, y: 30, w: 20, h: 80, type: 'swingingBlade' },
-      { x: 6350, y: 30, w: 20, h: 80, type: 'swingingBlade' },
-      { x: 6900, y: 30, w: 20, h: 80, type: 'swingingBlade' }
-    );
-
-    const desertEnemies: Enemy['type'][] = ['mummy_warrior', 'scarab', 'sand_serpent', 'anubis_statue', 'desert_vulture'];
-    for (let x = 5550, i = 0; x < 7100; x += 240, i++) {
-      const type = desertEnemies[i % desertEnemies.length];
-      const stats = getEnemyStats(type);
-      enemies.push({
-        id: enemyId++,
-        type,
-        x,
-        y: type === 'desert_vulture' ? 85 : 134,
-        w: 14,
-        h: 14,
-        min: x - 60,
-        max: x + 80,
-        vx: i % 2 === 0 ? 0.45 : -0.45,
-        vy: 0,
-        alive: true,
-        hp: stats.hp,
-        maxHp: stats.hp,
-        xpValue: stats.xp,
-        scoreValue: stats.score,
-        hitFlash: 0,
-        home: x,
-        wait: 0,
-        charge: 0,
-        angle: 0
-      });
-    }
-
-    landmarks.push(
-      { type: 'pyramid', x: 5550, y: 20, scale: 1.4, label: 'GRAN PIRÁMIDE DEL DESTINO' },
-      { type: 'sphinx', x: 6250, y: 30, scale: 1.3, label: 'ESFINGE SAGRADA DE RA' },
-      { type: 'obelisk', x: 7050, y: 20, scale: 1.4, label: 'OBELISCO DEL TIEMPO' }
-    );
-
-    secrets.push({ x: 6400, y: 15, w: 10, h: 12, taken: false, name: '🔥 Corazón de Magma Primordial' });
-    checkpoints.push(
-      { x: 7150, y: 108, w: 10, h: 40, active: false, spawn: { x: 7170, y: 110 } }
-    );
-    heals.push({ x: 7160, y: 126, w: 10, h: 10, taken: false });
-
-    // -------------------------------------------------------------
-    // SECTOR 5: KRONO METRÓPOLIS CIBERPUNK (7200 -> 8600)
-    // -------------------------------------------------------------
-    platforms.push(
-      { x: 7200, y: 148, w: 350, h: 40, kind: 'ground' },
-      // High-speed Conveyors
-      { x: 7550, y: 148, w: 250, h: 40, kind: 'conveyor', dir: 1, speed: 1.5 },
-      { x: 7800, y: 148, w: 200, h: 40, kind: 'ground' },
-      { x: 8000, y: 148, w: 280, h: 40, kind: 'conveyor', dir: -1, speed: 1.5 },
-      { x: 8280, y: 148, w: 320, h: 40, kind: 'ground' }
-    );
-
-    // Floating Cyber Ledges & Hologram platforms
-    for (let s = 0; s < 3; s++) {
-      const bx = 7300 + s * 400;
-      platforms.push(
-        { x: bx - 10, y: 128, w: 50, h: 9, kind: 'cyber' }, // Accessible stepping platform
-        { x: bx + 50, y: 110, w: 85, h: 9, kind: 'cyber' },
-        { x: bx + 160, y: 78, w: 80, h: 9, kind: 'hologram', phase: s * 2 },
-        { x: bx + 270, y: 106, w: 85, h: 9, kind: 'cyber' }
-      );
-      crystals.push(
-        { x: bx + 70, y: 92, w: 8, h: 10, taken: false },
-        { x: bx + 180, y: 60, w: 8, h: 10, taken: false },
-        { x: bx + 290, y: 88, w: 8, h: 10, taken: false }
-      );
-    }
-
-    hazards.push(
-      { x: 7450, y: 95, w: 14, h: 53, type: 'laserGate' },
-      { x: 7900, y: 95, w: 14, h: 53, type: 'laserGate' },
-      { x: 8350, y: 142, w: 28, h: 6, type: 'empFloor' }
-    );
-
-    const cyberEnemies: Enemy['type'][] = ['plasma_trooper', 'cyberturret', 'cyber_drone', 'cyber_hound', 'gravity_orb'];
-    for (let x = 7300, i = 0; x < 8500; x += 220, i++) {
-      const type = cyberEnemies[i % cyberEnemies.length];
-      const stats = getEnemyStats(type);
-      enemies.push({
-        id: enemyId++,
-        type,
-        x,
-        y: type === 'cyber_drone' || type === 'gravity_orb' ? 85 : 134,
-        w: 14,
-        h: 14,
-        min: x - 60,
-        max: x + 75,
-        vx: i % 2 === 0 ? 0.5 : -0.5,
-        vy: 0,
-        alive: true,
-        hp: stats.hp,
-        maxHp: stats.hp,
-        xpValue: stats.xp,
-        scoreValue: stats.score,
-        hitFlash: 0,
-        home: x,
-        wait: 0,
-        charge: 0,
-        angle: 0
-      });
-    }
-
-    landmarks.push(
-      { type: 'cyber_skyscraper', x: 7350, y: 15, w: 160, label: 'TORRE CUÁNTICA KRONOS' },
-      { type: 'holo_billboard', x: 7850, y: 35, scale: 1.3, label: 'HOLOGRAMA DEL CONTINUO' },
-      { type: 'antenna_tower', x: 8400, y: 15, scale: 1.4, label: 'RELAY DE LA MATRIZ' }
-    );
-
-    secrets.push({ x: 8100, y: 20, w: 10, h: 12, taken: false, name: '👑 Cetro Eterno de Anubis y Kronos' });
-    checkpoints.push(
-      { x: 8550, y: 108, w: 10, h: 40, active: false, spawn: { x: 8570, y: 110 } }
-    );
-    heals.push({ x: 8560, y: 126, w: 10, h: 10, taken: false });
-
-    // -------------------------------------------------------------
-    // SECTOR 6: EL NÚCLEO DE FUSIÓN DIMENSIONAL (8600 -> 9600)
-    // (El Gran Desafío Final que fusiona todas las mecánicas juntas)
-    // -------------------------------------------------------------
-    platforms.push(
-      { x: 8600, y: 148, w: 200, h: 40, kind: 'ground' },
-      // Magma river below with conveyor and basalt stepping stones
-      { x: 8800, y: 156, w: 500, h: 40, kind: 'ground' },
-      { x: 9300, y: 148, w: 300, h: 40, kind: 'arena' }
-    );
-    hazards.push({ x: 8800, y: 152, w: 500, h: 36, type: 'lava' });
-
-    // Multi-tier fusion platforms
-    platforms.push(
-      { x: 8820, y: 124, w: 75, h: 9, kind: 'conveyor', dir: 1, speed: 1.6 },
-      { x: 8930, y: 96, w: 75, h: 9, kind: 'moon', phase: 0 },
-      { x: 9040, y: 68, w: 80, h: 9, kind: 'basalt', sinkTimer: 0, isSinking: false, originalY: 68 },
-      { x: 9150, y: 96, w: 75, h: 9, kind: 'hologram', phase: 2 },
-      { x: 9240, y: 124, w: 75, h: 9, kind: 'sandstone' }
-    );
-
-    // Hazard Gauntlet
-    hazards.push(
-      { x: 8900, y: 25, w: 20, h: 80, type: 'swingingBlade' },
-      { x: 9100, y: 55, w: 22, h: 90, type: 'geyser' },
-      { x: 9280, y: 95, w: 14, h: 53, type: 'laserGate' }
-    );
-
-    // Elite Boss-Level Guardian Squad (All Eras)
-    const finaleEnemies: Enemy['type'][] = ['plasma_trooper', 'anubis_statue', 'magma_golem', 'kagered', 'cyberturret'];
-    for (let i = 0; i < finaleEnemies.length; i++) {
-      const type = finaleEnemies[i];
-      const stats = getEnemyStats(type);
-      const ex = 8850 + i * 110;
-      enemies.push({
-        id: enemyId++,
-        type,
-        x: ex,
-        y: 110 - (i % 2) * 20,
-        w: 16,
-        h: 16,
-        min: ex - 40,
-        max: ex + 40,
-        vx: i % 2 === 0 ? 0.5 : -0.5,
-        vy: 0,
-        alive: true,
-        hp: stats.hp + 2,
-        maxHp: stats.hp + 2,
-        xpValue: stats.xp * 2,
-        scoreValue: stats.score * 2,
-        hitFlash: 0,
-        home: ex,
-        cool: 25,
-        angle: 0
-      });
-    }
-
-    for (let x = 8650; x < 9500; x += 70) {
-      crystals.push({ x, y: 110 - (x % 50), w: 8, h: 10, taken: false });
-    }
-
-    landmarks.push(
-      { type: 'dimensional_rift', x: 8750, y: 20, scale: 1.6, label: 'FISURA DIMENSIONAL SUPREMA' },
-      { type: 'travel_beacon', x: 9400, y: 25, scale: 1.6, label: 'FARO DIMENSIONAL DE KRONOS: VICTORIA' }
-    );
-
-    secrets.push({ x: 9350, y: 20, w: 12, h: 14, taken: false, name: '⭐ Reloj Cuántico de Dmn: Fusión Dimensional' });
-    heals.push({ x: 9380, y: 126, w: 10, h: 10, taken: false });
-
-    goal = { x: 9450, y: 88, w: 36, h: 62 };
   } else if (config.id === 'jungle-1') {
     // -------------------------------------------------------------
     // ZONA 6 · ACTO 1 — JUNGLE RUN: LA PIRÁMIDE MAYA Y LA SELVA
@@ -7711,6 +7255,455 @@ export function buildLevel(levelIndex: number) {
 
     // Portal de Victoria final (se desbloquea al derrotar al jefe)
     goal = { x: 3950, y: 70, w: 46, h: 68 };
+  } else if (config.id === 'krono-travel') {
+    // =========================================================================
+    // ZONA FINAL — KRONOS TRAVEL: LA CONVERGENCIA DE TODAS LAS ERAS
+    // Monumental desafío definitivo que enlaza los 12 biomas de la historia:
+    // 1. Neón -> 2. Sakura -> 3. Lava -> 4. Desierto -> 5. Krono -> 6. Selva ->
+    // 7. Nieve -> 8. Steampunk -> 9. Castillo -> 10. Piratas -> 11. Jurásico -> 12. La Luna -> 13. Nexo de Kronos
+    // =========================================================================
+
+    // -------------------------------------------------------------
+    // SECTOR 1: BOSQUE NEÓN (x: 0 -> 1400)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 0, y: 148, w: 380, h: 40, kind: 'ground' },
+      { x: 440, y: 148, w: 460, h: 40, kind: 'ground' },
+      { x: 960, y: 148, w: 440, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 120, y: 110, w: 70, h: 9, kind: 'ledge' },
+      { x: 240, y: 80, w: 70, h: 9, kind: 'ledge' },
+      { x: 500, y: 115, w: 65, h: 9, kind: 'ledge' },
+      { x: 620, y: 85, w: 70, h: 9, kind: 'ledge' },
+      { x: 740, y: 115, w: 65, h: 9, kind: 'ledge' },
+      { x: 1040, y: 110, w: 75, h: 9, kind: 'ledge' },
+      { x: 1160, y: 80, w: 75, h: 9, kind: 'ledge' }
+    );
+    hazards.push(
+      { x: 540, y: 92, w: 14, h: 56, type: 'laserGate', active: true, cycleTimer: 0 },
+      { x: 1080, y: 92, w: 14, h: 56, type: 'laserGate', active: true, cycleTimer: 35 },
+      { x: 385, y: 142, w: 50, h: 6, type: 'spike' }
+    );
+    for (let x = 200; x < 1300; x += 180) {
+      crystals.push({ x, y: 100 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'patrol', x: 260, y: 134, w: 14, h: 14, min: 200, max: 350, vx: 0.5, vy: 0, alive: true, hp: 2, maxHp: 2, xpValue: 15, scoreValue: 50, hitFlash: 0, home: 260, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'hopper', x: 580, y: 134, w: 14, h: 14, min: 500, max: 680, vx: 0.7, vy: 0, alive: true, hp: 2, maxHp: 2, xpValue: 20, scoreValue: 70, hitFlash: 0, home: 580, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'sentinel', x: 1100, y: 134, w: 14, h: 14, min: 1020, max: 1250, vx: 0.6, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 25, scoreValue: 90, hitFlash: 0, home: 1100, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'warp_portal', x: 100, y: 40, scale: 1.4, label: 'ENTRADA AL NEXO DE TODAS LAS ERAS' },
+      { type: 'reactor_core', x: 800, y: 25, scale: 1.2, label: 'NÚCLEO NEÓN' },
+      { type: 'dimensional_rift', x: 1350, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> SAKURA' }
+    );
+    checkpoints.push({ x: 1380, y: 108, w: 10, h: 40, active: false, spawn: { x: 1390, y: 110 } });
+    heals.push({ x: 1370, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 2: ESPÍRITU DE SAKURA (x: 1400 -> 2800)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 1400, y: 148, w: 400, h: 40, kind: 'ground' },
+      { x: 1860, y: 148, w: 420, h: 40, kind: 'ground' },
+      { x: 2340, y: 148, w: 460, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 1520, y: 115, w: 70, h: 9, kind: 'ledge' },
+      { x: 1640, y: 85, w: 70, h: 9, kind: 'ledge' },
+      { x: 1940, y: 110, w: 65, h: 9, kind: 'ledge' },
+      { x: 2060, y: 78, w: 65, h: 9, kind: 'ledge' },
+      { x: 2420, y: 115, w: 70, h: 9, kind: 'ledge' },
+      { x: 2540, y: 85, w: 70, h: 9, kind: 'ledge' }
+    );
+    for (let x = 1450; x < 2750; x += 190) {
+      crystals.push({ x, y: 102 - (x % 30), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'kitsune', x: 1650, y: 134, w: 14, h: 14, min: 1550, max: 1750, vx: 0.6, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 30, scoreValue: 100, hitFlash: 0, home: 1650, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'kage', x: 2100, y: 134, w: 14, h: 14, min: 1980, max: 2220, vx: 0.7, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 2100, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'kitsune', x: 2500, y: 134, w: 14, h: 14, min: 2400, max: 2650, vx: 0.6, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 30, scoreValue: 100, hitFlash: 0, home: 2500, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'torii', x: 1500, y: 40, scale: 1.3, label: 'TORII SAGRADO DE LAS ERAS' },
+      { type: 'shrine', x: 2150, y: 45, scale: 1.2 },
+      { type: 'dimensional_rift', x: 2750, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> ACANTILADOS DE LAVA' }
+    );
+    checkpoints.push({ x: 2780, y: 108, w: 10, h: 40, active: false, spawn: { x: 2790, y: 110 } });
+    heals.push({ x: 2770, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 3: ACANTILADOS DE LAVA (x: 2800 -> 4200)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 2800, y: 148, w: 320, h: 40, kind: 'ground' },
+      { x: 3240, y: 148, w: 360, h: 40, kind: 'ground' },
+      { x: 3720, y: 148, w: 480, h: 40, kind: 'ground' }
+    );
+    // Sinking basalt platforms over magma
+    platforms.push(
+      { x: 3130, y: 130, w: 55, h: 10, kind: 'sinking' },
+      { x: 3190, y: 110, w: 50, h: 10, kind: 'basalt' },
+      { x: 3610, y: 125, w: 50, h: 10, kind: 'sinking' },
+      { x: 3670, y: 105, w: 50, h: 10, kind: 'sinking' },
+      { x: 3350, y: 95, w: 65, h: 9, kind: 'ledge' },
+      { x: 3480, y: 80, w: 65, h: 9, kind: 'ledge' },
+      { x: 3850, y: 100, w: 70, h: 9, kind: 'ledge' }
+    );
+    hazards.push(
+      { x: 3120, y: 144, w: 120, h: 36, type: 'lava' },
+      { x: 3600, y: 144, w: 120, h: 36, type: 'lava' },
+      { x: 3400, y: 141, w: 22, h: 7, type: 'spike' }
+    );
+    for (let x = 2850; x < 4150; x += 190) {
+      crystals.push({ x, y: 95 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'salamander', x: 2950, y: 134, w: 14, h: 14, min: 2850, max: 3080, vx: 0.5, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 2950, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'magma_golem', x: 3450, y: 134, w: 16, h: 16, min: 3350, max: 3550, vx: 0.4, vy: 0, alive: true, hp: 5, maxHp: 5, xpValue: 50, scoreValue: 180, hitFlash: 0, home: 3450, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'salamander', x: 3950, y: 134, w: 14, h: 14, min: 3850, max: 4100, vx: 0.6, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 3950, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'volcano_vent', x: 3000, y: 40, scale: 1.3 },
+      { type: 'obsidian_pillar', x: 3600, y: 35, scale: 1.2 },
+      { type: 'dimensional_rift', x: 4150, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> SANTUARIO DEL DESIERTO' }
+    );
+    checkpoints.push({ x: 4180, y: 108, w: 10, h: 40, active: false, spawn: { x: 4190, y: 110 } });
+    heals.push({ x: 4170, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 4: SANTUARIO DEL DESIERTO (x: 4200 -> 5600)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 4200, y: 148, w: 380, h: 40, kind: 'ground' },
+      { x: 4650, y: 148, w: 420, h: 40, kind: 'ground' },
+      { x: 5130, y: 148, w: 470, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 4350, y: 115, w: 65, h: 9, kind: 'ledge' },
+      { x: 4460, y: 82, w: 65, h: 9, kind: 'ledge' },
+      { x: 4580, y: 130, w: 70, h: 10, kind: 'quicksand' },
+      { x: 4750, y: 110, w: 65, h: 9, kind: 'ledge' },
+      { x: 4880, y: 78, w: 65, h: 9, kind: 'ledge' },
+      { x: 5070, y: 130, w: 60, h: 10, kind: 'quicksand' },
+      { x: 5240, y: 115, w: 70, h: 9, kind: 'ledge' },
+      { x: 5360, y: 82, w: 70, h: 9, kind: 'ledge' }
+    );
+    hazards.push(
+      { x: 4590, y: 142, w: 50, h: 6, type: 'spike' },
+      { x: 5080, y: 142, w: 45, h: 6, type: 'spike' }
+    );
+    for (let x = 4250; x < 5550; x += 190) {
+      crystals.push({ x, y: 95 - (x % 30), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'scarab', x: 4400, y: 134, w: 14, h: 14, min: 4300, max: 4520, vx: 0.6, vy: 0, alive: true, hp: 2, maxHp: 2, xpValue: 25, scoreValue: 90, hitFlash: 0, home: 4400, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'mummy_warrior', x: 4850, y: 134, w: 14, h: 14, min: 4750, max: 4980, vx: 0.5, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 4850, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'anubis_statue', x: 5300, y: 134, w: 14, h: 14, min: 5200, max: 5450, vx: 0.6, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 45, scoreValue: 160, hitFlash: 0, home: 5300, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'pyramid', x: 4400, y: 35, scale: 1.4 },
+      { type: 'sphinx', x: 4950, y: 40, scale: 1.3 },
+      { type: 'dimensional_rift', x: 5550, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> KRONO METRÓPOLIS' }
+    );
+    checkpoints.push({ x: 5580, y: 108, w: 10, h: 40, active: false, spawn: { x: 5590, y: 110 } });
+    heals.push({ x: 5570, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 5: KRONO METRÓPOLIS (x: 5600 -> 7000)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 5600, y: 148, w: 380, h: 40, kind: 'ground' },
+      { x: 6060, y: 148, w: 420, h: 40, kind: 'ground' },
+      { x: 6540, y: 148, w: 460, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 5740, y: 115, w: 70, h: 9, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 5860, y: 80, w: 65, h: 9, kind: 'hologram' },
+      { x: 5980, y: 125, w: 75, h: 9, kind: 'conveyor', speed: 2.0, dir: -1 },
+      { x: 6180, y: 110, w: 70, h: 9, kind: 'hologram' },
+      { x: 6300, y: 78, w: 70, h: 9, kind: 'hologram' },
+      { x: 6420, y: 115, w: 70, h: 9, kind: 'conveyor', speed: 1.8, dir: 1 },
+      { x: 6650, y: 105, w: 75, h: 9, kind: 'hologram' },
+      { x: 6780, y: 75, w: 75, h: 9, kind: 'ledge' }
+    );
+    hazards.push(
+      { x: 5990, y: 92, w: 14, h: 56, type: 'laserGate', active: true, cycleTimer: 10 },
+      { x: 6480, y: 92, w: 14, h: 56, type: 'laserGate', active: true, cycleTimer: 40 }
+    );
+    for (let x = 5650; x < 6950; x += 190) {
+      crystals.push({ x, y: 90 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'cyber_hound', x: 5800, y: 134, w: 14, h: 14, min: 5700, max: 5920, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 5800, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'plasma_trooper', x: 6250, y: 100, w: 14, h: 14, min: 6150, max: 6380, vx: 0.7, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 6250, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'cyber_hound', x: 6700, y: 134, w: 14, h: 14, min: 6600, max: 6850, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 6700, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'cyber_skyscraper', x: 5850, y: 20, scale: 1.3 },
+      { type: 'holo_billboard', x: 6400, y: 30, scale: 1.2 },
+      { type: 'dimensional_rift', x: 6950, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> SELVA MAYA' }
+    );
+    checkpoints.push({ x: 6980, y: 108, w: 10, h: 40, active: false, spawn: { x: 6990, y: 110 } });
+    heals.push({ x: 6970, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 6: SELVA MAYA (x: 7000 -> 8400)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 7000, y: 148, w: 380, h: 40, kind: 'jungle_stone' },
+      { x: 7460, y: 148, w: 420, h: 40, kind: 'jungle_stone' },
+      { x: 7940, y: 148, w: 460, h: 40, kind: 'jungle_stone' }
+    );
+    platforms.push(
+      { x: 7140, y: 112, w: 70, h: 9, kind: 'ledge' },
+      { x: 7260, y: 78, w: 70, h: 9, kind: 'ledge' },
+      { x: 7580, y: 115, w: 65, h: 9, kind: 'ledge' },
+      { x: 7700, y: 82, w: 65, h: 9, kind: 'ledge' },
+      { x: 8060, y: 110, w: 70, h: 9, kind: 'ledge' },
+      { x: 8180, y: 76, w: 70, h: 9, kind: 'ledge' }
+    );
+    lianas.push({ id: 1, x: 7420, y: 10, length: 70, angle: 0 }, { id: 2, x: 7900, y: 10, length: 70, angle: 0 });
+    trampolines.push({ x: 7650, y: 138, w: 28, h: 10, bounceForce: 12.5, springAnim: 0 });
+    for (let x = 7050; x < 8350; x += 190) {
+      crystals.push({ x, y: 92 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'jungle_serpent', x: 7200, y: 134, w: 14, h: 14, min: 7100, max: 7350, vx: 0.7, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 7200, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'jungle_monkey', x: 7650, y: 100, w: 14, h: 14, min: 7550, max: 7780, vx: 0.5, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 7650, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'giant_hornet', x: 8100, y: 100, w: 14, h: 14, min: 8000, max: 8250, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 8100, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'mayan_pyramid', x: 7250, y: 45, scale: 1.3 },
+      { type: 'giant_ceiba', x: 7800, y: 35, scale: 1.4 },
+      { type: 'dimensional_rift', x: 8350, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> PICOS NEVADOS' }
+    );
+    checkpoints.push({ x: 8380, y: 108, w: 10, h: 40, active: false, spawn: { x: 8390, y: 110 } });
+    heals.push({ x: 8370, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 7: PICOS NEVADOS (BLIZZARD RUSH) (x: 8400 -> 9800)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 8400, y: 148, w: 360, h: 40, kind: 'snow' },
+      { x: 8820, y: 148, w: 420, h: 40, kind: 'ice' },
+      { x: 9320, y: 148, w: 480, h: 40, kind: 'snow' }
+    );
+    // Downhill ski slope
+    platforms.push({ x: 8560, y: 130, w: 220, h: 30, kind: 'ski_slope', slopeEndY: 148 });
+    platforms.push(
+      { x: 8900, y: 110, w: 70, h: 9, kind: 'ice' },
+      { x: 9020, y: 78, w: 70, h: 9, kind: 'ice' },
+      { x: 9440, y: 115, w: 75, h: 9, kind: 'snow' },
+      { x: 9560, y: 82, w: 75, h: 9, kind: 'snow' }
+    );
+    for (let x = 8450; x < 9750; x += 190) {
+      crystals.push({ x, y: 95 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'arctic_wolf', x: 8500, y: 134, w: 14, h: 14, min: 8420, max: 8650, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 8500, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'ice_golem', x: 9050, y: 134, w: 16, h: 16, min: 8950, max: 9180, vx: 0.4, vy: 0, alive: true, hp: 5, maxHp: 5, xpValue: 50, scoreValue: 180, hitFlash: 0, home: 9050, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'arctic_wolf', x: 9500, y: 134, w: 14, h: 14, min: 9400, max: 9650, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 9500, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'glacial_peak', x: 8650, y: 35, scale: 1.3 },
+      { type: 'aurora_shrine', x: 9250, y: 40, scale: 1.2 },
+      { type: 'dimensional_rift', x: 9750, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> FÁBRICA STEAMPUNK' }
+    );
+    checkpoints.push({ x: 9780, y: 108, w: 10, h: 40, active: false, spawn: { x: 9790, y: 110 } });
+    heals.push({ x: 9770, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 8: FÁBRICA STEAMPUNK (x: 9800 -> 11200)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 9800, y: 148, w: 380, h: 40, kind: 'steampunk_rust' },
+      { x: 10260, y: 148, w: 420, h: 40, kind: 'steampunk_pipe' },
+      { x: 10740, y: 148, w: 460, h: 40, kind: 'steampunk_rust' }
+    );
+    // Rotating gear platforms
+    platforms.push(
+      { x: 9940, y: 105, w: 60, h: 60, kind: 'gear_rotating', rotationSpeed: 0.03, gearRadius: 30 },
+      { x: 10060, y: 75, w: 60, h: 60, kind: 'gear_rotating', rotationSpeed: -0.03, gearRadius: 30 },
+      { x: 10380, y: 110, w: 75, h: 10, kind: 'steampunk_pipe' },
+      { x: 10500, y: 78, w: 60, h: 60, kind: 'gear_rotating', rotationSpeed: 0.03, gearRadius: 30 },
+      { x: 10860, y: 110, w: 75, h: 10, kind: 'steampunk_pipe' },
+      { x: 10980, y: 76, w: 70, h: 9, kind: 'ledge' }
+    );
+    for (let x = 9850; x < 11150; x += 190) {
+      crystals.push({ x, y: 90 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'clockwork_drone', x: 10000, y: 100, w: 14, h: 14, min: 9900, max: 10120, vx: 0.7, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 10000, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'brass_automaton', x: 10450, y: 134, w: 16, h: 16, min: 10350, max: 10600, vx: 0.5, vy: 0, alive: true, hp: 5, maxHp: 5, xpValue: 50, scoreValue: 180, hitFlash: 0, home: 10450, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'steam_spider', x: 10900, y: 134, w: 14, h: 14, min: 10800, max: 11050, vx: 0.7, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 10900, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'clocktower', x: 10050, y: 30, scale: 1.3 },
+      { type: 'steam_generator', x: 10650, y: 35, scale: 1.2 },
+      { type: 'dimensional_rift', x: 11150, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> CASTILLO MEDIEVAL' }
+    );
+    checkpoints.push({ x: 11180, y: 108, w: 10, h: 40, active: false, spawn: { x: 11190, y: 110 } });
+    heals.push({ x: 11170, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 9: ASEDIO AL CASTILLO (CASTLE SMASH) (x: 11200 -> 12600)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 11200, y: 148, w: 380, h: 40, kind: 'castle_stone' },
+      { x: 11660, y: 148, w: 420, h: 40, kind: 'castle_stone' },
+      { x: 12140, y: 148, w: 460, h: 40, kind: 'castle_stone' }
+    );
+    platforms.push(
+      { x: 11340, y: 115, w: 75, h: 10, kind: 'castle_bridge' },
+      { x: 11460, y: 82, w: 70, h: 10, kind: 'crumbling_floor' },
+      { x: 11780, y: 110, w: 70, h: 10, kind: 'castle_parapet' },
+      { x: 11900, y: 78, w: 70, h: 10, kind: 'castle_bridge' },
+      { x: 12260, y: 115, w: 75, h: 10, kind: 'castle_parapet' },
+      { x: 12380, y: 82, w: 70, h: 10, kind: 'crumbling_floor' }
+    );
+    for (let x = 11250; x < 12550; x += 190) {
+      crystals.push({ x, y: 92 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'castle_knight', x: 11400, y: 134, w: 14, h: 14, min: 11300, max: 11550, vx: 0.5, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 11400, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'gargoyle', x: 11850, y: 100, w: 14, h: 14, min: 11750, max: 12000, vx: 0.7, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 45, scoreValue: 160, hitFlash: 0, home: 11850, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'frost_bat', x: 12300, y: 100, w: 14, h: 14, min: 12200, max: 12450, vx: 0.8, vy: 0, alive: true, hp: 2, maxHp: 2, xpValue: 25, scoreValue: 90, hitFlash: 0, home: 12300, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'castle_keep', x: 11450, y: 35, scale: 1.4 },
+      { type: 'siege_catapult', x: 12050, y: 40, scale: 1.2 },
+      { type: 'dimensional_rift', x: 12550, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> CALA PIRATA' }
+    );
+    checkpoints.push({ x: 12580, y: 108, w: 10, h: 40, active: false, spawn: { x: 12590, y: 110 } });
+    heals.push({ x: 12570, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 10: CALA PIRATA (PIRATE'S TREASURE) (x: 12600 -> 14000)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 12600, y: 148, w: 380, h: 40, kind: 'sand' },
+      { x: 13060, y: 148, w: 420, h: 40, kind: 'shipwreck_hull' },
+      { x: 13540, y: 148, w: 460, h: 40, kind: 'sand' }
+    );
+    platforms.push(
+      { x: 12740, y: 115, w: 70, h: 9, kind: 'palm_wood' },
+      { x: 12860, y: 80, w: 70, h: 9, kind: 'coral' },
+      { x: 13180, y: 110, w: 75, h: 9, kind: 'sunken_deck' },
+      { x: 13300, y: 78, w: 70, h: 9, kind: 'coral' },
+      { x: 13650, y: 115, w: 75, h: 9, kind: 'palm_wood' },
+      { x: 13780, y: 80, w: 70, h: 9, kind: 'coral' }
+    );
+    for (let x = 12650; x < 13950; x += 190) {
+      crystals.push({ x, y: 92 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'pirate_skeleton', x: 12800, y: 134, w: 14, h: 14, min: 12700, max: 12950, vx: 0.6, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 12800, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'pirate_crab', x: 13250, y: 134, w: 14, h: 14, min: 13150, max: 13400, vx: 0.5, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 13250, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'parrot_bomber', x: 13700, y: 100, w: 14, h: 14, min: 13600, max: 13850, vx: 0.8, vy: 0, alive: true, hp: 2, maxHp: 2, xpValue: 25, scoreValue: 90, hitFlash: 0, home: 13700, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'royal_banner', x: 12850, y: 40, scale: 1.3 },
+      { type: 'oasis', x: 13450, y: 45, scale: 1.2 },
+      { type: 'dimensional_rift', x: 13950, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> VALLE JURÁSICO' }
+    );
+    checkpoints.push({ x: 13980, y: 108, w: 10, h: 40, active: false, spawn: { x: 13990, y: 110 } });
+    heals.push({ x: 13970, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 11: VALLE JURÁSICO (JURASSIC DRAFT) (x: 14000 -> 15400)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 14000, y: 148, w: 380, h: 40, kind: 'ground' },
+      { x: 14460, y: 148, w: 420, h: 40, kind: 'ground' },
+      { x: 14940, y: 148, w: 460, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 14140, y: 115, w: 70, h: 9, kind: 'ledge' },
+      { x: 14260, y: 82, w: 70, h: 9, kind: 'ledge' },
+      { x: 14580, y: 110, w: 75, h: 9, kind: 'ledge' },
+      { x: 14700, y: 78, w: 75, h: 9, kind: 'ledge' },
+      { x: 15060, y: 115, w: 70, h: 9, kind: 'ledge' },
+      { x: 15180, y: 80, w: 70, h: 9, kind: 'ledge' }
+    );
+    for (let x = 14050; x < 15350; x += 190) {
+      crystals.push({ x, y: 92 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'raptor', x: 14200, y: 134, w: 14, h: 14, min: 14100, max: 14350, vx: 0.9, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 45, scoreValue: 160, hitFlash: 0, home: 14200, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'triceratops', x: 14650, y: 134, w: 16, h: 16, min: 14550, max: 14800, vx: 0.6, vy: 0, alive: true, hp: 6, maxHp: 6, xpValue: 60, scoreValue: 200, hitFlash: 0, home: 14650, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'pterodactyl', x: 15100, y: 100, w: 14, h: 14, min: 15000, max: 15250, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 35, scoreValue: 120, hitFlash: 0, home: 15100, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'dino_fossil_ribs', x: 14250, y: 35, scale: 1.4 },
+      { type: 'amber_altar', x: 14850, y: 40, scale: 1.2 },
+      { type: 'dimensional_rift', x: 15350, y: 20, scale: 1.5, label: 'FISURA TEMPORAL -> LA LUNA' }
+    );
+    checkpoints.push({ x: 15380, y: 108, w: 10, h: 40, active: false, spawn: { x: 15390, y: 110 } });
+    heals.push({ x: 15370, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 12: LA LUNA (THE MOON) (x: 15400 -> 16800)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 15400, y: 148, w: 380, h: 40, kind: 'lunar_regolith' },
+      { x: 15860, y: 148, w: 420, h: 40, kind: 'solar_deck' },
+      { x: 16340, y: 148, w: 460, h: 40, kind: 'lunar_regolith' }
+    );
+    platforms.push(
+      { x: 15540, y: 115, w: 70, h: 9, kind: 'lunar_base_habitat' },
+      { x: 15660, y: 80, w: 70, h: 9, kind: 'pressurized_conduit' },
+      { x: 15980, y: 110, w: 75, h: 9, kind: 'solar_deck' },
+      { x: 16100, y: 78, w: 70, h: 9, kind: 'launch_gantry' },
+      { x: 16450, y: 115, w: 75, h: 9, kind: 'lunar_base_habitat' },
+      { x: 16580, y: 80, w: 70, h: 9, kind: 'launch_gantry' }
+    );
+    trampolines.push({ x: 15750, y: 138, w: 26, h: 10, bounceForce: 13.0, springAnim: 0 }, { x: 16250, y: 138, w: 26, h: 10, bounceForce: 13.0, springAnim: 0 });
+    for (let x = 15450; x < 16750; x += 190) {
+      crystals.push({ x, y: 90 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    enemies.push(
+      { id: enemyId++, type: 'astro_guard', x: 15600, y: 134, w: 14, h: 14, min: 15500, max: 15750, vx: 0.6, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 45, scoreValue: 160, hitFlash: 0, home: 15600, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'rocket_drone', x: 16050, y: 100, w: 14, h: 14, min: 15950, max: 16200, vx: 0.8, vy: 0, alive: true, hp: 3, maxHp: 3, xpValue: 40, scoreValue: 140, hitFlash: 0, home: 16050, wait: 0, charge: 0, angle: 0 },
+      { id: enemyId++, type: 'lunar_crawler', x: 16500, y: 134, w: 14, h: 14, min: 16400, max: 16680, vx: 0.8, vy: 0, alive: true, hp: 4, maxHp: 4, xpValue: 45, scoreValue: 160, hitFlash: 0, home: 16500, wait: 0, charge: 0, angle: 0 }
+    );
+    landmarks.push(
+      { type: 'colossal_rocket_gantry', x: 15650, y: 25, scale: 1.4 },
+      { type: 'lunar_biodome', x: 16250, y: 35, scale: 1.3 },
+      { type: 'dimensional_rift', x: 16750, y: 20, scale: 1.6, label: 'FISURA TEMPORAL -> NEXO SUPREMO DE KRONOS' }
+    );
+    checkpoints.push({ x: 16780, y: 108, w: 10, h: 40, active: false, spawn: { x: 16790, y: 110 } });
+    heals.push({ x: 16770, y: 126, w: 10, h: 10, taken: false });
+
+    // -------------------------------------------------------------
+    // SECTOR 13: EL NEXO SUPREMO DE KRONOS (CLIMAX FINAL DE TODAS LAS ERAS) (x: 16800 -> 18000)
+    // -------------------------------------------------------------
+    platforms.push(
+      { x: 16800, y: 148, w: 1200, h: 40, kind: 'ground' }
+    );
+    platforms.push(
+      { x: 16950, y: 115, w: 90, h: 10, kind: 'hologram' },
+      { x: 17100, y: 82, w: 90, h: 10, kind: 'hologram' },
+      { x: 17260, y: 115, w: 90, h: 10, kind: 'hologram' },
+      { x: 17420, y: 82, w: 100, h: 10, kind: 'hologram' },
+      { x: 17580, y: 115, w: 100, h: 10, kind: 'hologram' },
+      { x: 17720, y: 85, w: 110, h: 10, kind: 'hologram' }
+    );
+    for (let x = 16850; x < 17800; x += 120) {
+      crystals.push({ x, y: 100 - (x % 35), w: 8, h: 10, taken: false });
+    }
+    landmarks.push(
+      { type: 'kronos_statue', x: 17050, y: 15, scale: 1.8, label: 'MONUMENTO SUPREMO DE KRONOS' },
+      { type: 'reactor_core', x: 17450, y: 20, scale: 1.6, label: 'CORAZÓN DEL NEXO MULTIVERSAL' },
+      { type: 'dimensional_rift', x: 17680, y: 15, scale: 1.8, label: 'CONVERGENCIA SUPREMA DE LAS 12 ERAS' },
+      { type: 'travel_beacon', x: 17840, y: 15, scale: 2.0, label: 'FARO DE VICTORIA TOTAL DEL TIEMPO' }
+    );
+    secrets.push({ x: 17750, y: 25, w: 14, h: 16, taken: false, name: '👑 Corona del Tiempo: Conquistador de Todas las Eras' });
+    heals.push({ x: 17800, y: 126, w: 12, h: 12, taken: false });
+
+    // Portal de Victoria Final Absoluta
+    goal = { x: 17870, y: 70, w: 48, h: 72 };
   } else {
     // Escenario de prueba / sala de espera para zonas próximas
     platforms.push(

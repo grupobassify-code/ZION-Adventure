@@ -24,6 +24,7 @@ import {
   Gauge,
   Compass,
   Moon,
+  X,
 } from 'lucide-react';
 import {
   SaveSlot,
@@ -37,7 +38,7 @@ import {
   placeAllAvailableKronosPieces,
   isKronosClockCompleted,
   isKronosLockerUnlocked,
-  unlockAllKronosBossesForDemo,
+  CLOCK_PIECE_REWARDS,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 
@@ -59,6 +60,12 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
   const [showCompletionModal, setShowCompletionModal] = useState<boolean>(false);
   const [selectedPieceInfo, setSelectedPieceInfo] = useState<KronosPieceInfo | null>(null);
   const [clockRotationAngle, setClockRotationAngle] = useState<number>(0);
+  const [unlockedReward, setUnlockedReward] = useState<{
+    title: string;
+    rewardName: string;
+    description: string;
+    type: 'locker' | 'character';
+  } | null>(null);
 
   const isCompleted = isKronosClockCompleted(slot) || placedPieces.length >= KRONOS_PIECES.length;
   const isLockerUnlocked = isKronosLockerUnlocked(slot) || isCompleted;
@@ -114,7 +121,14 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
       setPlacedPieces([...updatedSlot.kronosPiecesPlaced]);
       onRefreshSlot();
 
-      // If all 12 pieces are placed, start the epic cinematic!
+      // Show reward notification
+      const reward = CLOCK_PIECE_REWARDS[pieceId];
+      if (reward) {
+        sound.playSfx('win');
+        setUnlockedReward(reward);
+      }
+
+      // If all pieces are placed, start the epic cinematic!
       if (updatedSlot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
         triggerReassemblyCinematic();
       }
@@ -129,22 +143,14 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
       setPlacedPieces([...(updatedSlot.kronosPiecesPlaced || [])]);
       onRefreshSlot();
 
-      if (updatedSlot.kronosPiecesPlaced && updatedSlot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
-        triggerReassemblyCinematic();
+      // Show the most impactful reward from newly placed
+      const lastPiece = newlyPlaced[newlyPlaced.length - 1];
+      const reward = CLOCK_PIECE_REWARDS[lastPiece];
+      if (reward) {
+        setUnlockedReward(reward);
       }
-    }
-  };
 
-  const handleUnlockAllDemo = () => {
-    if (!slot) return;
-    const updatedSlot = unlockAllKronosBossesForDemo(slot.id);
-    if (updatedSlot) {
-      sound.playSfx('secret');
-      onRefreshSlot();
-      const { slot: finalSlot } = placeAllAvailableKronosPieces(slot.id);
-      if (finalSlot) {
-        setPlacedPieces([...(finalSlot.kronosPiecesPlaced || [])]);
-        onRefreshSlot();
+      if (updatedSlot.kronosPiecesPlaced && updatedSlot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
         triggerReassemblyCinematic();
       }
     }
@@ -242,18 +248,6 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
 
         {/* Action Header Links */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-          {!isCompleted && (
-            <button
-              id="unlock-all-demo-clock-btn"
-              onClick={handleUnlockAllDemo}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-[10px] sm:text-xs font-mono font-bold transition-all shadow-md active:scale-95"
-              title="Probar las 12 piezas y cinemática de apertura"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Probar 12/12 (Demo)</span>
-            </button>
-          )}
-
           {isLockerUnlocked ? (
             <button
               id="open-locker-from-clock-btn"
@@ -658,12 +652,12 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
             <h3 className="text-base sm:text-lg font-black text-white font-heading">
               {isCompleted
                 ? '¡PORTAL DIMENSIONAL ACTIVADO AL 100%!'
-                : 'PORTAL FRACTURADO — REQUIERE 12 PIEZAS SAGRADAS'}
+                : 'EL GRAN RELOJ DE KRONOS & SKINS DE ZION'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl mx-auto leading-relaxed">
               {isCompleted
-                ? 'Todas las 12 piezas sagradas han sido ensambladas en el portal de Kronos. El flujo dimensional está completamente estabilizado y el Casillero de Skins está abierto.'
-                : 'Se necesitan las 12 piezas ancestrales (1 por cada una de las 12 zonas del juego) para reactivar el portal y desbloquear el Casillero de Skins. Aunque los jefes de las zonas 9 a 12 aún están en desarrollo, ¡aquí puedes ver las 12 reliquias requeridas para la apertura del Casillero!'}
+                ? 'Todas las piezas sagradas han sido ensambladas en el portal de Kronos. El flujo dimensional está completamente estabilizado y todos los trajes de Zion están listos.'
+                : 'La 1ª Pieza (Bosque Neón) desbloquea el Casillero de Skins. Cada pieza subsiguiente colocada en el Reloj despierta y desbloquea un nuevo traje dimensional para Zion.'}
             </p>
 
             {/* Explicit Locker Unlock Requirement Callout */}
@@ -681,13 +675,13 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                 <div>
                   <h4 className="text-xs font-black font-heading text-white">
                     {isLockerUnlocked
-                      ? '🔓 CASILLERO DE PERSONAJES DESBLOQUEADO'
-                      : '🔒 CASILLERO BLOQUEADO — REQUIERE 12 PIEZAS'}
+                      ? '🔓 CASILLERO DE SKINS DESBLOQUEADO'
+                      : '🔒 CASILLERO BLOQUEADO — REQUIERE LA 1ª PIEZA'}
                   </h4>
                   <p className="text-[11px] text-slate-300">
                     {isLockerUnlocked
-                      ? '¡Has restaurado las 12 piezas! Accede al vestidor de atuendos y personaliza a Zion.'
-                      : `Progreso: ${placedPieces.length}/12 piezas colocadas. Al reunir las 12 se desbloqueará el Casillero.`}
+                      ? '¡El Casillero está abierto! Coloca las demás piezas del Reloj para desbloquear más trajes de Zion.'
+                      : 'Derrota al primer jefe en Bosque Neón (Acto 3) y coloca su pieza en el Reloj para abrir el Casillero.'}
                   </p>
                 </div>
               </div>
@@ -698,9 +692,9 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                     sound.playSfx('menuSelect');
                     onOpenLocker();
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs font-heading shrink-0 shadow-md active:scale-95 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs font-heading shrink-0 shadow-md active:scale-95 transition-all cursor-pointer"
                 >
-                  ABRIR
+                  ABRIR CASILLERO
                 </button>
               )}
             </div>
@@ -851,6 +845,15 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                           <Trophy className="w-3 h-3 text-amber-400 shrink-0" />
                           <span>Jefe: {piece.bossName} ({piece.zoneName})</span>
                         </p>
+
+                        {CLOCK_PIECE_REWARDS[piece.id] && (
+                          <div className="mt-1 flex items-center gap-1">
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-cyan-400" />
+                              <span>Recompensa: {CLOCK_PIECE_REWARDS[piece.id].title}</span>
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -895,42 +898,127 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
         </div>
       </main>
 
-      {/* EPIC COMPLETION MODAL */}
-      {showCompletionModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="relative w-full max-w-lg rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-slate-900 via-[#0d1532] to-slate-950 p-6 sm:p-8 shadow-[0_0_60px_rgba(245,158,11,0.4)] text-center animate-in zoom-in-95 duration-300">
-            {/* Pulsing Trophy Icon */}
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-lg shadow-amber-500/30 mb-4 animate-bounce">
-              <Trophy className="w-8 h-8 fill-slate-950" />
+      {/* REWARD UNLOCKED TOAST / MODAL FOR EACH PIECE */}
+      {unlockedReward && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              sound.playSfx('menuSelect');
+              setUnlockedReward(null);
+            }
+          }}
+          className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-200"
+        >
+          <div className="relative w-full max-w-sm sm:max-w-md max-h-[82vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-2 border-cyan-400 bg-gradient-to-b from-slate-900 via-[#0a122c] to-slate-950 p-4 sm:p-6 shadow-[0_0_40px_rgba(6,182,212,0.4)] text-center animate-in zoom-in-95 duration-200">
+            {/* Top Close Button for quick mobile exit - Always prominent & reachable */}
+            <button
+              onClick={() => {
+                sound.playSfx('menuSelect');
+                setUnlockedReward(null);
+              }}
+              className="absolute top-2.5 right-2.5 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-all border border-slate-700 z-20 shadow-md active:scale-95"
+              title="Cerrar y continuar"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+            <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-slate-950 flex items-center justify-center shadow-lg shadow-cyan-500/30 mb-2.5 animate-bounce">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 fill-slate-950" />
             </div>
 
-            <span className="text-xs font-mono font-black tracking-widest text-amber-400 uppercase">
+            <span className="text-[10px] sm:text-[11px] font-mono font-black tracking-widest text-cyan-400 uppercase">
+              ¡RECOMPENSA DESBLOQUEADA!
+            </span>
+            <h3 className="text-base sm:text-xl font-black text-white font-heading mt-1">
+              {unlockedReward.rewardName}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+              {unlockedReward.description}
+            </p>
+
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <button
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  setUnlockedReward(null);
+                  onOpenLocker();
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 active:scale-95 transition-all cursor-pointer"
+              >
+                <Shirt className="w-4 h-4 fill-slate-950" />
+                <span>IR AL CASILLERO</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  setUnlockedReward(null);
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs font-mono transition-all cursor-pointer active:scale-95"
+              >
+                <span>SEGUIR EN EL RELOJ</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EPIC COMPLETION MODAL (DESBLOQUEO DEL CASILLERO - ULTRA OPTIMIZADO PARA MÓVILES) */}
+      {showCompletionModal && (
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              sound.playSfx('menuSelect');
+              setShowCompletionModal(false);
+            }
+          }}
+          className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 select-none animate-in fade-in duration-200"
+        >
+          <div className="relative w-full max-w-sm sm:max-w-md max-h-[82vh] overflow-y-auto rounded-2xl sm:rounded-3xl border-2 border-amber-400 bg-gradient-to-b from-slate-900 via-[#0d1532] to-slate-950 p-4 sm:p-6 shadow-[0_0_40px_rgba(245,158,11,0.4)] text-center animate-in zoom-in-95 duration-200">
+            {/* Top Close Button for quick mobile exit - Always prominent & reachable */}
+            <button
+              onClick={() => {
+                sound.playSfx('menuSelect');
+                setShowCompletionModal(false);
+              }}
+              className="absolute top-2.5 right-2.5 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer transition-all border border-slate-700 z-20 shadow-md active:scale-95"
+              title="Cerrar y continuar"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+            {/* Pulsing Trophy Icon */}
+            <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 flex items-center justify-center shadow-lg shadow-amber-500/30 mb-2 animate-bounce">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 fill-slate-950" />
+            </div>
+
+            <span className="text-[10px] sm:text-xs font-mono font-black tracking-widest text-amber-400 uppercase">
               RESTAURACIÓN DEL CONTINUO TEMPORAL
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white font-heading mt-1">
-              ¡FELICIDADES, PORTAL RESTAURADO!
+            <h2 className="text-lg sm:text-2xl font-black text-white font-heading mt-0.5">
+              ¡PORTAL RESTAURADO!
             </h2>
-            <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed">
-              El Gran Portal de Kronos ha vuelto a girar. Con las 12 piezas sagradas restauradas, el nexo interdimensional está completamente activo y el flujo del tiempo vuelve a estar en armonía.
+            <p className="text-xs text-slate-200 mt-1 leading-relaxed max-w-sm mx-auto">
+              El Gran Portal de Kronos ha vuelto a girar. Con las piezas sagradas ensambladas, el nexo interdimensional está activo.
             </p>
 
             {/* Reward Box */}
-            <div className="mt-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
-                <Shirt className="w-6 h-6" />
+            <div className="mt-3 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left flex items-start gap-2.5">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
+                <Shirt className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-amber-300 font-heading">
-                  ¡HAS DESBLOQUEADO EL CASILLERO DE PERSONAJES!
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-sm font-bold text-amber-300 font-heading">
+                  ¡CASILLERO DE SKINS DESBLOQUEADO!
                 </h4>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Accede al casillero de skins estilo Fortnite. Zion está listo para equipar sus atuendos especiales y legendarios.
+                <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                  Zion ya puede equipar sus trajes dimensionales y especiales en el Casillero.
                 </p>
               </div>
             </div>
 
             {/* Modal Actions */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
               <button
                 id="modal-enter-locker-btn"
                 onClick={() => {
@@ -938,17 +1026,20 @@ export const KronosClockView: React.FC<KronosClockViewProps> = ({
                   setShowCompletionModal(false);
                   onOpenLocker();
                 }}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-sm font-heading shadow-xl shadow-orange-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-black text-xs sm:text-sm font-heading shadow-xl shadow-orange-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Shirt className="w-4 h-4 fill-slate-950" />
-                <span>ENTRAR AL CASILLERO AHORA</span>
+                <span>ENTRAR AL CASILLERO</span>
               </button>
 
               <button
-                onClick={() => setShowCompletionModal(false)}
-                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all"
+                onClick={() => {
+                  sound.playSfx('menuSelect');
+                  setShowCompletionModal(false);
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all cursor-pointer active:scale-95"
               >
-                Contemplar el Portal
+                CERRAR Y CONTINUAR
               </button>
             </div>
           </div>

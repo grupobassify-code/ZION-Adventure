@@ -77,6 +77,7 @@ interface MainMenuProps {
   onOpenCredits: () => void;
   onOpenMultiplayer?: () => void;
   onOpenAchievements?: () => void;
+  onSelectSkin?: (skinId: string) => void;
   audioActive: boolean;
   onToggleAudio: () => void;
   onToggleFullscreen: () => void;
@@ -214,6 +215,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onOpenCredits,
   onOpenMultiplayer,
   onOpenAchievements,
+  onSelectSkin,
   audioActive,
   onToggleAudio,
   onToggleFullscreen,
@@ -967,7 +969,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                         <span>{t('enterClockBtn')}</span>
                       </button>
 
-                      {lockerOpen && (
+                      {lockerOpen ? (
                         <button
                           id="open-locker-shortcut-btn"
                           type="button"
@@ -976,11 +978,19 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                             sound.playSfx('menuSelect');
                             setView('locker');
                           }}
-                          className="w-full lg:w-auto px-4 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md"
+                          className="w-full lg:w-auto px-4 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-500/50 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
                         >
                           <Shirt className="w-3.5 h-3.5" />
                           <span>{t('lockerShortcut')}</span>
                         </button>
+                      ) : (
+                        <div
+                          className="w-full lg:w-auto px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-400 font-mono text-[11px] flex items-center justify-center gap-1.5"
+                          title="Derrota al 1er jefe (Bosque Neón) y coloca su pieza en el Reloj para desbloquear el Casillero"
+                        >
+                          <Lock className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Casillero: Requiere 1ª Pieza</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -1679,6 +1689,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
           onBack={() => setView('clock')}
           onSelectSkin={(skinId) => {
             setSelectedSkin(activeSlot?.id || 0, skinId);
+            if (onSelectSkin) {
+              onSelectSkin(skinId);
+            }
             refreshSlots();
           }}
         />

@@ -91,13 +91,13 @@ export const SoundtrackModal: React.FC<SoundtrackModalProps> = ({ onClose }) => 
               <h2 className="text-lg sm:text-xl font-black text-white font-heading tracking-wide flex items-center gap-2">
                 JUKEBOX ORIGINAL SOUNDTRACK
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
-                  {language === 'es' ? 'ESTILO 16-BIT RETRO' : '16-BIT RETRO STYLE'}
+                  {language === 'es' ? '32-BIT STUDIO MASTER' : '32-BIT STUDIO MASTER'}
                 </span>
               </h2>
               <p className="text-[11px] text-cyan-400/90 font-mono">
                 {language === 'es'
-                  ? 'Sintetizador FM polifónico con melodías contagiosas y líneas de bajo retro 16-bits clásicas'
-                  : 'Polyphonic FM chiptune synthesizer with catchy melodies and classic 16-bit basslines'}
+                  ? 'Sintetizador 32-Bit Studio: FM Stereo, chorus analógico, eco acústico espacial, bajos potentes y percusión dinámica'
+                  : '32-Bit Studio Synthesizer: FM Stereo, analog chorus, spatial acoustic delay, punchy bass, and dynamic studio drums'}
               </p>
             </div>
           </div>

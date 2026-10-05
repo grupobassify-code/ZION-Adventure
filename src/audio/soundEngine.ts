@@ -1,3 +1,4 @@
+import { TRACKS_32BIT, TrackPattern32 } from './soundtrack32Bit';
 // Web Audio API Polyphonic Retro Chiptune & Arcade-Grade Synth Engine
 // FM Synthesizer 16-Bit Architecture with multi-channel voices and stereo panning
 
@@ -44,39 +45,39 @@ export interface SoundTrackInfo {
 }
 
 export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
-  { id: 'menuTheme', title: 'Preludio de Kronos (Menú)', zone: 'Menú de Inicio', tag: 'Melodía Ligera · Chill Retro' },
-  { id: 'neonAct1', title: 'El Despertar de la Arboleda', zone: 'Bosque Neón · Acto 1', tag: 'Neo-Genesis Groove · Pop Chiptune' },
-  { id: 'neonBoss', title: 'El Guardián del Núcleo', zone: 'Bosque Neón · Jefe', tag: 'Electro Boss · 16-Bit Battle' },
-  { id: 'sakuraAct1', title: 'Flor de Sakura y Torii', zone: 'Bosque de Cerezo · Acto 1', tag: 'Oriental Místico · Pentatónico' },
-  { id: 'sakuraBoss', title: 'Duelo de la Luna Roja', zone: 'Bosque de Cerezo · Jefe', tag: 'Ninja Beat · Darksynth' },
-  { id: 'lavacliffAct1', title: 'Furia de los Acantilados', zone: 'Acantilado de Lava · Acto 1', tag: 'Magma Funk & Rock' },
-  { id: 'lavacliffBoss', title: 'Ignis, Coloso de Fuego', zone: 'Acantilado de Lava · Jefe', tag: 'Heavy Metal 16-bit' },
-  { id: 'desertAct1', title: 'Sol de Ra y Dunas Olvidadas', zone: 'Santuario del Desierto · Acto 1', tag: 'Egipcio Frigio · Slap Bass' },
-  { id: 'desertAct2', title: 'Cámara del Faraón Oscuro', zone: 'Santuario del Desierto · Acto 2', tag: 'Místico Arcana · Ambient Beat' },
-  { id: 'desertBoss', title: 'Faraón Akhen\'Ra Despierta', zone: 'Santuario del Desierto · Jefe', tag: 'Boss Faraónico · High Energy' },
-  { id: 'kronoAct1', title: 'Avenida Ciberpunk & Autopistas Neón', zone: 'Krono City · Acto 1', tag: 'Darksynth Drive · Cyber Speed' },
-  { id: 'kronoAct2', title: 'Reactor de Fusión y Red Central', zone: 'Krono City · Acto 2', tag: 'Industrial Techno · FM Bass' },
-  { id: 'kronoBoss', title: 'Titán Mecánico Kronos-Ω', zone: 'Krono City · Jefe Final', tag: 'Gran Clímax Final · Sinfonía Chiptune' },
-  { id: 'kronosTravel', title: 'Kronos Travel: Odisea Dimensional', zone: 'Nivel Extra · Fusión Suprema', tag: 'Medley Legendario Multizona' },
-  { id: 'jungleAct1', title: 'Jungle Run: Templo Maya y Selva Tropical', zone: 'Jungle Run · Acto 1 y 2', tag: 'Aventura Selvática · Percusión Tribal' },
-  { id: 'jungleBoss', title: 'Balam: Furia del Jaguar Ancestral', zone: 'Jungle Run · Jefe', tag: 'Duelo Chamánico · Feline Battle Beat' },
-  { id: 'blizzardSki', title: 'Descenso en Esquís: Vértigo Blanco', zone: 'Blizzard Rush · Acto 1', tag: 'Ski Rush Chiptune · High-Speed Adrenaline' },
-  { id: 'blizzardForest', title: 'Sendero Glacial y Pinos de Escarcha', zone: 'Blizzard Rush · Acto 2', tag: 'Atmósfera Nevada · Campanas de Cristal' },
-  { id: 'blizzardBoss', title: 'Furia del Yeti: Coloso de las Nieves', zone: 'Blizzard Rush · Jefe', tag: 'Batalla de Cumbres · Heavy Frost Stomp' },
-  { id: 'steampunkAct1', title: 'Engranes de Cobre y Vapor Caliente', zone: 'Fábrica Steampunk · Acto 1', tag: 'Victorian Clockwork · Brass Chiptune' },
-  { id: 'steampunkAct2', title: 'Fábrica Oxidada y Calderas Corroídas', zone: 'Fábrica Oxidada · Acto 2', tag: 'Industrial Rust · Grinding Machinery' },
-  { id: 'steampunkBoss', title: 'Ascenso 1000m: Evasión de Vapor Colosal', zone: 'Fábrica Steampunk · Jefe Only Up', tag: 'Only Up 1000m · Boiler Meltdown Rush' },
-  { id: 'castleAct1', title: 'Murallas de Asedio y Almenas de Piedra', zone: 'Castle Smash · Acto 1 y 2', tag: 'Marcha Medieval · Gothic Battle Chiptune' },
-  { id: 'castleBoss', title: 'Lord Malakar: Furia del Martillo Rompemuros', zone: 'Castle Smash · Jefe', tag: 'Duelo de Bastión · Heavy Siege Metal' },
-  { id: 'pirateBeach', title: 'Cala del Corsario: Palmeras y Mareas', zone: 'Pirates Treasure · Acto 1', tag: 'Pirate Sea Shanty · Tropical Chiptune' },
-  { id: 'pirateUnderwater', title: 'Fosa Abisal: Susurros del Océano Azul', zone: 'Pirates Treasure · Acto 2', tag: 'Bajo el Agua · Ambient Deep Sea' },
-  { id: 'pirateBoss', title: 'El Cofre Maldito del Naufragio', zone: 'Pirates Treasure · Jefe', tag: 'Duelo Mímico · Sea Monster Metal' },
-  { id: 'jurassicAct1', title: 'Jungla Primordial y Nidos de Raptor', zone: 'Jurassic Draft · Acto 1', tag: 'Prehistoric Jungle · Tribal Beat' },
-  { id: 'jurassicAct2', title: 'Cañón de Pterodáctilos y Lava Ancestral', zone: 'Jurassic Draft · Acto 2', tag: 'Volcanic Thermals · Driving Bass' },
-  { id: 'jurassicBoss', title: 'Titan Rex: Rugido del Depredador Alfa', zone: 'Jurassic Draft · Jefe', tag: 'Duelo de Titanes · Heavy Dinosaur Metal' },
-  { id: 'moonLaunchAct1', title: 'Base de Lanzamiento: Cuenta Regresiva al Infinito', zone: 'The Moon · Acto 1', tag: 'Space Synthwave · Heroic Cosmic Odyssey' },
-  { id: 'moonDoomsdayBoss', title: 'Juicio Final Cósmico: Doomsday Colossus', zone: 'The Moon · Jefe Final', tag: 'Sonic 3 Doomsday Tribute · Epic 154 BPM Space Rock' },
-  { id: 'creditsTune', title: 'Himno de la Victoria de Zion', zone: 'Créditos & Epílogo', tag: 'Celebración Heroica · Ending Theme' },
+  { id: 'menuTheme', title: 'Chronos 32-Bit Rebirth', zone: 'Menú de Inicio', tag: '32-Bit Studio Master · Chill Synthwave' },
+  { id: 'neonAct1', title: 'Neo-Genesis Overdrive', zone: 'Bosque Neón · Acto 1', tag: '32-Bit Arcade OST · High Energy Synth' },
+  { id: 'neonBoss', title: 'Hyper-Core Confrontation', zone: 'Bosque Neón · Jefe', tag: '32-Bit Techno Breakbeat · Sub-Bass Battle' },
+  { id: 'sakuraAct1', title: 'Petals of Eternity', zone: 'Bosque de Cerezo · Acto 1', tag: '32-Bit Neo-Oriental · Koto & Stereo Pads' },
+  { id: 'sakuraBoss', title: 'Crimson Moon Shindig', zone: 'Bosque de Cerezo · Jefe', tag: '32-Bit Darksynth · High-Speed Ninja' },
+  { id: 'lavacliffAct1', title: 'Magma Forge Overdrive', zone: 'Acantilado de Lava · Acto 1', tag: '32-Bit Heavy Synth Rock · Distorted Saw' },
+  { id: 'lavacliffBoss', title: 'Ignis Colossus Unleashed', zone: 'Acantilado de Lava · Jefe', tag: '32-Bit Volcanic Metal · Double Kick' },
+  { id: 'desertAct1', title: 'Mirage of Ra', zone: 'Santuario del Desierto · Acto 1', tag: '32-Bit Phrygian Modal · Arabian Bass' },
+  { id: 'desertAct2', title: 'Tomb of the Sun God', zone: 'Santuario del Desierto · Acto 2', tag: '32-Bit Mystic Techno · Ambient Pads' },
+  { id: 'desertBoss', title: 'Akhen\'Ra Awakening', zone: 'Santuario del Desierto · Jefe', tag: '32-Bit Battle Symphony · High Energy' },
+  { id: 'kronoAct1', title: 'Cyber Metropolis 2099', zone: 'Krono City · Acto 1', tag: '32-Bit Darksynth Drive · Pulse Bass' },
+  { id: 'kronoAct2', title: 'Fusion Core Meltdown', zone: 'Krono City · Acto 2', tag: '32-Bit Industrial Cyberpunk · FM Bass' },
+  { id: 'kronoBoss', title: 'Titan Kronos-Ω Climax', zone: 'Krono City · Jefe Final', tag: '32-Bit Grand Finale · Orchestral Climax' },
+  { id: 'kronosTravel', title: 'Dimensional Odyssey', zone: 'Nivel Extra · Fusión', tag: '32-Bit Multizone Medley · Stereo Rush' },
+  { id: 'jungleAct1', title: 'Ancient Maya Canopy', zone: 'Jungle Run · Acto 1 y 2', tag: '32-Bit Tribal Polyrhythm · Jungle Groove' },
+  { id: 'jungleBoss', title: 'Fangs of Balam', zone: 'Jungle Run · Jefe', tag: '32-Bit Shamanic Battle · Ferocious Synth' },
+  { id: 'blizzardSki', title: 'Sub-Zero Alpine Rush', zone: 'Blizzard Rush · Acto 1', tag: '32-Bit Alpine Ski Rush · Crystalline Eurobeat' },
+  { id: 'blizzardForest', title: 'Glacial Frost & Ice Pines', zone: 'Blizzard Rush · Acto 2', tag: '32-Bit Snowy Chill · Crystal Bell Synth' },
+  { id: 'blizzardBoss', title: 'Yeti Mountain Stomp', zone: 'Blizzard Rush · Jefe', tag: '32-Bit Heavy Frost Battle · Sub Stomp' },
+  { id: 'steampunkAct1', title: 'Clockwork Steam Foundry', zone: 'Fábrica Steampunk · Acto 1', tag: '32-Bit Victorian Brass · Clockwork Groove' },
+  { id: 'steampunkAct2', title: 'Rust & Molten Gears', zone: 'Fábrica Oxidada · Acto 2', tag: '32-Bit Industrial Machinery · Steam Accents' },
+  { id: 'steampunkBoss', title: 'Boiler Overload: 1000m Ascend', zone: 'Fábrica Steampunk · Jefe', tag: '32-Bit Only Up 1000m · Boiler Meltdown' },
+  { id: 'castleAct1', title: 'Citadel of the Valiant', zone: 'Castle Smash · Acto 1 y 2', tag: '32-Bit Gothic March · Heroic Trumpets' },
+  { id: 'castleBoss', title: 'Lord Malakar\'s Siege Hammer', zone: 'Castle Smash · Jefe', tag: '32-Bit Siege Metal · Heavy Stone Stabs' },
+  { id: 'pirateBeach', title: 'High Seas Corsair Shanty', zone: 'Pirates Treasure · Acto 1', tag: '32-Bit Corsair Shanty · Buoyant Ocean' },
+  { id: 'pirateUnderwater', title: 'Abyssal Whispers', zone: 'Pirates Treasure · Acto 2', tag: '32-Bit Submerged Aqua · Echo Delays' },
+  { id: 'pirateBoss', title: 'Kraken\'s Cursed Chest', zone: 'Pirates Treasure · Jefe', tag: '32-Bit Sunken Galleon Metal · Mimic Battle' },
+  { id: 'jurassicAct1', title: 'Valley of the Raptors', zone: 'Jurassic Draft · Acto 1', tag: '32-Bit Prehistoric Tribal · Amber Beats' },
+  { id: 'jurassicAct2', title: 'Volcanic Pterosaur Ridge', zone: 'Jurassic Draft · Acto 2', tag: '32-Bit Volcanic Thermals · Soaring Drive' },
+  { id: 'jurassicBoss', title: 'Apex Titan Rex Showdown', zone: 'Jurassic Draft · Jefe', tag: '32-Bit Dinosaur Metal · Apex Roar' },
+  { id: 'moonLaunchAct1', title: 'Countdown to Infinity', zone: 'The Moon · Acto 1', tag: '32-Bit Heroic Space Synthwave · Epic Climb' },
+  { id: 'moonDoomsdayBoss', title: 'Cosmic Doomsday Climax', zone: 'The Moon · Jefe Final', tag: '32-Bit Doomsday Tribute · 156 BPM Space Rock' },
+  { id: 'creditsTune', title: 'Zion\'s Eternal Victory', zone: 'Créditos & Epílogo', tag: '32-Bit Heroic Celebration · Ending Theme' },
 ];
 
 interface MusicTrackPattern {
@@ -118,6 +119,8 @@ class SoundEngine {
   private currentStep = 0;
   private currentTrack: MusicTrackName | null = null;
   private musicGainNode: GainNode | null = null;
+  private sfxGainNode: GainNode | null = null;
+  private musicBedFilter: BiquadFilterNode | null = null;
   public soundEnabled = true;
   public musicEnabled = true;
   public masterVolume = 0.5;
@@ -135,10 +138,30 @@ class SoundEngine {
       this.ctx.resume();
     }
     if (this.ctx && !this.musicGainNode) {
+      // 1. Dedicated Music Background Bed Gain (balanced cleanly with obstacles & SFX)
       this.musicGainNode = this.ctx.createGain();
-      this.musicGainNode.connect(this.ctx.destination);
+      this.musicGainNode.gain.setValueAtTime(0.56, this.ctx.currentTime);
+
+      // 2. Dedicated Foreground SFX Gain (crisp, punchy obstacles and actions)
+      this.sfxGainNode = this.ctx.createGain();
+      this.sfxGainNode.gain.setValueAtTime(0.95, this.ctx.currentTime);
+      this.sfxGainNode.connect(this.ctx.destination);
     }
     return this.ctx;
+  }
+
+  // Sidechain Ducking: smoothly dips music volume when obstacles, alarms or actions trigger
+  private duckMusic(duckRatio = 0.22, duration = 0.32) {
+    if (!this.ctx || !this.musicGainNode || !this.musicEnabled) return;
+    try {
+      const now = this.ctx.currentTime;
+      const targetGain = 0.56 * this.masterVolume;
+      const duckedGain = targetGain * (1 - duckRatio);
+      this.musicGainNode.gain.cancelScheduledValues(now);
+      this.musicGainNode.gain.setValueAtTime(this.musicGainNode.gain.value, now);
+      this.musicGainNode.gain.linearRampToValueAtTime(duckedGain, now + 0.03);
+      this.musicGainNode.gain.exponentialRampToValueAtTime(Math.max(0.001, targetGain), now + duration);
+    } catch {}
   }
 
   public unlockAudio() {
@@ -312,6 +335,10 @@ class SoundEngine {
       return; // Suppress duplicate SFX spam within 50ms
     }
     this.lastSfxTime[name] = now;
+
+    // Automatic musical headroom: duck background music bed slightly during gameplay actions
+    this.duckMusic(0.24, 0.35);
+
     switch (name) {
       case 'jump':
         this.tone(480, 0.09, 'square', 0.035, 0, 820);
@@ -529,1134 +556,136 @@ class SoundEngine {
   }
 
   // Multi-channel sound themes with rich multi-bar melodic structures, retro 16-bit pop syncopation, catchy hooks and walking bass
-  private trackThemes: Record<MusicTrackName, MusicTrackPattern> = {
-    // ZONE 1 · ACT 1: NEON FOREST (Upbeat retro pop groove, 64 steps)
-    neonAct1: {
-      tempo: 138,
-      leadWave: 'triangle',
-      harmonyWave: 'sine',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      // Verse A -> Verse A2 -> Uplifting Chorus B -> Grand Resolution Cadence
-      leadNotes: [
-        // Bar 1 (Iconic Catchy Upbeat Hook: C-E-G-A-C5 bouncy phrasing)
-        N.C4, N.E4, N.G4, N.A4, N.C5, N.A4, N.G4, N.E4,  N.D4, N.F4, N.A4, N.C5, N.D5, N.C5, N.A4, N.F4,
-        // Bar 2 (Syncopated Ascent with playful triplet swing feel)
-        N.E4, N.G4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.F4, N.A4, N.C5, N.D5, N.E5, N.D5, N.C5, N.D5,
-        // Bar 3 (Chorus B: Soaring high register melody)
-        N.E5, N.G5, N.E5, N.D5, N.C5, N.D5, N.E5, N.G4,  N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.C5, N.D5,
-        // Bar 4 (Turnaround / Energetic Cascade)
-        N.E5, N.D5, N.C5, N.A4, N.G4, N.E4, N.D4, N.C4,  N.D4, N.E4, N.G4, N.A4, N.C5, N.D5, N.C5, N.REST
-      ],
-      harmonyNotes: [
-        N.G4, N.REST, N.C5, N.REST, N.E5, N.REST, N.C5, N.REST, N.A4, N.REST, N.D5, N.REST, N.F5, N.REST, N.D5, N.REST,
-        N.G4, N.REST, N.C5, N.REST, N.E5, N.REST, N.C5, N.REST, N.A4, N.REST, N.C5, N.REST, N.F5, N.REST, N.D5, N.REST,
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST, N.D5, N.REST,
-        N.G5, N.REST, N.F5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        // Slap Bass Line (Groovy 8th notes with octave jumps)
-        N.C2, N.C3, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,  N.F2, N.F3, N.F2, N.G2, N.A2, N.A3, N.G2, N.F2,
-        N.C2, N.C3, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,  N.F2, N.F3, N.G2, N.G3, N.A2, N.G2, N.F2, N.G2,
-        N.A2, N.A3, N.G2, N.E2, N.F2, N.F3, N.G2, N.E2,  N.F2, N.F3, N.G2, N.A2, N.As2, N.A2, N.G2, N.F2,
-        N.G2, N.G3, N.F2, N.E2, N.D2, N.D3, N.C2, N.B1,  N.C2, N.E2, N.G2, N.A2, N.C3, N.G2, N.C2, N.C3
-      ],
-      drumPattern: [
-        2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1,
-        2, 1, 3, 1, 2, 1, 3, 4, 2, 1, 3, 1, 4, 4, 5, 1,
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
-        2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 3, 5, 1
-      ],
-    },
+  // 32-Bit High-Fidelity Studio Master Tracks
+  private trackThemes: Record<string, TrackPattern32> = TRACKS_32BIT;
 
-    // ZONE 1 · BOSS: THE CORE GUARDIAN (Driving 16-bit Mega Drive Boss Battle, 64 steps)
-    neonBoss: {
-      tempo: 152,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.A4, N.C5, N.D5, N.Ds5, N.E5, N.Ds5, N.D5, N.C5,  N.A4, N.G4, N.A4, N.C5, N.D5, N.C5, N.A4, N.G4,
-        N.A4, N.C5, N.D5, N.E5, N.G5, N.E5, N.D5, N.C5,   N.D5, N.Ds5, N.E5, N.G5, N.A5, N.G5, N.E5, N.D5,
-        N.A5, N.G5, N.E5, N.D5, N.C5, N.D5, N.E5, N.G5,   N.A5, N.B5, N.C6, N.B5, N.A5, N.G5, N.E5, N.D5,
-        N.Ds5, N.D5, N.C5, N.A4, N.G4, N.E4, N.D4, N.C4,  N.A3, N.C4, N.D4, N.Ds4, N.E4, N.G4, N.A4, N.REST
-      ],
-      harmonyNotes: [
-        N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.D5, N.REST,
-        N.E5, N.REST, N.A5, N.REST, N.C6, N.REST, N.A5, N.REST, N.G5, N.REST, N.A5, N.REST, N.C6, N.REST, N.A5, N.REST,
-        N.C6, N.REST, N.B5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST,
-        N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.E5, N.REST, N.A5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.A2, N.A2, N.C3, N.A2, N.D3, N.D3, N.Ds3, N.D3, N.A2, N.A2, N.G2, N.A2, N.C3, N.C3, N.G2, N.A2,
-        N.A2, N.A2, N.C3, N.A2, N.E3, N.E3, N.D3, N.C3, N.D3, N.D3, N.E3, N.G3, N.A3, N.A3, N.G3, N.E3,
-        N.F2, N.F3, N.G2, N.G3, N.A2, N.A3, N.C3, N.A2, N.D3, N.D3, N.E3, N.G3, N.A3, N.A3, N.G3, N.E3,
-        N.F2, N.F2, N.G2, N.G2, N.Gs2, N.Gs2, N.A2, N.C3, N.A2, N.A2, N.C3, N.A2, N.G2, N.G2, N.E2, N.A2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 2, 5, 1, 4, 1, 5, 1, 4, 4, 5, 1,
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 4, 5, 1, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 4, 5, 1, 4, 2, 5, 2, 4, 4, 5, 4, 5, 5, 4, 5
-      ],
-    },
+  // 32-Bit Spatial Audio & Studio Effects Graph
+  private compressor: DynamicsCompressorNode | null = null;
+  private delayNode: DelayNode | null = null;
+  private delayGain: GainNode | null = null;
+  private delayFilter: BiquadFilterNode | null = null;
 
-    // ZONE 2 · ACT 1: SAKURA FOREST (Traditional Hirajoshi Modal Pentatonic with Modern Groovy Beat, 64 steps)
-    sakuraAct1: {
-      tempo: 122,
-      leadWave: 'sine',
-      harmonyWave: 'triangle',
-      bassWave: 'triangle',
-      // D Insen / Hirajoshi Scale: D, Eb, G, A, Bb, D
-      leadNotes: [
-        N.D4, N.Ds4, N.G4, N.A4, N.As4, N.A4, N.G4, N.Ds4,  N.G4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4, N.D4,
-        N.Ds4, N.G4, N.A4, N.As4, N.D5, N.As4, N.A4, N.G4,  N.A4, N.As4, N.D5, N.Ds5, N.D5, N.As4, N.A4, N.G4,
-        N.D5, N.Ds5, N.G5, N.A5, N.G5, N.Ds5, N.D5, N.As4,  N.A4, N.As4, N.D5, N.As4, N.A4, N.G4, N.Ds4, N.D4,
-        N.G4, N.A4, N.As4, N.D5, N.Ds5, N.D5, N.As4, N.A4,  N.G4, N.Ds4, N.D4, N.Ds4, N.G4, N.A4, N.D4, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.As4, N.REST, N.D5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.As4, N.REST, N.A4, N.REST, N.G4, N.REST,
-        N.Ds4, N.REST, N.G4, N.REST, N.A4, N.REST, N.As4, N.REST, N.A4, N.REST, N.As4, N.REST, N.D5, N.REST, N.As4, N.REST,
-        N.D5, N.REST, N.Ds5, N.REST, N.G5, N.REST, N.Ds5, N.REST, N.A4, N.REST, N.As4, N.REST, N.D5, N.REST, N.As4, N.REST,
-        N.G4, N.REST, N.A4, N.REST, N.As4, N.REST, N.D5, N.REST, N.G4, N.REST, N.Ds4, N.REST, N.D4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D3, N.Ds2, N.Ds3, N.G2, N.G3, N.A2, N.A3, N.G2, N.G3, N.Ds2, N.Ds3, N.D2, N.D3, N.C2, N.D2,
-        N.Ds2, N.Ds3, N.G2, N.G3, N.A2, N.A3, N.As2, N.As3, N.A2, N.A3, N.G2, N.G3, N.Ds2, N.Ds3, N.D2, N.Ds2,
-        N.D2, N.D3, N.G2, N.G3, N.As2, N.As3, N.A2, N.A3, N.G2, N.G3, N.Ds2, N.Ds3, N.D2, N.D3, N.C2, N.D2,
-        N.G2, N.G3, N.A2, N.A3, N.As2, N.As3, N.A2, N.A3, N.G2, N.G3, N.Ds2, N.Ds3, N.D2, N.D3, N.C2, N.D2
-      ],
-      drumPattern: [
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 1, 3, 2, 2, 3, 1,
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 4, 3, 2, 2, 5, 1,
-        4, 1, 1, 3, 2, 1, 1, 3, 4, 1, 1, 3, 4, 2, 5, 1,
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 2, 3, 3, 2, 4, 5, 1
-      ],
-    },
+  private setup32BitEffects(ctx: AudioContext) {
+    if (this.compressor) return;
+    try {
+      // 1. Studio Master Dynamics Compressor (fat punch, zero distortion)
+      this.compressor = ctx.createDynamicsCompressor();
+      this.compressor.threshold.setValueAtTime(-14, ctx.currentTime);
+      this.compressor.knee.setValueAtTime(12, ctx.currentTime);
+      this.compressor.ratio.setValueAtTime(3.5, ctx.currentTime);
+      this.compressor.attack.setValueAtTime(0.005, ctx.currentTime);
+      this.compressor.release.setValueAtTime(0.20, ctx.currentTime);
 
-    // ZONE 2 · BOSS: SAKURA NINJA BOSS (High-octane Ninja Blade Duel, 64 steps)
-    sakuraBoss: {
-      tempo: 154,
-      leadWave: 'triangle',
-      harmonyWave: 'sawtooth',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.D4, N.F4, N.A4, N.C5, N.D5, N.C5, N.A4, N.F4,  N.E4, N.G4, N.B4, N.D5, N.E5, N.D5, N.B4, N.G4,
-        N.F4, N.A4, N.C5, N.E5, N.F5, N.E5, N.C5, N.A4,  N.A4, N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.C5,
-        N.D5, N.F5, N.A5, N.C6, N.B5, N.A5, N.F5, N.D5,  N.E5, N.G5, N.B5, N.D6, N.C6, N.B5, N.G5, N.E5,
-        N.D5, N.C5, N.A4, N.F4, N.G4, N.E4, N.D4, N.C4,  N.D4, N.F4, N.A4, N.C5, N.D5, N.E5, N.D5, N.REST
-      ],
-      harmonyNotes: [
-        N.D5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST, N.E5, N.REST, N.G5, N.REST, N.B5, N.REST, N.G5, N.REST,
-        N.F5, N.REST, N.A5, N.REST, N.C6, N.REST, N.A5, N.REST, N.A5, N.REST, N.C6, N.REST, N.E6, N.REST, N.C6, N.REST,
-        N.D6, N.REST, N.F6, N.REST, N.A6, N.REST, N.F6, N.REST, N.E6, N.REST, N.G6, N.REST, N.B6, N.REST, N.G6, N.REST,
-        N.D6, N.REST, N.C6, N.REST, N.A5, N.REST, N.F5, N.REST, N.D5, N.REST, N.F5, N.REST, N.A5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D2, N.F2, N.D2, N.E2, N.E2, N.G2, N.E2, N.C2, N.C2, N.D2, N.C2, N.D2, N.D2, N.F2, N.D2,
-        N.F2, N.F2, N.A2, N.F2, N.A2, N.A2, N.C3, N.A2, N.E2, N.E2, N.G2, N.E2, N.D2, N.D2, N.C2, N.D2,
-        N.D2, N.D2, N.F2, N.A2, N.E2, N.E2, N.G2, N.A2, N.C2, N.C2, N.E2, N.G2, N.D2, N.D2, N.F2, N.D2,
-        N.F2, N.F2, N.E2, N.D2, N.C2, N.C2, N.A1, N.C2, N.D2, N.D2, N.F2, N.D2, N.E2, N.E2, N.D2, N.D2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 2, 5, 1, 4, 1, 5, 2, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
-        4, 4, 5, 2, 4, 2, 5, 2, 4, 4, 5, 5, 4, 5, 5, 5
-      ],
-    },
+      // 2. Music Bed Filter: gentle lowpass to carve out room for obstacles & gameplay SFX
+      this.musicBedFilter = ctx.createBiquadFilter();
+      this.musicBedFilter.type = 'lowpass';
+      this.musicBedFilter.frequency.setValueAtTime(5600, ctx.currentTime);
+      this.musicBedFilter.Q.setValueAtTime(0.7, ctx.currentTime);
 
-    // ZONE 3 · ACT 1: LAVACLIFF VOLCANO (Heavy Magma Funk & Chiptune Rock, 64 steps)
-    lavacliffAct1: {
-      tempo: 144,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.A3, N.C4, N.D4, N.E4, N.G4, N.E4, N.D4, N.C4,  N.B3, N.D4, N.E4, N.Fs4, N.A4, N.Fs4, N.E4, N.D4,
-        N.C4, N.E4, N.G4, N.A4, N.C5, N.A4, N.G4, N.E4,  N.E4, N.G4, N.A4, N.C5, N.E5, N.C5, N.A4, N.G4,
-        N.A4, N.C5, N.D5, N.E5, N.G5, N.E5, N.D5, N.C5,  N.B4, N.D5, N.E5, N.Fs5, N.A5, N.Fs5, N.E5, N.D5,
-        N.C5, N.A4, N.G4, N.E4, N.Fs4, N.E4, N.D4, N.C4, N.A3, N.C4, N.E4, N.G4, N.A4, N.C5, N.A4, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.C5, N.REST, N.D5, N.REST, N.C5, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.D5, N.REST,
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST,
-        N.A5, N.REST, N.C6, N.REST, N.D6, N.REST, N.C6, N.REST, N.B5, N.REST, N.D6, N.REST, N.Fs6, N.REST, N.D6, N.REST,
-        N.C6, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.A2, N.A2, N.C3, N.A2, N.D3, N.D3, N.C3, N.A2, N.B2, N.B2, N.D3, N.B2, N.A2, N.A2, N.G2, N.A2,
-        N.C2, N.C3, N.E3, N.C3, N.D3, N.D3, N.F3, N.D3, N.E3, N.E3, N.G3, N.E3, N.D3, N.D3, N.C3, N.A2,
-        N.A2, N.A2, N.C3, N.D3, N.E3, N.E3, N.D3, N.C3, N.B2, N.B2, N.D3, N.E3, N.F3, N.F3, N.E3, N.D3,
-        N.C3, N.C3, N.A2, N.G2, N.B2, N.B2, N.A2, N.G2, N.A2, N.A2, N.C3, N.A2, N.B2, N.B2, N.A2, N.A2
-      ],
-      drumPattern: [
-        4, 1, 3, 1, 2, 4, 5, 1, 4, 1, 3, 1, 2, 4, 5, 2,
-        4, 1, 3, 1, 2, 4, 5, 1, 4, 2, 3, 1, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 2, 3, 1, 2, 4, 5, 2, 4, 4, 5, 5, 4, 4, 5, 5
-      ],
-    },
+      // 3. Spatial Ping-Pong Reverb / Delay Send Bus
+      this.delayNode = ctx.createDelay();
+      this.delayNode.delayTime.setValueAtTime(0.20, ctx.currentTime);
+      this.delayGain = ctx.createGain();
+      this.delayGain.gain.setValueAtTime(0.16, ctx.currentTime);
+      this.delayFilter = ctx.createBiquadFilter();
+      this.delayFilter.type = 'lowpass';
+      this.delayFilter.frequency.setValueAtTime(2200, ctx.currentTime);
 
-    // ZONE 3 · BOSS: IGNIS COLOSSUS (Heavy Metal Magma Boss Battle, 64 steps)
-    lavacliffBoss: {
-      tempo: 156,
-      leadWave: 'sawtooth',
-      harmonyWave: 'sawtooth',
-      bassWave: 'square',
-      leadNotes: [
-        N.E3, N.G3, N.A3, N.B3, N.D4, N.B3, N.A3, N.G3,  N.F3, N.A3, N.B3, N.E4, N.F4, N.E4, N.B3, N.A3,
-        N.G3, N.B3, N.D4, N.Fs4, N.G4, N.Fs4, N.D4, N.B3, N.A3, N.C4, N.E4, N.G4, N.A4, N.G4, N.E4, N.C4,
-        N.E4, N.G4, N.A4, N.B4, N.D5, N.B4, N.A4, N.G4,  N.F4, N.A4, N.B4, N.E5, N.F5, N.E5, N.B4, N.A4,
-        N.G4, N.Fs4, N.E4, N.D4, N.B3, N.A3, N.G3, N.F3, N.E3, N.G3, N.A3, N.B3, N.D4, N.E4, N.A3, N.REST
-      ],
-      harmonyNotes: [
-        N.E4, N.REST, N.G4, N.REST, N.A4, N.REST, N.B4, N.REST, N.F4, N.REST, N.A4, N.REST, N.B4, N.REST, N.E5, N.REST,
-        N.G4, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.B5, N.REST, N.F5, N.REST, N.A5, N.REST, N.B5, N.REST, N.E6, N.REST,
-        N.G5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.D5, N.REST, N.A4, N.REST, N.B4, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E2, N.E2, N.G2, N.E2, N.A2, N.A2, N.G2, N.E2, N.F2, N.F2, N.A2, N.F2, N.E2, N.E2, N.D2, N.E2,
-        N.G2, N.G2, N.B2, N.G2, N.A2, N.A2, N.C3, N.A2, N.F2, N.F2, N.A2, N.F2, N.E2, N.E2, N.D2, N.E2,
-        N.E2, N.E2, N.G2, N.A2, N.F2, N.F2, N.A2, N.B2, N.G2, N.G2, N.B2, N.D3, N.A2, N.A2, N.G2, N.E2,
-        N.G2, N.G2, N.F2, N.E2, N.D2, N.D2, N.E2, N.F2, N.E2, N.E2, N.G2, N.E2, N.D2, N.D2, N.C2, N.D2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 4, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 4, 5, 2, 4, 2, 5, 2, 4, 4, 5, 5, 5, 5, 4, 5
-      ],
-    },
+      this.delayNode.connect(this.delayFilter);
+      this.delayFilter.connect(this.delayGain);
+      this.delayGain.connect(this.delayNode); // Feedback loop
+      this.delayGain.connect(this.compressor);
 
-    // ZONE 4 · ACT 1: DESERT SANCTUARY (Egyptian Phrygian Dominant Scale with Arabian Funk Bass, 64 steps)
-    desertAct1: {
-      tempo: 128,
-      leadWave: 'triangle',
-      harmonyWave: 'sine',
-      bassWave: 'sawtooth',
-      // D Phrygian Dominant: D, Eb, F#, G, A, Bb, C
-      leadNotes: [
-        N.D4, N.Ds4, N.Fs4, N.G4, N.A4, N.G4, N.Fs4, N.Ds4, N.Fs4, N.A4, N.B4, N.Cs5, N.D5, N.B4, N.A4, N.Fs4,
-        N.Ds4, N.Fs4, N.G4, N.A4, N.B4, N.A4, N.G4, N.Fs4,  N.G4, N.A4, N.Cs5, N.D5, N.Ds5, N.D5, N.Cs5, N.A4,
-        N.D5, N.Ds5, N.Fs5, N.G5, N.A5, N.G5, N.Fs5, N.Ds5, N.Fs5, N.A5, N.B5, N.Cs6, N.D6, N.B5, N.A5, N.Fs5,
-        N.Ds5, N.D5, N.Cs5, N.B4, N.A4, N.G4, N.Fs4, N.Ds4, N.D4, N.Fs4, N.A4, N.Cs5, N.D5, N.A4, N.Fs4, N.REST
-      ],
-      harmonyNotes: [
-        N.D5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.B5, N.REST, N.A5, N.REST,
-        N.Ds5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Fs5, N.REST, N.G5, N.REST, N.A5, N.REST, N.Cs6, N.REST, N.A5, N.REST,
-        N.D6, N.REST, N.Ds6, N.REST, N.Fs6, N.REST, N.Ds6, N.REST, N.Fs6, N.REST, N.A6, N.REST, N.B6, N.REST, N.A6, N.REST,
-        N.Ds6, N.REST, N.D6, N.REST, N.A5, N.REST, N.Fs5, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D3, N.Ds2, N.D2, N.Fs2, N.Fs3, N.Ds2, N.D2, N.Fs2, N.Fs3, N.A2, N.Fs2, N.D2, N.D2, N.C2, N.D2,
-        N.Ds2, N.Ds3, N.Fs2, N.Ds2, N.G2, N.G3, N.Fs2, N.Ds2, N.G2, N.G3, N.A2, N.G2, N.D2, N.D2, N.C2, N.D2,
-        N.D2, N.D3, N.Fs2, N.G2, N.A2, N.A3, N.G2, N.Fs2, N.Ds2, N.Ds3, N.Fs2, N.A2, N.Fs2, N.Fs2, N.D2, N.D2,
-        N.Fs2, N.Fs3, N.Ds2, N.D2, N.C2, N.C3, N.D2, N.Ds2, N.D2, N.D2, N.Fs2, N.D2, N.C2, N.C2, N.A1, N.D2
-      ],
-      drumPattern: [
-        2, 1, 3, 1, 2, 2, 3, 1, 2, 1, 3, 1, 2, 4, 5, 1,
-        2, 1, 3, 1, 2, 1, 3, 2, 2, 1, 3, 1, 4, 2, 5, 1,
-        4, 1, 5, 1, 2, 2, 5, 1, 4, 1, 5, 1, 4, 4, 5, 2,
-        2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 3, 5, 1
-      ],
-    },
+      // Clean background routing: Music -> MusicBedFilter -> Compressor -> Destination
+      if (this.musicGainNode) {
+        try {
+          this.musicGainNode.disconnect();
+        } catch {}
+        this.musicGainNode.connect(this.musicBedFilter);
+      }
+      this.musicBedFilter.connect(this.compressor);
+      this.compressor.connect(ctx.destination);
+    } catch {}
+  }
 
-    // ZONE 4 · ACT 2: PHARAOH'S TOMB (Mystical Arcane Egyptian Mystery, 64 steps)
-    desertAct2: {
-      tempo: 134,
-      leadWave: 'sawtooth',
-      harmonyWave: 'triangle',
-      bassWave: 'square',
-      leadNotes: [
-        N.A3, N.As3, N.Cs4, N.D4, N.E4, N.D4, N.Cs4, N.As3, N.C4, N.D4, N.E4, N.G4, N.A4, N.G4, N.E4, N.Cs4,
-        N.As3, N.Cs4, N.D4, N.F4, N.Fs4, N.F4, N.D4, N.Cs4, N.D4, N.E4, N.G4, N.A4, N.As4, N.A4, N.G4, N.E4,
-        N.A4, N.As4, N.Cs5, N.D5, N.E5, N.D5, N.Cs5, N.As4, N.C5, N.D5, N.E5, N.G5, N.A5, N.G5, N.E5, N.Cs5,
-        N.As4, N.A4, N.G4, N.E4, N.D4, N.Cs4, N.C4, N.As3, N.A3, N.Cs4, N.E4, N.G4, N.A4, N.E4, N.Cs4, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.As4, N.REST, N.Cs5, N.REST, N.As4, N.REST, N.C5, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST,
-        N.As4, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST,
-        N.A5, N.REST, N.As5, N.REST, N.Cs6, N.REST, N.As5, N.REST, N.C6, N.REST, N.D6, N.REST, N.E6, N.REST, N.D6, N.REST,
-        N.As5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.A4, N.REST, N.Cs5, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.A2, N.A2, N.As2, N.A2, N.Cs3, N.Cs3, N.As2, N.A2, N.C3, N.C3, N.D3, N.C3, N.A2, N.A2, N.G2, N.A2,
-        N.As2, N.As2, N.Cs3, N.As2, N.D3, N.D3, N.Cs3, N.As2, N.D3, N.D3, N.E3, N.D3, N.A2, N.A2, N.G2, N.A2,
-        N.A2, N.A2, N.Cs3, N.D3, N.E3, N.E3, N.D3, N.Cs3, N.C3, N.C3, N.D3, N.E3, N.F3, N.F3, N.E3, N.Cs3,
-        N.Cs3, N.Cs3, N.As2, N.A2, N.G2, N.G2, N.A2, N.As2, N.A2, N.A2, N.Cs3, N.A2, N.G2, N.G2, N.F2, N.G2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 2, 4, 5, 1, 4, 1, 5, 1, 4, 2, 5, 1,
-        4, 1, 5, 1, 2, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 2,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
-        4, 2, 5, 1, 2, 4, 5, 2, 4, 4, 5, 5, 4, 2, 5, 1
-      ],
-    },
+  // 32-Bit Multi-Oscillator Dual-Detuned Synth Voice with Dynamic Filter & Spatial Pan
+  private tone32Bit(
+    frequency: number,
+    duration: number,
+    type: OscillatorType,
+    volume: number,
+    time: number,
+    pan: number = 0,
+    filterCutoff: number = 3200,
+    sendToDelay: boolean = false
+  ) {
+    if (!this.ctx || frequency <= 0) return;
+    try {
+      const effectiveVol = volume * this.masterVolume;
+      if (effectiveVol <= 0.0001) return;
 
-    // ZONE 4 · BOSS: PHARAOH AKHEN'RA (Furious High Energy Pharaoh Climax, 64 steps)
-    desertBoss: {
-      tempo: 152,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.D3, N.Ds3, N.Fs3, N.A3, N.B3, N.A3, N.Fs3, N.Ds3, N.Fs3, N.A3, N.Cs4, N.D4, N.Fs4, N.D4, N.B3, N.Fs3,
-        N.Ds3, N.Fs3, N.A3, N.Cs4, N.Ds4, N.Cs4, N.A3, N.Fs3, N.A3, N.B3, N.D4, N.Fs4, N.A4, N.Fs4, N.D4, N.B3,
-        N.D4, N.Ds4, N.Fs4, N.A4, N.B4, N.A4, N.Fs4, N.Ds4, N.Fs4, N.A4, N.Cs5, N.D5, N.Fs5, N.D5, N.B4, N.Fs4,
-        N.Ds4, N.D4, N.B3, N.A3, N.Fs3, N.Ds3, N.D3, N.C3, N.D3, N.Fs3, N.A3, N.Cs4, N.D4, N.Fs4, N.A3, N.REST
-      ],
-      harmonyNotes: [
-        N.D4, N.REST, N.Ds4, N.REST, N.Fs4, N.REST, N.Ds4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.Cs5, N.REST, N.A4, N.REST,
-        N.Ds4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.B4, N.REST, N.D5, N.REST, N.B4, N.REST,
-        N.D5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Cs6, N.REST, N.A5, N.REST,
-        N.Ds5, N.REST, N.D5, N.REST, N.A4, N.REST, N.Fs4, N.REST, N.D4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D2, N.Ds2, N.D2, N.Fs2, N.Fs2, N.Ds2, N.D2, N.Fs2, N.Fs2, N.A2, N.Fs2, N.D2, N.D2, N.C2, N.D2,
-        N.Ds2, N.Ds2, N.Fs2, N.Ds2, N.A2, N.A2, N.Fs2, N.Ds2, N.A2, N.A2, N.B2, N.A2, N.D2, N.D2, N.C2, N.D2,
-        N.D2, N.D2, N.Fs2, N.A2, N.B2, N.B2, N.A2, N.Fs2, N.Ds2, N.Ds2, N.Fs2, N.A2, N.Cs3, N.Cs3, N.A2, N.Ds2,
-        N.Fs2, N.Fs2, N.Ds2, N.D2, N.C2, N.C2, N.D2, N.Ds2, N.D2, N.D2, N.Fs2, N.D2, N.C2, N.C2, N.A1, N.C2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 4, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 4, 5, 2, 4, 2, 5, 2, 4, 4, 5, 5, 5, 5, 4, 5
-      ],
-    },
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
 
-    // ZONE 5 · ACT 1: KRONO CITY HIGHWAY (Darksynth Synthwave Cyber Drive, 64 steps)
-    kronoAct1: {
-      tempo: 142,
-      leadWave: 'sawtooth',
-      harmonyWave: 'triangle',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.E4, N.G4, N.B4, N.D5, N.C5, N.B4, N.G4, N.E4,  N.Fs4, N.A4, N.Cs5, N.E5, N.D5, N.B4, N.A4, N.Fs4,
-        N.G4, N.B4, N.D5, N.E5, N.G5, N.E5, N.D5, N.B4,  N.A4, N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.C5,
-        N.E5, N.G5, N.B5, N.D6, N.C6, N.B5, N.G5, N.E5,  N.Fs5, N.A5, N.Cs6, N.E6, N.D6, N.B5, N.A5, N.Fs5,
-        N.D5, N.C5, N.B4, N.A4, N.G4, N.Fs4, N.E4, N.D4, N.E4, N.G4, N.B4, N.D5, N.E5, N.B4, N.G4, N.REST
-      ],
-      harmonyNotes: [
-        N.E5, N.REST, N.G5, N.REST, N.B5, N.REST, N.G5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Cs6, N.REST, N.A5, N.REST,
-        N.G5, N.REST, N.B5, N.REST, N.D6, N.REST, N.B5, N.REST, N.A5, N.REST, N.C6, N.REST, N.E6, N.REST, N.C6, N.REST,
-        N.E6, N.REST, N.G6, N.REST, N.B6, N.REST, N.G6, N.REST, N.Fs6, N.REST, N.A6, N.REST, N.Cs6, N.REST, N.A6, N.REST,
-        N.D6, N.REST, N.C6, N.REST, N.B5, N.REST, N.A5, N.REST, N.E5, N.REST, N.G5, N.REST, N.B5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E2, N.E2, N.G2, N.E2, N.A2, N.A2, N.B2, N.E2, N.Fs2, N.Fs2, N.A2, N.Fs2, N.E2, N.E2, N.D2, N.E2,
-        N.G2, N.G2, N.B2, N.G2, N.C3, N.C3, N.E3, N.G2, N.A2, N.A2, N.C3, N.A2, N.E2, N.E2, N.D2, N.E2,
-        N.E2, N.E2, N.A2, N.B2, N.D3, N.D3, N.B2, N.A2, N.Fs2, N.Fs2, N.A2, N.Cs3, N.D3, N.D3, N.B2, N.Fs2,
-        N.A2, N.A2, N.G2, N.E2, N.D2, N.D2, N.E2, N.Fs2, N.E2, N.E2, N.G2, N.E2, N.D2, N.D2, N.C2, N.D2
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 1,
-        4, 1, 5, 1, 4, 2, 5, 1, 4, 1, 5, 2, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 2, 5, 1, 4, 4, 5, 2, 4, 4, 5, 4, 5, 5, 4, 5
-      ],
-    },
+      // Dual-oscillator detuning for 32-bit analog synth warmth (+/- 4 cents)
+      osc1.type = type;
+      osc2.type = type === 'sawtooth' ? 'square' : type;
+      osc1.frequency.setValueAtTime(frequency, time);
+      osc2.frequency.setValueAtTime(frequency * 1.0035, time); // detuned chorus
 
-    // ZONE 5 · ACT 2: FUSION REACTOR (Industrial Techno FM Sound, Chemical Plant vibe, 64 steps)
-    kronoAct2: {
-      tempo: 148,
-      leadWave: 'square',
-      harmonyWave: 'sawtooth',
-      bassWave: 'square',
-      leadNotes: [
-        N.A3, N.C4, N.E4, N.A4, N.G4, N.E4, N.C4, N.A3, N.G3, N.B3, N.E4, N.G4, N.E4, N.B3, N.G3, N.F3,
-        N.A3, N.D4, N.F4, N.A4, N.C5, N.A4, N.F4, N.D4, N.B3, N.E4, N.G4, N.B4, N.D5, N.B4, N.G4, N.E4,
-        N.A4, N.C5, N.E5, N.A5, N.G5, N.E5, N.C5, N.A4, N.G4, N.B4, N.E5, N.G5, N.E5, N.B4, N.G4, N.F4,
-        N.A4, N.G4, N.E4, N.C4, N.D4, N.B3, N.A3, N.G3, N.A3, N.C4, N.E4, N.A4, N.E4, N.C4, N.A3, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.C5, N.REST, N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.B4, N.REST,
-        N.A4, N.REST, N.D5, N.REST, N.F5, N.REST, N.D5, N.REST, N.B4, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST,
-        N.A5, N.REST, N.C6, N.REST, N.E6, N.REST, N.C6, N.REST, N.G5, N.REST, N.B5, N.REST, N.E6, N.REST, N.B5, N.REST,
-        N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.A1, N.A1, N.C2, N.A1, N.D2, N.D2, N.E2, N.A1, N.G1, N.G1, N.B1, N.G1, N.A1, N.A1, N.F1, N.A1,
-        N.A1, N.A1, N.D2, N.A1, N.F2, N.F2, N.A2, N.A1, N.B1, N.B1, N.E2, N.B1, N.A1, N.A1, N.F1, N.A1,
-        N.A1, N.A1, N.E2, N.A2, N.G2, N.G2, N.E2, N.C2, N.G1, N.G1, N.B1, N.E2, N.D2, N.D2, N.B1, N.G1,
-        N.D2, N.D2, N.C2, N.A1, N.G1, N.G1, N.A1, N.B1, N.A1, N.A1, N.D2, N.A1, N.G1, N.G1, N.E1, N.G1
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 4, 5, 1, 4, 1, 5, 1, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 2, 5, 1, 4, 1, 5, 2, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 4, 5, 1, 4, 2, 5, 2, 4, 4, 5, 4, 5, 5, 4, 5
-      ],
-    },
+      // Resonant Lowpass Filter with dynamic decay envelope
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(filterCutoff, time);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(120, filterCutoff * 0.35), time + duration);
+      filter.Q.setValueAtTime(2.5, time);
 
-    // ZONE 5 · FINAL BOSS: TITAN KRONOS-Ω (Grand 16-bit Final Boss Symphony, 64 steps)
-    kronoBoss: {
-      tempo: 160,
-      leadWave: 'sawtooth',
-      harmonyWave: 'sawtooth',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.E3, N.G3, N.B3, N.E4, N.Fs4, N.E4, N.B3, N.G3, N.A3, N.C4, N.E4, N.G4, N.A4, N.G4, N.E4, N.A3,
-        N.G3, N.B3, N.E4, N.G4, N.B4, N.G4, N.E4, N.B3, N.B3, N.E4, N.G4, N.B4, N.D5, N.B4, N.G4, N.E4,
-        N.E4, N.G4, N.B4, N.E5, N.Fs5, N.E5, N.B4, N.G4, N.A4, N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.A4,
-        N.B4, N.A4, N.G4, N.E4, N.D4, N.B3, N.A3, N.G3, N.E3, N.A3, N.C4, N.E4, N.Fs4, N.A4, N.E4, N.REST
-      ],
-      harmonyNotes: [
-        N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST,
-        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.G5, N.REST, N.B4, N.REST, N.E5, N.REST, N.G5, N.REST, N.B5, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.B5, N.REST, N.E6, N.REST, N.A5, N.REST, N.C6, N.REST, N.E6, N.REST, N.G6, N.REST,
-        N.B5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.E4, N.REST, N.A4, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E1, N.E1, N.G1, N.E1, N.A1, N.A1, N.B1, N.E1, N.A1, N.A1, N.C2, N.A1, N.E1, N.E1, N.D1, N.E1,
-        N.G1, N.G1, N.B1, N.G1, N.D2, N.D2, N.G2, N.G1, N.B1, N.B1, N.D2, N.B1, N.E1, N.E1, N.D1, N.E1,
-        N.E1, N.E1, N.B1, N.D2, N.E2, N.E2, N.D2, N.B1, N.A1, N.A1, N.D2, N.F2, N.G2, N.G2, N.F2, N.A1,
-        N.D2, N.D2, N.B1, N.G1, N.E1, N.E1, N.G1, N.A1, N.E1, N.E1, N.A1, N.E1, N.D1, N.D1, N.C1, N.D1
-      ],
-      drumPattern: [
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 4, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 4, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        4, 4, 5, 2, 4, 2, 5, 2, 4, 4, 5, 5, 5, 5, 4, 5
-      ],
-    },
+      // Volume ADSR Envelope
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.linearRampToValueAtTime(effectiveVol, time + Math.min(0.016, duration * 0.15));
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
 
-    // GRAND MULTI-ZONE MEDLEY: KRONOS TRAVEL (128 steps - 8 measures multi-biome journey!)
-    kronosTravel: {
-      tempo: 144,
-      leadWave: 'sawtooth',
-      harmonyWave: 'triangle',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        // Bars 1-2: Neon Forest Cyber Motifs (C Major Pop)
-        N.C4, N.E4, N.G4, N.C5, N.E5, N.C5, N.G4, N.E4,  N.D4, N.F4, N.A4, N.D5, N.C5, N.A4, N.F4, N.D4,
-        N.E4, N.G4, N.C5, N.E5, N.G5, N.E5, N.C5, N.G4,  N.A4, N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.C5,
-        // Bars 3-4: Sakura Oriental Hirajoshi Cadence (D Pentatonic)
-        N.D4, N.Ds4, N.G4, N.A4, N.As4, N.A4, N.G4, N.Ds4, N.G4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4, N.D4,
-        N.Ds4, N.G4, N.A4, N.As4, N.D5, N.Ds5, N.D5, N.As4, N.A4, N.As4, N.D5, N.G5, N.Ds5, N.D5, N.As4, N.G4,
-        // Bars 5-6: Lavacliff Heavy Magma Riff (A Minor Rock)
-        N.A3, N.C4, N.D4, N.E4, N.G4, N.E4, N.D4, N.C4,  N.B3, N.D4, N.E4, N.Fs4, N.A4, N.Fs4, N.E4, N.D4,
-        N.E4, N.G4, N.A4, N.C5, N.E5, N.C5, N.A4, N.G4,  N.A4, N.C5, N.E5, N.Fs5, N.A5, N.Fs5, N.E5, N.C5,
-        // Bars 7-8: Desert Phrygian Arc & Krono Quantum Climax
-        N.D4, N.Ds4, N.Fs4, N.G4, N.A4, N.G4, N.Fs4, N.Ds4, N.Fs4, N.A4, N.Cs5, N.D5, N.Fs5, N.D5, N.Cs5, N.A4,
-        N.D5, N.E5, N.G5, N.B5, N.C6, N.B5, N.G5, N.E5, N.Fs5, N.A5, N.Cs6, N.D6, N.E6, N.D6, N.A5, N.REST
-      ],
-      harmonyNotes: [
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.C6, N.REST, N.G5, N.REST, N.A5, N.REST, N.C6, N.REST, N.E6, N.REST, N.C6, N.REST,
-        N.D5, N.REST, N.Ds5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.A5, N.REST, N.As5, N.REST, N.A5, N.REST,
-        N.Ds5, N.REST, N.G5, N.REST, N.A5, N.REST, N.As5, N.REST, N.A5, N.REST, N.As5, N.REST, N.D6, N.REST, N.As5, N.REST,
-        N.A4, N.REST, N.C5, N.REST, N.D5, N.REST, N.C5, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.D5, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.A5, N.REST, N.C6, N.REST, N.Fs6, N.REST, N.C6, N.REST,
-        N.D5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Cs6, N.REST, N.A5, N.REST,
-        N.D6, N.REST, N.E6, N.REST, N.G6, N.REST, N.E6, N.REST, N.Fs6, N.REST, N.A6, N.REST, N.Cs6, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.C2, N.C3, N.D2, N.C2, N.E2, N.E3, N.D2, N.C2, N.A1, N.A2, N.C2, N.A1, N.D2, N.D3, N.C2, N.A1,
-        N.C2, N.C3, N.E2, N.C2, N.F2, N.F3, N.E2, N.C2, N.A1, N.A2, N.D2, N.A1, N.E2, N.E3, N.D2, N.A1,
-        N.D2, N.D3, N.Ds2, N.D2, N.G2, N.G3, N.A2, N.G2, N.G2, N.G3, N.Ds2, N.D2, N.C2, N.C3, N.D2, N.Ds2,
-        N.Ds2, N.Ds3, N.G2, N.Ds2, N.A2, N.A3, N.As2, N.A2, N.G2, N.G3, N.Ds2, N.D2, N.C2, N.C3, N.D2, N.D3,
-        N.A1, N.A2, N.C2, N.A1, N.D2, N.D3, N.C2, N.A1, N.B1, N.B2, N.D2, N.B1, N.A1, N.A2, N.G1, N.A1,
-        N.E2, N.E3, N.G2, N.E2, N.F2, N.F3, N.G2, N.E2, N.A1, N.A2, N.C2, N.D2, N.E2, N.E3, N.D2, N.A1,
-        N.D2, N.D3, N.Ds2, N.D2, N.Fs2, N.Fs3, N.Ds2, N.D2, N.Fs2, N.Fs3, N.A2, N.Fs2, N.D2, N.D2, N.C2, N.D2,
-        N.D2, N.D3, N.Fs2, N.A2, N.G2, N.G3, N.A2, N.B2, N.D2, N.D3, N.Fs2, N.A2, N.D2, N.D2, N.C2, N.D2
-      ],
-      drumPattern: [
-        2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1,
-        4, 1, 5, 1, 4, 2, 5, 1, 4, 1, 5, 2, 4, 4, 5, 4,
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 4, 3, 2, 2, 5, 1,
-        4, 1, 1, 3, 2, 1, 1, 3, 4, 2, 5, 2, 4, 4, 5, 4,
-        4, 1, 3, 1, 2, 4, 5, 1, 4, 1, 3, 1, 2, 4, 5, 2,
-        4, 1, 5, 1, 4, 2, 5, 2, 4, 1, 5, 1, 4, 4, 5, 5,
-        2, 1, 3, 1, 2, 2, 3, 1, 2, 1, 3, 1, 4, 4, 5, 1,
-        4, 4, 5, 2, 4, 2, 5, 2, 4, 4, 5, 5, 5, 5, 4, 5
-      ],
-    },
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
 
-    // JUNGLE RUN: TEMPLO MAYA & SELVA TROPICAL (Adventure Tribal Chiptune)
-    jungleAct1: {
-      tempo: 122,
-      leadWave: 'triangle',
-      harmonyWave: 'sine',
-      bassWave: 'triangle',
-      leadNotes: [
-        N.A4, N.C5, N.D5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.A4, N.A4, N.C5, N.D5, N.E5, N.G5, N.E5, N.D5,
-        N.G4, N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4,  N.E4, N.G4, N.A4, N.C5, N.A4, N.G4, N.E4, N.D4,
-        N.A4, N.C5, N.E5, N.A5, N.G5, N.E5, N.D5, N.C5,  N.D5, N.D5, N.E5, N.G5, N.A5, N.C6, N.A5, N.G5,
-        N.E5, N.D5, N.C5, N.A4, N.G4, N.A4, N.C5, N.D5,  N.E5, N.D5, N.C5, N.A4, N.A4, N.REST, N.REST, N.REST
-      ],
-      harmonyNotes: [
-        N.E5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST,
-        N.D5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST,
-        N.E5, N.REST, N.A5, N.REST, N.C6, N.REST, N.A5, N.REST, N.G5, N.REST, N.G5, N.REST, N.A5, N.REST, N.C6, N.REST,
-        N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.E5, N.REST, N.C5, N.REST, N.A4, N.REST, N.A4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.A1, N.A2, N.C2, N.E2, N.A1, N.A2, N.G1, N.E2,  N.A1, N.A2, N.C2, N.D2, N.E2, N.E3, N.D2, N.C2,
-        N.G1, N.G2, N.B1, N.D2, N.G1, N.G2, N.F1, N.D2,  N.E1, N.E2, N.G1, N.A1, N.A1, N.A2, N.G1, N.E1,
-        N.A1, N.A2, N.C2, N.E2, N.A1, N.A2, N.C3, N.A2,  N.D2, N.D3, N.F2, N.A2, N.D2, N.D3, N.C2, N.A1,
-        N.E2, N.E3, N.G2, N.B2, N.E2, N.D2, N.C2, N.B1,  N.A1, N.A2, N.C2, N.D2, N.A1, N.A1, N.E1, N.A1
-      ],
-      drumPattern: [
-        2, 1, 3, 2, 2, 4, 3, 1, 2, 1, 3, 2, 4, 1, 5, 2,
-        2, 2, 3, 1, 2, 4, 3, 2, 2, 1, 3, 1, 4, 2, 5, 1,
-        2, 1, 3, 2, 2, 1, 5, 2, 4, 1, 3, 2, 2, 4, 5, 1,
-        2, 2, 3, 1, 4, 1, 3, 2, 4, 4, 5, 5, 2, 2, 5, 1
-      ],
-    },
+      // Stereo Panning
+      if (typeof this.ctx.createStereoPanner === 'function') {
+        const panner = this.ctx.createStereoPanner();
+        panner.pan.setValueAtTime(Math.max(-1, Math.min(1, pan)), time);
+        gain.connect(panner);
+        panner.connect(this.musicGainNode || this.ctx.destination);
+      } else {
+        gain.connect(this.musicGainNode || this.ctx.destination);
+      }
 
-    // JUNGLE RUN: BALAM · JAGUAR ANCESTRAL BOSS (Fast Savage Primal Combat)
-    jungleBoss: {
-      tempo: 138,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      leadNotes: [
-        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.A4, N.C5, N.D5, N.Ds5, N.E5, N.Ds5, N.D5, N.C5,
-        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.G4, N.Gs4, N.A4, N.C5, N.A4, N.G4, N.E4, N.Ds4,
-        N.A5, N.REST, N.A5, N.G5, N.Ds5, N.D5, N.C5, N.A4, N.C5, N.D5, N.Ds5, N.E5, N.G5, N.E5, N.Ds5, N.D5,
-        N.A4, N.A4, N.C5, N.D5, N.Ds5, N.D5, N.C5, N.A4,  N.A4, N.C5, N.A4, N.G4, N.A4, N.REST, N.A4, N.REST
-      ],
-      harmonyNotes: [
-        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST,
-        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.B4, N.REST, N.C5, N.REST, N.C5, N.REST, N.G4, N.REST,
-        N.C6, N.REST, N.C6, N.B5, N.Fs5, N.F5, N.E5, N.C5, N.E5, N.F5, N.Fs5, N.G5, N.B5, N.G5, N.Fs5, N.F5,
-        N.C5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.C5, N.REST, N.C5, N.REST, N.C5, N.REST, N.C5, N.REST
-      ],
-      bassNotes: [
-        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.A1, N.A1, N.A2, N.A1, N.E2, N.A1, N.D2, N.C2,
-        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.G1, N.G1, N.A1, N.A1, N.A2, N.G1, N.E1, N.D1,
-        N.A1, N.A2, N.A1, N.G1, N.Ds2, N.D2, N.C2, N.A1,  N.C2, N.D2, N.Ds2, N.E2, N.G2, N.E2, N.Ds2, N.D2,
-        N.A1, N.A1, N.A2, N.A1, N.C2, N.A1, N.Ds2, N.D2,  N.A1, N.C2, N.A1, N.G1, N.A1, N.A1, N.E1, N.A1
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
-      ],
-    },
+      // Spatial Delay Send for 32-Bit Reverb Depth
+      if (sendToDelay && this.delayNode) {
+        const sendGain = this.ctx.createGain();
+        sendGain.gain.setValueAtTime(effectiveVol * 0.4, time);
+        gain.connect(sendGain);
+        sendGain.connect(this.delayNode);
+      }
 
-    // BLIZZARD RUSH · ACT 1: DESCENSO EN ESQUÍS (Adrenaline High-Tempo 146 BPM Ski Race Chiptune)
-    blizzardSki: {
-      tempo: 146,
-      leadWave: 'square',
-      harmonyWave: 'sawtooth',
-      bassWave: 'sawtooth',
-      arpWave: 'triangle',
-      leadNotes: [
-        N.E5, N.B4, N.E5, N.Fs5, N.G5, N.Fs5, N.E5, N.D5,  N.B4, N.D5, N.E5, N.G5, N.Fs5, N.E5, N.D5, N.B4,
-        N.E5, N.B4, N.E5, N.Fs5, N.G5, N.A5, N.B5, N.G5,  N.A5, N.B5, N.C6, N.B5, N.A5, N.G5, N.Fs5, N.D5,
-        N.E5, N.G5, N.B5, N.E6, N.D6, N.B5, N.A5, N.G5,  N.A5, N.B5, N.D6, N.B5, N.A5, N.G5, N.E5, N.D5,
-        N.E5, N.Fs5, N.G5, N.A5, N.B5, N.C6, N.B5, N.A5,  N.G5, N.Fs5, N.E5, N.D5, N.E5, N.B4, N.E5, N.REST
-      ],
-      harmonyNotes: [
-        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.D5, N.REST, N.A4, N.REST,
-        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.E5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST,
-        N.B4, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Fs5, N.REST,
-        N.G4, N.REST, N.B4, N.REST, N.E5, N.REST, N.C5, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E2, N.E2, N.E3, N.E2, N.G2, N.E2, N.B2, N.A2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.A2, N.D2,
-        N.C2, N.C2, N.C3, N.C2, N.E2, N.C2, N.G2, N.C2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.B2, N.D2,
-        N.E2, N.E2, N.E3, N.E2, N.G2, N.E2, N.B2, N.A2,  N.D2, N.D2, N.D3, N.D2, N.Fs2, N.D2, N.A2, N.D2,
-        N.C2, N.C2, N.C3, N.C2, N.D2, N.D2, N.D3, N.D2,  N.E2, N.E2, N.B1, N.E2, N.E2, N.E2, N.E3, N.REST
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 5, 3, 5,
-        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 2, 5, 5,
-        2, 4, 3, 4, 2, 4, 3, 4, 2, 4, 3, 4, 2, 5, 3, 5,
-        2, 4, 3, 4, 2, 4, 3, 4, 4, 4, 5, 5, 2, 2, 5, 5
-      ],
-    },
-
-    // BLIZZARD RUSH · ACT 2: BOSQUE GLACIAL (116 BPM Shimmering Crystalline Snow Mystery)
-    blizzardForest: {
-      tempo: 116,
-      leadWave: 'sine',
-      harmonyWave: 'triangle',
-      bassWave: 'triangle',
-      leadNotes: [
-        N.B4, N.D5, N.Fs5, N.A5, N.B5, N.A5, N.Fs5, N.D5,  N.C5, N.E5, N.G5, N.B5, N.A5, N.G5, N.E5, N.C5,
-        N.D5, N.Fs5, N.A5, N.C6, N.B5, N.A5, N.Fs5, N.D5,  N.B4, N.D5, N.Fs5, N.B5, N.A5, N.Fs5, N.E5, N.D5,
-        N.G5, N.B5, N.D6, N.Fs6, N.E6, N.D6, N.B5, N.G5,  N.A5, N.C6, N.E6, N.G6, N.Fs6, N.E6, N.C6, N.A5,
-        N.B5, N.D6, N.Fs6, N.B6, N.A6, N.Fs6, N.D6, N.B5,  N.Fs5, N.A5, N.D6, N.Cs6, N.B5, N.REST, N.B4, N.REST
-      ],
-      harmonyNotes: [
-        N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.E5, N.REST,
-        N.Fs4, N.REST, N.A4, N.REST, N.C5, N.REST, N.Fs5, N.REST, N.D4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST,
-        N.B4, N.REST, N.D5, N.REST, N.G5, N.REST, N.B5, N.REST, N.C5, N.REST, N.E5, N.REST, N.A5, N.REST, N.C6, N.REST,
-        N.D5, N.REST, N.Fs5, N.REST, N.B5, N.REST, N.D6, N.REST, N.B4, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,  N.C2, N.C3, N.G2, N.C3, N.C2, N.C3, N.E2, N.G2,
-        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.Fs2, N.A2,  N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,
-        N.G1, N.G2, N.D2, N.G2, N.G1, N.G2, N.B2, N.D3,  N.A1, N.A2, N.E2, N.A2, N.A1, N.A2, N.C2, N.E2,
-        N.B1, N.B2, N.Fs2, N.B2, N.B1, N.B2, N.D2, N.Fs2,  N.Fs1, N.Fs2, N.Cs2, N.Fs2, N.B1, N.B1, N.Fs1, N.B1
-      ],
-      drumPattern: [
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 5, 3,
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 4, 3, 2, 2, 5, 3,
-        2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 1, 3, 2, 1, 5, 3,
-        2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3, 2, 2, 5, 1
-      ],
-    },
-
-    // BLIZZARD RUSH · ACT 3: JEFE YETI COLOSO (140 BPM Heavy Stomp Frost Titan Battle)
-    blizzardBoss: {
-      tempo: 140,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'sine',
-      leadNotes: [
-        N.E4, N.E4, N.G4, N.Bb4, N.B4, N.Bb4, N.G4, N.E4,  N.E4, N.G4, N.Bb4, N.B4, N.D5, N.B4, N.Bb4, N.G4,
-        N.E4, N.E4, N.G4, N.Bb4, N.B4, N.Bb4, N.G4, N.E4,  N.F4, N.Fs4, N.G4, N.Bb4, N.B4, N.G4, N.E4, N.D4,
-        N.E5, N.REST, N.E5, N.D5, N.B4, N.Bb4, N.G4, N.E4, N.G4, N.Bb4, N.B4, N.D5, N.E5, N.G5, N.E5, N.D5,
-        N.B4, N.Bb4, N.G4, N.E4, N.G4, N.Bb4, N.B4, N.D5,  N.E5, N.B4, N.G4, N.Bb4, N.E4, N.REST, N.E4, N.REST
-      ],
-      harmonyNotes: [
-        N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.G5, N.REST,
-        N.B4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.C5, N.REST, N.D5, N.REST, N.E5, N.REST, N.B4, N.REST,
-        N.G5, N.REST, N.G5, N.Fs5, N.E5, N.D5, N.B4, N.G4, N.B4, N.D5, N.E5, N.G5, N.B5, N.G5, N.E5, N.D5,
-        N.E5, N.REST, N.D5, N.REST, N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.E1, N.E1, N.E2, N.E1, N.D2, N.E1, N.B1, N.G1,
-        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.F1, N.Fs1, N.G1, N.G1, N.Bb1, N.G1, N.E1, N.D1,
-        N.E1, N.E2, N.E1, N.D1, N.B1, N.Bb1, N.G1, N.E1,  N.G1, N.Bb1, N.B1, N.D2, N.E2, N.G2, N.E2, N.D2,
-        N.E1, N.E1, N.E2, N.E1, N.G1, N.E1, N.Bb1, N.B1,  N.E1, N.G1, N.E1, N.B1, N.E1, N.E1, N.B0, N.E1
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
-      ],
-    },
-
-    // STEAMPUNK · ACT 1: FÁBRICA DE ENGRANAJES Y VAPOR (136 BPM Victorian Clockwork & Brass Melodies)
-    steampunkAct1: {
-      tempo: 136,
-      leadWave: 'square',
-      harmonyWave: 'sawtooth',
-      bassWave: 'square',
-      arpWave: 'triangle',
-      leadNotes: [
-        N.D4, N.F4, N.A4, N.D5, N.Cs5, N.A4, N.F4, N.E4,  N.D4, N.F4, N.A4, N.D5, N.E5, N.F5, N.E5, N.Cs5,
-        N.D4, N.F4, N.A4, N.D5, N.Cs5, N.A4, N.F4, N.E4,  N.Bb4, N.A4, N.G4, N.F4, N.E4, N.D4, N.Cs4, N.D4,
-        N.F4, N.A4, N.D5, N.F5, N.E5, N.D5, N.Cs5, N.A4, N.Bb4, N.D5, N.G5, N.F5, N.E5, N.D5, N.Cs5, N.E5,
-        N.D5, N.A4, N.F4, N.D4, N.Cs4, N.E4, N.A4, N.Cs5, N.D5, N.F5, N.E5, N.Cs5, N.D5, N.REST, N.D5, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.A4, N.REST, N.A4, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.A4, N.REST,
-        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.E4, N.REST, N.F4, N.REST,
-        N.D5, N.REST, N.F5, N.REST, N.E5, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.G5, N.REST, N.E5, N.REST, N.Cs5, N.REST,
-        N.F5, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.E5, N.REST, N.F5, N.REST, N.Cs5, N.REST, N.D5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D1, N.D1, N.A1, N.D2, N.A1, N.D1, N.E1, N.F1,  N.D1, N.D1, N.A1, N.D2, N.Cs1, N.A1, N.E1, N.A1,
-        N.D1, N.D1, N.A1, N.D2, N.A1, N.D1, N.E1, N.F1,  N.G1, N.D1, N.F1, N.C1, N.A0, N.E1, N.A1, N.Cs1,
-        N.D1, N.A1, N.F1, N.D2, N.A1, N.F1, N.Cs1, N.A1, N.G1, N.D2, N.Bb1, N.G1, N.A1, N.E1, N.Cs2, N.A1,
-        N.D1, N.D1, N.A1, N.D2, N.A1, N.E1, N.A1, N.Cs1, N.D1, N.A1, N.F1, N.A1, N.D1, N.D1, N.A0, N.D1
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
-      ],
-    },
-
-    // STEAMPUNK · ACT 2: FÁBRICA OXIDADA (122 BPM Industrial Rust & Grinding Gear Grooves)
-    steampunkAct2: {
-      tempo: 122,
-      leadWave: 'sawtooth',
-      harmonyWave: 'triangle',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      leadNotes: [
-        N.C4, N.Eb4, N.G4, N.Bb4, N.B4, N.G4, N.Eb4, N.D4,  N.C4, N.Eb4, N.Fs4, N.G4, N.C5, N.B4, N.Ab4, N.G4,
-        N.C4, N.Eb4, N.G4, N.Bb4, N.B4, N.G4, N.Eb4, N.D4,  N.Ab4, N.G4, N.F4, N.Eb4, N.D4, N.C4, N.B3, N.C4,
-        N.Eb4, N.G4, N.C5, N.Eb5, N.D5, N.C5, N.B4, N.G4, N.Ab4, N.C5, N.F5, N.Eb5, N.D5, N.C5, N.B4, N.D5,
-        N.C5, N.G4, N.Eb4, N.C4, N.B3, N.D4, N.G4, N.B4, N.C5, N.Eb5, N.D5, N.B4, N.C5, N.REST, N.C5, N.REST
-      ],
-      harmonyNotes: [
-        N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.G4, N.REST, N.G4, N.REST, N.C5, N.REST, N.B4, N.REST, N.G4, N.REST,
-        N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.G4, N.REST, N.F4, N.REST, N.Eb4, N.REST, N.D4, N.REST, N.Eb4, N.REST,
-        N.C5, N.REST, N.Eb5, N.REST, N.D5, N.REST, N.B4, N.REST, N.C5, N.REST, N.F5, N.REST, N.D5, N.REST, N.B4, N.REST,
-        N.Eb5, N.REST, N.C5, N.REST, N.B4, N.REST, N.D5, N.REST, N.Eb5, N.REST, N.B4, N.REST, N.C5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.C1, N.C1, N.G1, N.C2, N.G1, N.C1, N.D1, N.Eb1,  N.C1, N.C1, N.G1, N.C2, N.B0, N.G1, N.D1, N.G1,
-        N.C1, N.C1, N.G1, N.C2, N.G1, N.C1, N.D1, N.Eb1,  N.F1, N.C1, N.Eb1, N.Bb0, N.G0, N.D1, N.G1, N.B0,
-        N.C1, N.G1, N.Eb1, N.C2, N.G1, N.Eb1, N.B0, N.G1, N.F1, N.C2, N.Ab1, N.F1, N.G1, N.D1, N.B1, N.G1,
-        N.C1, N.C1, N.G1, N.C2, N.G1, N.D1, N.G1, N.B0, N.C1, N.G1, N.Eb1, N.G1, N.C1, N.C1, N.G0, N.C1
-      ],
-      drumPattern: [
-        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3,
-        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 2, 2, 5, 5,
-        2, 1, 4, 3, 2, 1, 4, 3, 2, 1, 4, 3, 4, 4, 5, 3,
-        2, 1, 4, 3, 2, 1, 4, 3, 2, 4, 5, 4, 2, 2, 5, 1
-      ],
-    },
-
-    // STEAMPUNK · ACT 3: ONLY UP 1000 METROS (154 BPM High Adrenaline Boiler Meltdown & Steam Ascent)
-    steampunkBoss: {
-      tempo: 154,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'sawtooth',
-      leadNotes: [
-        N.E4, N.G4, N.B4, N.E5, N.Ds5, N.B4, N.G4, N.Fs4,  N.E4, N.G4, N.B4, N.E5, N.Fs5, N.G5, N.Fs5, N.Ds5,
-        N.E4, N.G4, N.B4, N.E5, N.Ds5, N.B4, N.G4, N.Fs4,  N.C5, N.B4, N.A4, N.G4, N.Fs4, N.E4, N.Ds4, N.E4,
-        N.G4, N.B4, N.E5, N.G5, N.Fs5, N.E5, N.Ds5, N.B4, N.C5, N.E5, N.A5, N.G5, N.Fs5, N.E5, N.Ds5, N.Fs5,
-        N.E5, N.B4, N.G4, N.E4, N.Ds4, N.Fs4, N.B4, N.Ds5, N.E5, N.G5, N.Fs5, N.Ds5, N.E5, N.REST, N.E5, N.REST
-      ],
-      harmonyNotes: [
-        N.B4, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.B4, N.REST, N.B4, N.REST, N.E5, N.REST, N.Ds5, N.REST, N.B4, N.REST,
-        N.B4, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.Fs4, N.REST, N.G4, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST, N.E5, N.REST, N.A5, N.REST, N.Fs5, N.REST, N.Ds5, N.REST,
-        N.G5, N.REST, N.E5, N.REST, N.Ds5, N.REST, N.Fs5, N.REST, N.G5, N.REST, N.Ds5, N.REST, N.E5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E1, N.E1, N.B1, N.E2, N.B1, N.E1, N.Fs1, N.G1,  N.E1, N.E1, N.B1, N.E2, N.Ds1, N.B1, N.Fs1, N.B1,
-        N.E1, N.E1, N.B1, N.E2, N.B1, N.E1, N.Fs1, N.G1,  N.A1, N.E1, N.G1, N.D1, N.B0, N.Fs1, N.B1, N.Ds1,
-        N.E1, N.B1, N.G1, N.E2, N.B1, N.G1, N.Ds1, N.B1, N.A1, N.E2, N.C2, N.A1, N.B1, N.Fs1, N.Ds2, N.B1,
-        N.E1, N.E1, N.B1, N.E2, N.B1, N.Fs1, N.B1, N.Ds1, N.E1, N.B1, N.G1, N.B1, N.E1, N.E1, N.B0, N.E1
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 5, 4,
-        2, 4, 3, 4, 4, 4, 5, 4, 2, 4, 5, 4, 2, 2, 5, 5
-      ],
-    },
-
-    // CASTLE SMASH · ACTO 1 Y 2: MURALLAS DEL BASTIÓN Y MAZMORRAS (130 BPM Gothic Siege March)
-    castleAct1: {
-      tempo: 130,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'triangle',
-      leadNotes: [
-        N.D4, N.F4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4,  N.F4, N.G4, N.A4, N.D5, N.E5, N.F5, N.E5, N.Cs5,
-        N.D4, N.F4, N.A4, N.D5, N.C5, N.As4, N.A4, N.G4,  N.A4, N.As4, N.C5, N.D5, N.E5, N.F5, N.E5, N.D5,
-        N.F5, N.E5, N.D5, N.A4, N.As4, N.C5, N.D5, N.F5,  N.G5, N.F5, N.E5, N.C5, N.D5, N.E5, N.F5, N.G5,
-        N.A5, N.G5, N.F5, N.E5, N.D5, N.Cs5, N.D5, N.E5,  N.F5, N.E5, N.D5, N.Cs5, N.D5, N.REST, N.D5, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.E5, N.REST,
-        N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.A5, N.REST, N.F5, N.REST,
-        N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.F5, N.REST, N.E5, N.REST, N.G5, N.REST, N.F5, N.REST, N.E5, N.REST,
-        N.F5, N.REST, N.E5, N.REST, N.F5, N.REST, N.G5, N.REST, N.A5, N.REST, N.G5, N.REST, N.F5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.C2, N.C3,  N.As1, N.As2, N.C2, N.C3, N.A1, N.A2, N.Cs2, N.A1,
-        N.D2, N.D3, N.A2, N.D3, N.D2, N.D3, N.C2, N.C3,  N.G1, N.G2, N.A1, N.A2, N.As1, N.As2, N.C2, N.C3,
-        N.D2, N.D3, N.F2, N.D3, N.G2, N.G3, N.F2, N.D3,  N.C2, N.C3, N.E2, N.C3, N.D2, N.D3, N.E2, N.C3,
-        N.F2, N.F3, N.E2, N.E3, N.D2, N.D3, N.Cs2, N.Cs3, N.D2, N.A2, N.F2, N.A2, N.D2, N.D2, N.A1, N.D2
-      ],
-      drumPattern: [
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 3, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 4, 4, 5, 5,
-        2, 4, 3, 4, 2, 4, 5, 4, 2, 4, 3, 4, 2, 5, 3, 5,
-        4, 4, 5, 4, 4, 4, 5, 4, 2, 4, 5, 5, 2, 2, 5, 5
-      ],
-    },
-
-    // CASTLE SMASH · ACTO 3 JEFE: LORD MALAKAR (152 BPM Heavy Siege Warlord Metal Chiptune)
-    castleBoss: {
-      tempo: 152,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'sawtooth',
-      leadNotes: [
-        N.D4, N.D4, N.F4, N.G4, N.Gs4, N.G4, N.F4, N.D4,  N.D4, N.F4, N.G4, N.Gs4, N.A4, N.Gs4, N.G4, N.F4,
-        N.D4, N.D4, N.F4, N.G4, N.Gs4, N.G4, N.F4, N.D4,  N.Cs4, N.D4, N.E4, N.F4, N.G4, N.A4, N.As4, N.Cs5,
-        N.D5, N.REST, N.D5, N.C5, N.As4, N.A4, N.Gs4, N.G4, N.F4, N.G4, N.Gs4, N.A4, N.D5, N.C5, N.As4, N.A4,
-        N.Gs4, N.G4, N.F4, N.D4, N.F4, N.G4, N.Gs4, N.A4,  N.D5, N.A4, N.F4, N.Cs4, N.D4, N.REST, N.D4, N.REST
-      ],
-      harmonyNotes: [
-        N.A4, N.REST, N.D5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.A4, N.REST, N.D5, N.REST, N.E5, N.REST, N.D5, N.REST,
-        N.A4, N.REST, N.D5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.E4, N.REST, N.F4, N.REST, N.A4, N.REST, N.Cs5, N.REST,
-        N.F5, N.REST, N.F5, N.E5, N.D5, N.C5, N.B4, N.As4, N.A4, N.As4, N.B4, N.C5, N.F5, N.E5, N.D5, N.Cs5,
-        N.B4, N.As4, N.A4, N.F4, N.A4, N.B4, N.C5, N.Cs5,  N.D5, N.A4, N.F4, N.E4, N.D4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.D1, N.D1, N.D2, N.D1, N.A1, N.D1, N.G1, N.F1,
-        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.Cs1, N.D1, N.E1, N.F1, N.G1, N.A1, N.As1, N.Cs2,
-        N.D2, N.D2, N.C2, N.As1, N.A1, N.G1, N.F1, N.E1,  N.D1, N.D1, N.F1, N.G1, N.Gs1, N.A1, N.G1, N.F1,
-        N.D1, N.D1, N.D2, N.D1, N.F1, N.D1, N.Gs1, N.G1,  N.D1, N.F1, N.D1, N.A1, N.D1, N.D1, N.A0, N.D1
-      ],
-      drumPattern: [
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
-        4, 4, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5, 4, 4, 5, 5
-      ],
-    },
-
-    // CREDITS & EPILOGUE: ZION VICTORY HYMN (Upbeat Ending Pop Theme, 64 steps)
-    creditsTune: {
-      tempo: 126,
-      leadWave: 'triangle',
-      harmonyWave: 'sine',
-      bassWave: 'sine',
-      leadNotes: [
-        N.C4, N.E4, N.G4, N.C5, N.E5, N.C5, N.G4, N.E4,  N.D4, N.Fs4, N.A4, N.D5, N.Fs5, N.D5, N.A4, N.Fs4,
-        N.E4, N.G4, N.C5, N.E5, N.G5, N.E5, N.C5, N.G4,  N.G4, N.B4, N.D5, N.Fs5, N.A5, N.Fs5, N.D5, N.B4,
-        N.C5, N.E5, N.G5, N.C6, N.B5, N.A5, N.G5, N.E5,  N.D5, N.Fs5, N.A5, N.D6, N.C6, N.B5, N.A5, N.Fs5,
-        N.E5, N.D5, N.C5, N.A4, N.G4, N.E4, N.D4, N.C4,  N.C4, N.E4, N.G4, N.C5, N.E5, N.C5, N.C4, N.REST
-      ],
-      harmonyNotes: [
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.REST, N.Fs5, N.REST, N.A5, N.REST, N.Fs5, N.REST,
-        N.E5, N.REST, N.G5, N.REST, N.C6, N.REST, N.E5, N.REST, N.G5, N.REST, N.B5, N.REST, N.D6, N.REST, N.B5, N.REST,
-        N.C6, N.REST, N.E6, N.REST, N.G6, N.REST, N.E6, N.REST, N.D6, N.REST, N.Fs6, N.REST, N.A6, N.REST, N.Fs6, N.REST,
-        N.B5, N.REST, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.C2, N.C3, N.D2, N.D3, N.E2, N.E3, N.F2, N.G2, N.D2, N.D3, N.E2, N.E3, N.C2, N.C3, N.A1, N.C2,
-        N.E2, N.E3, N.F2, N.E2, N.G2, N.G3, N.A2, N.G2, N.D2, N.D3, N.E2, N.D2, N.C2, N.C3, N.A1, N.C2,
-        N.C2, N.C3, N.E2, N.G2, N.A2, N.A3, N.G2, N.E2, N.D2, N.D3, N.F2, N.A2, N.B2, N.B3, N.A2, N.D2,
-        N.E2, N.E3, N.D2, N.C2, N.A1, N.A2, N.C2, N.D2, N.C2, N.C3, N.D2, N.E2, N.C2, N.C3, N.A1, N.C2
-      ],
-      drumPattern: [
-        2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1,
-        2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 2, 5, 1,
-        4, 1, 5, 1, 2, 1, 5, 1, 4, 1, 5, 1, 4, 4, 5, 2,
-        2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 4, 5, 1
-      ],
-    },
-
-    // MAIN MENU: PRELUDIO DE KRONOS (Light, relaxing arcade chiptune melody, 64 steps)
-    menuTheme: {
-      tempo: 112,
-      leadWave: 'triangle',
-      harmonyWave: 'sine',
-      bassWave: 'sine',
-      leadNotes: [
-        N.E5, N.G5, N.C6, N.B5,  N.A5, N.G5, N.E5, N.D5,
-        N.E5, N.G5, N.A5, N.G5,  N.E5, N.D5, N.C5, N.D5,
-        N.E5, N.G5, N.C6, N.D6,  N.E6, N.D6, N.C6, N.A5,
-        N.G5, N.A5, N.G5, N.E5,  N.D5, N.E5, N.D5, N.REST,
-        N.A4, N.C5, N.E5, N.G5,  N.A5, N.G5, N.E5, N.C5,
-        N.D5, N.F5, N.A5, N.G5,  N.F5, N.E5, N.D5, N.C5,
-        N.E5, N.G5, N.C6, N.B5,  N.A5, N.G5, N.E5, N.D5,
-        N.C5, N.D5, N.E5, N.G5,  N.C6, N.REST, N.REST, N.REST
-      ],
-      harmonyNotes: [
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST, N.D5, N.REST,
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.B4, N.REST, N.D5, N.REST, N.G5, N.REST, N.D5, N.REST,
-        N.A4, N.REST, N.C5, N.REST, N.E5, N.REST, N.C5, N.REST, N.D5, N.REST, N.F5, N.REST, N.A5, N.REST, N.F5, N.REST,
-        N.C5, N.REST, N.E5, N.REST, N.G5, N.REST, N.E5, N.REST, N.C5, N.REST, N.G5, N.REST, N.REST, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.C2, N.C2, N.G1, N.C2, N.F1, N.F1, N.C2, N.F1, N.C2, N.C2, N.E1, N.G1, N.G1, N.G1, N.B1, N.D2,
-        N.A1, N.A1, N.C2, N.E2, N.D2, N.D2, N.F1, N.A1, N.C2, N.C2, N.G1, N.C2, N.C2, N.G1, N.C2, N.REST
-      ],
-      drumPattern: [
-        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
-      ],
-    },
-
-    // PIRATE'S TREASURE · ACTO 1: CALA DEL CORSARIO Y PLAYA TROPICAL (128 BPM Sea Shanty Bouncy Groove)
-    pirateBeach: {
-      tempo: 128,
-      leadWave: 'square',
-      harmonyWave: 'triangle',
-      bassWave: 'triangle',
-      arpWave: 'square',
-      leadNotes: [
-        N.A4, N.D5, N.D5, N.E5, N.F5, N.D5, N.D5, N.REST,  N.F5, N.G5, N.A5, N.F5, N.E5, N.C5, N.A4, N.REST,
-        N.A4, N.D5, N.D5, N.E5, N.F5, N.G5, N.A5, N.D5,   N.F5, N.E5, N.D5, N.Cs5, N.D5, N.REST, N.D5, N.REST,
-        N.F5, N.A5, N.A5, N.G5, N.F5, N.G5, N.A5, N.F5,   N.G5, N.F5, N.E5, N.D5, N.E5, N.C5, N.A4, N.C5,
-        N.D5, N.F5, N.A5, N.G5, N.F5, N.E5, N.D5, N.Cs5,  N.D5, N.F5, N.A5, N.D6, N.D5, N.REST, N.D5, N.REST
-      ],
-      harmonyNotes: [
-        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.D4, N.REST, N.F4, N.REST, N.C4, N.REST, N.E4, N.REST,
-        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.D4, N.REST,
-        N.A4, N.REST, N.C5, N.REST, N.D5, N.REST, N.A4, N.REST, N.C5, N.REST, N.B4, N.REST, N.A4, N.REST, N.C5, N.REST,
-        N.D4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST, N.F4, N.REST, N.A4, N.REST, N.D5, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D2, N.D2, N.A1, N.D2, N.D2, N.D2, N.A1, N.D2,  N.F2, N.F2, N.C2, N.F2, N.A1, N.A1, N.E1, N.A1,
-        N.D2, N.D2, N.A1, N.D2, N.D2, N.D2, N.A1, N.D2,  N.G2, N.G2, N.A1, N.A1, N.D2, N.D2, N.A1, N.D2,
-        N.F2, N.F2, N.C2, N.F2, N.D2, N.D2, N.A1, N.D2,  N.C2, N.C2, N.G1, N.C2, N.A1, N.A1, N.E1, N.A1,
-        N.D2, N.D2, N.A1, N.D2, N.G2, N.G2, N.A1, N.A1,  N.D2, N.F2, N.A2, N.D3, N.D2, N.REST, N.D2, N.REST
-      ],
-      drumPattern: [
-        2, 1, 3, 1, 2, 4, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1,
-        2, 1, 3, 1, 2, 1, 3, 4, 2, 1, 3, 1, 4, 4, 5, 1,
-        4, 1, 5, 1, 4, 1, 5, 2, 4, 1, 5, 1, 4, 4, 5, 4,
-        2, 1, 3, 1, 2, 2, 3, 1, 4, 4, 5, 5, 2, 3, 5, 1
-      ],
-    },
-
-    // PIRATE'S TREASURE · ACTO 2: ARRECIFE SUBMARINO (106 BPM Atmospheric Deep Blue Aqua Synth)
-    pirateUnderwater: {
-      tempo: 106,
-      leadWave: 'sine',
-      harmonyWave: 'triangle',
-      bassWave: 'sine',
-      arpWave: 'sine',
-      leadNotes: [
-        N.E4, N.G4, N.B4, N.E5, N.D5, N.B4, N.A4, N.G4,   N.A4, N.C5, N.E5, N.D5, N.C5, N.A4, N.G4, N.REST,
-        N.F4, N.A4, N.C5, N.F5, N.E5, N.C5, N.A4, N.F4,   N.B4, N.D5, N.Fs5, N.E5, N.D5, N.B4, N.REST, N.REST,
-        N.G4, N.B4, N.D5, N.G5, N.Fs5, N.D5, N.C5, N.B4,  N.C5, N.E5, N.G5, N.A5, N.G5, N.E5, N.D5, N.C5,
-        N.B4, N.D5, N.G5, N.Fs5, N.E5, N.D5, N.B4, N.A4,  N.E4, N.G4, N.B4, N.E5, N.E5, N.REST, N.REST, N.REST
-      ],
-      harmonyNotes: [
-        N.B3, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.C4, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST,
-        N.A3, N.REST, N.C4, N.REST, N.F4, N.REST, N.C4, N.REST, N.Ds4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Fs4, N.REST,
-        N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.C5, N.REST, N.G4, N.REST,
-        N.Ds4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.B3, N.REST, N.E4, N.REST, N.REST, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E1, N.REST, N.B1, N.REST, N.E2, N.REST, N.B1, N.REST, N.A1, N.REST, N.E1, N.REST, N.A2, N.REST, N.E1, N.REST,
-        N.F1, N.REST, N.C2, N.REST, N.F2, N.REST, N.C2, N.REST, N.B0, N.REST, N.Fs1, N.REST, N.B1, N.REST, N.Fs1, N.REST,
-        N.G1, N.REST, N.D2, N.REST, N.G2, N.REST, N.D2, N.REST, N.C1, N.REST, N.G1, N.REST, N.C2, N.REST, N.G1, N.REST,
-        N.B0, N.REST, N.Fs1, N.REST, N.B1, N.REST, N.Fs1, N.REST, N.E1, N.REST, N.B1, N.REST, N.E2, N.REST, N.REST, N.REST
-      ],
-      drumPattern: [
-        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0,
-        2, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
-      ],
-    },
-
-    // PIRATE'S TREASURE · ACTO 3 JEFE: EL COFRE MALDITO (150 BPM Sunken Galleon Metal Mimic Battle)
-    pirateBoss: {
-      tempo: 150,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'sawtooth',
-      leadNotes: [
-        N.C4, N.Ds4, N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.REST, N.C4, N.Ds4, N.G4, N.Fs4, N.G4, N.As4, N.C5, N.REST,
-        N.C5, N.As4, N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.Ds4, N.F4, N.Fs4, N.G4, N.As4, N.B4, N.C5, N.Ds5, N.REST,
-        N.C5, N.C5, N.Ds5, N.D5, N.C5, N.As4, N.G4, N.Fs4,  N.F4, N.G4, N.As4, N.C5, N.Ds5, N.D5, N.C5, N.As4,
-        N.G4, N.Fs4, N.F4, N.Ds4, N.C4, N.Ds4, N.F4, N.Fs4, N.G4, N.C5, N.G4, N.Ds4, N.C4, N.REST, N.C4, N.REST
-      ],
-      harmonyNotes: [
-        N.G4, N.REST, N.C5, N.REST, N.Ds5, N.REST, N.C5, N.REST, N.G4, N.REST, N.C5, N.REST, N.D5, N.REST, N.Ds5, N.REST,
-        N.Ds5, N.REST, N.D5, N.REST, N.C5, N.REST, N.G4, N.REST, N.F4, N.REST, N.G4, N.REST, N.As4, N.REST, N.C5, N.REST,
-        N.Ds5, N.REST, N.G5, N.REST, N.F5, N.REST, N.Ds5, N.REST, N.D5, N.REST, N.F5, N.REST, N.G5, N.REST, N.Ds5, N.REST,
-        N.C5, N.REST, N.As4, N.REST, N.G4, N.REST, N.Ds4, N.REST, N.C4, N.REST, N.Ds4, N.REST, N.G4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.C1, N.C1, N.C2, N.C1, N.G1, N.C1, N.As1, N.C2,
-        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.As0, N.C1, N.D1, N.Ds1, N.F1, N.G1, N.As1, N.C2,
-        N.C2, N.C2, N.As1, N.G1, N.Fs1, N.F1, N.Ds1, N.D1,  N.C1, N.C1, N.Ds1, N.F1, N.Fs1, N.G1, N.F1, N.Ds1,
-        N.C1, N.C1, N.C2, N.C1, N.Ds1, N.C1, N.Fs1, N.F1,  N.C1, N.Ds1, N.C1, N.G1, N.C1, N.C1, N.G0, N.C1
-      ],
-      drumPattern: [
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
-        4, 2, 5, 4, 4, 4, 5, 2, 4, 2, 5, 4, 4, 4, 5, 5,
-        4, 4, 5, 4, 4, 5, 5, 4, 4, 4, 5, 5, 2, 2, 5, 5
-      ],
-    },
-
-    // JURASSIC DRAFT · ACTO 1: JUNGLA PRIMORDIAL Y NIDOS DE RAPTOR (136 BPM Prehistoric Jungle Tribal Beat)
-    jurassicAct1: {
-      tempo: 136,
-      leadWave: 'square',
-      harmonyWave: 'sawtooth',
-      bassWave: 'triangle',
-      arpWave: 'square',
-      leadNotes: [
-        N.E4, N.G4, N.A4, N.REST, N.B4, N.D5, N.B4, N.A4,  N.G4, N.E4, N.G4, N.A4, N.B4, N.REST, N.D5, N.E5,
-        N.D5, N.B4, N.A4, N.G4,  N.E4, N.D4, N.E4, N.G4,  N.A4, N.B4, N.A4, N.G4, N.E4, N.REST, N.E4, N.REST,
-        N.E5, N.D5, N.B4, N.REST, N.D5, N.B4, N.A4, N.G4,  N.A4, N.B4, N.D5, N.E5, N.G5, N.E5, N.D5, N.B4,
-        N.A4, N.G4, N.E4, N.D4,  N.E4, N.G4, N.A4, N.B4,  N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.REST, N.REST
-      ],
-      harmonyNotes: [
-        N.B3, N.REST, N.E4, N.REST, N.G4, N.REST, N.E4, N.REST, N.D4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST,
-        N.B4, N.REST, N.G4, N.REST, N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E4, N.REST, N.B3, N.REST, N.B3, N.REST,
-        N.G4, N.REST, N.B4, N.REST, N.A4, N.REST, N.G4, N.REST, N.E4, N.REST, N.G4, N.REST, N.B4, N.REST, N.G4, N.REST,
-        N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E4, N.REST, N.B3, N.REST, N.D4, N.REST, N.E3, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.E1, N.E1, N.G1, N.E1, N.A1, N.E1, N.B1, N.G1,  N.E1, N.E1, N.G1, N.E1, N.D1, N.E1, N.G1, N.A1,
-        N.E1, N.E1, N.G1, N.E1, N.A1, N.G1, N.E1, N.D1,  N.C1, N.D1, N.E1, N.G1, N.E1, N.E1, N.B0, N.E1,
-        N.E1, N.G1, N.A1, N.B1, N.E1, N.G1, N.A1, N.B1,  N.C2, N.B1, N.A1, N.G1, N.E1, N.G1, N.A1, N.B1,
-        N.E1, N.E1, N.G1, N.A1, N.B1, N.A1, N.G1, N.D1,  N.E1, N.G1, N.E1, N.B0, N.E1, N.REST, N.E1, N.REST
-      ],
-      drumPattern: [
-        1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 0, 1, 1, 2, 3,
-        1, 0, 2, 0, 1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 3, 3,
-        1, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 3,
-        1, 0, 2, 1, 1, 1, 2, 0, 1, 2, 1, 2, 3, 3, 2, 0
-      ],
-    },
-
-    // JURASSIC DRAFT · ACTO 2: CAÑÓN DE PTERODÁCTILOS Y LAVA ANCESTRAL (144 BPM Driving Volcanic Action)
-    jurassicAct2: {
-      tempo: 144,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      leadNotes: [
-        N.D4, N.F4, N.A4, N.D5, N.C5, N.A4, N.G4, N.F4,  N.D4, N.F4, N.G4, N.Gs4, N.A4, N.C5, N.D5, N.REST,
-        N.F5, N.D5, N.C5, N.A4, N.G4, N.F4, N.D4, N.F4,  N.G4, N.A4, N.C5, N.D5, N.F5, N.E5, N.D5, N.REST,
-        N.D5, N.D5, N.F5, N.D5, N.C5, N.A4, N.C5, N.D5,  N.F5, N.G5, N.F5, N.D5, N.C5, N.A4, N.G4, N.F4,
-        N.D4, N.F4, N.G4, N.A4, N.C5, N.A4, N.G4, N.F4,  N.D4, N.F4, N.D4, N.A3, N.D4, N.REST, N.D4, N.REST
-      ],
-      harmonyNotes: [
-        N.A3, N.REST, N.D4, N.REST, N.F4, N.REST, N.D4, N.REST, N.A3, N.REST, N.D4, N.REST, N.F4, N.REST, N.A4, N.REST,
-        N.C5, N.REST, N.A4, N.REST, N.F4, N.REST, N.D4, N.REST, N.E4, N.REST, N.F4, N.REST, N.A4, N.REST, N.F4, N.REST,
-        N.F4, N.REST, N.A4, N.REST, N.G4, N.REST, N.F4, N.REST, N.A4, N.REST, N.C5, N.REST, N.A4, N.REST, N.F4, N.REST,
-        N.D4, N.REST, N.F4, N.REST, N.E4, N.REST, N.D4, N.REST, N.A3, N.REST, N.C4, N.REST, N.D3, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.D1, N.D1, N.F1, N.D1, N.G1, N.Gs1, N.A1, N.F1,  N.D1, N.D1, N.F1, N.D1, N.C1, N.D1, N.F1, N.G1,
-        N.D1, N.D1, N.F1, N.D1, N.G1, N.F1, N.D1, N.C1,  N.As0, N.C1, N.D1, N.F1, N.D1, N.D1, N.A0, N.D1,
-        N.D1, N.D2, N.C2, N.A1, N.F1, N.G1, N.A1, N.C2,  N.D1, N.F1, N.G1, N.Gs1, N.A1, N.C2, N.D2, N.A1,
-        N.D1, N.D1, N.F1, N.G1, N.A1, N.G1, N.F1, N.C1,  N.D1, N.F1, N.D1, N.A0, N.D1, N.REST, N.D1, N.REST
-      ],
-      drumPattern: [
-        1, 0, 2, 0, 1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1,
-        1, 0, 2, 0, 1, 1, 2, 0, 1, 0, 2, 1, 1, 2, 3, 3,
-        1, 1, 2, 0, 1, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 3,
-        1, 0, 2, 1, 1, 1, 2, 0, 1, 2, 1, 2, 3, 3, 2, 1
-      ],
-    },
-
-    // JURASSIC DRAFT · ACTO 3 JEFE: TITAN REX (154 BPM Heavy Prehistoric Metal Dinosaur Showdown)
-    jurassicBoss: {
-      tempo: 154,
-      leadWave: 'sawtooth',
-      harmonyWave: 'sawtooth',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      leadNotes: [
-        N.B3, N.D4, N.F4, N.Fs4, N.F4, N.D4, N.B3, N.REST, N.B3, N.D4, N.Fs4, N.G4, N.Fs4, N.D4, N.B3, N.REST,
-        N.B4, N.A4, N.Fs4, N.F4, N.D4, N.B3, N.D4, N.Fs4, N.G4, N.A4, N.B4, N.D5, N.Fs5, N.F5, N.D5, N.REST,
-        N.B4, N.B4, N.D5, N.Cs5, N.B4, N.A4, N.Fs4, N.F4, N.E4, N.Fs4, N.A4, N.B4, N.D5, N.Cs5, N.B4, N.A4,
-        N.Fs4, N.F4, N.E4, N.D4, N.B3, N.D4, N.E4, N.F4,  N.Fs4, N.B4, N.Fs4, N.D4, N.B3, N.REST, N.B3, N.REST
-      ],
-      harmonyNotes: [
-        N.Fs4, N.REST, N.B4, N.REST, N.D5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.B4, N.REST, N.Cs5, N.REST, N.D5, N.REST,
-        N.D5, N.REST, N.Cs5, N.REST, N.B4, N.REST, N.Fs4, N.REST, N.E4, N.REST, N.Fs4, N.REST, N.A4, N.REST, N.B4, N.REST,
-        N.D5, N.REST, N.Fs5, N.REST, N.E5, N.REST, N.D5, N.REST, N.Cs5, N.REST, N.E5, N.REST, N.Fs5, N.REST, N.D5, N.REST,
-        N.B4, N.REST, N.A4, N.REST, N.Fs4, N.REST, N.D4, N.REST, N.B3, N.REST, N.D4, N.REST, N.Fs4, N.REST, N.REST, N.REST
-      ],
-      bassNotes: [
-        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.B0, N.B0, N.B1, N.B0, N.Fs1, N.B0, N.A1, N.B1,
-        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.A0, N.B0, N.Cs1, N.D1, N.E1, N.Fs1, N.A1, N.B1,
-        N.B1, N.B1, N.A1, N.Fs1, N.F1, N.E1, N.D1, N.Cs1, N.B0, N.B0, N.D1, N.E1, N.F1, N.Fs1, N.E1, N.D1,
-        N.B0, N.B0, N.B1, N.B0, N.D1, N.B0, N.F1, N.E1,  N.B0, N.D1, N.B0, N.Fs1, N.B0, N.B0, N.Fs1, N.B0
-      ],
-      drumPattern: [
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 5, 5, 4,
-        4, 4, 5, 4, 4, 2, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5,
-        4, 2, 5, 4, 4, 4, 5, 2, 4, 2, 5, 4, 4, 4, 5, 5,
-        4, 4, 5, 4, 4, 5, 5, 4, 4, 4, 5, 5, 2, 2, 5, 5
-      ],
-    },
-
-    // THE MOON · ACTO 1: BASE DE LANZAMIENTO DE COHETES (138 BPM Heroic Space Synthwave & Countdown Odyssey)
-    moonLaunchAct1: {
-      tempo: 138,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      leadNotes: [
-        // Measure 1: Heroic Launch Anthem Call (C Minor - Apollo Ascending)
-        N.C4, N.Eb4, N.G4, N.C5,  N.Bb4, N.G4, N.Eb4, N.G4,   N.F4, N.Ab4, N.C5, N.Eb5,  N.D5, N.Bb4, N.G4, N.F4,
-        // Measure 2: Rocket Thruster Ignite & Horizon Climb
-        N.Eb4, N.G4, N.Bb4, N.Eb5, N.D5, N.C5, N.Bb4, N.C5,   N.G4, N.Bb4, N.C5, N.D5,   N.Eb5, N.F5, N.G5, N.REST,
-        // Measure 3: Orbital Trajectory Arc (Majestic High Octave Leap)
-        N.C5, N.G5, N.F5, N.Eb5,  N.D5, N.C5, N.Bb4, N.C5,   N.Ab4, N.C5, N.Eb5, N.Ab5, N.G5, N.Eb5, N.D5, N.C5,
-        // Measure 4: Staging Separation & Triumphant Climax
-        N.Bb4, N.D5, N.F5, N.Bb5, N.A5, N.F5, N.D5, N.Bb4,  N.G4, N.C5, N.Eb5, N.G5,   N.C6, N.REST, N.C5, N.REST
-      ],
-      harmonyNotes: [
-        // Counterpoint Telemetry Pulses & Rocket Arpeggios
-        N.G3, N.C4, N.Eb4, N.G4,   N.G3, N.C4, N.Eb4, N.G4,   N.Ab3, N.C4, N.Eb4, N.Ab4, N.Ab3, N.C4, N.Eb4, N.Ab4,
-        N.Bb3, N.Eb4, N.G4, N.Bb4, N.Bb3, N.Eb4, N.G4, N.Bb4, N.G3, N.B3, N.D4, N.G4,    N.G3, N.B3, N.D4, N.G4,
-        N.C4, N.Eb4, N.G4, N.C5,   N.C4, N.Eb4, N.G4, N.C5,   N.Ab3, N.C4, N.Eb4, N.Ab4, N.Ab3, N.C4, N.Eb4, N.Ab4,
-        N.Bb3, N.D4, N.F4, N.Bb4, N.Bb3, N.D4, N.F4, N.Bb4, N.C4, N.Eb4, N.G4, N.C5,   N.G4, N.REST, N.Eb4, N.REST
-      ],
-      bassNotes: [
-        // 16th note driving synthwave bassline
-        N.C2, N.C2, N.C1, N.C2,   N.C2, N.G1, N.C2, N.C2,    N.Ab1, N.Ab1, N.Eb1, N.Ab1, N.Ab1, N.C2, N.Ab1, N.Ab1,
-        N.Eb1, N.Eb1, N.Bb0, N.Eb1, N.Eb1, N.G1, N.Eb1, N.Eb1, N.G1, N.G1, N.D1, N.G1,    N.G1, N.B1, N.G1, N.G1,
-        N.C2, N.C2, N.C1, N.C2,   N.C2, N.G1, N.C2, N.C2,    N.Ab1, N.Ab1, N.Eb1, N.Ab1, N.Ab1, N.C2, N.Ab1, N.Ab1,
-        N.Bb1, N.Bb1, N.F1, N.Bb1, N.Bb1, N.D2, N.Bb1, N.Bb1, N.C2, N.Eb2, N.G2, N.C3,   N.C2, N.REST, N.C1, N.REST
-      ],
-      drumPattern: [
-        // Punchy Space Electro Groove with driving kick, snappy snare and high-energy fills
-        4, 1, 5, 1, 4, 1, 5, 1,  4, 1, 5, 1, 4, 4, 5, 1,
-        4, 1, 5, 1, 4, 1, 5, 4,  4, 1, 5, 1, 4, 4, 5, 5,
-        4, 1, 5, 1, 4, 1, 5, 1,  4, 1, 5, 1, 4, 4, 5, 4,
-        4, 1, 5, 1, 4, 4, 5, 4,  4, 4, 5, 5, 2, 2, 5, 5
-      ],
-    },
-
-    // THE MOON · ACTO 3: JUICIO FINAL CÓSMICO (DOOMSDAY ZONE BOSS)
-    // 154 BPM Ultra High-Energy Space Battle Rock & Synth Symphony (Sonic 3 Doomsday Tribute)
-    moonDoomsdayBoss: {
-      tempo: 154,
-      leadWave: 'sawtooth',
-      harmonyWave: 'square',
-      bassWave: 'sawtooth',
-      arpWave: 'square',
-      leadNotes: [
-        // Measure 1: Fierce Doomsday Heroic Fanfare Call (D Minor Power)
-        N.D5, N.D5, N.F5, N.A5,  N.G5, N.F5, N.E5, N.F5,   N.D5, N.D5, N.F5, N.A5,  N.Bb5, N.A5, N.G5, N.A5,
-        // Measure 2: High Speed Supersonic Flight Thrust
-        N.F5, N.G5, N.A5, N.D6,  N.C6, N.Bb5, N.A5, N.G5,  N.A5, N.F5, N.E5, N.D5,  N.Cs5, N.E5, N.A5, N.REST,
-        // Measure 3: Dramatic Doomsday Climax Ascent
-        N.D5, N.F5, N.A5, N.D6,  N.C6, N.D6, N.C6, N.A5,   N.Bb5, N.D6, N.F6, N.E6, N.D6, N.C6, N.Bb5, N.A5,
-        // Measure 4: Hyper-Drive Victory Rocket Rush
-        N.G5, N.Bb5, N.D6, N.G6, N.F6, N.E6, N.D6, N.C6,   N.D6, N.REST, N.A5, N.REST, N.D5, N.D5, N.F5, N.A5
-      ],
-      harmonyNotes: [
-        // Lightning-fast 16th arpeggios spinning in stereo
-        N.D4, N.F4, N.A4, N.D5,  N.C4, N.E4, N.G4, N.C5,   N.Bb3, N.D4, N.F4, N.Bb4, N.A3, N.Cs4, N.E4, N.A4,
-        N.D4, N.F4, N.A4, N.D5,  N.F4, N.A4, N.C5, N.F5,   N.G4, N.Bb4, N.D5, N.G5,  N.A4, N.Cs5, N.E5, N.A5,
-        N.D4, N.F4, N.A4, N.D5,  N.C4, N.E4, N.G4, N.C5,   N.Bb3, N.D4, N.F4, N.Bb4, N.F4, N.A4, N.C5, N.F5,
-        N.G3, N.Bb3, N.D4, N.G4, N.A3, N.Cs4, N.E4, N.A4,  N.D4, N.F4, N.A4, N.D5,  N.D4, N.REST, N.A4, N.REST
-      ],
-      bassNotes: [
-        // Relentless galloping 16th synth-rock bassline
-        N.D2, N.D2, N.D1, N.D2,  N.C2, N.C2, N.G1, N.C2,   N.Bb1, N.Bb1, N.F1, N.Bb1, N.A1, N.A1, N.E1, N.A1,
-        N.D2, N.D2, N.D1, N.D2,  N.F2, N.F2, N.C2, N.F2,   N.G2, N.G2, N.D2, N.G2,   N.A2, N.A2, N.E2, N.A2,
-        N.D2, N.D2, N.D1, N.D2,  N.C2, N.C2, N.G1, N.C2,   N.Bb1, N.Bb1, N.F1, N.Bb1, N.F2, N.F2, N.C2, N.F2,
-        N.G1, N.G1, N.D1, N.G1,  N.A1, N.A1, N.E1, N.A1,   N.D2, N.F2, N.A2, N.D3,   N.D2, N.REST, N.D1, N.REST
-      ],
-      drumPattern: [
-        // Heavy Rock & Breakbeat: relentless driving double kick, cracking snare, crash fills
-        6, 1, 5, 1,  6, 2, 5, 1,  6, 1, 5, 1,  6, 6, 5, 1,
-        6, 1, 5, 1,  6, 2, 5, 4,  6, 1, 5, 1,  6, 6, 5, 5,
-        6, 1, 5, 1,  6, 2, 5, 1,  6, 1, 5, 1,  6, 6, 5, 4,
-        6, 1, 5, 4,  6, 6, 5, 4,  6, 6, 5, 5,  2, 2, 5, 5
-      ],
-    },
-  };
-
-  // High-precision Web Audio lookahead scheduler
+      osc1.start(time);
+      osc2.start(time);
+      osc1.stop(time + duration + 0.05);
+      osc2.stop(time + duration + 0.05);
+    } catch {}
+  }
+  // High-precision Web Audio lookahead scheduler for 32-Bit Studio Master Music
   private scheduleNotes() {
     if (!this.ctx || !this.musicEnabled || !this.currentTrack || this.masterVolume <= 0) return;
 
     const track = this.trackThemes[this.currentTrack];
     if (!track) return;
 
+    this.setup32BitEffects(this.ctx);
+
     const secondsPerBeat = 60.0 / track.tempo;
     const stepDuration = secondsPerBeat / 4; // 16th notes
+    const filterCutoff = track.filterCutoff || 3200;
 
     // Schedule 160ms ahead of current audio context time for crystal-clear timing
     while (this.nextNoteTime < this.ctx.currentTime + 0.16) {
@@ -1664,36 +693,47 @@ class SoundEngine {
       const leadNote = track.leadNotes[step % track.leadNotes.length];
       const harmNote = track.harmonyNotes[step % track.harmonyNotes.length];
       const bassNote = track.bassNotes[Math.floor(step / 2) % track.bassNotes.length];
+      const arpNote = track.arpNotes ? track.arpNotes[step % track.arpNotes.length] : 0;
       const drum = track.drumPattern[step % track.drumPattern.length];
 
-      // 1. Lead Melody Note (Polished envelope with expressive vibrato & punch)
+      // 1. Lead Melody Note (32-Bit Dual-Detuned Synth with Reverb Send & Right Pan)
       if (leadNote > 0) {
-        this.toneAtTime(leadNote, stepDuration * 0.92, track.leadWave, 0.022, this.nextNoteTime);
+        this.tone32Bit(leadNote, stepDuration * 0.94, track.leadWave, 0.024, this.nextNoteTime, 0.15, filterCutoff, true);
       }
 
-      // 2. Harmony / Counterpoint (Sweet stereo-like warmth)
+      // 2. Harmony / Warm Pad (Stereo Left Pan, Lush Resonance)
       if (harmNote > 0) {
-        this.toneAtTime(harmNote, stepDuration * 0.75, track.harmonyWave, 0.011, this.nextNoteTime);
+        this.tone32Bit(harmNote, stepDuration * 0.85, track.harmonyWave, 0.013, this.nextNoteTime, -0.25, filterCutoff * 0.75, false);
       }
 
-      // 3. Sub-Bassline (Analog slap bass warmth, 8th note cadence)
+      // 3. Arpeggio Channel (Fast 16th Plucks Alternating Stereo Field)
+      if (arpNote > 0) {
+        const panDir = (step % 2 === 0 ? 0.35 : -0.35);
+        this.tone32Bit(arpNote, stepDuration * 0.55, track.arpWave || 'square', 0.011, this.nextNoteTime, panDir, filterCutoff * 0.9, true);
+      }
+
+      // 4. Sub-Bassline (32-Bit Analog Punch Bass, 8th note cadence)
       if (step % 2 === 0 && bassNote > 0) {
-        this.toneAtTime(bassNote, stepDuration * 1.85, track.bassWave, 0.026, this.nextNoteTime);
+        this.tone32Bit(bassNote, stepDuration * 1.85, track.bassWave, 0.025, this.nextNoteTime, 0, 480, false);
       }
 
-      // 4. Synthesized Rhythm Section (FM Drum Machine)
+      // 5. Synthesized 32-Bit Studio Drum Machine (Balanced as vibrant background bed)
       if (drum === 1) {
-        this.playHiHat(this.nextNoteTime, 0.013);
+        this.playHiHat(this.nextNoteTime, 0.011);
       } else if (drum === 2) {
-        this.playKick(this.nextNoteTime, 0.038);
+        this.playKick(this.nextNoteTime, 0.034);
       } else if (drum === 3) {
-        this.playSnare(this.nextNoteTime, 0.026);
+        this.playSnare(this.nextNoteTime, 0.022);
       } else if (drum === 4) {
-        this.playKick(this.nextNoteTime, 0.038);
-        this.playHiHat(this.nextNoteTime, 0.013);
+        this.playKick(this.nextNoteTime, 0.034);
+        this.playHiHat(this.nextNoteTime, 0.011);
       } else if (drum === 5) {
-        this.playSnare(this.nextNoteTime, 0.026);
-        this.playHiHat(this.nextNoteTime, 0.015);
+        this.playSnare(this.nextNoteTime, 0.022);
+        this.playHiHat(this.nextNoteTime, 0.013);
+      } else if (drum === 6) {
+        this.playKick(this.nextNoteTime, 0.036);
+        this.playSnare(this.nextNoteTime, 0.022);
+        this.playHiHat(this.nextNoteTime, 0.013);
       }
 
       this.nextNoteTime += stepDuration;
@@ -1746,7 +786,7 @@ class SoundEngine {
     if (this.musicGainNode) {
       try {
         this.musicGainNode.gain.cancelScheduledValues(ctx.currentTime);
-        this.musicGainNode.gain.setValueAtTime(1, ctx.currentTime);
+        this.musicGainNode.gain.setValueAtTime(0.56 * this.masterVolume, ctx.currentTime);
       } catch {}
     }
 

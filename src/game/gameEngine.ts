@@ -1,3 +1,5 @@
+import { getCharacterConfig, CharacterConfig } from './characterConfig';
+import type { CharacterSkin } from '../types';
 import { sound } from '../audio/soundEngine';
 import {
   BASE_XP_NEEDED,
@@ -107,6 +109,26 @@ export class GameEngine {
   public player: Player;
   public inMainMenu = true;
   public maxLives = MAX_LIVES_BASE;
+  public characterSkin: CharacterSkin = 'zion';
+
+  public setCharacterSkin(skin: CharacterSkin | string) {
+    const validSkin: CharacterSkin =
+      skin === 'zizz' || skin === 'zyssa'
+        ? 'zizz'
+        : skin === 'kael'
+        ? 'kael'
+        : skin === 'anuk'
+        ? 'anuk'
+        : skin === 'vector'
+        ? 'vector'
+        : skin === 'balam'
+        ? 'balam'
+        : 'zion';
+    this.characterSkin = validSkin;
+    if (this.player) {
+      this.player.characterSkin = validSkin;
+    }
+  }
   public lives = MAX_LIVES_BASE;
   public daggers = DAGGER_MAX_AMMO;
   public daggerRechargeTimer = 0;
@@ -261,6 +283,7 @@ export class GameEngine {
     this.player.ground = true;
     this.player.animState = 'idle';
     this.player.facing = 1;
+    this.player.characterSkin = this.characterSkin;
     this.levelStartPoint = { x: 35, y: startGroundY };
     this.spawnPoint = { x: 35, y: startGroundY };
     this.lastSafeGround = { x: 35, y: startGroundY };
@@ -1752,7 +1775,8 @@ export class GameEngine {
         const agility = this.getOnlyUpAgility();
         const currentAccel = this.isOnlyUpMode ? PLAYER_ACCEL * agility.speedMultiplier : PLAYER_ACCEL;
         const currentDecel = this.isOnlyUpMode ? PLAYER_DECEL * agility.speedMultiplier : PLAYER_DECEL;
-        const maxSpd = this.isOnlyUpMode ? agility.maxSpeed : PLAYER_MAX_SPEED;
+        const charCfg = getCharacterConfig(this.characterSkin);
+        const maxSpd = (this.isOnlyUpMode ? agility.maxSpeed : PLAYER_MAX_SPEED) * charCfg.speedMultiplier;
 
         if (targetDirection !== 0) {
           p.vx += targetDirection * currentAccel;
@@ -2530,12 +2554,13 @@ export class GameEngine {
     }
 
     if (inputs.attack && !this.attackInputHeld && !p.isAttacking && !p.isBlocking) {
+      const charCfg = getCharacterConfig(this.characterSkin);
       p.isAttacking = true;
-      p.attackTimer = MELEE_DURATION;
+      p.attackTimer = charCfg.meleeDuration;
       p.comboStep = (p.comboStep % 3) + 1;
       p.comboResetTimer = 35; // Window to continue next combo hit
 
-      sound.playSfx('slash');
+      sound.playSfx(this.characterSkin === 'kael' ? 'heavySlam' : 'slash');
 
       // Create visual slash effect
       const slashX = p.x + (p.facing > 0 ? p.w : -12);
@@ -2546,11 +2571,12 @@ export class GameEngine {
         life: 8,
         maxLife: 8,
         combo: p.comboStep,
+        skin: this.characterSkin,
       });
 
       // Hitbox for Melee Attack (Balanced arc with inner start and generous reach)
       const isCombo3 = p.comboStep === 3;
-      const reach = isCombo3 ? MELEE_RANGE + 14 : MELEE_RANGE + 6;
+      const reach = isCombo3 ? charCfg.meleeReach + 12 : charCfg.meleeReach + 4;
       const attackHitbox = {
         x: p.facing > 0 ? p.x - 4 : p.x + p.w - reach - 2,
         y: isCombo3 ? p.y - 14 : p.y - 10,
@@ -2558,7 +2584,14 @@ export class GameEngine {
         h: isCombo3 ? p.h + 24 : p.h + 18,
       };
 
-      const dmg = p.attackPower + (isCombo3 ? 2 : 0);
+      const isCrit = Math.random() < charCfg.critChance;
+      let dmg = charCfg.meleeDamage + Math.floor(p.attackPower / 2) + (isCombo3 ? 2 : 0);
+      if (isCrit) {
+        dmg = Math.round(dmg * charCfg.critMultiplier);
+        sound.playSfx('crit');
+        this.createBurst(p.facing > 0 ? p.x + p.w + 8 : p.x - 8, p.y + p.h / 2, 14, charCfg.meleeColor);
+        this.addFloatingText(p.x, p.y - 20, "💥 ¡CRÍTICO! [" + dmg + "]", charCfg.meleeColor);
+      }
 
       // Hit Enemies
       for (const e of this.enemies) {
@@ -2663,34 +2696,75 @@ export class GameEngine {
     }
 
     // 4. SPECIAL ABILITY (ENERGY BURST)
-    if (inputs.special && !this.specialInputHeld && p.energy >= SPECIAL_ENERGY_COST) {
-      p.energy -= SPECIAL_ENERGY_COST;
-      sound.playSfx('special');
+    const charCfg = getCharacterConfig(this.characterSkin);
+    if (inputs.special && !this.specialInputHeld && p.energy >= charCfg.specialCost) {
+      p.energy -= charCfg.specialCost;
+      sound.playSfx(this.characterSkin === 'kael' ? 'heavySlam' : 'special');
 
-      const config = LEVEL_CONFIGS[this.levelIndex];
-      const burstColor = config.zone === 'neon' ? '#22d3ee' : '#f43f5e';
+      const burstColor = charCfg.specialColor;
+      const burstRadius = charCfg.specialRadius;
 
       this.specialEffects.push({
         x: p.x + p.w / 2,
         y: p.y + p.h / 2,
         radius: 10,
-        maxRadius: SPECIAL_BURST_RADIUS,
+        maxRadius: burstRadius,
         color: burstColor,
-        life: 20,
-        maxLife: 20,
+        life: 22,
+        maxLife: 22,
+        skin: this.characterSkin,
       });
 
       this.createBurst(p.x + p.w / 2, p.y + p.h / 2, 35, burstColor);
 
+      if (this.characterSkin === 'zizz') {
+        p.inv = Math.max(p.inv, 45); // Lotus trance invulnerability
+        this.screenShake = 8;
+        this.addFloatingText(p.x, p.y - 24, "🌸 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'kael') {
+        this.screenShake = 16;
+        this.addFloatingText(p.x, p.y - 24, "🌋 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'anuk') {
+        this.screenShake = 11;
+        this.addFloatingText(p.x, p.y - 24, "☀️ ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'vector') {
+        this.screenShake = 12;
+        this.addFloatingText(p.x, p.y - 24, "⚡ ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'balam') {
+        this.screenShake = 14;
+        this.addFloatingText(p.x, p.y - 24, "🐾 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'blizzard') {
+        this.screenShake = 11;
+        this.addFloatingText(p.x, p.y - 24, "❄️ ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'steampunk') {
+        this.screenShake = 13;
+        this.addFloatingText(p.x, p.y - 24, "⚙️ ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'castlesmash') {
+        this.screenShake = 15;
+        this.addFloatingText(p.x, p.y - 24, "🛡️ ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'pirate') {
+        this.screenShake = 12;
+        this.addFloatingText(p.x, p.y - 24, "🌊 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'jurassic') {
+        this.screenShake = 16;
+        this.addFloatingText(p.x, p.y - 24, "🦖 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else if (this.characterSkin === 'moon') {
+        this.screenShake = 14;
+        this.addFloatingText(p.x, p.y - 24, "🌌 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      } else {
+        this.screenShake = 10;
+        this.addFloatingText(p.x, p.y - 24, "💥 ¡" + charCfg.specialName.toUpperCase() + "!", burstColor);
+      }
+
       // Special Ability Area Damage Hitbox
       const burstArea = {
-        x: p.x + p.w / 2 - SPECIAL_BURST_RADIUS,
-        y: p.y + p.h / 2 - SPECIAL_BURST_RADIUS,
-        w: SPECIAL_BURST_RADIUS * 2,
-        h: SPECIAL_BURST_RADIUS * 2,
+        x: p.x + p.w / 2 - burstRadius,
+        y: p.y + p.h / 2 - burstRadius,
+        w: burstRadius * 2,
+        h: burstRadius * 2,
       };
 
-      const specialDmg = SPECIAL_BASE_DAMAGE + p.attackPower;
+      const specialDmg = SPECIAL_BASE_DAMAGE + p.attackPower + (this.characterSkin === 'kael' ? 1.5 : 0);
 
       // Clear hostile projectiles in radius
       this.projectiles = this.projectiles.filter((proj) => {
@@ -2747,7 +2821,7 @@ export class GameEngine {
         }
       }
 
-      this.addFloatingText(p.x, p.y - 24, '💥 ¡HABILIDAD ESPECIAL!', burstColor);
+      // Character custom floating text handled above
       this.specialInputHeld = true;
     }
     if (!inputs.special) {
@@ -2891,7 +2965,8 @@ export class GameEngine {
   }
 
   // Play sound effect only if the enemy is in close combat proximity to Zion ("hasta llegar a ellos")
-  public playEnemySfx(e: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 95) {
+  public playEnemySfx(e: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 140) {
+    if (!this.player) return;
     const ex = e.x + (e.w ? e.w / 2 : 7);
     const ey = e.y + (e.h ? e.h / 2 : 8);
     const px = this.player.x + this.player.w / 2;
@@ -2903,7 +2978,8 @@ export class GameEngine {
   }
 
   // Play hazard sound effect only if Zion is in immediate vicinity, silencing off-screen/startup noise
-  public playHazardSfx(h: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 80) {
+  public playHazardSfx(h: { x: number; y: number; w?: number; h?: number }, sfx: string, maxDist = 125) {
+    if (!this.player) return;
     if (this.isOnlyUpMode && this.onlyUpGraceTimer > 0) return;
     const hx = h.x + (h.w ? h.w / 2 : 8);
     const hy = h.y + (h.h ? h.h / 2 : 8);
@@ -3016,18 +3092,21 @@ export class GameEngine {
       if (!this.settings.infiniteDaggers) {
         this.daggers--;
       }
+      const charCfg = getCharacterConfig(this.characterSkin);
       this.projectiles.push({
         x: this.player.x + (this.player.facing > 0 ? this.player.w + 2 : -10),
         y: this.player.y + 6,
-        w: 9,
-        h: 4,
-        vx: this.player.facing * DAGGER_SPEED,
+        w: charCfg.daggerKind === 'magmaDart' ? 10 : 8,
+        h: charCfg.daggerKind === 'magmaDart' ? 5 : 8,
+        vx: this.player.facing * charCfg.daggerSpeed,
         vy: 0,
         life: DAGGER_LIFETIME,
         isHero: true,
-        damage: DAGGER_BASE_DAMAGE + Math.floor(this.player.attackPower / 2),
+        kind: charCfg.daggerKind,
+        damage: charCfg.daggerDamage + Math.floor(this.player.attackPower / 2),
+        color: charCfg.daggerColor,
       });
-      sound.playSfx('dagger');
+      sound.playSfx(this.characterSkin === 'kael' ? 'fireball' : 'dagger');
       this.daggerInputHeld = true;
     } else if (inputs.dagger && !this.daggerInputHeld && this.daggers <= 0 && !this.settings.infiniteDaggers) {
       sound.playSfx('metalHit');
@@ -3221,7 +3300,7 @@ export class GameEngine {
           if (h.crushTimer > 80) {
             h.crushState = 'warning';
             h.crushTimer = 0;
-            sound.playSfx('bossWarning');
+            this.playHazardSfx(h, 'bossWarning', 95);
           }
         } else if (h.crushState === 'warning') {
           // Warning vibration / spark discharge
@@ -3250,7 +3329,7 @@ export class GameEngine {
             h.crushState = 'rising';
             h.crushTimer = 0;
             this.screenShake = 5;
-            sound.playSfx('crushSlam');
+            this.playHazardSfx(h, 'crushSlam', 95);
             this.createBurst(h.x + h.w / 2, h.floorY + h.h, 10, '#71717a');
           }
         } else if (h.crushState === 'rising') {
@@ -4406,7 +4485,7 @@ export class GameEngine {
         if (absDist < 110 && absYDist < 45 && e.cool <= 0) {
           e.cool = 110;
           e.alertTimer = 25;
-          sound.playSfx('explosion');
+          this.playEnemySfx(e, 'explosion', 80);
           this.screenShake = 4;
           this.createBurst(e.x + e.w / 2, e.y + e.h, 12, '#bae6fd');
           this.projectiles.push({
@@ -4430,7 +4509,7 @@ export class GameEngine {
           e.facing = (dist >= 0 ? 1 : -1);
           e.alertTimer = (e.alertTimer || 0) + 1;
           if (e.alertTimer === 20) {
-            sound.playSfx('slash');
+            this.playEnemySfx(e, 'slash', 75);
             e.vx = (dist >= 0 ? 1 : -1) * 2.6;
           }
         } else {
@@ -4458,7 +4537,7 @@ export class GameEngine {
         if (Math.abs(p.x - e.x) < 50 && p.y > e.y && e.cool <= 0) {
           e.cool = 90;
           e.alertTimer = 20;
-          sound.playSfx('explosion');
+          this.playEnemySfx(e, 'explosion', 80);
           this.projectiles.push({
             x: e.x + e.w / 2 - 4,
             y: e.y + e.h,
@@ -4482,7 +4561,7 @@ export class GameEngine {
           e.x += (dist >= 0 ? 1 : -1) * 1.8;
           e.y += Math.sign(p.y - e.y) * 0.8;
           if (this.time % 25 === 0) {
-            sound.playSfx('bubble');
+            this.playEnemySfx(e, 'bubble', 75);
           }
         } else {
           e.x += e.vx * 0.6;
@@ -8515,6 +8594,96 @@ export class GameEngine {
       this.player.damageInvTimer = 30;
       return;
     }
+    // Character Passive Defensive Traits (Balanced)
+    if (this.characterSkin === 'kael' && Math.random() < 0.22) {
+      sound.playSfx('block');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 14, '#f97316');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🛡️ ¡CORAZA DE OBSIDIANA DEFLECTADA!', '#f97316');
+      return;
+    }
+    if (this.characterSkin === 'zizz' && Math.random() < 0.16) {
+      sound.playSfx('dash');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#f472b6');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🌸 ¡EVASIÓN ASTRAL DE SAKURA!', '#f472b6');
+      return;
+    }
+    if (this.characterSkin === 'anuk' && Math.random() < 0.16) {
+      sound.playSfx('dash');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#eab308');
+      this.addFloatingText(this.player.x, this.player.y - 18, '✨ ¡ESPEJISMO SOLAR DE ANUK!', '#eab308');
+      return;
+    }
+    if (this.characterSkin === 'vector' && Math.random() < 0.15) {
+      sound.playSfx('dash');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#6366f1');
+      this.addFloatingText(this.player.x, this.player.y - 18, '⚡ ¡GLITCH CUÁNTICO DE VECTOR!', '#6366f1');
+      return;
+    }
+    if (this.characterSkin === 'balam' && Math.random() < 0.18) {
+      sound.playSfx('block');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#10b981');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🐾 ¡REFLEJO DEL JAGUAR DE BALAM!', '#10b981');
+      return;
+    }
+    if (this.characterSkin === 'blizzard' && Math.random() < 0.16) {
+      sound.playSfx('dash');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#38bdf8');
+      this.addFloatingText(this.player.x, this.player.y - 18, '❄️ ¡ESCARCHA CRIOGÉNICA!', '#38bdf8');
+      return;
+    }
+    if (this.characterSkin === 'steampunk' && Math.random() < 0.18) {
+      sound.playSfx('metalHit');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#f59e0b');
+      this.addFloatingText(this.player.x, this.player.y - 18, '⚙️ ¡ENGRANAJES BLINDADOS!', '#f59e0b');
+      return;
+    }
+    if (this.characterSkin === 'castlesmash' && Math.random() < 0.20) {
+      sound.playSfx('block');
+      this.player.inv = 38;
+      this.player.damageInvTimer = 38;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 18, '#3b82f6');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🛡️ ¡ESCUDO DEL BASTIÓN REAL!', '#3b82f6');
+      return;
+    }
+    if (this.characterSkin === 'pirate' && Math.random() < 0.18) {
+      sound.playSfx('dash');
+      this.player.inv = 35;
+      this.player.damageInvTimer = 35;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 16, '#14b8a6');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🌊 ¡AGILIDAD DE MAREA PIRATA!', '#14b8a6');
+      return;
+    }
+    if (this.characterSkin === 'jurassic' && Math.random() < 0.18) {
+      sound.playSfx('heavySlam');
+      this.player.inv = 36;
+      this.player.damageInvTimer = 36;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 18, '#84cc16');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🦖 ¡RESISTENCIA TITÁNICA!', '#84cc16');
+      return;
+    }
+    if (this.characterSkin === 'moon' && Math.random() < 0.18) {
+      sound.playSfx('dash');
+      this.player.inv = 38;
+      this.player.damageInvTimer = 38;
+      this.createBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2, 18, '#a855f7');
+      this.addFloatingText(this.player.x, this.player.y - 18, '🌌 ¡DESFASE DE GRAVEDAD CERO!', '#a855f7');
+      return;
+    }
+
     this.hitsTakenInLevel++;
     if (this.isInSpecialStage) {
       // In Special Stage: Strictly 1 single attempt! Any hit exits back to normal level

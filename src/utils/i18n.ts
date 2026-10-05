@@ -217,26 +217,43 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Zone Names & Subtitles
     zone_neon_name: 'Bosque Neón',
     zone_neon_sub: 'Arboleda Bioluminiscente Ancestral',
+    zone_neon_subtitle: 'Arboleda Bioluminiscente Ancestral',
     zone_sakura_name: 'Cerezo Espiritual',
     zone_sakura_sub: 'El Sendero Místico de los Pétalos',
+    zone_sakura_subtitle: 'El Sendero Místico de los Pétalos',
     zone_lavacliff_name: 'Acantilados de Lava',
     zone_lavacliff_sub: 'Caldera Volcánica y Núcleo Ígneo',
+    zone_lavacliff_subtitle: 'Caldera Volcánica y Núcleo Ígneo',
     zone_desert_name: 'Santuario del Desierto',
     zone_desert_sub: 'Pirámides Doradas y Tumbas de Faraones',
+    zone_desert_subtitle: 'Pirámides Doradas y Tumbas de Faraones',
     zone_krono_name: 'Krono City',
     zone_krono_sub: 'Metrópolis Ciberpunk y Reactor Cuántico',
+    zone_krono_subtitle: 'Metrópolis Ciberpunk y Reactor Cuántico',
     zone_travel_name: 'Kronos Travel',
     zone_travel_sub: 'La Fusión Dimensional de Todas las Eras',
+    zone_travel_subtitle: 'La Fusión Dimensional de Todas las Eras',
     zone_jungle_name: 'Jungle Run',
     zone_jungle_sub: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam',
+    zone_jungle_subtitle: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam',
     zone_blizzard_name: 'Blizzard Rush',
     zone_blizzard_sub: 'Montaña Nevada, Esquís y el Coloso Yeti',
+    zone_blizzard_subtitle: 'Montaña Nevada, Esquís y el Coloso Yeti',
     zone_steampunk_name: 'Steampunk',
     zone_steampunk_sub: 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m',
+    zone_steampunk_subtitle: 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m',
     zone_castlesmash_name: 'Castle Smash',
     zone_castlesmash_sub: 'Asedio Medieval, Almenas de Piedra y Lord Malakar',
+    zone_castlesmash_subtitle: 'Asedio Medieval, Almenas de Piedra y Lord Malakar',
     zone_piratestreasure_name: "Pirate's Treasure",
     zone_piratestreasure_sub: 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito',
+    zone_piratestreasure_subtitle: 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito',
+    zone_jurasicdraft_name: 'Valle Jurásico',
+    zone_jurasicdraft_sub: 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal',
+    zone_jurasicdraft_subtitle: 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal',
+    zone_themoon_name: 'La Luna',
+    zone_themoon_sub: 'Base Espacial de Cohetes, Andamios y Gravedad Lunar',
+    zone_themoon_subtitle: 'Base Espacial de Cohetes, Andamios y Gravedad Lunar',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ PORTAL & RELOJ RESTAURADO',
@@ -624,26 +641,43 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Zone Names & Subtitles
     zone_neon_name: 'Neon Forest',
     zone_neon_sub: 'Ancient Bioluminescent Grove',
+    zone_neon_subtitle: 'Ancient Bioluminescent Grove',
     zone_sakura_name: 'Spirit Sakura',
     zone_sakura_sub: 'The Mystical Path of Petals',
+    zone_sakura_subtitle: 'The Mystical Path of Petals',
     zone_lavacliff_name: 'Lava Cliffs',
     zone_lavacliff_sub: 'Volcanic Caldera and Fiery Core',
+    zone_lavacliff_subtitle: 'Volcanic Caldera and Fiery Core',
     zone_desert_name: 'Desert Sanctuary',
     zone_desert_sub: 'Golden Pyramids and Pharaoh Tombs',
+    zone_desert_subtitle: 'Golden Pyramids and Pharaoh Tombs',
     zone_krono_name: 'Krono City',
     zone_krono_sub: 'Cyberpunk Metropolis and Quantum Reactor',
+    zone_krono_subtitle: 'Cyberpunk Metropolis and Quantum Reactor',
     zone_travel_name: 'Kronos Travel',
     zone_travel_sub: 'The Dimensional Fusion of All Eras',
+    zone_travel_subtitle: 'The Dimensional Fusion of All Eras',
     zone_jungle_name: 'Jungle Run',
     zone_jungle_sub: 'Mayan Pyramid, Tree Canopies and Jaguar Balam',
+    zone_jungle_subtitle: 'Mayan Pyramid, Tree Canopies and Jaguar Balam',
     zone_blizzard_name: 'Blizzard Rush',
     zone_blizzard_sub: 'Snowy Mountain, Downhill Skiing and Colossal Yeti',
+    zone_blizzard_subtitle: 'Snowy Mountain, Downhill Skiing and Colossal Yeti',
     zone_steampunk_name: 'Steampunk',
     zone_steampunk_sub: 'Steam Factory, Gears and 1000m Vertical Ascent',
+    zone_steampunk_subtitle: 'Steam Factory, Gears and 1000m Vertical Ascent',
     zone_castlesmash_name: 'Castle Smash',
     zone_castlesmash_sub: 'Medieval Siege, Stone Battlements and Lord Malakar',
+    zone_castlesmash_subtitle: 'Medieval Siege, Stone Battlements and Lord Malakar',
     zone_piratestreasure_name: "Pirate's Treasure",
     zone_piratestreasure_sub: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck',
+    zone_piratestreasure_subtitle: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck',
+    zone_jurasicdraft_name: 'Jurassic Draft',
+    zone_jurasicdraft_sub: 'Mesozoic Jungle, Pterodactyls & Colossal T-Rex',
+    zone_jurasicdraft_subtitle: 'Mesozoic Jungle, Pterodactyls & Colossal T-Rex',
+    zone_themoon_name: 'The Moon',
+    zone_themoon_sub: 'Rocket Launch Facility, Launch Gantries & Lunar Odyssey',
+    zone_themoon_subtitle: 'Rocket Launch Facility, Launch Gantries & Lunar Odyssey',
 
     // Kronos Clock & Locker Cards
     clockRestored: '✓ PORTAL & CLOCK RESTORED',
@@ -927,156 +961,173 @@ export function translate(
 }
 
 export const LEVEL_LOCALIZATION: Record<string, { titleEs: string; titleEn: string; subtitleEs: string; subtitleEn: string }> = {
+  // Zona 1: Bosque Neón
   'neon-1': {
     titleEs: 'Zona 1 · Acto 1 — Bosque Neón',
     titleEn: 'Zone 1 · Act 1 — Neon Forest',
     subtitleEs: 'El Despertar de la Arboleda Antigua',
-    subtitleEn: 'The Awakening of the Ancient Grove',
+    subtitleEn: 'The Awakening of the Ancient Cyber Grove',
   },
   'neon-2': {
-    titleEs: 'Zona 1 · Acto 2 — Copa Corrupta',
-    titleEn: 'Zone 1 · Act 2 — Corrupted Canopy',
-    subtitleEs: 'Árboles Cibernéticos y Peligros Sobrecargados',
-    subtitleEn: 'Cyber Trees & Overcharged Hazards',
+    titleEs: 'Zona 1 · Acto 2 — Santuario Neón',
+    titleEn: 'Zone 1 · Act 2 — Neon Sanctuary',
+    subtitleEs: 'El Laberinto de Plasma y Compuertas Láser',
+    subtitleEn: 'The Labyrinth of Plasma & Laser Gates',
   },
   'neon-3': {
-    titleEs: 'Zona 1 · Acto 3 — Núcleo Neón: Guardián Volt',
-    titleEn: 'Zone 1 · Act 3 — Neon Core: Volt Guardian',
-    subtitleEs: 'El Primer Gran Desafío de Zion',
-    subtitleEn: "Zion's First Guardian Challenge",
+    titleEs: 'Zona 1 · Acto 3 — El Santuario Central: Guardián Neón MK-IV',
+    titleEn: 'Zone 1 · Act 3 — Central Sanctuary: Neon Guardian MK-IV',
+    subtitleEs: 'El Núcleo del Santuario Tecnológico',
+    subtitleEn: 'The Core of the High-Tech Sanctuary',
   },
+
+  // Zona 2: Cerezo Espiritual (Sakura)
   'sakura-1': {
-    titleEs: 'Zona 2 · Acto 1 — Valles del Cerezo',
-    titleEn: 'Zone 2 · Act 1 — Whispering Petals',
-    subtitleEs: 'Valles Espirituales y Santuario Kitsune',
-    subtitleEn: 'Spiritual Valleys & Sacred Torii Paths',
+    titleEs: 'Zona 2 · Acto 1 — Bajo los Cerezos',
+    titleEn: 'Zone 2 · Act 1 — Whispering Blossoms',
+    subtitleEs: 'El Sendero Sagrado de los Pétalos',
+    subtitleEn: 'The Sacred Path of Whispering Petals',
   },
   'sakura-2': {
-    titleEs: 'Zona 2 · Acto 2 — Puertas Torii de la Niebla',
-    titleEn: 'Zone 2 · Act 2 — Mist Torii Gates',
-    subtitleEs: 'Desfiladeros Celestiales y Espectros del Viento',
-    subtitleEn: 'Celestial Gorges & Ethereal Phantoms',
+    titleEs: 'Zona 2 · Acto 2 — Templo de los Mil Torii',
+    titleEn: 'Zone 2 · Act 2 — Temple of a Thousand Torii',
+    subtitleEs: 'Bajo el Resplandor de la Luna Menguante',
+    subtitleEn: 'Under the Glow of the Waning Moon',
   },
   'sakura-3': {
-    titleEs: 'Zona 2 · Acto 3 — Santuario Sagrado: Kitsune Espiritual',
-    titleEn: 'Zone 2 · Act 3 — Sacred Shrine: Spirit Kitsune',
-    subtitleEs: 'El Guardián Celestial de Nueve Colas',
-    subtitleEn: 'The Legendary Nine-Tailed Guardian',
+    titleEs: 'Zona 2 · Acto 3 — El Patio Lunar: Maestra Kunoichi Rosa',
+    titleEn: 'Zone 2 · Act 3 — Lunar Courtyard: Master Kunoichi Rose',
+    subtitleEs: 'Duelo Lunar contra la Maestra Ninja',
+    subtitleEn: 'Moonlit Duel against the Shadow Ninja Master',
   },
+
+  // Zona 3: Acantilados de Lava (Lavacliff)
   'lavacliff-1': {
-    titleEs: 'Zona 3 · Acto 1 — Cresta Volcánica',
-    titleEn: 'Zone 3 · Act 1 — Volcanic Ridge',
-    subtitleEs: 'Caminos de Magma y Ceniza Ardiente',
-    subtitleEn: 'Magma Trails & Blazing Ash Platforms',
+    titleEs: 'Zona 3 · Acto 1 — Lavacliff: Acantilados Volcánicos',
+    titleEn: 'Zone 3 · Act 1 — Lavacliff: Volcanic Precipice',
+    subtitleEs: 'El Rugido del Caldero Exterior',
+    subtitleEn: 'The Roar of the Outer Caldera',
   },
   'lavacliff-2': {
-    titleEs: 'Zona 3 · Acto 2 — Cavernas de Obsidiana',
-    titleEn: 'Zone 3 · Act 2 — Obsidian Caverns',
-    subtitleEs: 'Fosos de Fuego y Columnas de Humo',
-    subtitleEn: 'Fire Pits & Molten Geysers',
+    titleEs: 'Zona 3 · Acto 2 — Cavernas de Fuego',
+    titleEn: 'Zone 3 · Act 2 — Caverns of Fire',
+    subtitleEs: 'El Río de Basalto Ardiente Subterráneo',
+    subtitleEn: 'The Subterranean River of Blazing Basalt',
   },
   'lavacliff-3': {
-    titleEs: 'Zona 3 · Acto 3 — Trono de Caldera: Gólem Ígneo',
-    titleEn: 'Zone 3 · Act 3 — Caldera Throne: Ignis Golem',
-    subtitleEs: 'El Guardián del Núcleo Fundido',
-    subtitleEn: 'The Colossus of Molten Core',
+    titleEs: 'Zona 3 · Acto 3 — El Corazón del Volcán: Coloso Ignis',
+    titleEn: 'Zone 3 · Act 3 — Heart of the Volcano: Colossus Ignis',
+    subtitleEs: 'El Coloso de Magma Primordial',
+    subtitleEn: 'The Colossus of Primordial Magma',
   },
+
+  // Zona 4: Santuario del Desierto (Desert)
   'desert-1': {
-    titleEs: 'Zona 4 · Acto 1 — Mar de Arena',
-    titleEn: 'Zone 4 · Act 1 — Sea of Sand',
-    subtitleEs: 'Dunas Doradas y Ruinas Olvidadas',
-    subtitleEn: 'Golden Dunes & Sunken Ruins',
+    titleEs: 'Zona 4 · Acto 1 — Santuario del Desierto: Dunas Olvidadas',
+    titleEn: 'Zone 4 · Act 1 — Desert Sanctuary: Forgotten Dunes',
+    subtitleEs: 'El Susurro de las Pirámides Doradas',
+    subtitleEn: 'The Whisper of the Golden Pyramids',
   },
   'desert-2': {
-    titleEs: 'Zona 4 · Acto 2 — Tumba de los Faraones',
-    titleEn: 'Zone 4 · Act 2 — Tomb of the Pharaohs',
-    subtitleEs: 'Pasajes Secretos y Trampas de Púas',
-    subtitleEn: 'Hidden Passages & Spike Traps',
+    titleEs: 'Zona 4 · Acto 2 — Cripta de los Faraones',
+    titleEn: 'Zone 4 · Act 2 — Crypt of the Pharaohs',
+    subtitleEs: 'El Laberinto de Guadañas y Arenas Movedizas',
+    subtitleEn: 'The Labyrinth of Scythes & Quicksand',
   },
   'desert-3': {
-    titleEs: 'Zona 4 · Acto 3 — Cámara Sagrada: Guardián Anubis',
-    titleEn: 'Zone 4 · Act 3 — Sacred Chamber: Anubis Warden',
-    subtitleEs: 'El Juez de las Arenas Eternas',
-    subtitleEn: 'The Sentinel of the Forgotten Sands',
+    titleEs: 'Zona 4 · Acto 3 — Sepulcro Sagrado: Faraón Akhen-Re',
+    titleEn: 'Zone 4 · Act 3 — Sacred Tomb: Pharaoh Akhen-Re',
+    subtitleEs: 'El Despertar de la Momia Eterna',
+    subtitleEn: 'The Awakening of the Eternal Mummy',
   },
+
+  // Zona 5: Krono City
   'krono-1': {
-    titleEs: 'Zona 5 · Acto 1 — Templo del Tiempo',
-    titleEn: 'Zone 5 · Act 1 — Temple of Time',
-    subtitleEs: 'Engranajes Colosales y Ruedas Dentadas',
-    subtitleEn: 'Colossal Cogwheels & Clockwork Machinery',
+    titleEs: 'Zona 5 · Acto 1 — Krono City: Distrito Tecnológico',
+    titleEn: 'Zone 5 · Act 1 — Krono City: Tech District',
+    subtitleEs: 'Autopistas de Neón y Redes de Plasma',
+    subtitleEn: 'Neon Skyways & High-Voltage Plasma Grids',
   },
   'krono-2': {
-    titleEs: 'Zona 5 · Acto 2 — Nexo Temporal',
-    titleEn: 'Zone 5 · Act 2 — Temporal Nexus',
-    subtitleEs: 'Plataformas Inestables y Desfases Cuánticos',
-    subtitleEn: 'Unstable Platforms & Quantum Phase-Shifts',
+    titleEs: 'Zona 5 · Acto 2 — Krono City: Reactor de Fusión & Red Central',
+    titleEn: 'Zone 5 · Act 2 — Krono City: Fusion Reactor & Core Grid',
+    subtitleEs: 'El Laberinto de Alta Tensión sin Retorno',
+    subtitleEn: 'The Point-of-No-Return High-Voltage Labyrinth',
   },
   'krono-3': {
-    titleEs: 'Zona 5 · Acto 3 — Núcleo de Kronos: El Tejedor Temporal',
-    titleEn: 'Zone 5 · Act 3 — Kronos Core: The Time Weaver',
-    subtitleEs: 'La Batalla por el Flujo Cuántico',
-    subtitleEn: 'The Clash for the Space-Time Continuum',
+    titleEs: 'Zona 5 · Acto 3 — La Cúspide de Krono: El Trono Mecánico',
+    titleEn: 'Zone 5 · Act 3 — Apex of Krono: The Mechanical Throne',
+    subtitleEs: 'Batalla Definitiva: Titán Mecánico Kronos-Ω',
+    subtitleEn: 'Ultimate Battle: Mechanical Titan Kronos-Ω',
   },
   'krono-travel': {
-    titleEs: 'Viaje Cuántico — Portal Hiperespacial',
-    titleEn: 'Quantum Travel — Hyperspace Portal',
-    subtitleEs: 'Desafío de Alta Velocidad hacia Nuevas Eras',
-    subtitleEn: 'High-Speed Slipstream Challenge',
+    titleEs: 'Zona Final · Kronos Travel — La Convergencia de Todas las Eras',
+    titleEn: 'Final Zone · Kronos Travel — The Convergence of All Eras',
+    subtitleEs: 'El Nexo Multiversal · La Odisea Suprema del Espacio-Tiempo',
+    subtitleEn: 'The Multiverse Nexus · The Supreme Space-Time Odyssey',
   },
+
+  // Zona 6: Jungle Run
   'jungle-1': {
-    titleEs: 'Zona 6 · Acto 1 — Senderos de la Selva',
-    titleEn: 'Zone 6 · Act 1 — Jungle Trails',
-    subtitleEs: 'Lianas, Ciénagas y Monolitos Antiguos',
-    subtitleEn: 'Ancient Vines, Swamps & Mayan Monoliths',
+    titleEs: 'Zona 6 · Acto 1 — Jungle Run: Senderos Ancestrales',
+    titleEn: 'Zone 6 · Act 1 — Jungle Run: Ancient Trails',
+    subtitleEs: 'La Pirámide Maya y la Selva Esmeralda',
+    subtitleEn: 'The Mayan Pyramid & Emerald Canopy',
   },
   'jungle-2': {
-    titleEs: 'Zona 6 · Acto 2 — Templo del Sol',
-    titleEn: 'Zone 6 · Act 2 — Temple of the Sun',
-    subtitleEs: 'Catacumbas Enraizadas y Trampas Ocultas',
-    subtitleEn: 'Rooted Catacombs & Concealed Dart Traps',
+    titleEs: 'Zona 6 · Acto 2 — Jungle Run: Cenote Sagrado',
+    titleEn: 'Zone 6 · Act 2 — Jungle Run: Sacred Cenote',
+    subtitleEs: 'El Templo Secreto y las Altas Copas',
+    subtitleEn: 'The Secret Temple & Towering Treetops',
   },
   'jungle-3': {
     titleEs: 'Zona 6 · Acto 3 — Altar del Jaguar: Balam',
     titleEn: 'Zone 6 · Act 3 — Altar of the Jaguar: Balam',
-    subtitleEs: 'El Depredador de las Sombras Ancestrales',
-    subtitleEn: 'The Shadow Predator of the Rainforest',
+    subtitleEs: 'Balam, el Jaguar Gigante Ancestral',
+    subtitleEn: 'Balam, the Ancient Giant Shadow Jaguar',
   },
+
+  // Zona 7: Blizzard Rush
   'blizzard-1': {
-    titleEs: 'Zona 7 · Acto 1 — Cima Helada (Descenso en Esquís)',
-    titleEn: 'Zone 7 · Act 1 — Frozen Summit (Downhill Skiing)',
-    subtitleEs: 'Velocidad Extrema, Cavernas de Hielo y Bosque Polar',
-    subtitleEn: 'Extreme Speed, Ice Caves & Polar Forest',
+    titleEs: 'Zona 7 · Acto 1 — Blizzard Rush: Descenso en Esquís',
+    titleEn: 'Zone 7 · Act 1 — Blizzard Rush: Downhill Ski Run',
+    subtitleEs: 'Descenso en Esquís por la Montaña Nevada',
+    subtitleEn: 'Alpine Ski Descent Down the Frozen Mountain',
   },
   'blizzard-2': {
-    titleEs: 'Zona 7 · Acto 2 — Paso del Glaciar',
-    titleEn: 'Zone 7 · Act 2 — Glacier Pass',
-    subtitleEs: 'Vientos Gélidos y Cornisas Resbaladizas',
-    subtitleEn: 'Freezing Blizzards & Slippery Ice Ledges',
+    titleEs: 'Zona 7 · Acto 2 — Blizzard Rush: Paso del Glaciar',
+    titleEn: 'Zone 7 · Act 2 — Blizzard Rush: Glacier Pass',
+    subtitleEs: 'El Bosque Nevado y Cavernas de Escarcha',
+    subtitleEn: 'The Snowy Pine Forest & Frost Caverns',
   },
   'blizzard-3': {
-    titleEs: 'Zona 7 · Acto 3 — Guarida del Yeti: Yukio el Coloso',
-    titleEn: 'Zone 7 · Act 3 — Yeti Lair: Yukio the Colossus',
-    subtitleEs: 'El Titán de las Nieves Eternas',
-    subtitleEn: 'The Abominable Titan of Eternal Snow',
+    titleEs: 'Zona 7 · Acto 3 — Guarida del Yeti: Yukio',
+    titleEn: 'Zone 7 · Act 3 — Yeti Lair: Yukio',
+    subtitleEs: 'Yeti Colosal, Señor de las Ventiscas',
+    subtitleEn: 'Colossal Yeti, Lord of the Blizzards',
   },
+
+  // Zona 8: Steampunk
   'steampunk-1': {
-    titleEs: 'Zona 8 · Acto 1 — Fundición a Vapor',
-    titleEn: 'Zone 8 · Act 1 — Steam Foundry',
-    subtitleEs: 'Pistones Hidráulicos, Chimeneas y Tuberías',
-    subtitleEn: 'Hydraulic Pistons, Smoke Stacks & Brass Gears',
+    titleEs: 'Zona 8 · Acto 1 — Fábrica Steampunk: Fundición de Cobre',
+    titleEn: 'Zone 8 · Act 1 — Steampunk Factory: Copper Foundry',
+    subtitleEs: 'Engranajes de Cobre, Calderas y Válvulas de Presión',
+    subtitleEn: 'Brass Gears, Steam Boilers & Pressure Valves',
   },
   'steampunk-2': {
-    titleEs: 'Zona 8 · Acto 2 — Fábrica de Engranajes',
-    titleEn: 'Zone 8 · Act 2 — Gear Factory',
-    subtitleEs: 'Calderas Hirvientes y Ascenso Mecánico 1000m',
-    subtitleEn: 'Boiling Furnaces & 1000m Vertical Ascent',
+    titleEs: 'Zona 8 · Acto 2 — Fábrica Oxidada: Cámaras de Vapor',
+    titleEn: 'Zone 8 · Act 2 — Rusted Works: Steam Chambers',
+    subtitleEs: 'Maquinaria Corroída, Fugas Inestables y Óxido',
+    subtitleEn: 'Corroded Machinery, Unstable Vents & Rust',
   },
   'steampunk-3': {
-    titleEs: 'Zona 8 · Acto 3 — Núcleo del Reactor: Vulkan-Ω',
-    titleEn: 'Zone 8 · Act 3 — Reactor Core: Vulkan-Ω',
-    subtitleEs: 'El Coloso del Vapor Hiperbárico',
-    subtitleEn: 'The Colossal Hyperbaric Steam Engine',
+    titleEs: 'Zona 8 · Acto 3 — Only Up 1000m: Ascenso Vertical',
+    titleEn: 'Zone 8 · Act 3 — Only Up 1000m: Vertical Ascent',
+    subtitleEs: 'Ascenso a la Caldera Central · Evasión de Fugas de 1000m',
+    subtitleEn: 'Ascent to the Central Boiler · 1000m Steam Escape',
   },
+
+  // Zona 9: Castle Smash
   'castlesmash-1': {
     titleEs: 'Zona 9 · Acto 1 — Murallas del Bastión',
     titleEn: 'Zone 9 · Act 1 — Bastion Ramparts',
@@ -1095,6 +1146,8 @@ export const LEVEL_LOCALIZATION: Record<string, { titleEs: string; titleEn: stri
     subtitleEs: 'El Coloso Rompemuros · El Blasón Real de Hierro',
     subtitleEn: 'The Wall-Breaker Warlord & The Royal Iron Crest',
   },
+
+  // Zona 10: Pirate\'s Treasure
   'piratestreasure-1': {
     titleEs: 'Zona 10 · Acto 1 — Bahía del Corsario y Playa del Tesoro',
     titleEn: 'Zone 10 · Act 1 — Corsair Bay & Treasure Beach',
@@ -1111,19 +1164,47 @@ export const LEVEL_LOCALIZATION: Record<string, { titleEs: string; titleEn: stri
     titleEs: 'Zona 10 · Acto 3 — El Naufragio y el Cofre Maldito',
     titleEn: 'Zone 10 · Act 3 — The Shipwreck & Cursed Chest',
     subtitleEs: 'Fosa Abisal · Batalla contra el Titánico Mímico del Naufragio',
-    subtitleEn: 'Abyssal Trench · Battle against the Titanic Shipwreck Mimic',
+    subtitleEn: 'Abyssal Deep · Battle against the Titanic Shipwreck Mimic',
   },
+
+  // Zona 11: Jurassic Draft
+  'jurasicdraft-1': {
+    titleEs: 'Zona 11 · Acto 1 — Jungla del Mesozoico',
+    titleEn: 'Zone 11 · Act 1 — Mesozoic Jungle',
+    subtitleEs: 'Nidos de Raptor, Helechos Primordiales y Fósiles',
+    subtitleEn: 'Raptor Nests, Primordial Ferns & Ancient Fossils',
+  },
+  'jurasicdraft-2': {
+    titleEs: 'Zona 11 · Acto 2 — Cañón de los Pterodáctilos',
+    titleEn: 'Zone 11 · Act 2 — Pterodactyl Canyon',
+    subtitleEs: 'Corrientes Térmicas, Picos Rocosos y Bombardeo Aéreo',
+    subtitleEn: 'Thermal Updrafts, Jagged Crags & Aerial Bombardment',
+  },
+  'jurasicdraft-3': {
+    titleEs: 'Zona 11 · Acto 3 — Caldera del T-Rex Colosal',
+    titleEn: 'Zone 11 · Act 3 — Caldera of the Colossal T-Rex',
+    subtitleEs: 'Cráter de Magma · Duelo contra el Rey de los Titanes',
+    subtitleEn: 'Magma Crater · Duel against the King of the Dinosaurs',
+  },
+
+  // Zona 12: The Moon
   'themoon-1': {
     titleEs: 'Zona 12 · Acto 1 — Base de Lanzamiento de Cohetes',
     titleEn: 'Zone 12 · Act 1 — Rocket Launch Facility',
-    subtitleEs: 'Torres Umbilicales, Silos Criogénicos y Cuenta Regresiva',
-    subtitleEn: 'Umbilical Towers, Cryogenic Silos & Countdown',
+    subtitleEs: 'Plataformas de Despegue, Torres Umbilicales y Cuenta Regresiva',
+    subtitleEn: 'Launch Pads, Umbilical Towers & Final Countdown',
   },
   'themoon-2': {
     titleEs: 'Zona 12 · Acto 2 — Base Lunar Apolo-Kronos',
     titleEn: 'Zone 12 · Act 2 — Apollo-Kronos Lunar Base',
     subtitleEs: 'Cráteres de Regolito, Módulos Biosféricos y Gravedad Lunar',
-    subtitleEn: 'Regolith Craters, Biosphere Domes & Lunar Gravity',
+    subtitleEn: 'Regolith Craters, Biosphere Domes & Low Lunar Gravity',
+  },
+  'themoon-3': {
+    titleEs: 'Zona 12 · Acto 3 — Doomsday Orbital: Duelo Final Cósmico',
+    titleEn: 'Zone 12 · Act 3 — Orbital Doomsday: Final Cosmic Duel',
+    subtitleEs: 'Espacio Profundo · Persecución Legendaria contra el Titán Dreadnought',
+    subtitleEn: 'Deep Space · Epic Pursuit against the Dreadnought Titan',
   },
 };
 
@@ -1144,60 +1225,65 @@ export function getLevelTitle(configOrId: { id: string; title: string; act?: num
   return id;
 }
 
-export function getLevelSubtitle(configOrId: { id: string; subtitle: string } | string, lang: Language): string {
+export function getLevelSubtitle(configOrId: { id: string; subtitle: string; zone?: string } | string, lang: Language): string {
   const id = typeof configOrId === 'string' ? configOrId : configOrId.id;
   const item = LEVEL_LOCALIZATION[id];
   if (item) {
     return lang === 'es' ? item.subtitleEs : item.subtitleEn;
   }
-  if (typeof configOrId !== 'string') {
+  if (typeof configOrId !== 'string' && configOrId.subtitle && !configOrId.subtitle.includes('_') && !configOrId.subtitle.toLowerCase().includes('subtitle')) {
     return configOrId.subtitle;
+  }
+  if (typeof configOrId !== 'string' && configOrId.zone) {
+    return getZoneLocalizedSubtitle(configOrId.zone, lang);
   }
   return '';
 }
 
+export const ZONE_NAMES_ES: Record<string, { name: string; subtitle: string }> = {
+  neon: { name: 'Bosque Neón', subtitle: 'Arboleda Bioluminiscente Ancestral' },
+  sakura: { name: 'Cerezo Espiritual', subtitle: 'El Sendero Místico de los Pétalos Sagrados' },
+  lavacliff: { name: 'Acantilados de Lava', subtitle: 'Caldera Volcánica, Río de Magma y Núcleo Ígneo' },
+  desert: { name: 'Santuario del Desierto', subtitle: 'Pirámides Doradas, Criptas Ocultas y Arenas Malditas' },
+  krono: { name: 'Krono City', subtitle: 'Metrópolis Ciberpunk y Trono Mecánico del Titán Kronos-Ω' },
+  travel: { name: 'Kronos Travel', subtitle: 'La Fusión Dimensional de Todas las Eras' },
+  jungle: { name: 'Jungle Run', subtitle: 'Pirámide Maya, Copas de Árboles y el Jaguar Balam' },
+  blizzard: { name: 'Blizzard Rush', subtitle: 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal' },
+  steampunk: { name: 'Steampunk', subtitle: 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m' },
+  castlesmash: { name: 'Castle Smash', subtitle: 'Asedio Medieval, Almenas de Piedra y Lord Malakar' },
+  piratestreasure: { name: "Pirate's Treasure", subtitle: 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito' },
+  jurasicdraft: { name: 'Valle Jurásico', subtitle: 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal' },
+  themoon: { name: 'La Luna', subtitle: 'Base Espacial de Cohetes, Andamios y Gravedad Lunar' },
+};
+
 export const ZONE_NAMES_EN: Record<string, { name: string; subtitle: string }> = {
-  neon: { name: 'Neon Forest', subtitle: 'The Awakening of the Ancient Grove' },
-  sakura: { name: 'Spirit Blossom', subtitle: 'Spiritual Valleys and Kitsune Shrine' },
-  lavacliff: { name: 'Lava Cliffs', subtitle: 'Magma Calderas, Fire Pits and Fire Titan' },
-  desert: { name: 'Sand Dunes', subtitle: 'Golden Pyramids, Ancient Traps and Anubis Guardian' },
-  krono: { name: 'Kronos Temple', subtitle: 'Temporal Machinery and Giant Cogwheels' },
+  neon: { name: 'Neon Forest', subtitle: 'The Awakening of the Ancient Cyber Grove' },
+  sakura: { name: 'Spirit Blossom', subtitle: 'Spiritual Valleys and Sacred Torii Paths' },
+  lavacliff: { name: 'Lava Cliffs', subtitle: 'Magma Calderas, Fire Pits and Colossus Ignis' },
+  desert: { name: 'Desert Sanctuary', subtitle: 'Golden Pyramids, Hidden Crypts and Pharaoh Akhen-Re' },
+  krono: { name: 'Krono City', subtitle: 'Cyberpunk Metropolis & Mechanical Throne of Titan Kronos-Ω' },
   travel: { name: 'Quantum Travel', subtitle: 'High-Speed Dimensional Slipstream' },
-  jungle: { name: 'Jungle Run', subtitle: 'Mayan Ruins, Vines and Apex Predator Balam' },
+  jungle: { name: 'Jungle Run', subtitle: 'Mayan Ruins, Canopy Vines and Ancient Jaguar Balam' },
   blizzard: { name: 'Blizzard Rush', subtitle: 'Downhill Skiing, Snowy Forest and Colossal Yeti' },
-  steampunk: { name: 'Steampunk', subtitle: 'Steam Factory, Gears and 1000m Only Up Boss' },
+  steampunk: { name: 'Steampunk', subtitle: 'Steam Factory, Gears and 1000m Vertical Ascent' },
   castlesmash: { name: 'Castle Smash', subtitle: 'Medieval Siege, Stone Battlements and Lord Malakar' },
-  piratestreasure: { name: 'Pirates Treasure', subtitle: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck' },
+  piratestreasure: { name: "Pirate's Treasure", subtitle: 'Tropical Beach, Submerged Reef & Cursed Chest Shipwreck' },
   jurasicdraft: { name: 'Jurassic Draft', subtitle: 'Mesozoic Jungle, Pterodactyls and Colossal T-Rex' },
-  themoon: { name: 'The Moon', subtitle: 'Rocket Launch Facility, Launch Gantries and Space Odyssey' },
+  themoon: { name: 'The Moon', subtitle: 'Rocket Launch Facility, Launch Gantries and Lunar Odyssey' },
 };
 
 export function getZoneLocalizedName(zoneId: string, lang: Language): string {
   if (lang === 'en') {
     return ZONE_NAMES_EN[zoneId]?.name || zoneId;
   }
-  if (zoneId === 'blizzard') return 'Blizzard Rush';
-  if (zoneId === 'steampunk') return 'Steampunk';
-  if (zoneId === 'castlesmash') return 'Castle Smash';
-  if (zoneId === 'piratestreasure') return 'Pirates Treasure';
-  if (zoneId === 'jurasicdraft') return 'Jurasic draft';
-  if (zoneId === 'themoon') return 'The moon';
-  const key = `zone_${zoneId}_name` as TranslationKey;
-  return translate(key, 'es');
+  return ZONE_NAMES_ES[zoneId]?.name || zoneId;
 }
 
 export function getZoneLocalizedSubtitle(zoneId: string, lang: Language): string {
   if (lang === 'en') {
     return ZONE_NAMES_EN[zoneId]?.subtitle || '';
   }
-  if (zoneId === 'blizzard') return 'Descenso en Esquís, Bosque Nevado y el Yeti Colosal';
-  if (zoneId === 'steampunk') return 'Fábrica de Vapor, Engranajes y Ascenso Only Up 1000m';
-  if (zoneId === 'castlesmash') return 'Asedio Medieval, Almenas de Piedra y Lord Malakar';
-  if (zoneId === 'piratestreasure') return 'Costas Tropicales, Arrecife Submarino y el Cofre Maldito';
-  if (zoneId === 'jurasicdraft') return 'Jungla Mesozoica, Pterodáctilos y T-Rex Colosal';
-  if (zoneId === 'themoon') return 'Base de Lanzamiento de Cohetes, Andamios y Odisea Espacial';
-  const key = `zone_${zoneId}_subtitle` as TranslationKey;
-  return translate(key, 'es');
+  return ZONE_NAMES_ES[zoneId]?.subtitle || '';
 }
 
 export const KRONOS_PIECES_LOCALIZATION: Record<string, {
@@ -1217,8 +1303,8 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     nameEn: 'Bioluminescent Prism',
     subtitleEs: 'Núcleo Neón de la Arboleda',
     subtitleEn: 'Neon Core of the Grove',
-    bossNameEs: 'Guardián Volt',
-    bossNameEn: 'Volt Guardian',
+    bossNameEs: 'Guardián Neón MK-IV',
+    bossNameEn: 'Neon Guardian MK-IV',
     zoneNameEs: 'Bosque Neón (Acto 3)',
     zoneNameEn: 'Neon Forest (Act 3)',
     loreEs: 'Focaliza la energía fotónica que nutre los árboles cibernéticos.',
@@ -1227,10 +1313,10 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
   sakura: {
     nameEs: 'Espejo de los Nueve Espíritus',
     nameEn: 'Mirror of the Nine Spirits',
-    subtitleEs: 'Reliquia Sagrada del Zorro Celestial',
-    subtitleEn: 'Sacred Relic of the Celestial Fox',
-    bossNameEs: 'Kitsune Espiritual',
-    bossNameEn: 'Spirit Kitsune',
+    subtitleEs: 'Reliquia Sagrada de la Sombra Lunar',
+    subtitleEn: 'Sacred Relic of the Lunar Shadow',
+    bossNameEs: 'Maestra Kunoichi Rosa',
+    bossNameEn: 'Master Kunoichi Rose',
     zoneNameEs: 'Cerezo Espiritual (Acto 3)',
     zoneNameEn: 'Spirit Blossom (Act 3)',
     loreEs: 'Refleja la pureza espiritual de las flores de cerezo y disipa la corrupción.',
@@ -1241,8 +1327,8 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     nameEn: 'Obsidian Magma Heart',
     subtitleEs: 'Núcleo del Coloso Ígneo',
     subtitleEn: 'Core of the Molten Colossus',
-    bossNameEs: 'Gólem Ígneo',
-    bossNameEn: 'Ignis Golem',
+    bossNameEs: 'Coloso Ignis',
+    bossNameEn: 'Colossus Ignis',
     zoneNameEs: 'Acantilados de Lava (Acto 3)',
     zoneNameEn: 'Lava Cliffs (Act 3)',
     loreEs: 'Forjado en el corazón del cráter volcánico, arde con calor eterno.',
@@ -1253,8 +1339,8 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     nameEn: 'Golden Ankh of the Sands',
     subtitleEs: 'Amuleto Solar de la Eternidad',
     subtitleEn: 'Solar Amulet of Eternity',
-    bossNameEs: 'Guardián Anubis',
-    bossNameEn: 'Anubis Warden',
+    bossNameEs: "Faraón Akhen'Ra",
+    bossNameEn: "Pharaoh Akhen'Ra",
     zoneNameEs: 'Dunas de Arena (Acto 3)',
     zoneNameEn: 'Sand Dunes (Act 3)',
     loreEs: 'Antiguo artefacto faraónico que custodia los secretos del reloj de sol.',
@@ -1265,10 +1351,10 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     nameEn: 'Temporal Singularity Gear',
     subtitleEs: 'Corona Maestra de Chronos',
     subtitleEn: 'Master Crown of Chronos',
-    bossNameEs: 'El Tejedor Temporal',
-    bossNameEn: 'The Time Weaver',
-    zoneNameEs: 'Templo de Kronos (Acto 3)',
-    zoneNameEn: 'Kronos Temple (Act 3)',
+    bossNameEs: 'Titán Mecánico Kronos-Ω',
+    bossNameEn: 'Mechanical Titan Kronos-Ω',
+    zoneNameEs: 'Krono City (Acto 3)',
+    zoneNameEn: 'Krono City (Act 3)',
     loreEs: 'El engranaje maestro que regula el flujo continuo de las eras.',
     loreEn: 'The master gear regulating the continuous flow of eras.',
   },
@@ -1351,7 +1437,7 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     subtitleEn: 'Fossil Heart of Titanosaur',
     bossNameEs: 'Apex T-Rex Colosal',
     bossNameEn: 'Colossal Apex T-Rex',
-    zoneNameEs: 'Jurassic Draft (Acto 3)',
+    zoneNameEs: 'Valle Jurásico (Acto 3)',
     zoneNameEn: 'Jurassic Draft (Act 3)',
     loreEs: 'Encapsula el ADN cinético primario de la era de los grandes reptiles.',
     loreEn: 'Encapsulates the raw kinetic DNA of the great reptilian era.',
@@ -1363,7 +1449,7 @@ export const KRONOS_PIECES_LOCALIZATION: Record<string, {
     subtitleEn: 'Zero-G Titanium Module',
     bossNameEs: 'Titán Mecha Orbital',
     bossNameEn: 'Orbital Mecha Titan',
-    zoneNameEs: 'The Moon (Acto 3)',
+    zoneNameEs: 'La Luna (Acto 3)',
     zoneNameEn: 'The Moon (Act 3)',
     loreEs: 'Estabiliza el horizonte gravitacional y sella la conexión intergaláctica.',
     loreEn: 'Stabilizes the gravitational horizon and seals the intergalactic link.',

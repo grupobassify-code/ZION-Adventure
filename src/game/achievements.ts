@@ -14,6 +14,7 @@ export interface AchievementDef {
   iconName: string;
   target?: number;
   points: number;
+  isSecret?: boolean;
 }
 
 export interface UnlockedAchievement {
@@ -402,6 +403,18 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     iconName: 'Compass',
     target: 10,
     points: 150,
+  },
+  {
+    id: 'mirando_donde_no_se_debe',
+    titleEs: 'Mirando donde no se debe',
+    titleEn: 'Looking Where You Shouldn’t',
+    descriptionEs: '¡Vaya vaya a quién tenemos aquí! Descubriste la terminal secreta con la contraseña oculta de los créditos (Kr0n0s-M@ster). Tu curiosidad no tiene límites... ¿quién sabe qué otros misterios oculta Zion Adventure?',
+    descriptionEn: 'Well well, look who is here! You unlocked the secret terminal with the credits password (Kr0n0s-M@ster). Your curiosity knows no bounds... what other secrets is Zion Adventure hiding?',
+    category: 'mastery',
+    tier: 'platinum',
+    iconName: 'Terminal',
+    points: 250,
+    isSecret: true,
   },
 ];
 

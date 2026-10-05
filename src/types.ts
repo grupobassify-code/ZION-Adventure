@@ -475,6 +475,20 @@ export interface Boss {
   immuneToStun?: boolean;
 }
 
+export type CharacterSkin =
+  | 'zion'
+  | 'zizz'
+  | 'kael'
+  | 'anuk'
+  | 'vector'
+  | 'balam'
+  | 'blizzard'
+  | 'steampunk'
+  | 'castlesmash'
+  | 'pirate'
+  | 'jurassic'
+  | 'moon';
+
 export interface Projectile {
   x: number;
   y: number;
@@ -486,7 +500,7 @@ export interface Projectile {
   isHero?: boolean;
   damage?: number;
   isSpecial?: boolean;
-  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'iceShard' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt' | 'cryo_canister' | 'lunar_laser' | 'space_missile' | 'doomsday_laser' | 'asteroid_debris' | 'bionic_burst';
+  kind?: 'normal' | 'plasma' | 'sakuraShuriken' | 'magmaDart' | 'sakuraKunai' | 'sandDart' | 'empDisc' | 'jadeDart' | 'iceShard' | 'steamBolt' | 'ironJavelin' | 'anchorHarpoon' | 'primalClaw' | 'starPebble' | 'homing' | 'laserBolt' | 'fireball' | 'magmaMeteor' | 'lavaBlob' | 'curseOrb' | 'sandVortex' | 'bandageWrap' | 'sandSpit' | 'homingMissile' | 'empSpark' | 'plasmaVolley' | 'mechLaser' | 'coconut' | 'stinger' | 'jaguarClawSlash' | 'jaguarRoarWave' | 'snowball' | 'ice_shard' | 'yetiSlamWave' | 'iceSpikeBlast' | 'blizzardRoarWave' | 'steam_fireball' | 'castle_arrow' | 'gargoyle_fire' | 'catapult_rock' | 'catapult_boulder' | 'stone_shrapnel' | 'apex_energy_orb' | 'apex_plasma_bolt' | 'cryo_canister' | 'lunar_laser' | 'space_missile' | 'doomsday_laser' | 'asteroid_debris' | 'bionic_burst';
   homingTimer?: number;
   angle?: number;
   color?: string;
@@ -510,6 +524,7 @@ export interface MeleeSlashEffect {
   life: number;
   maxLife: number;
   combo: number;
+  skin?: CharacterSkin;
 }
 
 export interface SpecialBurstEffect {
@@ -520,6 +535,7 @@ export interface SpecialBurstEffect {
   color: string;
   life: number;
   maxLife: number;
+  skin?: CharacterSkin;
 }
 
 export interface FloatingText {
@@ -558,6 +574,7 @@ export interface Player {
   damageInvTimer?: number;
   time: number;
   animState: 'idle' | 'run' | 'jump' | 'fall' | 'dash' | 'attack' | 'block';
+  characterSkin?: CharacterSkin;
   
   // Dash / Dodge
   isDashing: boolean;

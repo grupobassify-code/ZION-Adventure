@@ -1,4 +1,4 @@
-import { SaveSlot, ZoneId } from '../types';
+import { SaveSlot, ZoneId, CharacterSkin } from '../types';
 import { LEVEL_CONFIGS } from './levelData';
 
 // Storage keys - Clean V3 version to reset all prior progress
@@ -57,8 +57,10 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       const slots: (SaveSlot | null)[] = [null, null, null];
-      const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+      const krono3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-3');
       const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
+      const moon3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-3');
+      const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
       let hasMigrationChanges = false;
 
       for (let i = 0; i < MAX_SAVE_SLOTS; i++) {
@@ -67,20 +69,18 @@ export function loadAllSaveSlots(): (SaveSlot | null)[] {
           if (!slot.completedLevels) slot.completedLevels = [];
           if (!slot.unlockedLevels) slot.unlockedLevels = [0];
 
-          // Check if player has beaten Kronos Travel or reached it
-          const isTravelDone =
-            (travelIdx !== -1 && (slot.completedLevels.includes(travelIdx) || slot.completedLevels.includes('krono-travel' as any))) ||
-            (travelIdx !== -1 && slot.unlockedLevels.some((lvl) => typeof lvl === 'number' && lvl > travelIdx)) ||
-            (jungle1Idx !== -1 && (slot.unlockedLevels.includes(jungle1Idx) || slot.completedLevels.includes(jungle1Idx))) ||
-            slot.completedLevels.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
-
-          if (isTravelDone) {
-            if (travelIdx !== -1 && !slot.completedLevels.includes(travelIdx)) {
-              slot.completedLevels.push(travelIdx);
-              hasMigrationChanges = true;
-            }
+          // If Krono City boss (krono-3) was beaten, unlock Jungle Run
+          if (krono3Idx !== -1 && slot.completedLevels.includes(krono3Idx)) {
             if (jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
               slot.unlockedLevels.push(jungle1Idx);
+              hasMigrationChanges = true;
+            }
+          }
+
+          // If Moon boss (themoon-3) was beaten, unlock Kronos Travel (the grand climax)
+          if (moon3Idx !== -1 && slot.completedLevels.includes(moon3Idx)) {
+            if (travelIdx !== -1 && !slot.unlockedLevels.includes(travelIdx)) {
+              slot.unlockedLevels.push(travelIdx);
               hasMigrationChanges = true;
             }
           }
@@ -373,14 +373,9 @@ export function recordLevelCompletion(
     }
   }
 
-  // If final boss of Krono City is beaten, unlock Kronos Travel
+  // When Krono City (krono-3) is beaten, unlock Jungle Run (jungle-1)
   const kronoFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-3');
-  if (levelIndex === kronoFinalBossIdx && travelIdx !== -1 && !slot.unlockedLevels.includes(travelIdx)) {
-    slot.unlockedLevels.push(travelIdx);
-  }
-
-  // When Kronos Travel is beaten, unlock Jungle Run (jungle-1)
-  if (levelIndex === travelIdx && jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
+  if (levelIndex === kronoFinalBossIdx && jungle1Idx !== -1 && !slot.unlockedLevels.includes(jungle1Idx)) {
     slot.unlockedLevels.push(jungle1Idx);
   }
 
@@ -416,6 +411,12 @@ export function recordLevelCompletion(
     slot.unlockedLevels.push(moon1Idx);
   }
 
+  // When Doomsday Dreadnought (themoon-3) is beaten, unlock Kronos Travel (the grand climax level at the very end!)
+  const moonFinalBossIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-3');
+  if (levelIndex === moonFinalBossIdx && travelIdx !== -1 && !slot.unlockedLevels.includes(travelIdx)) {
+    slot.unlockedLevels.push(travelIdx);
+  }
+
   slots[slotId] = slot;
   saveAllSlots(slots);
   return slot;
@@ -425,25 +426,34 @@ export function isLevelUnlockedInSlot(slot: SaveSlot | null, levelIndex: number)
   if (!slot) return levelIndex === 0;
   const cfg = LEVEL_CONFIGS[levelIndex];
   if (cfg && cfg.zone === 'jungle') {
-    const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+    const krono3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-3');
     const jungle1Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-1');
     const completedList = slot.completedLevels || [];
     const unlockedList = slot.unlockedLevels || [];
 
-    const isTravelCompleted =
-      (travelIdx !== -1 && (completedList.includes(travelIdx) || completedList.includes('krono-travel' as any))) ||
-      (jungle1Idx !== -1 && (unlockedList.includes(jungle1Idx) || completedList.includes(jungle1Idx))) ||
+    const isKronoCompleted =
+      (krono3Idx !== -1 && (completedList.includes(krono3Idx) || completedList.includes('krono-3' as any))) ||
       unlockedList.includes(levelIndex) ||
-      completedList.some((lvl) => typeof lvl === 'number' && lvl >= (travelIdx !== -1 ? travelIdx : 15));
+      (jungle1Idx !== -1 && (unlockedList.includes(jungle1Idx) || completedList.includes(jungle1Idx)));
 
-    if (!isTravelCompleted && !unlockedList.includes(levelIndex)) {
-      return false; // Jungle Run is locked until Kronos Travel is beaten!
+    if (!isKronoCompleted && !unlockedList.includes(levelIndex)) {
+      return false; // Jungle Run is locked until Kronos Titan is defeated!
     }
     if (levelIndex === jungle1Idx) {
-      return true; // Jungle Run Act 1 is unlocked as soon as Kronos Travel is completed or jungle-1 is unlocked
+      return true;
     }
-    // Acts 2 and 3 unlock if previously reached or previous act beaten
     return unlockedList.includes(levelIndex) || completedList.includes(levelIndex - 1);
+  }
+  if (cfg && cfg.zone === 'travel') {
+    const moon3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-3');
+    const completedList = slot.completedLevels || [];
+    const unlockedList = slot.unlockedLevels || [];
+
+    const isMoonCompleted =
+      (moon3Idx !== -1 && (completedList.includes(moon3Idx) || completedList.includes('themoon-3' as any))) ||
+      unlockedList.includes(levelIndex);
+
+    return isMoonCompleted || unlockedList.includes(levelIndex);
   }
   if (cfg && cfg.zone === 'blizzard') {
     const jungle3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'jungle-3');
@@ -1067,6 +1077,114 @@ export function isKronosPiecePlaced(slot: SaveSlot | null, pieceId: string): boo
 }
 
 /**
+ * Maps each Clock Piece ID to what it unlocks.
+ * - Piece 1 (neon - Bosque Neón): Unlocks the Character Locker.
+ * - Piece 2 (sakura): Unlocks Zizz.
+ * - Piece 3 (lavacliff): Unlocks Kael.
+ * - Piece 4 (desert): Unlocks Anuk.
+ * - Piece 5 (krono): Unlocks Vector.
+ * - Piece 6 (jungle): Unlocks Balam.
+ */
+export const CLOCK_PIECE_REWARDS: Record<
+  string,
+  {
+    type: 'locker' | 'character';
+    characterId?: CharacterSkin;
+    title: string;
+    rewardName: string;
+    description: string;
+  }
+> = {
+  neon: {
+    type: 'locker',
+    title: 'Casillero de Skins',
+    rewardName: '¡Casillero de Skins de Zion Desbloqueado!',
+    description: 'Accede al vestidor dimensional y equipa los diferentes trajes de Zion.',
+  },
+  sakura: {
+    type: 'character',
+    characterId: 'zizz',
+    title: 'Zion Flor Astral',
+    rewardName: '¡Skin Zion Flor Astral Desbloqueada!',
+    description: 'Zion viste el traje de Kunoichi del Cerezo Astral con katanas gemelas y 28% de crítico.',
+  },
+  lavacliff: {
+    type: 'character',
+    characterId: 'kael',
+    title: 'Zion Paladín Ígneo',
+    rewardName: '¡Skin Zion Paladín Ígneo Desbloqueada!',
+    description: 'Zion viste la armadura volcánica pesada con mandoble sísmico y deflexión.',
+  },
+  desert: {
+    type: 'character',
+    characterId: 'anuk',
+    title: 'Zion Centinela Solar',
+    rewardName: '¡Skin Zion Centinela Solar Desbloqueada!',
+    description: 'Zion viste el manto sagrado de las arenas con Khopesh solar y torbellino divino.',
+  },
+  krono: {
+    type: 'character',
+    characterId: 'vector',
+    title: 'Zion Agente de Fusión',
+    rewardName: '¡Skin Zion Agente de Fusión Desbloqueada!',
+    description: 'Zion viste el exo-traje cibernético con nanodagas de pulso y onda PEM.',
+  },
+  jungle: {
+    type: 'character',
+    characterId: 'balam',
+    title: 'Zion Guerrero Jaguar',
+    rewardName: '¡Skin Zion Guerrero Jaguar Desbloqueada!',
+    description: 'Zion viste el manto sagrado maya con macuahuitl de jade y furia de Kukulkán.',
+  },
+};
+
+/**
+ * Checks whether a specific CharacterSkin is unlocked for a given SaveSlot.
+ * - Zion: Always unlocked by default (initial protagonist of Neon Forest).
+ * - Other heroes: Unlocked as soon as their corresponding Clock Piece is placed in the clock.
+ */
+export function isCharacterSkinUnlocked(slot: SaveSlot | null, skinId: CharacterSkin | string): boolean {
+  if (skinId === 'zion') return true;
+  if (!slot) return false;
+
+  const placed = slot.kronosPiecesPlaced || [];
+  const completed = slot.completedLevels || [];
+
+  const isLevelCompleted = (levelId: string) => {
+    const idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === levelId);
+    return idx !== -1 && (completed.includes(idx) || (completed as any).includes(levelId));
+  };
+
+  switch (skinId) {
+    case 'zizz':
+    case 'zyssa':
+      return placed.includes('sakura');
+    case 'kael':
+      return placed.includes('lavacliff');
+    case 'anuk':
+      return placed.includes('desert');
+    case 'vector':
+      return placed.includes('krono');
+    case 'balam':
+      return placed.includes('jungle');
+    case 'blizzard':
+      return isLevelCompleted('blizzard-3');
+    case 'steampunk':
+      return isLevelCompleted('steampunk-3');
+    case 'castlesmash':
+      return isLevelCompleted('castlesmash-3');
+    case 'pirate':
+      return isLevelCompleted('piratestreasure-3');
+    case 'jurassic':
+      return isLevelCompleted('jurasicdraft-3');
+    case 'moon':
+      return isLevelCompleted('themoon-3');
+    default:
+      return false;
+  }
+}
+
+/**
  * Places a Kronos piece into the clock mechanism
  */
 export function placeKronosPiece(slotId: number, pieceId: string): SaveSlot | null {
@@ -1079,8 +1197,8 @@ export function placeKronosPiece(slotId: number, pieceId: string): SaveSlot | nu
     slot.kronosPiecesPlaced.push(pieceId);
   }
 
-  // If all 6 pieces are placed, unlock character locker
-  if (slot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
+  // Placing the first piece (neon) or any clock piece unlocks the Character Locker
+  if (slot.kronosPiecesPlaced.includes('neon') || slot.kronosPiecesPlaced.length >= 1) {
     slot.kronosLockerUnlocked = true;
   }
 
@@ -1109,7 +1227,7 @@ export function placeAllAvailableKronosPieces(slotId: number): { slot: SaveSlot 
     }
   }
 
-  if (slot.kronosPiecesPlaced.length >= KRONOS_PIECES.length) {
+  if (slot.kronosPiecesPlaced.includes('neon') || slot.kronosPiecesPlaced.length >= 1) {
     slot.kronosLockerUnlocked = true;
   }
 
@@ -1119,7 +1237,7 @@ export function placeAllAvailableKronosPieces(slotId: number): { slot: SaveSlot 
 }
 
 /**
- * Checks whether the entire Kronos Clock is fully repaired (all 6 pieces placed)
+ * Checks whether the entire Kronos Clock is fully repaired (all 12 pieces placed)
  */
 export function isKronosClockCompleted(slot: SaveSlot | null): boolean {
   if (!slot || !slot.kronosPiecesPlaced) return false;
@@ -1127,15 +1245,22 @@ export function isKronosClockCompleted(slot: SaveSlot | null): boolean {
 }
 
 /**
- * Checks if the Character Locker is unlocked
+ * Checks if the Character Locker is unlocked.
+ * Unlocks as soon as the first piece (neon from Bosque Neón) is placed into the clock mechanism!
  */
 export function isKronosLockerUnlocked(slot: SaveSlot | null): boolean {
   if (!slot) return false;
-  return Boolean(slot.kronosLockerUnlocked || isKronosClockCompleted(slot));
+  const placed = slot.kronosPiecesPlaced || [];
+  return Boolean(
+    placed.includes('neon') ||
+    placed.length >= 1 ||
+    slot.kronosLockerUnlocked ||
+    isKronosClockCompleted(slot)
+  );
 }
 
 /**
- * For testing/demo purposes: grants all 6 boss completions to test the clock assembly & cinematic
+ * For testing/demo purposes: grants all boss completions to test the clock assembly & cinematic
  */
 export function unlockAllKronosBossesForDemo(slotId: number): SaveSlot | null {
   const slots = loadAllSaveSlots();
@@ -1157,12 +1282,18 @@ export function unlockAllKronosBossesForDemo(slotId: number): SaveSlot | null {
 }
 
 /**
- * Set selected skin
+ * Set selected skin with unlocking validation
  */
 export function setSelectedSkin(slotId: number, skinId: string): SaveSlot | null {
   const slots = loadAllSaveSlots();
   const slot = slots[slotId];
   if (!slot) return null;
+
+  // Protect against equipping locked skins
+  if (!isCharacterSkinUnlocked(slot, skinId)) {
+    return slot;
+  }
+
   slot.selectedSkin = skinId;
   saveAllSlots(slots);
   return slot;

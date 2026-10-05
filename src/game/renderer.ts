@@ -26,6 +26,8 @@ import {
 } from '../types';
 import { EnemyRenderer } from './enemyRenderer';
 import { BossRenderer } from './bossRenderer';
+import { drawAILevelBackground } from './aiBackgroundManager';
+import { getProcessedLandmarkCanvas } from './landmarkAssets';
 import type { RemotePlayerState } from '../types/multiplayer';
 
 export class GameRenderer {
@@ -70,7 +72,7 @@ export class GameRenderer {
     }
 
     // 3. World landmarks and shrines
-    this.renderLandmarks(engine.landmarks, engine.cameraX, engine.time);
+    this.renderLandmarks(engine.landmarks, engine.cameraX, engine.time, engine.platforms);
 
     // 3b. Cascading Waterfalls (Jungle Run)
     this.renderWaterfalls(engine.waterfalls, engine.cameraX, engine.time);
@@ -827,3245 +829,73 @@ export class GameRenderer {
   }
 
   public renderBackground(zone: ZoneId, act: number, cameraX: number, worldWidth: number, time: number) {
-    const ctx = this.ctx;
-    const isNight = zone === 'sakura' && act === 2;
-
-    // Sky Gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-    if (zone === 'neon') {
-      if (act === 1) {
-        grad.addColorStop(0, '#0a1d2e');
-        grad.addColorStop(0.5, '#103748');
-        grad.addColorStop(1, '#091c28');
-      } else {
-        grad.addColorStop(0, '#0b0f19');
-        grad.addColorStop(0.5, '#161938');
-        grad.addColorStop(1, '#081426');
-      }
-    } else if (zone === 'sakura') {
-      if (act === 1) {
-        // Sunset Sakura
-        grad.addColorStop(0, '#4a1532');
-        grad.addColorStop(0.5, '#832f58');
-        grad.addColorStop(1, '#e27b9a');
-      } else {
-        // Night Sakura
-        grad.addColorStop(0, '#0a0a1a');
-        grad.addColorStop(0.5, '#1e1133');
-        grad.addColorStop(1, '#3b1847');
-      }
-    } else if (zone === 'lavacliff') {
-      // Lavacliff
-      if (act === 1) {
-        // Volcano Exterior
-        grad.addColorStop(0, '#2d0606');
-        grad.addColorStop(0.45, '#7c1c05');
-        grad.addColorStop(0.85, '#ea580c');
-        grad.addColorStop(1, '#f97316');
-      } else {
-        // Magma Subterranean Core
-        grad.addColorStop(0, '#130404');
-        grad.addColorStop(0.4, '#3b0a0a');
-        grad.addColorStop(0.8, '#7f1d1d');
-        grad.addColorStop(1, '#b91c1c');
-      }
-    } else if (zone === 'krono') {
-      // Krono City: Futuristic Metropolis - Calmed and desaturated to prevent visual fatigue
-      if (act === 1) {
-        grad.addColorStop(0, '#040711');
-        grad.addColorStop(0.35, '#0a1020');
-        grad.addColorStop(0.7, '#141d30');
-        grad.addColorStop(1, '#1b2c42');
-      } else if (act === 2) {
-        grad.addColorStop(0, '#040711');
-        grad.addColorStop(0.4, '#0a1224');
-        grad.addColorStop(0.75, '#191b35');
-        grad.addColorStop(1, '#25294a');
-      } else {
-        // Act 3: The Mechanical Throne of Kronos - Restrained, elegant dark slate atmosphere
-        grad.addColorStop(0, '#03050c');
-        grad.addColorStop(0.4, '#090e1c');
-        grad.addColorStop(0.75, '#131b2e');
-        grad.addColorStop(1, '#1e293b');
-      }
-    } else if (zone === 'travel') {
-      // Kronos Travel: Dimensional Rift / Chrono Aurora / Cosmic Convergence
-      const cycle = (time * 0.005) % (Math.PI * 2);
-      grad.addColorStop(0, '#030712');
-      grad.addColorStop(0.3, '#1e1b4b');
-      grad.addColorStop(0.6, '#312e81');
-      grad.addColorStop(0.85, '#4338ca');
-      grad.addColorStop(1, '#0284c7');
-    } else if (zone === 'jungle') {
-      // Jungle Run: Lush Tropical Rainforest with Ancient Mayan Pyramids
-      if (act === 1) {
-        // Vibrant Rainforest Canopy at Golden Dawn
-        grad.addColorStop(0, '#022c22');
-        grad.addColorStop(0.32, '#064e3b');
-        grad.addColorStop(0.62, '#047857');
-        grad.addColorStop(0.85, '#10b981');
-        grad.addColorStop(1, '#a7f3d0');
-      } else if (act === 2) {
-        // Deep Cenote Twilight & Humid Jungle Mist
-        grad.addColorStop(0, '#021815');
-        grad.addColorStop(0.35, '#06392c');
-        grad.addColorStop(0.7, '#0f5132');
-        grad.addColorStop(0.9, '#15803d');
-        grad.addColorStop(1, '#6ee7b7');
-      } else {
-        // Mystical Jaguar Temple Night
-        grad.addColorStop(0, '#01120f');
-        grad.addColorStop(0.35, '#04221b');
-        grad.addColorStop(0.7, '#064e3b');
-        grad.addColorStop(1, '#0f766e');
-      }
-    } else if (zone === 'blizzard') {
-      // Blizzard Rush: High-Altitude Alpine Mountain Descent
-      grad.addColorStop(0, '#0284c7');    // Deep alpine cerulean blue
-      grad.addColorStop(0.32, '#38bdf8'); // Crisp mountain sky
-      grad.addColorStop(0.65, '#bae6fd'); // Glistening ice mist
-      grad.addColorStop(0.88, '#e0f2fe'); // Mountain snow reflection
-      grad.addColorStop(1, '#f8fafc');    // Pure snow white baseline
-    } else if (zone === 'steampunk') {
-      // Steampunk Industrial Factory: Victorian Amber Morning (Act 1), Rusted Verdigris Decay (Act 2), Only Up 1000m Steam Furnace (Act 3)
-      if (act === 1) {
-        grad.addColorStop(0, '#1c1208');    // Smoked coal sky
-        grad.addColorStop(0.35, '#78350f'); // Warm copper industrial smog
-        grad.addColorStop(0.65, '#b45309'); // Polished brass amber
-        grad.addColorStop(0.88, '#f59e0b'); // Golden steam glare
-        grad.addColorStop(1, '#fef08a');    // Hearth glow
-      } else if (act === 2) {
-        grad.addColorStop(0, '#091c16');    // Toxic corroded verdigris sky
-        grad.addColorStop(0.35, '#291508'); // Rusted dark brick
-        grad.addColorStop(0.65, '#78350f'); // Iron oxide amber
-        grad.addColorStop(0.88, '#ca8a04'); // Peeling sulfur yellow
-        grad.addColorStop(1, '#fef08a');    // Acidic haze
-      } else {
-        grad.addColorStop(0, '#0a0303');    // 1000m Colossal Steam Core Void
-        grad.addColorStop(0.3, '#450a0a');  // High-pressure boiler red
-        grad.addColorStop(0.6, '#991b1b');  // Superheated furnace orange
-        grad.addColorStop(0.85, '#ea580c'); // Intense steam flame
-        grad.addColorStop(1, '#fed7aa');    // Blinding steam vent light
-      }
-    } else if (zone === 'castlesmash') {
-      // Medieval Castle Smash:
-      // Act 1: Gloomy Storm Over Outer Moat & Siege Camp
-      // Act 2: Crimson Twilight Over Inner Courtyard & Armory
-      // Act 3: Royal Gothic Vault & Throne Room of Lord Malakar
-      if (act === 1) {
-        grad.addColorStop(0, '#0a0f1d');    // Stormy dark navy sky
-        grad.addColorStop(0.35, '#1e293b'); // Thundercloud charcoal
-        grad.addColorStop(0.65, '#334155'); // Wet castle stone grey
-        grad.addColorStop(0.88, '#475569'); // Mist horizon
-        grad.addColorStop(1, '#64748b');
-      } else if (act === 2) {
-        grad.addColorStop(0, '#1c1917');    // Dark gothic stone
-        grad.addColorStop(0.35, '#450a0a'); // Blood red castle twilight
-        grad.addColorStop(0.65, '#7f1d1d'); // Siege torch glow
-        grad.addColorStop(0.88, '#b45309'); // Warm ember horizon
-        grad.addColorStop(1, '#f59e0b');
-      } else {
-        grad.addColorStop(0, '#09050d');    // Royal gothic vault shadows
-        grad.addColorStop(0.35, '#3b0764'); // Imperial purple banners
-        grad.addColorStop(0.7, '#7f1d1d');  // Crimson heraldry
-        grad.addColorStop(0.9, '#b45309');  // Golden candlelight glow
-        grad.addColorStop(1, '#fef08a');
-      }
-    } else if (zone === 'piratestreasure') {
-      // Pirates Treasure Caribbean Coast & Deep Ocean:
-      // Act 1: Tropical Beach & Pirate Bay (Turquoise waters & golden dawn)
-      // Act 2: Submerged Coral Reef & Abyssal Trench (Low gravity ocean depths)
-      // Act 3: Underwater Galleon Shipwreck & Cursed Mimic Abyss (Low gravity)
-      if (act === 1) {
-        grad.addColorStop(0, '#0284c7');    // Caribbean azure sky
-        grad.addColorStop(0.35, '#38bdf8'); // Tropical sea breeze
-        grad.addColorStop(0.68, '#7dd3fc'); // Distant turquoise sea haze
-        grad.addColorStop(0.88, '#fef08a'); // Warm golden sand reflection
-        grad.addColorStop(1, '#fde047');
-      } else if (act === 2) {
-        grad.addColorStop(0, '#0369a1');    // Surface sunlight filtered through ocean water
-        grad.addColorStop(0.3, '#075985');  // Deep turquoise ocean tier
-        grad.addColorStop(0.65, '#0c4a6e'); // Abyssal twilight
-        grad.addColorStop(0.88, '#082f49'); // Oceanic seabed
-        grad.addColorStop(1, '#021e30');
-      } else {
-        grad.addColorStop(0, '#021e30');    // Sunken galleon depths
-        grad.addColorStop(0.35, '#082f49'); // Ghostly navy waters
-        grad.addColorStop(0.7, '#042f2e');  // Bioluminescent coral teal
-        grad.addColorStop(0.88, '#0f172a'); // Sunken ship seabed shadows
-        grad.addColorStop(1, '#020617');
-      }
-    } else if (zone === 'jurasicdraft') {
-      // Jurassic Draft Mesozoic Dinosaur Era:
-      // Act 1: Mesozoic Jungle (Primordial canopy green & golden dawn)
-      // Act 2: Pterosaur Canyon & Lava Fissures (Fiery terracotta & volcanic smoke)
-      // Act 3: Caldera of Titan Rex (Apocalyptic volcanic obsidian & magma crimson)
-      if (act === 1) {
-        grad.addColorStop(0, '#064e3b');    // Deep primordial canopy green
-        grad.addColorStop(0.35, '#047857'); // Rainforest morning mist
-        grad.addColorStop(0.68, '#10b981'); // Emerald horizon
-        grad.addColorStop(0.88, '#f59e0b'); // Prehistoric golden dawn glow
-        grad.addColorStop(1, '#fde047');
-      } else if (act === 2) {
-        grad.addColorStop(0, '#451a03');    // Volcanic ash & sulfur smoke
-        grad.addColorStop(0.35, '#7c2d12'); // Deep terracotta canyon tier
-        grad.addColorStop(0.65, '#ea580c'); // Fiery dusk horizon
-        grad.addColorStop(0.88, '#f97316'); // Molten fissure glow
-        grad.addColorStop(1, '#fed7aa');
-      } else {
-        grad.addColorStop(0, '#1c070c');    // Ash-black apocalyptic sky
-        grad.addColorStop(0.3, '#450a0a');  // Magma smoke plumes
-        grad.addColorStop(0.65, '#991b1b'); // Erupting volcano crimson
-        grad.addColorStop(0.88, '#ea580c'); // Blazing caldera rim
-        grad.addColorStop(1, '#facc15');
-      }
-    } else if (zone === 'themoon') {
-      // Zona 12: The Moon
-      // Acto 1: Base de Lanzamiento (Cabo Kronos) - Cielo nocturno aeroespacial con resplandor de reflectores
-      // Acto 2: Base Lunar Apolo-Kronos - Espacio cósmico negro absoluto salpicado de estrellas
-      if (act === 1) {
-        grad.addColorStop(0, '#030712');    // Deep aerospace spaceport night
-        grad.addColorStop(0.35, '#0c1a30'); // Electric indigo twilight atmosphere
-        grad.addColorStop(0.68, '#1e293b'); // Complex navy horizon
-        grad.addColorStop(0.88, '#0284c7'); // Electric cyan floodlight glow on horizon
-        grad.addColorStop(1, '#38bdf8');
-      } else if (act === 2) {
-        grad.addColorStop(0, '#000000');    // Deep pitch-black cosmic space
-        grad.addColorStop(0.5, '#02040a');  // Starfield void
-        grad.addColorStop(0.85, '#050814'); // Lunar horizon star void
-        grad.addColorStop(1, '#090d1a');    // Faint lunar dust horizon scattering
-      } else {
-        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Espacio profundo infinito con nebulosa estelar
-        grad.addColorStop(0, '#030008');    // Deep void space
-        grad.addColorStop(0.35, '#0d0418'); // Cosmic purple nebula dust
-        grad.addColorStop(0.7, '#070b1a');  // Electric cyan nebula dust
-        grad.addColorStop(1, '#020005');    // Infinite cosmic abyss
-      }
-    } else {
-      // Desert Sanctuary
-      if (act === 1) {
-        // Blazing Golden Egyptian Desert Morning
-        grad.addColorStop(0, '#451a03');
-        grad.addColorStop(0.35, '#b45309');
-        grad.addColorStop(0.7, '#f59e0b');
-        grad.addColorStop(1, '#fde68a');
-      } else {
-        // Mystical Midnight Sand Tomb / Ancient Pyramid Chamber
-        grad.addColorStop(0, '#0f051d');
-        grad.addColorStop(0.4, '#2e1065');
-        grad.addColorStop(0.75, '#581c87');
-        grad.addColorStop(1, '#b45309');
-      }
-    }
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // Distant Celestial Body / Cyber Matrix Ring / Volcano Crater / Desert Sun & Moon / Tropical Mayan Sun
-    if (zone === 'neon') {
-      ctx.strokeStyle = act === 1 ? '#06b6d433' : '#a855f733';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(240, 42, 34, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = act === 1 ? '#22d3ee44' : '#a855f744';
-      ctx.beginPath();
-      ctx.arc(240, 42, 16, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Cyber Grid Lines in Distance
-      ctx.strokeStyle = '#06b6d415';
-      ctx.lineWidth = 1;
-      for (let gy = 70; gy < 140; gy += 14) {
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(GAME_WIDTH, gy);
-        ctx.stroke();
-      }
-    } else if (zone === 'sakura') {
-      ctx.fillStyle = isNight ? '#fef08a' : '#fed7aa';
-      ctx.beginPath();
-      ctx.arc(240, isNight ? 36 : 42, isNight ? 22 : 18, 0, Math.PI * 2);
-      ctx.fill();
-      if (isNight) {
-        ctx.fillStyle = '#fef9c3';
-        ctx.beginPath();
-        ctx.arc(234, 30, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (zone === 'lavacliff') {
-      // Lavacliff: Erupting Volcano Crater or Cavern Magma Dome
-      if (act === 1) {
-        // Distant Smoldering Volcano Peak
-        ctx.fillStyle = '#450a0a';
-        ctx.beginPath();
-        ctx.moveTo(180, 110);
-        ctx.lineTo(240, 36);
-        ctx.lineTo(265, 36);
-        ctx.lineTo(320, 110);
-        ctx.fill();
-
-        // Glowing Crater Rim & Smoke
-        ctx.fillStyle = '#f97316';
-        ctx.fillRect(240, 35, 25, 3);
-        ctx.fillStyle = '#fdba7488';
-        ctx.beginPath();
-        ctx.arc(252, 34, 18, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Subterranean glowing magma stalactites & cavern ceiling arches
-        ctx.fillStyle = '#1c0505';
-        for (let cx = 0; cx < GAME_WIDTH + 60; cx += 50) {
-          ctx.beginPath();
-          ctx.moveTo(cx, 0);
-          ctx.lineTo(cx + 25, 26 + Math.sin(cx + time * 0.02) * 6);
-          ctx.lineTo(cx + 50, 0);
-          ctx.fill();
-
-          // Magma vein glow
-          ctx.fillStyle = '#ef444488';
-          ctx.fillRect(cx + 23, 2, 4, 16);
-          ctx.fillStyle = '#1c0505';
-        }
-      }
-    } else if (zone === 'krono') {
-      // Krono City: Giant Quantum Chrono-Reactor Ring in Sky - Soft, subtle & non-intrusive
-      const ringPulse = Math.sin(time * 0.03) * 2;
-      ctx.strokeStyle = '#06b6d418';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(230, 42, 34 + ringPulse * 0.2, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.strokeStyle = '#a855f720';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(230, 42, 22, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.fillStyle = '#06b6d40d';
-      ctx.beginPath();
-      ctx.arc(230, 42, 12, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Rotating Chrono Ring Ticks (Soft subdued lines)
-      for (let tk = 0; tk < 6; tk++) {
-        const angle = time * 0.01 + (tk * Math.PI) / 3;
-        const tx1 = 230 + Math.cos(angle) * 30;
-        const ty1 = 42 + Math.sin(angle) * 30;
-        const tx2 = 230 + Math.cos(angle) * 35;
-        const ty2 = 42 + Math.sin(angle) * 35;
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(tx1, ty1);
-        ctx.lineTo(tx2, ty2);
-        ctx.stroke();
-      }
-
-      // Matrix Perspective Cyber-Grid in Sky (Soft and low contrast)
-      ctx.strokeStyle = 'rgba(2, 132, 199, 0.06)';
-      ctx.lineWidth = 1;
-      for (let gy = 65; gy < 145; gy += 16) {
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(GAME_WIDTH, gy);
-        ctx.stroke();
-      }
-
-      // Flying Aerocars in skyways - Relaxed speed and gentle light
-      for (let v = 0; v < 3; v++) {
-        const speed = 1.0 + v * 0.4;
-        const dir = v % 2 === 0 ? 1 : -1;
-        const carX = ((v * 130 + (time * speed * dir)) % (GAME_WIDTH + 80) + GAME_WIDTH + 80) % (GAME_WIDTH + 80) - 40;
-        const carY = 26 + v * 16;
-
-        // Vehicle Body
-        ctx.fillStyle = '#0b1120';
-        ctx.fillRect(carX, carY, 12, 3);
-        // Headlights & Taillights (Muted, comfortable illumination)
-        if (dir > 0) {
-          ctx.fillStyle = '#e11d4888';
-          ctx.fillRect(carX - 1, carY + 1, 2, 1);
-          ctx.fillStyle = '#38bdf888';
-          ctx.fillRect(carX + 11, carY + 1, 2, 1);
-        } else {
-          ctx.fillStyle = '#e11d4888';
-          ctx.fillRect(carX + 11, carY + 1, 2, 1);
-          ctx.fillStyle = '#38bdf888';
-          ctx.fillRect(carX - 1, carY + 1, 2, 1);
-        }
-      }
-    } else if (zone === 'jungle') {
-      // Jungle Run: Golden Sol Maya & Distant Tropical Quetzal Birds
-      if (act === 1) {
-        // Warm Radiant Solar Disc with Tropical Crepuscular Sunbeams
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
-        ctx.beginPath();
-        ctx.arc(245, 36, 40, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(250, 204, 21, 0.45)';
-        ctx.beginPath();
-        ctx.arc(245, 36, 26, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(245, 36, 16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(245, 36, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Atmospheric Jungle Sunbeams streaming through the canopy
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.08)';
-        ctx.beginPath();
-        ctx.moveTo(245, 36);
-        ctx.lineTo(150, GAME_HEIGHT);
-        ctx.lineTo(205, GAME_HEIGHT);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(245, 36);
-        ctx.lineTo(260, GAME_HEIGHT);
-        ctx.lineTo(315, GAME_HEIGHT);
-        ctx.closePath();
-        ctx.fill();
-      } else {
-        // Mystical Jade Cenote Moon in Twilight Sky
-        ctx.fillStyle = '#a7f3d0';
-        ctx.beginPath();
-        ctx.arc(245, 34, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#064e3b';
-        ctx.beginPath();
-        ctx.arc(239, 32, 16, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Emerald firefly stars in upper sky
-        ctx.fillStyle = '#6ee7b7';
-        for (let s = 0; s < 10; s++) {
-          const sx = (s * 33 + 15) % GAME_WIDTH;
-          const sy = (s * 17 + 8) % 65;
-          ctx.fillRect(sx, sy, 1.5, 1.5);
-        }
-      }
-
-      // Distant Tropical Quetzal Birds Gliding over the Canopy
-      for (let b = 0; b < 3; b++) {
-        const bSpeed = 0.7 + b * 0.35;
-        const bx = ((time * bSpeed * 22 + b * 115) % (GAME_WIDTH + 80)) - 30;
-        const flap = Math.sin(time * 0.18 + b * 1.8) * 3;
-        const by = 18 + b * 14 + Math.cos(time * 0.06 + b) * 3;
-
-        ctx.fillStyle = b % 2 === 0 ? '#10b981' : '#f43f5e';
-        ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.lineTo(bx + 4, by - 3 + flap);
-        ctx.lineTo(bx + 8, by);
-        ctx.lineTo(bx + 4, by + 1);
-        ctx.closePath();
-        ctx.fill();
-
-        // Long emerald/golden tail streamer feather
-        ctx.strokeStyle = b % 2 === 0 ? '#34d399' : '#facc15';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(bx, by);
-        ctx.lineTo(bx - 7, by + 2 - flap * 0.5);
-        ctx.stroke();
-      }
-    } else if (zone === 'blizzard') {
-      // Blizzard Rush: Radiant Alpine Winter Sun, Solar Halo, and Frosted Clouds
-      const sunX = 245;
-      const sunY = 32;
-
-      // 1. Ice Crystal Solar Halo Ring (22° Alpine Halo Phenomenon)
-      const haloPulse = 0.35 + Math.sin(time * 0.04) * 0.1;
-      ctx.strokeStyle = `rgba(255, 255, 255, ${haloPulse})`;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 32, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Outer rainbow refraction rim
-      ctx.strokeStyle = 'rgba(186, 230, 253, 0.25)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Parhelia / Sun Dogs (brilliant twin ice prism spots on the halo)
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(sunX - 32, sunY, 3, 0, Math.PI * 2);
-      ctx.arc(sunX + 32, sunY, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#bae6fd';
-      ctx.beginPath();
-      ctx.arc(sunX - 32, sunY, 5, 0, Math.PI * 2);
-      ctx.arc(sunX + 32, sunY, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 2. Solar Corona & Brilliant Core
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 24, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 16, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, 9, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 4-Point Alpine Solar Cross Glare
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.fillRect(sunX - 18, sunY - 0.5, 36, 1);
-      ctx.fillRect(sunX - 0.5, sunY - 18, 1, 36);
-
-      // 3. Drifting High-Altitude Alpine Cirrus Clouds
-      for (let c = 0; c < 4; c++) {
-        const cloudSpeed = 0.25 + c * 0.1;
-        const cx = ((c * 95 + time * cloudSpeed - cameraX * 0.03) % (GAME_WIDTH + 80) + GAME_WIDTH + 80) % (GAME_WIDTH + 80) - 40;
-        const cy = 12 + c * 10;
-        const cw = 36 + c * 12;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, cw / 2, 4, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(224, 242, 254, 0.3)';
-        ctx.beginPath();
-        ctx.ellipse(cx + 4, cy - 2, cw / 3, 3, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (zone === 'steampunk') {
-      // Steampunk Factory: Giant Revolving Brass Clockwork Gear-Sun & Billowing Industrial Chimneys
-      const isRusted = act === 2;
-      const isOnlyUp = act === 3;
-      const gearSunX = 245;
-      const gearSunY = 36;
-      const radius = 24;
-
-      // 1. Rotating Clockwork Brass Gear-Sun in the Industrial Smog
-      ctx.save();
-      ctx.translate(gearSunX, gearSunY);
-      ctx.rotate(time * 0.015);
-
-      // Gear teeth perimeter
-      const teeth = 10;
-      ctx.fillStyle = isRusted ? '#7c2d12' : '#b45309';
-      for (let t = 0; t < teeth; t++) {
-        ctx.save();
-        ctx.rotate((t / teeth) * Math.PI * 2);
-        ctx.fillRect(-2.5, -radius - 4, 5, 5);
-        ctx.restore();
-      }
-
-      // Outer bronze ring
-      ctx.fillStyle = isRusted ? '#431407' : '#78350f';
-      ctx.beginPath();
-      ctx.arc(0, 0, radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Glowing inner brass dial
-      ctx.fillStyle = isRusted ? '#ca8a04' : '#f59e0b';
-      ctx.beginPath();
-      ctx.arc(0, 0, radius - 3, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Mechanical central core
-      ctx.fillStyle = isRusted ? '#1c1917' : '#451a03';
-      ctx.beginPath();
-      ctx.arc(0, 0, radius - 7, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Clockwork pointer needles
-      ctx.strokeStyle = isRusted ? '#ea580c' : '#fef08a';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, -radius + 8);
-      ctx.moveTo(0, 0);
-      ctx.lineTo(radius - 10, 0);
-      ctx.stroke();
-
-      ctx.restore();
-
-      // 2. Colossal Victorian Chimneys Billowing Plumes of Pure Steam
-      for (let i = 0; i < 4; i++) {
-        const stackX = 35 + i * 72;
-        const stackH = 38 + ((i * 19) % 22);
-        const stackY = 115 - stackH;
-        // Brick stack body
-        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
-        ctx.fillRect(stackX, stackY, 14, stackH + 25);
-        ctx.fillStyle = isRusted ? '#78350f' : '#78350f';
-        ctx.fillRect(stackX + 2, stackY, 4, stackH + 25);
-        // Smokestack flanged brass ring
-        ctx.fillStyle = isRusted ? '#431407' : '#b45309';
-        ctx.fillRect(stackX - 2, stackY - 2, 18, 3.5);
-
-        // Billowing steam puffs rising upwards
-        for (let s = 0; s < 5; s++) {
-          const plumeY = stackY - 6 - s * 9;
-          const puffR = 5 + s * 3.5;
-          const plumeWiggle = Math.sin(time * 0.08 + s * 0.7 + i) * (3 + s * 2);
-          const alpha = Math.max(0.12, 0.6 - s * 0.1);
-          ctx.fillStyle = isRusted
-            ? `rgba(217, 249, 157, ${alpha * 0.55})`
-            : isOnlyUp
-            ? `rgba(254, 215, 170, ${alpha})`
-            : `rgba(255, 247, 237, ${alpha})`;
-          ctx.beginPath();
-          ctx.arc(stackX + 7 + plumeWiggle, plumeY, puffR, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    } else if (zone === 'castlesmash') {
-      // Medieval Castle Smash Celestial / Fortress Backdrop
-      if (act === 1) {
-        // Stormy blood moon peeking through dark clouds
-        ctx.fillStyle = '#fca5a5';
-        ctx.beginPath();
-        ctx.arc(245, 36, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fee2e2';
-        ctx.beginPath();
-        ctx.arc(245, 36, 12, 0, Math.PI * 2);
-        ctx.fill();
-        // Storm lightning flicker
-        if (Math.sin(time * 0.15) > 0.94) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-          ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-        }
-      } else if (act === 2) {
-        // Fiery siege sun & distant catapult trails
-        ctx.fillStyle = '#ea580c';
-        ctx.beginPath();
-        ctx.arc(245, 42, 22, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fbbf24';
-        ctx.beginPath();
-        ctx.arc(245, 42, 14, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Act 3: Stained Glass Rose Window in Throne Room
-        const rwX = 240;
-        const rwY = 40;
-        const rRad = 26;
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(rwX, rwY, rRad, 0, Math.PI * 2);
-        ctx.stroke();
-        // Rose window glass
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
-        ctx.beginPath();
-        ctx.arc(rwX, rwY, rRad - 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.45)';
-        ctx.beginPath();
-        ctx.arc(rwX, rwY, 12, 0, Math.PI * 2);
-        ctx.fill();
-        // Vault light shaft
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.08)';
-        ctx.beginPath();
-        ctx.moveTo(rwX - 18, rwY);
-        ctx.lineTo(rwX + 18, rwY);
-        ctx.lineTo(rwX + 45, 140);
-        ctx.lineTo(rwX - 45, 140);
-        ctx.closePath();
-        ctx.fill();
-      }
-    } else if (zone === 'piratestreasure') {
-      // Pirates Treasure Celestial & Horizon Atmosphere
-      if (act === 1) {
-        // Radiant Caribbean Tropical Sun with Light Flares
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
-        ctx.beginPath();
-        ctx.arc(245, 36, 34, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(245, 36, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(245, 36, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Fluffy tropical clouds drifting across the blue sky
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-        const cOffset = (time * 0.15) % (GAME_WIDTH + 80);
-        ctx.beginPath();
-        ctx.arc(cOffset - 40, 24, 14, 0, Math.PI * 2);
-        ctx.arc(cOffset - 26, 20, 18, 0, Math.PI * 2);
-        ctx.arc(cOffset - 10, 24, 13, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (act === 2) {
-        // Underwater: Light Rays (crepuscular rays) streaming down from surface
-        ctx.save();
-        ctx.globalAlpha = 0.12 + Math.sin(time * 0.05) * 0.04;
-        ctx.fillStyle = '#bae6fd';
-        for (let rayX = 20; rayX < GAME_WIDTH; rayX += 55) {
-          const sway = Math.sin(time * 0.03 + rayX) * 12;
-          ctx.beginPath();
-          ctx.moveTo(rayX, 0);
-          ctx.lineTo(rayX + 18, 0);
-          ctx.lineTo(rayX + 45 + sway, GAME_HEIGHT);
-          ctx.lineTo(rayX + 10 + sway, GAME_HEIGHT);
-          ctx.closePath();
-          ctx.fill();
-        }
-        ctx.restore();
-      } else {
-        // Act 3: Deep Abyssal trench with bioluminescent algae flares
-        ctx.save();
-        ctx.globalAlpha = 0.15 + Math.sin(time * 0.04) * 0.05;
-        ctx.fillStyle = '#2dd4bf';
-        for (let fx = 40; fx < GAME_WIDTH; fx += 70) {
-          ctx.beginPath();
-          ctx.arc(fx + Math.sin(time * 0.02 + fx) * 10, 40 + Math.cos(time * 0.03 + fx) * 15, 22, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.restore();
-      }
-    } else if (zone === 'jurasicdraft') {
-      // Jurassic Draft Prehistoric Atmosphere & Celestial Bodies
-      if (act === 1) {
-        // Mesozoic Golden Dawn Sun & Humid Canopy Light Rays
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
-        ctx.beginPath();
-        ctx.arc(235, 34, 42, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(250, 204, 21, 0.45)';
-        ctx.beginPath();
-        ctx.arc(235, 34, 24, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(235, 34, 13, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Sunlight crepuscular beams through primeval canopy
-        ctx.save();
-        ctx.globalAlpha = 0.10 + Math.sin(time * 0.04) * 0.04;
-        ctx.fillStyle = '#fef08a';
-        for (let ray = 30; ray < GAME_WIDTH + 60; ray += 65) {
-          ctx.beginPath();
-          ctx.moveTo(ray, 0);
-          ctx.lineTo(ray + 28, 0);
-          ctx.lineTo(ray + 75, GAME_HEIGHT);
-          ctx.lineTo(ray + 18, GAME_HEIGHT);
-          ctx.closePath();
-          ctx.fill();
-        }
-        ctx.restore();
-
-        // Flocks of high-altitude Pterosaurs with animated flapping wings
-        ctx.fillStyle = '#064e3b';
-        for (let p = 0; p < 4; p++) {
-          const px = ((time * 0.45 + p * 95) % (GAME_WIDTH + 90)) - 45;
-          const py = 16 + p * 11 + Math.sin(time * 0.06 + p * 1.5) * 5;
-          const flap = Math.sin(time * 0.18 + p * 2) * 4;
-          ctx.beginPath();
-          ctx.moveTo(px, py);
-          ctx.lineTo(px - 7, py - 3 + flap);
-          ctx.lineTo(px - 1, py + 1);
-          ctx.lineTo(px + 7, py - 3 - flap);
-          ctx.closePath();
-          ctx.fill();
-        }
-
-        // Soft drifting prehistoric morning mist clouds
-        ctx.fillStyle = 'rgba(254, 240, 138, 0.12)';
-        for (let c = 0; c < 3; c++) {
-          const cx = ((time * 0.15 + c * 130) % (GAME_WIDTH + 140)) - 70;
-          const cy = 25 + c * 18;
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, 38, 10, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (act === 2) {
-        // Fractured Cretaceous Moon veiled by volcanic sulfur clouds
-        const moonX = 65;
-        const moonY = 32;
-        ctx.fillStyle = 'rgba(254, 215, 170, 0.18)';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, 26, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fed7aa';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, 14, 0, Math.PI * 2);
-        ctx.fill();
-        // Moon crater details
-        ctx.fillStyle = '#c2410c';
-        ctx.fillRect(moonX - 5, moonY - 3, 3, 3);
-        ctx.fillRect(moonX + 2, moonY + 2, 4, 3);
-
-        // Distant smoking volcanic crater & thermal haze
-        const volX = 220;
-        const volY = 48;
-        // Rising billowing sulfur smoke plume
-        for (let sp = 0; sp < 9; sp++) {
-          const sOffset = (time * 0.38 + sp * 12) % 80;
-          const sRadius = 7 + sOffset * 0.25;
-          const sAlpha = Math.max(0, 0.48 - sOffset * 0.0055);
-          const drift = Math.sin(time * 0.04 + sp) * 10 - sOffset * 0.22;
-          ctx.fillStyle = `rgba(120, 53, 15, ${sAlpha})`;
-          ctx.beginPath();
-          ctx.arc(volX + drift, volY - sOffset, sRadius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        // Glowing magma rim of crater
-        ctx.fillStyle = '#ea580c';
-        ctx.fillRect(volX - 12, volY, 24, 3.5);
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(volX - 6, volY + 1, 12, 1.8);
-
-        // Distant volcanic lightning flashes in ash plume every ~150 frames
-        const flashTick = Math.floor(time) % 160;
-        if (flashTick > 148 && flashTick < 155) {
-          ctx.strokeStyle = '#fef08a';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(volX - 5, volY - 35);
-          ctx.lineTo(volX - 12, volY - 22);
-          ctx.lineTo(volX - 8, volY - 12);
-          ctx.lineTo(volX - 15, volY);
-          ctx.stroke();
-        }
-
-        // Pterodactyls swooping in the canyon thermals
-        ctx.fillStyle = '#451a03';
-        for (let p = 0; p < 3; p++) {
-          const px = ((time * 0.6 + p * 120) % (GAME_WIDTH + 80)) - 40;
-          const py = 30 + p * 14 + Math.sin(time * 0.08 + p) * 8;
-          ctx.beginPath();
-          ctx.moveTo(px, py);
-          ctx.lineTo(px - 8, py - 4);
-          ctx.lineTo(px - 2, py + 2);
-          ctx.lineTo(px + 8, py - 4);
-          ctx.closePath();
-          ctx.fill();
-        }
-      } else {
-        // Act 3: Colossal Erupting Titan Volcano Peak & Magma Geysers
-        const volX = 160;
-        const volY = 44;
-        // Apocalyptic red/orange ash cloud covering top of sky
-        ctx.save();
-        ctx.globalAlpha = 0.40 + Math.sin(time * 0.08) * 0.12;
-        const ashGrad = ctx.createRadialGradient(volX, volY - 15, 10, volX, volY - 15, 135);
-        ashGrad.addColorStop(0, '#ef4444');
-        ashGrad.addColorStop(0.4, '#991b1b');
-        ashGrad.addColorStop(0.75, '#450a0a');
-        ashGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = ashGrad;
-        ctx.beginPath();
-        ctx.arc(volX, volY - 15, 135, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Incandescent lava fountain arcs shooting out of caldera
-        for (let lava = 0; lava < 6; lava++) {
-          const lT = (time * 0.14 + lava * 0.7) % (Math.PI);
-          const lx = volX + Math.cos(lT + lava) * (24 + lava * 7);
-          const ly = volY - Math.sin(lT) * (32 + lava * 5);
-          ctx.fillStyle = '#fef08a';
-          ctx.beginPath();
-          ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#ea580c';
-          ctx.beginPath();
-          ctx.arc(lx - 1, ly + 2, 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Fiery meteorites streaking diagonally across the cataclysmic sky
-        for (let m = 0; m < 2; m++) {
-          const mProgress = (time * 0.08 + m * 0.5) % 1;
-          const mx = GAME_WIDTH * 0.9 - mProgress * (GAME_WIDTH * 0.8) + m * 70;
-          const my = mProgress * (GAME_HEIGHT * 0.6) + m * 15;
-          if (my < GAME_HEIGHT * 0.65) {
-            // Meteor head
-            ctx.fillStyle = '#fef08a';
-            ctx.beginPath();
-            ctx.arc(mx, my, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-            // Fiery streak tail
-            const streakGrad = ctx.createLinearGradient(mx, my, mx + 32, my - 24);
-            streakGrad.addColorStop(0, '#f97316');
-            streakGrad.addColorStop(0.6, '#ef4444');
-            streakGrad.addColorStop(1, 'transparent');
-            ctx.strokeStyle = streakGrad;
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.moveTo(mx, my);
-            ctx.lineTo(mx + 32, my - 24);
-            ctx.stroke();
-          }
-        }
-
-        // Branching volcanic lightning bolts every ~120 frames
-        const vLightTick = Math.floor(time) % 130;
-        if (vLightTick > 118 && vLightTick < 125) {
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(volX + 15, volY - 35);
-          ctx.lineTo(volX + 28, volY - 20);
-          ctx.lineTo(volX + 22, volY - 8);
-          ctx.lineTo(volX + 38, volY + 5);
-          ctx.stroke();
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(volX + 28, volY - 20);
-          ctx.lineTo(volX + 42, volY - 14);
-          ctx.stroke();
-        }
-      }
-    } else if (zone === 'themoon') {
-      // The Moon: Celestial Atmosphere
-      if (act === 1) {
-        // Base de Lanzamiento: Luna Llena Plateada en el cielo nocturno & Reflectores Aeroespaciales
-        const moonX = 235;
-        const moonY = 36;
-        // Lunar Atmospheric Soft Glow
-        ctx.fillStyle = 'rgba(224, 242, 254, 0.18)';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, 34, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(186, 230, 253, 0.32)';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, 24, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Moon Disc (Silver / Pearl White)
-        ctx.fillStyle = '#f8fafc';
-        ctx.beginPath();
-        ctx.arc(moonX, moonY, 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Dark Lunar Mare / Cráter Basins on the Moon
-        ctx.fillStyle = '#94a3b8';
-        ctx.beginPath();
-        ctx.arc(moonX - 5, moonY - 3, 5, 0, Math.PI * 2);
-        ctx.arc(moonX + 3, moonY - 6, 4, 0, Math.PI * 2);
-        ctx.arc(moonX - 1, moonY + 5, 6, 0, Math.PI * 2);
-        ctx.arc(moonX + 6, moonY + 2, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Distant Aerospace Searchlights sweeping through the twilight sky
-        for (let s = 0; s < 2; s++) {
-          const sAngle = Math.sin(time * 0.03 + s * 1.8) * 0.45 + (s === 0 ? -0.3 : 0.3);
-          const baseLx = s === 0 ? 90 : 210;
-          ctx.save();
-          ctx.translate(baseLx, 148);
-          ctx.rotate(sAngle);
-          const beamGrad = ctx.createLinearGradient(0, 0, 0, -170);
-          beamGrad.addColorStop(0, 'rgba(56, 189, 248, 0.35)');
-          beamGrad.addColorStop(0.6, 'rgba(56, 189, 248, 0.12)');
-          beamGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
-          ctx.fillStyle = beamGrad;
-          ctx.beginPath();
-          ctx.moveTo(-4, 0);
-          ctx.lineTo(-24, -170);
-          ctx.lineTo(24, -170);
-          ctx.lineTo(4, 0);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
-        }
-      } else if (act === 2) {
-        // Base Lunar: ¡ESPECTACULAR PLANETA TIERRA EN EL COSMOS (EARTHRISE)!
-        const earthX = 230;
-        const earthY = 40;
-        const earthR = 22;
-
-        // Glowing Cyan Atmospheric Corona of Earth
-        const earthGlow = ctx.createRadialGradient(earthX, earthY, earthR - 2, earthX, earthY, earthR + 18);
-        earthGlow.addColorStop(0, 'rgba(56, 189, 248, 0.45)');
-        earthGlow.addColorStop(0.5, 'rgba(14, 165, 233, 0.22)');
-        earthGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = earthGlow;
-        ctx.beginPath();
-        ctx.arc(earthX, earthY, earthR + 18, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Earth Ocean Sphere (Sapphire Azure Blue)
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath();
-        ctx.arc(earthX, earthY, earthR, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Continents (Emerald green & warm ochre savannahs)
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(earthX, earthY, earthR, 0, Math.PI * 2);
-        ctx.clip();
-
-        // America / Eurasia continents
-        ctx.fillStyle = '#10b981';
-        ctx.beginPath();
-        ctx.ellipse(earthX - 7, earthY - 4, 7, 10, 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#b45309';
-        ctx.beginPath();
-        ctx.ellipse(earthX - 6, earthY + 6, 6, 8, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#059669';
-        ctx.beginPath();
-        ctx.ellipse(earthX + 8, earthY - 5, 8, 9, 0.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Polar Ice Caps (North & South)
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.ellipse(earthX, earthY - earthR + 2, 8, 3.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(earthX, earthY + earthR - 2, 9, 3.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Swirling atmospheric white cloud bands & storm cyclones
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        ctx.beginPath();
-        ctx.arc(earthX - 3, earthY - 6, 4, 0, Math.PI * 2);
-        ctx.arc(earthX + 4, earthY - 2, 6, 0, Math.PI * 2);
-        ctx.arc(earthX - 8, earthY + 4, 5, 0, Math.PI * 2);
-        ctx.arc(earthX + 6, earthY + 8, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Terminator shadow (Earth phase crescent effect)
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.35)';
-        ctx.beginPath();
-        ctx.arc(earthX + 6, earthY, earthR, -Math.PI * 0.5, Math.PI * 0.5);
-        ctx.arc(earthX, earthY, earthR, Math.PI * 0.5, -Math.PI * 0.5, true);
-        ctx.fill();
-
-        ctx.restore();
-
-        // Deep space cosmic starfield (crisp stars in vacuum)
-        ctx.save();
-        for (let s = 0; s < 45; s++) {
-          const sx = (s * 37 + 13) % GAME_WIDTH;
-          const sy = (s * 23 + 7) % 110;
-          // Avoid drawing stars directly inside Earth
-          if (Math.hypot(sx - earthX, sy - earthY) > earthR + 2) {
-            const twinkle = 0.5 + Math.sin(time * 0.08 + s) * 0.45;
-            ctx.fillStyle = (s % 5 === 0) ? `rgba(253, 224, 71, ${twinkle})` : (s % 3 === 0) ? `rgba(147, 197, 253, ${twinkle})` : `rgba(255, 255, 255, ${twinkle})`;
-            const sz = (s % 7 === 0) ? 2 : 1;
-            ctx.fillRect(sx, sy, sz, sz);
-          }
-        }
-        // Faint purple/cyan galaxy streak
-        ctx.fillStyle = 'rgba(168, 85, 247, 0.06)';
-        ctx.beginPath();
-        ctx.ellipse(80, 45, 65, 16, -0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else {
-        // =====================================================================
-        // ACTO 3: DOOMSDAY ZONE ORBITAL - ESPACIO PROFUNDO A HIPER-VELOCIDAD
-        // =====================================================================
-        // 1. Swirling Cosmic Interstellar Nebula (Violet, Cyan & Gold Gas Clouds)
-        ctx.save();
-        const nebGrad = ctx.createRadialGradient(160, 90, 20, 160, 90, 160);
-        nebGrad.addColorStop(0, 'rgba(168, 85, 247, 0.22)');
-        nebGrad.addColorStop(0.4, 'rgba(6, 182, 212, 0.16)');
-        nebGrad.addColorStop(0.7, 'rgba(236, 72, 153, 0.08)');
-        nebGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = nebGrad;
-        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-        // 2. Distant Earth & Moon in Cosmic Perspective (Distant Spheres)
-        const dEarthX = 65;
-        const dEarthY = 45;
-        const dEarthR = 14;
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath();
-        ctx.arc(dEarthX, dEarthY, dEarthR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
-        ctx.beginPath();
-        ctx.arc(dEarthX, dEarthY, dEarthR + 3, 0, Math.PI * 2);
-        ctx.stroke();
-        // Tiny glowing Moon nearby
-        ctx.fillStyle = '#cbd5e1';
-        ctx.beginPath();
-        ctx.arc(dEarthX + 28, dEarthY - 8, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 3. Sonic Doomsday Zone Warp Stars (Streaking left at high speed!)
-        for (let s = 0; s < 55; s++) {
-          const speed = 2.5 + (s % 5) * 1.5;
-          const starX = ((time * speed + s * 37) % (GAME_WIDTH + 80)) * -1 + (GAME_WIDTH + 80);
-          const starY = (s * 19 + 7) % GAME_HEIGHT;
-          const streakLen = 3 + speed * 1.8;
-          ctx.strokeStyle = s % 4 === 0 ? '#facc15' : s % 3 === 0 ? '#38bdf8' : '#ffffff';
-          ctx.lineWidth = s % 6 === 0 ? 1.5 : 1;
-          ctx.beginPath();
-          ctx.moveTo(starX, starY);
-          ctx.lineTo(starX + streakLen, starY);
-          ctx.stroke();
-        }
-
-        // 4. Distant Tumbling Cosmic Asteroids (Passing backward in space)
-        for (let a = 0; a < 4; a++) {
-          const aSpd = 1.2 + a * 0.4;
-          const ax = ((time * aSpd + a * 120) % (GAME_WIDTH + 100)) * -1 + (GAME_WIDTH + 100);
-          const ay = 30 + a * 38 + Math.sin(time * 0.05 + a) * 8;
-          const aSize = 5 + (a % 3) * 2;
-          ctx.fillStyle = '#1e293b';
-          ctx.beginPath();
-          ctx.arc(ax, ay, aSize, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#334155';
-          ctx.fillRect(ax - 2, ay - 2, 2, 2);
-        }
-        ctx.restore();
-      }
-    } else {
-      // Desert Sanctuary: Blazing Ra Sun (Act 1) or Mystical Khonsu Moon (Act 2)
-      if (act === 1) {
-        // Giant Blazing Solar Disc of Ra with Solar Corona
-        ctx.fillStyle = '#fde68a33';
-        ctx.beginPath();
-        ctx.arc(245, 38, 32, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#f59e0b66';
-        ctx.beginPath();
-        ctx.arc(245, 38, 22, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(245, 38, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(245, 38, 7, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Mystical Egyptian Crescent Moon & Starry Constellation
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(245, 34, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#2e1065';
-        ctx.beginPath();
-        ctx.arc(240, 32, 16, 0, Math.PI * 2);
-        ctx.fill();
-        // Constellation stars
-        ctx.fillStyle = '#fef08a';
-        for (let s = 0; s < 12; s++) {
-          const sx = (s * 31 + 17) % GAME_WIDTH;
-          const sy = (s * 19 + 11) % 70;
-          ctx.fillRect(sx, sy, 1.5, 1.5);
-        }
-      }
-    }
-
-    // Parallax Layer 1: Distant Mountains / Cyber Skyscraper Skylines / Basalt Spires / Golden Pyramids / Jungle Canopy Ridges
-    if (zone === 'jungle') {
-      const p1Offset = (cameraX * 0.08) % 180;
-      // Distant rolling emerald mountain ridges covered in lush rainforest canopy
-      ctx.fillStyle = act === 1 ? '#042e22' : '#021c15';
-      ctx.beginPath();
-      ctx.moveTo(0, 115);
-      for (let x = -p1Offset - 180; x <= GAME_WIDTH + 180; x += 25) {
-        const h = Math.sin(x * 0.03 + cameraX * 0.0008) * 16 + Math.cos(x * 0.05) * 8;
-        ctx.lineTo(x, 68 + h);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // Distant cascading jungle waterfalls pouring from high cliff ravines
-      for (let wx = -p1Offset - 180; wx <= GAME_WIDTH + 180; wx += 160) {
-        const fallX = wx + 85;
-        const fallTopY = 64 + Math.sin(fallX * 0.03 + cameraX * 0.0008) * 16;
-        ctx.fillStyle = '#38bdf8aa';
-        ctx.fillRect(fallX, fallTopY, 3, 40);
-        ctx.fillStyle = '#ffffffcc';
-        ctx.fillRect(fallX + 1, fallTopY, 1, 38);
-        // Foaming mist at the base
-        ctx.fillStyle = 'rgba(167, 243, 208, 0.4)';
-        ctx.beginPath();
-        ctx.arc(fallX + 1.5, fallTopY + 40, 6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Distant Mayan temple cresterías & stelae on mountain peaks
-      ctx.fillStyle = act === 1 ? '#063f2f' : '#03261d';
-      for (let rx = -p1Offset - 180; rx <= GAME_WIDTH + 180; rx += 140) {
-        const crestX = rx + 30;
-        const crestY = 62 + Math.sin(crestX * 0.03 + cameraX * 0.0008) * 16;
-        // Distant stone temple sanctuary with crown
-        ctx.fillRect(crestX - 10, crestY - 14, 20, 14);
-        ctx.fillRect(crestX - 6, crestY - 22, 12, 8);
-        ctx.fillRect(crestX - 2, crestY - 28, 4, 6);
-        ctx.fillStyle = '#facc15aa';
-        ctx.fillRect(crestX - 1, crestY - 26, 2, 2);
-        ctx.fillStyle = act === 1 ? '#063f2f' : '#03261d';
-      }
-    } else if (zone === 'blizzard') {
-      // Blizzard Rush: High Alpine Jagged Mountain Peaks with Glaciers & Snow Caps
-      const p1Offset = (cameraX * 0.05) % 240;
-
-      // 1. Far jagged mountain silhouette
-      ctx.fillStyle = '#0c2238';
-      ctx.beginPath();
-      ctx.moveTo(0, 120);
-      for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 25) {
-        const peak = Math.sin(x * 0.018) * 22 + Math.cos(x * 0.04 + 1.2) * 12;
-        ctx.lineTo(x, 62 + peak);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // 2. Majestic Alpine Peak Triangles with Crisp Snow Facets
-      for (let px = -p1Offset - 240; px <= GAME_WIDTH + 240; px += 65) {
-        const peakY = 46 + Math.sin(px * 0.02) * 16;
-        const peakW = 44;
-        const peakH = 48;
-
-        // Left lit face (Pristine alpine snow)
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.moveTo(px, peakY);
-        ctx.lineTo(px - peakW * 0.6, peakY + peakH);
-        ctx.lineTo(px, peakY + peakH * 0.68);
-        ctx.closePath();
-        ctx.fill();
-
-        // Right shaded face (Cold alpine glacier cyan shadow)
-        ctx.fillStyle = '#7dd3fc';
-        ctx.beginPath();
-        ctx.moveTo(px, peakY);
-        ctx.lineTo(px + peakW * 0.6, peakY + peakH);
-        ctx.lineTo(px, peakY + peakH * 0.68);
-        ctx.closePath();
-        ctx.fill();
-
-        // Deep granite crevasse shadow
-        ctx.fillStyle = '#0369a1';
-        ctx.beginPath();
-        ctx.moveTo(px, peakY);
-        ctx.lineTo(px + 4, peakY + peakH * 0.68);
-        ctx.lineTo(px - 2, peakY + peakH * 0.85);
-        ctx.closePath();
-        ctx.fill();
-
-        // Razor summit peak accent
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(px - 1, peakY - 3, 2, 4);
-      }
-    } else if (zone === 'steampunk') {
-      // Steampunk Far Layer: Victorian Industrial Factory Silhouettes, Sawtooth Gables, Clock Towers
-      const p1Offset = (cameraX * 0.06) % 200;
-      const isRusted = act === 2;
-      const isOnlyUp = act === 3;
-
-      ctx.fillStyle = isRusted ? '#140c06' : isOnlyUp ? '#200505' : '#1e0f06';
-      ctx.beginPath();
-      ctx.moveTo(0, 130);
-      for (let x = -p1Offset - 200; x <= GAME_WIDTH + 200; x += 36) {
-        // Industrial Sawtooth rooflines
-        ctx.lineTo(x, 96);
-        ctx.lineTo(x + 22, 72);
-        ctx.lineTo(x + 22, 96);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // Factory brickwork & illuminated arched windows
-      ctx.fillStyle = isRusted ? 'rgba(120, 53, 15, 0.4)' : isOnlyUp ? 'rgba(234, 88, 12, 0.45)' : 'rgba(245, 158, 11, 0.4)';
-      for (let x = -p1Offset - 200; x <= GAME_WIDTH + 200; x += 36) {
-        ctx.fillRect(x + 4, 84, 5, 8);
-        ctx.fillRect(x + 13, 84, 5, 8);
-      }
-    } else if (zone === 'castlesmash') {
-      // Parallax Layer 1: Distant Gothic Castle Fortress, Towers & Spires
-      const p1Offset = (cameraX * 0.06) % 220;
-      ctx.fillStyle = act === 1 ? '#0f172a' : act === 2 ? '#291206' : '#1c0a2b';
-      ctx.beginPath();
-      ctx.moveTo(0, 135);
-      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 44) {
-        // Castle towers with peaked roofs & crenels
-        ctx.lineTo(x, 110);
-        ctx.lineTo(x, 70);
-        ctx.lineTo(x + 8, 48); // Tower conical spire
-        ctx.lineTo(x + 16, 70);
-        ctx.lineTo(x + 16, 92);
-        ctx.lineTo(x + 44, 92);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // Flying Banners / Pennants atop spires
-      ctx.fillStyle = act === 2 ? '#ef4444' : '#f59e0b';
-      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 44) {
-        const flagWave = Math.sin(time * 0.2 + x) * 2;
-        ctx.beginPath();
-        ctx.moveTo(x + 8, 48);
-        ctx.lineTo(x + 16 + flagWave, 51);
-        ctx.lineTo(x + 8, 54);
-        ctx.closePath();
-        ctx.fill();
-      }
-    } else if (zone === 'piratestreasure') {
-      // Parallax Layer 1: Distant Islands, Ocean Horizon & Sunken Galleon Silhouette
-      const p1Offset = (cameraX * 0.06) % 220;
-      if (act === 1) {
-        // Distant tropical sea horizon with rolling ocean waves & palm islands
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(0, 95, GAME_WIDTH, GAME_HEIGHT - 95);
-        ctx.fillStyle = '#0369a1';
-        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 32) {
-          const wave = Math.sin(time * 0.1 + x * 0.05) * 2;
-          ctx.fillRect(x, 95 + wave, 20, 3);
-        }
-        // Distant pirate galleon silhouette sailing on horizon
-        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 180) {
-          const shipX = x + 60;
-          const shipY = 88;
-          ctx.fillStyle = '#075985';
-          ctx.beginPath();
-          ctx.moveTo(shipX - 12, shipY + 4);
-          ctx.lineTo(shipX + 14, shipY + 4);
-          ctx.lineTo(shipX + 10, shipY + 8);
-          ctx.lineTo(shipX - 10, shipY + 8);
-          ctx.closePath();
-          ctx.fill();
-          // Masts & sails
-          ctx.fillRect(shipX - 4, shipY - 10, 2, 14);
-          ctx.fillRect(shipX + 4, shipY - 12, 2, 16);
-          ctx.fillStyle = '#bae6fd';
-          ctx.fillRect(shipX - 8, shipY - 8, 4, 6);
-          ctx.fillRect(shipX + 6, shipY - 10, 4, 7);
-        }
-      } else if (act === 2) {
-        // Underwater: Distant oceanic trench seamounts and giant coral arches
-        ctx.fillStyle = '#075985';
-        ctx.beginPath();
-        ctx.moveTo(0, 140);
-        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 40) {
-          const ch = Math.sin(x * 0.03) * 25 + Math.cos(x * 0.05) * 12;
-          ctx.lineTo(x, 80 + ch);
-        }
-        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-        ctx.lineTo(0, GAME_HEIGHT);
-        ctx.fill();
-      } else {
-        // Act 3: Colossal sunken shipwreck hull silhouette deep in the abyss
-        ctx.fillStyle = '#021e30';
-        for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 220) {
-          const sx = x + 40;
-          ctx.beginPath();
-          ctx.moveTo(sx, 140);
-          ctx.lineTo(sx + 30, 75);
-          ctx.lineTo(sx + 120, 75);
-          ctx.lineTo(sx + 150, 140);
-          ctx.closePath();
-          ctx.fill();
-          // Broken mast tilted in the current
-          ctx.fillStyle = '#032c45';
-          ctx.fillRect(sx + 70, 30, 4, 50);
-          ctx.fillRect(sx + 50, 45, 45, 3);
-        }
-      }
-    } else if (zone === 'jurasicdraft') {
-      // Prehistoric Mountain Ridge & Sauropod Silhouettes (Parallax Layer 1)
-      const p1Offset = (cameraX * 0.06) % 240;
-      ctx.fillStyle = act === 1 ? '#042f1a' : act === 2 ? '#3b1204' : '#260404';
-      ctx.beginPath();
-      ctx.moveTo(0, 125);
-      for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 30) {
-        const peak = Math.sin(x * 0.02) * 22 + Math.cos(x * 0.038) * 14;
-        ctx.lineTo(x, 76 + peak);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      if (act === 1) {
-        // Distant prehistoric mountain waterfalls
-        for (let wx = -p1Offset - 240; wx <= GAME_WIDTH + 240; wx += 210) {
-          const fallX = wx + 40;
-          ctx.fillStyle = 'rgba(254, 240, 138, 0.4)';
-          ctx.fillRect(fallX, 86, 3, 38);
-          ctx.fillStyle = '#6ee7b7';
-          ctx.fillRect(fallX + 0.5, 86, 2, 38);
-          // Waterfall mist base
-          ctx.fillStyle = 'rgba(167, 243, 208, 0.35)';
-          ctx.beginPath();
-          ctx.arc(fallX + 1, 124, 7, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        // Monumental Sauropod (Brachiosaurus) Silhouettes walking in the distant mist
-        for (let bx = -p1Offset - 240; bx <= GAME_WIDTH + 240; bx += 220) {
-          const sauroX = bx + 90;
-          const sauroY = 82;
-          ctx.fillStyle = '#032012';
-
-          // Massive Sauropod Torso
-          ctx.beginPath();
-          ctx.ellipse(sauroX, sauroY, 18, 9, 0, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 4 Animated Walking Pillar Legs
-          const step1 = Math.sin(time * 0.04 + bx) * 2.5;
-          const step2 = Math.cos(time * 0.04 + bx) * 2.5;
-          ctx.fillRect(sauroX - 14 + step1, sauroY + 4, 4, 18);
-          ctx.fillRect(sauroX - 7 - step1, sauroY + 4, 4, 18);
-          ctx.fillRect(sauroX + 6 + step2, sauroY + 4, 4, 18);
-          ctx.fillRect(sauroX + 13 - step2, sauroY + 4, 4, 18);
-
-          // Long Arching Neck reaching high into the sky
-          const neckSway = Math.sin(time * 0.03 + bx) * 3;
-          ctx.beginPath();
-          ctx.moveTo(sauroX + 10, sauroY - 4);
-          ctx.quadraticCurveTo(sauroX + 22, sauroY - 24 + neckSway, sauroX + 18, sauroY - 42 + neckSway);
-          ctx.lineTo(sauroX + 22, sauroY - 42 + neckSway); // Head
-          ctx.lineTo(sauroX + 25, sauroY - 40 + neckSway);
-          ctx.quadraticCurveTo(sauroX + 26, sauroY - 22 + neckSway, sauroX + 16, sauroY - 2);
-          ctx.closePath();
-          ctx.fill();
-
-          // Long tapering tail trailing behind
-          ctx.beginPath();
-          ctx.moveTo(sauroX - 16, sauroY - 2);
-          ctx.quadraticCurveTo(sauroX - 32, sauroY + 2, sauroX - 44, sauroY + 8);
-          ctx.lineTo(sauroX - 42, sauroY + 10);
-          ctx.quadraticCurveTo(sauroX - 28, sauroY + 6, sauroX - 14, sauroY + 4);
-          ctx.closePath();
-          ctx.fill();
-        }
-      } else if (act === 2) {
-        // Act 2: Cascades of glowing liquid lava pouring down distant basalt canyon peaks
-        for (let lx = -p1Offset - 240; lx <= GAME_WIDTH + 240; lx += 160) {
-          const lavaFallX = lx + 55;
-          const fallTopY = 82 + Math.sin(lx * 0.03) * 10;
-          ctx.fillStyle = '#ea580c';
-          ctx.fillRect(lavaFallX, fallTopY, 4, 45);
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(lavaFallX + 1, fallTopY, 2, 45);
-          // Molten splash basin at bottom
-          ctx.fillStyle = 'rgba(234, 88, 12, 0.45)';
-          ctx.beginPath();
-          ctx.arc(lavaFallX + 2, fallTopY + 45, 9, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else {
-        // Act 3: Caldera amphitheater rim with glowing rivers of magma and smoking basalt spires
-        for (let sx = -p1Offset - 240; sx <= GAME_WIDTH + 240; sx += 140) {
-          const spireX = sx + 50;
-          ctx.fillStyle = '#1c0505';
-          ctx.beginPath();
-          ctx.moveTo(spireX - 8, 125);
-          ctx.lineTo(spireX, 68);
-          ctx.lineTo(spireX + 8, 125);
-          ctx.fill();
-          // Magma fissure down spire
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(spireX - 0.5, 75, 1.5, 45);
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(spireX, 75, 0.8, 30);
-        }
-      }
-    } else if (zone === 'sakura') {
-      // Sacred Sakura Mountain Ridge (Layer 1: Distant Misty Peaks & Mount Fuji)
-      const p1Offset = (cameraX * 0.06) % 220;
-      ctx.fillStyle = isNight ? '#180e2b' : '#5a1d41';
-      ctx.beginPath();
-      ctx.moveTo(0, 118);
-      for (let x = -p1Offset - 220; x <= GAME_WIDTH + 220; x += 30) {
-        const h = Math.sin(x * 0.025 + cameraX * 0.0006) * 15 + Math.cos(x * 0.04) * 8;
-        ctx.lineTo(x, 74 + h);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // Distant Sacred Snow-Capped Mountain Peak (Mount Fuji silhouette)
-      for (let px = -p1Offset - 220; px <= GAME_WIDTH + 220; px += 210) {
-        const fujiX = px + 95;
-        const fujiY = 52;
-        ctx.fillStyle = isNight ? '#26143e' : '#752554';
-        ctx.beginPath();
-        ctx.moveTo(fujiX - 38, 92);
-        ctx.lineTo(fujiX - 8, fujiY);
-        ctx.lineTo(fujiX + 8, fujiY);
-        ctx.lineTo(fujiX + 38, 92);
-        ctx.closePath();
-        ctx.fill();
-
-        // Snow cap atop Fuji
-        ctx.fillStyle = isNight ? '#ddd6fe' : '#fdf2f8';
-        ctx.beginPath();
-        ctx.moveTo(fujiX - 14, 66);
-        ctx.lineTo(fujiX - 8, fujiY);
-        ctx.lineTo(fujiX + 8, fujiY);
-        ctx.lineTo(fujiX + 14, 66);
-        ctx.lineTo(fujiX + 7, 68);
-        ctx.lineTo(fujiX, 65);
-        ctx.lineTo(fujiX - 7, 68);
-        ctx.closePath();
-        ctx.fill();
-
-        // Distant Pagoda Spire silhouette on the ridge
-        const pagodaX = px + 25;
-        const pagodaY = 70;
-        ctx.fillStyle = isNight ? '#10091c' : '#451231';
-        ctx.fillRect(pagodaX - 1, pagodaY - 14, 2, 7);
-        ctx.fillRect(pagodaX - 5, pagodaY - 7, 10, 2);
-        ctx.fillRect(pagodaX - 3, pagodaY - 5, 6, 2);
-        ctx.fillRect(pagodaX - 7, pagodaY - 3, 14, 2);
-        ctx.fillRect(pagodaX - 4, pagodaY - 1, 8, 3);
-        ctx.fillRect(pagodaX - 9, pagodaY + 2, 18, 2);
-        ctx.fillRect(pagodaX - 5, pagodaY + 4, 10, 6);
-      }
-    } else if (zone === 'themoon') {
-      // The Moon (Parallax Layer 1: Distant Launch Facilities / Stark Lunar Mountain Crater Rims)
-      const p1Offset = (cameraX * 0.05) % 240;
-      if (act === 1) {
-        // Base de Lanzamiento: Siluetas de Hangares Colosales VAB & Torres de Telecomunicaciones
-        ctx.fillStyle = '#0a101f';
-        ctx.beginPath();
-        ctx.moveTo(0, 130);
-        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 48) {
-          // Monumental Vehicle Assembly Building (VAB) monolith
-          ctx.lineTo(x, 108);
-          ctx.lineTo(x + 4, 72);
-          ctx.lineTo(x + 36, 72);
-          ctx.lineTo(x + 40, 108);
-        }
-        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-        ctx.lineTo(0, GAME_HEIGHT);
-        ctx.fill();
-
-        // Flashing Red Aviation Obstruction Warning Beacons atop distant towers
-        const beacon = Math.floor(time / 10) % 2 === 0 ? '#ef4444' : '#7f1d1d';
-        ctx.fillStyle = beacon;
-        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 48) {
-          ctx.fillRect(x + 20, 68, 2, 3);
-          // Radar tracking dome
-          ctx.fillStyle = '#1e293b';
-          ctx.beginPath();
-          ctx.arc(x + 32, 70, 4, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = beacon;
-        }
-      } else if (act === 2) {
-        // Base Lunar: Montes Apenninus / Cordillera Lunar bajo la luz solar del vacío
-        ctx.fillStyle = '#060a14'; // Dark lunar shadow base
-        ctx.beginPath();
-        ctx.moveTo(0, 135);
-        for (let x = -p1Offset - 240; x <= GAME_WIDTH + 240; x += 32) {
-          const peak = Math.sin(x * 0.022) * 26 + Math.cos(x * 0.045) * 14;
-          ctx.lineTo(x, 78 + peak);
-        }
-        ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-        ctx.lineTo(0, GAME_HEIGHT);
-        ctx.fill();
-
-        // Stark Silver Sunlight Facets on Mountain Peaks (Airless lunar contrast)
-        for (let px = -p1Offset - 240; px <= GAME_WIDTH + 240; px += 64) {
-          const peakY = 62 + Math.sin(px * 0.02) * 16;
-          ctx.fillStyle = '#cbd5e1'; // Harsh sunlight lit face
-          ctx.beginPath();
-          ctx.moveTo(px, peakY);
-          ctx.lineTo(px - 18, peakY + 36);
-          ctx.lineTo(px + 2, peakY + 34);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = '#475569'; // Midtone basalt facet
-          ctx.beginPath();
-          ctx.moveTo(px, peakY);
-          ctx.lineTo(px + 20, peakY + 36);
-          ctx.lineTo(px + 2, peakY + 34);
-          ctx.closePath();
-          ctx.fill();
-
-          // Blinding summit specularity
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(px - 1, peakY - 1, 2, 2.5);
-        }
-      } else {
-        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Espacio Profundo Infinito (Cero montañas en el suelo)
-        // Cosmic stardust clouds and distant space phenomena
-        const p1Offset = (cameraX * 0.04) % 320;
-        for (let x = -p1Offset - 320; x <= GAME_WIDTH + 320; x += 160) {
-          const cy = 60 + Math.sin(x * 0.015) * 35;
-          ctx.fillStyle = 'rgba(168, 85, 247, 0.08)';
-          ctx.beginPath();
-          ctx.ellipse(x + 80, cy, 70, 24, 0.2, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.06)';
-          ctx.beginPath();
-          ctx.ellipse(x + 110, cy + 12, 50, 18, -0.15, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    } else {
-      const p1Offset = (cameraX * 0.08) % 140;
-      ctx.fillStyle = zone === 'neon'
-        ? (act === 1 ? '#0f2b35' : '#11172e')
-        : zone === 'lavacliff'
-        ? (act === 1 ? '#330a0a' : '#220505')
-        : zone === 'krono'
-        ? (act === 1 ? '#091024' : '#120b29')
-        : (act === 1 ? '#78350f' : '#2e1065');
-
-      ctx.beginPath();
-      ctx.moveTo(0, 115);
-      for (let x = -p1Offset - 140; x <= GAME_WIDTH + 140; x += 35) {
-        const h = Math.sin(x * 0.04 + cameraX * 0.001) * 18;
-        ctx.lineTo(x, 80 + h);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-    }
-
-    // Parallax Layer 2: Midground Silhouettes & Ancient Architecture
-    if (zone === 'jungle') {
-      // JUNGLE RUN: LUSH TROPICAL RAINFOREST WITH MAYAN PYRAMIDS DOWN BELOW ("pirámides abajo")
-      const p2Offset = (cameraX * 0.22) % 180;
-      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 170) {
-        const pyrX = x + 40;
-        const pyrBaseY = 146; // Base of the pyramid sits right above the lower horizon line
-
-        // 1. EXTENDED STONE FOUNDATION IN GAPS/CHASMS (descends all the way to bottom of abyss)
-        ctx.fillStyle = act === 1 ? '#05291d' : '#031a12';
-        ctx.fillRect(pyrX - 44, pyrBaseY, 88, GAME_HEIGHT - pyrBaseY);
-        // Mayan carved stone blocks in foundation
-        ctx.fillStyle = act === 1 ? '#042217' : '#02140d';
-        for (let fy = pyrBaseY + 6; fy < GAME_HEIGHT; fy += 8) {
-          ctx.fillRect(pyrX - 42, fy, 84, 1);
-        }
-
-        // 2. PRIMARY STEPPED MAYAN PYRAMID ("PIRÁMIDE MAYA ABAJO")
-        // Tier 5 (Base platform with ancient hieroglyphic carved border)
-        ctx.fillStyle = act === 1 ? '#083a29' : '#04241a';
-        ctx.fillRect(pyrX - 40, pyrBaseY - 14, 80, 14);
-        ctx.fillStyle = act === 1 ? '#0b4a35' : '#063022';
-        ctx.fillRect(pyrX - 38, pyrBaseY - 14, 76, 3);
-
-        // Tier 4
-        ctx.fillStyle = act === 1 ? '#0d4a34' : '#063022';
-        ctx.fillRect(pyrX - 32, pyrBaseY - 26, 64, 12);
-        ctx.fillStyle = act === 1 ? '#105a40' : '#083c2b';
-        ctx.fillRect(pyrX - 30, pyrBaseY - 26, 60, 2.5);
-
-        // Tier 3
-        ctx.fillStyle = act === 1 ? '#125a3f' : '#093d2b';
-        ctx.fillRect(pyrX - 25, pyrBaseY - 38, 50, 12);
-        ctx.fillStyle = act === 1 ? '#166c4c' : '#0c4a35';
-        ctx.fillRect(pyrX - 23, pyrBaseY - 38, 46, 2.5);
-
-        // Tier 2
-        ctx.fillStyle = act === 1 ? '#176c4c' : '#0d4a35';
-        ctx.fillRect(pyrX - 18, pyrBaseY - 50, 36, 12);
-        ctx.fillStyle = act === 1 ? '#1d825c' : '#105a40';
-        ctx.fillRect(pyrX - 16, pyrBaseY - 50, 32, 2.5);
-
-        // Tier 1 (Upper temple terrace)
-        ctx.fillStyle = act === 1 ? '#1c7e59' : '#10563d';
-        ctx.fillRect(pyrX - 12, pyrBaseY - 60, 24, 10);
-        ctx.fillStyle = act === 1 ? '#22976b' : '#14684a';
-        ctx.fillRect(pyrX - 11, pyrBaseY - 60, 22, 2);
-
-        // Summit Temple Sanctuary (Templo Mayor)
-        ctx.fillStyle = act === 1 ? '#135c41' : '#0a3c2a';
-        ctx.fillRect(pyrX - 9, pyrBaseY - 72, 18, 12);
-        // Roof cornice
-        ctx.fillStyle = act === 1 ? '#187050' : '#0e4a34';
-        ctx.fillRect(pyrX - 10, pyrBaseY - 73, 20, 3);
-        // Mayan Crestería / Roof Comb
-        ctx.fillStyle = act === 1 ? '#1c7e59' : '#10563d';
-        ctx.fillRect(pyrX - 7, pyrBaseY - 80, 14, 7);
-        ctx.fillRect(pyrX - 4, pyrBaseY - 84, 8, 4);
-        ctx.fillRect(pyrX - 2, pyrBaseY - 87, 4, 3);
-        // Inner Sanctuary Dark Portal
-        ctx.fillStyle = '#01150c';
-        ctx.fillRect(pyrX - 3, pyrBaseY - 69, 6, 9);
-        // Lintel stone over doorway
-        ctx.fillStyle = '#22c55e99';
-        ctx.fillRect(pyrX - 4, pyrBaseY - 70, 8, 1.5);
-
-        // Golden / Jade Solar Relic atop Crestería
-        const relicPulse = Math.sin(time * 0.1 + x) * 0.3 + 0.7;
-        ctx.fillStyle = `rgba(250, 204, 21, ${relicPulse})`;
-        ctx.fillRect(pyrX - 2, pyrBaseY - 88, 4, 2);
-        ctx.fillStyle = `rgba(52, 211, 153, ${relicPulse * 0.8})`;
-        ctx.fillRect(pyrX - 1, pyrBaseY - 87, 2, 1);
-
-        // Grand Central Staircase (Escalinata Maya) running all the way down
-        ctx.fillStyle = act === 1 ? '#207857' : '#11543d';
-        ctx.fillRect(pyrX - 5, pyrBaseY - 60, 10, 60);
-        // Individual stone steps
-        ctx.fillStyle = act === 1 ? '#34d39966' : '#2dd4bf55';
-        for (let st = pyrBaseY - 58; st < pyrBaseY; st += 3.5) {
-          ctx.fillRect(pyrX - 4, st, 8, 1);
-        }
-        // Kukulcán Feathered Serpent Head Balustrades at base
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(pyrX - 7, pyrBaseY - 5, 2.5, 5);
-        ctx.fillRect(pyrX + 4.5, pyrBaseY - 5, 2.5, 5);
-        ctx.fillStyle = '#ef4444';
-        ctx.fillRect(pyrX - 6.5, pyrBaseY - 4, 1.5, 1.5);
-        ctx.fillRect(pyrX + 5, pyrBaseY - 4, 1.5, 1.5);
-
-        // Ancient Jungle Vines & Epiphytes Clinging to Stone Tiers
-        ctx.fillStyle = '#22c55e99';
-        ctx.fillRect(pyrX - 28, pyrBaseY - 24, 3, 10);
-        ctx.fillRect(pyrX - 26, pyrBaseY - 18, 5, 2);
-        ctx.fillRect(pyrX + 22, pyrBaseY - 34, 3, 12);
-        ctx.fillRect(pyrX + 24, pyrBaseY - 26, 4, 2);
-        ctx.fillRect(pyrX - 15, pyrBaseY - 46, 2, 8);
-        ctx.fillRect(pyrX + 11, pyrBaseY - 56, 2, 7);
-
-        // 3. SECONDARY STEPPED PYRAMID IN THE VALLEY DEPTH (Adds majestic ancient city scale)
-        const twinX = x + 112;
-        const twinBaseY = 142;
-        ctx.fillStyle = act === 1 ? '#063324' : '#032017';
-        ctx.fillRect(twinX - 20, twinBaseY - 8, 40, 8);
-        ctx.fillStyle = act === 1 ? '#083e2c' : '#04281d';
-        ctx.fillRect(twinX - 16, twinBaseY - 16, 32, 8);
-        ctx.fillStyle = act === 1 ? '#0b4a35' : '#063022';
-        ctx.fillRect(twinX - 12, twinBaseY - 24, 24, 8);
-        ctx.fillStyle = act === 1 ? '#0e563e' : '#083827';
-        ctx.fillRect(twinX - 8, twinBaseY - 30, 16, 6);
-        // Small sanctuary
-        ctx.fillStyle = act === 1 ? '#0a4230' : '#052a1e';
-        ctx.fillRect(twinX - 5, twinBaseY - 38, 10, 8);
-        ctx.fillRect(twinX - 3, twinBaseY - 43, 6, 5);
-        // Doorway
-        ctx.fillStyle = '#01120a';
-        ctx.fillRect(twinX - 1.5, twinBaseY - 36, 3, 6);
-        // Mini stairs
-        ctx.fillStyle = act === 1 ? '#146046' : '#0a3d2c';
-        ctx.fillRect(twinX - 2.5, twinBaseY - 30, 5, 30);
-
-        // 4. LUSH TROPICAL TREES FRAMING THE PYRAMIDS BELOW
-        // Sacred Giant Ceiba Tree (Yaxché)
-        const ceibaX = pyrX + 54;
-        ctx.fillStyle = '#032116';
-        ctx.fillRect(ceibaX - 3, pyrBaseY - 68, 6, 68);
-        // Flared buttress roots at base
-        ctx.beginPath();
-        ctx.moveTo(ceibaX - 7, pyrBaseY);
-        ctx.lineTo(ceibaX - 3, pyrBaseY - 16);
-        ctx.lineTo(ceibaX + 3, pyrBaseY - 16);
-        ctx.lineTo(ceibaX + 7, pyrBaseY);
-        ctx.closePath();
-        ctx.fill();
-
-        // Expansive Ceiba Canopy Layers
-        ctx.fillStyle = act === 1 ? '#15803d' : '#064e3b';
-        ctx.beginPath();
-        ctx.arc(ceibaX, pyrBaseY - 70, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = act === 1 ? '#16a34a' : '#047857';
-        ctx.beginPath();
-        ctx.arc(ceibaX - 10, pyrBaseY - 74, 12, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(ceibaX + 10, pyrBaseY - 72, 13, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = act === 1 ? '#22c55e' : '#10b981';
-        ctx.beginPath();
-        ctx.arc(ceibaX, pyrBaseY - 79, 11, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Hanging lianas / tropical jungle vines
-        ctx.strokeStyle = '#22c55e88';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(ceibaX - 8, pyrBaseY - 65);
-        ctx.lineTo(ceibaX - 8, pyrBaseY - 42);
-        ctx.moveTo(ceibaX + 11, pyrBaseY - 66);
-        ctx.lineTo(ceibaX + 12, pyrBaseY - 46);
-        ctx.stroke();
-
-        // Tropical Palm Tree on the left of the pyramid
-        const palmX = pyrX - 48;
-        ctx.strokeStyle = '#04271b';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(palmX, pyrBaseY);
-        ctx.quadraticCurveTo(palmX - 6, pyrBaseY - 26, palmX - 4, pyrBaseY - 50);
-        ctx.stroke();
-        // Radiating palm fronds
-        const palmTopX = palmX - 4;
-        const palmTopY = pyrBaseY - 50;
-        ctx.fillStyle = act === 1 ? '#15803d' : '#065f46';
-        for (let fa = 0; fa < 6; fa++) {
-          const fAngle = (fa * Math.PI) / 3.2 - Math.PI / 1.6;
-          const fx = palmTopX + Math.cos(fAngle) * 14;
-          const fy = palmTopY + Math.sin(fAngle) * 9;
-          ctx.beginPath();
-          ctx.moveTo(palmTopX, palmTopY);
-          ctx.lineTo(fx, fy);
-          ctx.lineTo(fx - 2, fy + 4);
-          ctx.closePath();
-          ctx.fill();
-        }
-
-        // 5. JUNGLE CENOTE WATERFALL & BASIN DOWN BELOW
-        const cX = pyrX + 78;
-        // Waterfall streaming down into cenote
-        ctx.fillStyle = '#38bdf8cc';
-        ctx.fillRect(cX, pyrBaseY - 28, 5, 28);
-        ctx.fillStyle = '#a7f3d0dd';
-        ctx.fillRect(cX + 1.5, pyrBaseY - 28, 2, 27);
-        // Crystal Turquoise Cenote Pool
-        ctx.fillStyle = '#06b6d4ee';
-        ctx.fillRect(cX - 12, pyrBaseY - 3, 26, 4);
-        ctx.fillStyle = '#a7f3d0';
-        ctx.fillRect(cX - 1, pyrBaseY - 4, 5, 2);
-        // Floating water lily pads
-        ctx.fillStyle = '#22c55e';
-        ctx.fillRect(cX - 8, pyrBaseY - 4, 3, 1.5);
-        ctx.fillRect(cX + 8, pyrBaseY - 4, 3, 1.5);
-      }
-    } else if (zone === 'blizzard') {
-      // Blizzard Rush: Downhill Mountain Ridge, Alpine Evergreen Forest, Ski Lift, and Mountain Chalets
-      const p2Offset = (cameraX * 0.16) % 200;
-
-      // 1. Midground Sloping Alpine Mountain Ridge Line
-      ctx.fillStyle = '#0f2744';
-      ctx.beginPath();
-      ctx.moveTo(0, 148);
-      for (let x = -p2Offset - 200; x <= GAME_WIDTH + 200; x += 25) {
-        // Continuous mountain flank descending towards the right
-        const slopeY = 82 + ((x + cameraX * 0.16) % 260) * 0.08 + Math.sin(x * 0.03) * 6;
-        ctx.lineTo(x, slopeY);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-
-      // Frosted snow line on top of the midground ridge
-      ctx.strokeStyle = '#e0f2fe';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      for (let x = -p2Offset - 200; x <= GAME_WIDTH + 200; x += 25) {
-        const slopeY = 82 + ((x + cameraX * 0.16) % 260) * 0.08 + Math.sin(x * 0.03) * 6;
-        if (x === -p2Offset - 200) ctx.moveTo(x, slopeY);
-        else ctx.lineTo(x, slopeY);
-      }
-      ctx.stroke();
-
-      // 2. Dense Alpine Pine & Spruce Trees on the Mountain Flank
-      for (let x = -p2Offset - 200; x < GAME_WIDTH + 200; x += 40) {
-        const treeBaseY = 94 + Math.sin(x * 0.03) * 5;
-        // Trunk
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(x + 5, treeBaseY - 6, 3, 6);
-        // 3 Tiers of snow-laden pine foliage
-        for (let tier = 0; tier < 3; tier++) {
-          const tw = 15 - tier * 4;
-          const ty = treeBaseY - 6 - tier * 6;
-          ctx.fillStyle = '#064e3b';
-          ctx.beginPath();
-          ctx.moveTo(x + 6.5, ty - 6);
-          ctx.lineTo(x + 6.5 - tw / 2, ty);
-          ctx.lineTo(x + 6.5 + tw / 2, ty);
-          ctx.closePath();
-          ctx.fill();
-
-          // Snow blanket on each tier
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(x + 6.5 - tw / 2 + 1, ty - 2, tw - 2, 2);
-        }
-      }
-
-      // 3. Cozy Alpine Mountain Chalet (Nestled on the slope with smoking chimney)
-      for (let cx = -p2Offset - 200; cx < GAME_WIDTH + 200; cx += 220) {
-        const chaletX = cx + 70;
-        const chaletBaseY = 95;
-        // Timber log walls
-        ctx.fillStyle = '#451a03';
-        ctx.fillRect(chaletX - 12, chaletBaseY - 14, 24, 14);
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(chaletX - 11, chaletBaseY - 13, 22, 12);
-        // Glowing warm amber windows
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(chaletX - 7, chaletBaseY - 10, 4, 4);
-        ctx.fillRect(chaletX + 3, chaletBaseY - 10, 4, 4);
-        // Steep snow-covered A-frame roof
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.moveTo(chaletX, chaletBaseY - 24);
-        ctx.lineTo(chaletX - 16, chaletBaseY - 13);
-        ctx.lineTo(chaletX + 16, chaletBaseY - 13);
-        ctx.closePath();
-        ctx.fill();
-        // Stone chimney with curling smoke
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(chaletX + 6, chaletBaseY - 24, 4, 8);
-        for (let s = 0; s < 3; s++) {
-          const smokeX = chaletX + 8 + Math.sin(time * 0.08 + s) * 3 - s * 2;
-          const smokeY = chaletBaseY - 26 - s * 5;
-          ctx.fillStyle = `rgba(224, 242, 254, ${0.6 - s * 0.18})`;
-          ctx.beginPath();
-          ctx.arc(smokeX, smokeY, 2 + s, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      // 4. Overhead Working Alpine Ski Lift (Telesilla alpino)
-      const cableY1 = 36;
-      const cableY2 = 54;
-      ctx.strokeStyle = '#64748b';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, cableY1);
-      ctx.lineTo(GAME_WIDTH, cableY2);
-      ctx.stroke();
-
-      // Steel Lift Pylons
-      for (let px = -p2Offset - 200; px < GAME_WIDTH + 200; px += 130) {
-        const pylonTopY = cableY1 + ((px / GAME_WIDTH) * (cableY2 - cableY1));
-        // Steel Mast
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(px - 2, pylonTopY, 4, 55);
-        // Crossbar
-        ctx.fillStyle = '#64748b';
-        ctx.fillRect(px - 10, pylonTopY - 2, 20, 3);
-        // Pulley wheels
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath();
-        ctx.arc(px - 7, pylonTopY, 2.5, 0, Math.PI * 2);
-        ctx.arc(px + 7, pylonTopY, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Moving Ski Chairs suspended on the cable
-      for (let c = 0; c < 5; c++) {
-        const chairX = ((time * 0.45 + c * 85 - cameraX * 0.16) % (GAME_WIDTH + 120) + GAME_WIDTH + 120) % (GAME_WIDTH + 120) - 60;
-        const chairY = cableY1 + ((chairX / GAME_WIDTH) * (cableY2 - cableY1));
-        // Hanger Arm
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(chairX, chairY);
-        ctx.lineTo(chairX, chairY + 11);
-        ctx.stroke();
-        // Orange alpine chair seat
-        ctx.fillStyle = '#f97316';
-        ctx.fillRect(chairX - 4, chairY + 11, 8, 2);
-        ctx.fillRect(chairX - 4, chairY + 7, 2, 5);
-        // Skier silhouette on the chair with blue beanie
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(chairX - 2, chairY + 6, 4, 5);
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(chairX - 2, chairY + 4, 4, 2);
-        // Skis hanging down
-        ctx.strokeStyle = '#0284c7';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(chairX - 3, chairY + 12);
-        ctx.lineTo(chairX + 3, chairY + 14);
-        ctx.stroke();
-      }
-    } else if (zone === 'steampunk') {
-      // Steampunk Midground Layer: Interconnected Industrial Copper Pipes, Rotating Bronze Cogwheels, Gauges & Catwalks
-      const p2Offset = (cameraX * 0.16) % 180;
-      const isRusted = act === 2;
-      const isOnlyUp = act === 3;
-
-      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 150) {
-        // 1. Horizontal Industrial Steam Conduit
-        ctx.fillStyle = isRusted ? '#381608' : '#7c2d12';
-        ctx.fillRect(x, 92, 150, 7);
-        ctx.fillStyle = isRusted ? '#63280c' : '#c2410c';
-        ctx.fillRect(x, 93.5, 150, 2);
-
-        // 2. Vertical Feeder Pipe & Flanged Coupling Joints
-        ctx.fillStyle = isRusted ? '#291206' : '#5c1d0a';
-        ctx.fillRect(x + 45, 92, 9, 48);
-        ctx.fillStyle = isRusted ? '#52220b' : '#9a3412';
-        ctx.fillRect(x + 46, 92, 3, 48);
-
-        // Brass Pipe Flanges
-        ctx.fillStyle = isRusted ? '#1c140e' : '#fbbf24';
-        ctx.fillRect(x + 43, 90, 13, 3);
-        ctx.fillRect(x + 43, 118, 13, 3);
-
-        // Steam Pressure Dial / Manometer
-        ctx.fillStyle = isRusted ? '#451a03' : '#d97706';
-        ctx.beginPath();
-        ctx.arc(x + 49.5, 85, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(x + 49.5, 85, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        // Needle
-        ctx.strokeStyle = '#dc2626';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(x + 49.5, 85);
-        ctx.lineTo(x + 49.5 + Math.cos(time * 0.1 + x) * 2.5, 85 + Math.sin(time * 0.1 + x) * 2.5);
-        ctx.stroke();
-
-        // 3. Rotating Bronze Industrial Cogwheels
-        const cogX = x + 95;
-        const cogY = 82;
-        const cogR = 15;
-        ctx.save();
-        ctx.translate(cogX, cogY);
-        ctx.rotate(-time * 0.035);
-
-        // Teeth
-        const teethCount = 8;
-        ctx.fillStyle = isRusted ? '#431407' : '#9a3412';
-        for (let t = 0; t < teethCount; t++) {
-          ctx.save();
-          ctx.rotate((t / teethCount) * Math.PI * 2);
-          ctx.fillRect(-2, -cogR - 3.5, 4, 4);
-          ctx.restore();
-        }
-
-        // Cog Body
-        ctx.fillStyle = isRusted ? '#52220b' : '#b45309';
-        ctx.beginPath();
-        ctx.arc(0, 0, cogR, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = isRusted ? '#78350f' : '#f59e0b';
-        ctx.beginPath();
-        ctx.arc(0, 0, cogR - 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Center Axle Hole
-        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
-        ctx.beginPath();
-        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // Second Interlocking Smaller Cog (Rotates in reverse!)
-        const cog2X = cogX + 22;
-        const cog2Y = cogY + 12;
-        const cog2R = 10;
-        ctx.save();
-        ctx.translate(cog2X, cog2Y);
-        ctx.rotate(time * 0.05 + 0.3);
-        ctx.fillStyle = isRusted ? '#431407' : '#9a3412';
-        for (let t = 0; t < 6; t++) {
-          ctx.save();
-          ctx.rotate((t / 6) * Math.PI * 2);
-          ctx.fillRect(-1.5, -cog2R - 2.5, 3, 3);
-          ctx.restore();
-        }
-        ctx.fillStyle = isRusted ? '#63280c' : '#d97706';
-        ctx.beginPath();
-        ctx.arc(0, 0, cog2R, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = isRusted ? '#1c140e' : '#291508';
-        ctx.beginPath();
-        ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        // 4. Hanging Factory Lantern with Warm Amber Spill
-        const lampX = x + 15;
-        const lampY = 99;
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(lampX, 92);
-        ctx.lineTo(lampX, lampY);
-        ctx.stroke();
-
-        ctx.fillStyle = isRusted ? '#1c140e' : '#b45309';
-        ctx.fillRect(lampX - 3, lampY, 6, 2);
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(lampX - 2, lampY + 2, 4, 4);
-        ctx.fillStyle = isRusted ? '#1c140e' : '#78350f';
-        ctx.fillRect(lampX - 3, lampY + 6, 6, 1.5);
-
-        // Lantern Warm Ambient Glow
-        ctx.fillStyle = 'rgba(251, 191, 36, 0.15)';
-        ctx.beginPath();
-        ctx.arc(lampX, lampY + 4, 12, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (zone === 'castlesmash') {
-      // Medieval Castle Midground Layer: Stone Ramparts, Barbican Arches, Torchlight Sconces & Hanging Banners
-      const p2Offset = (cameraX * 0.18) % 180;
-      for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 140) {
-        // 1. Heavy Stone Barbican Archway & Rampart
-        ctx.fillStyle = act === 1 ? '#1e293b' : act === 2 ? '#3b1206' : '#2e1065';
-        ctx.fillRect(x, 82, 140, 68);
-
-        // Crenellations atop wall
-        ctx.fillStyle = act === 1 ? '#334155' : act === 2 ? '#5c1d0a' : '#4c1d95';
-        for (let cx = x + 4; cx < x + 136; cx += 16) {
-          ctx.fillRect(cx, 74, 8, 8);
-        }
-
-        // Fortified Arched Gateway
-        ctx.fillStyle = '#020617';
-        ctx.beginPath();
-        ctx.arc(x + 70, 114, 18, Math.PI, 0);
-        ctx.rect(x + 52, 114, 36, 36);
-        ctx.fill();
-
-        // 2. Iron Torch Sconces with Animated Flickering Flames
-        const torchX = x + 35;
-        const torchY = 100;
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(torchX - 1, torchY, 3, 10);
-        ctx.fillRect(torchX - 3, torchY + 1, 7, 3);
-        // Flickering Torch Flame
-        const flameBob = Math.sin(time * 0.3 + x) * 1.5;
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.arc(torchX + 0.5, torchY - 2 + flameBob, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#f59e0b';
-        ctx.beginPath();
-        ctx.arc(torchX + 0.5, torchY - 2 + flameBob, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(torchX, torchY - 3 + flameBob, 1.5, 2);
-
-        // Torchlight Warm Halos
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
-        ctx.beginPath();
-        ctx.arc(torchX + 0.5, torchY - 2, 14, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 3. Heraldic Tapestry / Banner hanging on rampart
-        ctx.fillStyle = act === 2 ? '#991b1b' : '#1d4ed8';
-        ctx.beginPath();
-        ctx.moveTo(x + 105, 88);
-        ctx.lineTo(x + 125, 88);
-        ctx.lineTo(x + 125, 118);
-        ctx.lineTo(x + 115, 126);
-        ctx.lineTo(x + 105, 118);
-        ctx.closePath();
-        ctx.fill();
-        // Golden Lion Sigil
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(x + 112, 94, 6, 8);
-        ctx.fillRect(x + 110, 97, 10, 2);
-      }
-    } else if (zone === 'piratestreasure') {
-      // Pirates Treasure Midground Layer
-      const p2Offset = (cameraX * 0.18) % 180;
-      if (act === 1) {
-        // Beach: Swaying Palm Trees, Coconut clusters & Driftwood pirate lookouts
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 130) {
-          const palmBaseX = x + 40;
-          const sway = Math.sin(time * 0.05 + x) * 6;
-          // Curved palm trunk
-          ctx.strokeStyle = '#78350f';
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.moveTo(palmBaseX, 145);
-          ctx.quadraticCurveTo(palmBaseX - 8, 110, palmBaseX + sway, 75);
-          ctx.stroke();
-
-          // Palm fronds canopy
-          const topX = palmBaseX + sway;
-          const topY = 75;
-          ctx.fillStyle = '#15803d';
-          for (let f = -2; f <= 2; f++) {
-            ctx.beginPath();
-            ctx.ellipse(topX + f * 12, topY + Math.abs(f) * 4, 14, 5, (f * 0.35), 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.fillStyle = '#22c55e';
-          ctx.beginPath();
-          ctx.arc(topX, topY, 4, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Coconuts
-          ctx.fillStyle = '#451a03';
-          ctx.fillRect(topX - 2, topY + 2, 3, 3);
-          ctx.fillRect(topX + 2, topY + 2, 3, 3);
-        }
-      } else if (act === 2) {
-        // Deep Underwater: Swaying Giant Kelp Forest & Colorful Coral Brains
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 85) {
-          const kelpX = x + 30;
-          ctx.strokeStyle = '#047857';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(kelpX, 150);
-          for (let ky = 140; ky >= 60; ky -= 20) {
-            const kSway = Math.sin(time * 0.06 + ky * 0.08 + x) * 8;
-            ctx.lineTo(kelpX + kSway, ky);
-          }
-          ctx.stroke();
-
-          // Kelp blades
-          ctx.fillStyle = '#10b981';
-          for (let ky = 130; ky >= 70; ky -= 22) {
-            const kSway = Math.sin(time * 0.06 + ky * 0.08 + x) * 8;
-            ctx.beginPath();
-            ctx.ellipse(kelpX + kSway + 8, ky, 9, 3, 0.4, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // Sea Anemone & Coral formation at seabed
-          ctx.fillStyle = '#db2777';
-          ctx.beginPath();
-          ctx.arc(kelpX - 10, 146, 7, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#f472b6';
-          ctx.fillRect(kelpX - 12, 140, 2, 5);
-          ctx.fillRect(kelpX - 10, 138, 2, 7);
-          ctx.fillRect(kelpX - 8, 140, 2, 5);
-        }
-      } else {
-        // Sunken Galleon Deck Midground: Heavy Oak Timbers, Iron Anchor Chains, Cannon Ports
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 140) {
-          // Deck beam arches
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(x, 90, 140, 60);
-          // Dark oak wooden siding planks
-          ctx.fillStyle = '#0f172a';
-          for (let dy = 94; dy < 150; dy += 12) {
-            ctx.fillRect(x, dy, 140, 2);
-          }
-          // Sunken cannon ports with mossy green iron cannons
-          const portX = x + 60;
-          ctx.fillStyle = '#020617';
-          ctx.fillRect(portX, 106, 18, 14);
-          ctx.fillStyle = '#334155';
-          ctx.fillRect(portX + 2, 110, 22, 6);
-          // Anchor chain links hanging down
-          ctx.fillStyle = '#475569';
-          for (let ly = 90; ly < 140; ly += 7) {
-            ctx.strokeRect(x + 20, ly, 4, 6);
-          }
-        }
-      }
-    } else if (zone === 'jurasicdraft') {
-      // Jurassic Draft Midground: Ancient Cycads, Gigantic Tree Ferns & Volcanic Basalt Crags
-      const p2Offset = (cameraX * 0.18) % 180;
-      if (act === 1) {
-        // Mesozoic Jungle: Giant Cycad Trees & Tree Fern Canopies & Hanging Lianas
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 110) {
-          const cycadX = x + 40;
-          const cycadY = 150;
-          const sway = Math.sin(time * 0.05 + x) * 5;
-
-          // Thick fibrous trunk with diamond scale bark
-          ctx.fillStyle = '#451a03';
-          ctx.beginPath();
-          ctx.moveTo(cycadX - 7, cycadY);
-          ctx.lineTo(cycadX - 4, 70);
-          ctx.lineTo(cycadX + 4, 70);
-          ctx.lineTo(cycadX + 7, cycadY);
-          ctx.closePath();
-          ctx.fill();
-
-          // Trunk diamond texture & mossy bark
-          ctx.fillStyle = '#78350f';
-          for (let ty = 80; ty < cycadY - 5; ty += 8) {
-            ctx.fillRect(cycadX - 3.5, ty, 7, 2.5);
-          }
-          ctx.fillStyle = '#16a34a';
-          for (let ty = 86; ty < cycadY - 10; ty += 16) {
-            ctx.fillRect(cycadX - 2, ty, 3, 2);
-          }
-
-          // Hanging liana vines
-          ctx.strokeStyle = '#15803d';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(cycadX - 3, 75);
-          ctx.quadraticCurveTo(cycadX - 10 + sway * 0.5, 95, cycadX - 6 + sway, 115);
-          ctx.stroke();
-
-          // Giant arching fern fronds radiating from top
-          const topX = cycadX + sway * 0.3;
-          const topY = 70;
-          const fronds = 8;
-          for (let f = 0; f < fronds; f++) {
-            const angle = (f / (fronds - 1) - 0.5) * 2.3;
-            const endX = topX + Math.sin(angle) * 42 + sway;
-            const endY = topY - Math.cos(angle) * 18 + Math.abs(angle) * 20;
-            ctx.strokeStyle = f % 2 === 0 ? '#15803d' : '#166534';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.moveTo(topX, topY);
-            ctx.quadraticCurveTo((topX + endX) / 2, topY - 16, endX, endY);
-            ctx.stroke();
-
-            // Leaflets on frond
-            ctx.fillStyle = f % 2 === 0 ? '#22c55e' : '#4ade80';
-            for (let l = 0.2; l < 0.95; l += 0.18) {
-              const lx = topX + (endX - topX) * l;
-              const ly = topY - 12 + (endY - topY) * l;
-              ctx.fillRect(lx - 2, ly, 4.5, 2.2);
-            }
-          }
-        }
-      } else if (act === 2) {
-        // Volcanic Basalt Crags, Embedded Dinosaur Ribcages & Steam Fumaroles
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 120) {
-          const cragX = x + 30;
-          // Basalt rock column
-          ctx.fillStyle = '#291004';
-          ctx.beginPath();
-          ctx.moveTo(cragX - 18, 150);
-          ctx.lineTo(cragX - 10, 80);
-          ctx.lineTo(cragX + 16, 74);
-          ctx.lineTo(cragX + 26, 150);
-          ctx.closePath();
-          ctx.fill();
-
-          // Pulsing Magma fissure running down crag
-          ctx.fillStyle = '#ea580c';
-          ctx.beginPath();
-          ctx.moveTo(cragX + 2, 80);
-          ctx.lineTo(cragX - 2, 102);
-          ctx.lineTo(cragX + 5, 122);
-          ctx.lineTo(cragX, 150);
-          ctx.lineTo(cragX + 3, 150);
-          ctx.lineTo(cragX + 7, 122);
-          ctx.lineTo(cragX, 102);
-          ctx.lineTo(cragX + 4, 80);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(cragX + 1, 98, 2, 18);
-
-          // Embedded Dinosaur Rib Fossil arching out from cliff side
-          ctx.fillStyle = '#fef3c7';
-          ctx.beginPath();
-          ctx.moveTo(cragX + 12, 105);
-          ctx.quadraticCurveTo(cragX + 28, 92, cragX + 32, 114);
-          ctx.lineTo(cragX + 30, 115);
-          ctx.quadraticCurveTo(cragX + 26, 95, cragX + 12, 108);
-          ctx.closePath();
-          ctx.fill();
-
-          // Steam vent at top of crag
-          const puff = (time * 0.35 + x) % 45;
-          ctx.fillStyle = 'rgba(254, 215, 170, 0.28)';
-          ctx.beginPath();
-          ctx.arc(cragX + 3, 74 - puff * 0.65, 3.5 + puff * 0.16, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else {
-        // Act 3: Caldera Dragon-Spine Basalt Pinnacles, Molten Magma Falls & Giant Skeleton Arches
-        for (let x = -p2Offset - 180; x < GAME_WIDTH + 180; x += 130) {
-          const cragX = x + 35;
-          // Apocalyptic dark obsidian spire
-          ctx.fillStyle = '#1c070c';
-          ctx.beginPath();
-          ctx.moveTo(cragX - 20, 150);
-          ctx.lineTo(cragX - 6, 62);
-          ctx.lineTo(cragX + 14, 58);
-          ctx.lineTo(cragX + 28, 150);
-          ctx.closePath();
-          ctx.fill();
-
-          // Liquid magma cascade flowing down spire face
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(cragX - 2, 65, 5, 85);
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(cragX - 0.5, 65, 2, 85);
-
-          // Giant ancient dinosaur bone horn arch
-          ctx.fillStyle = '#fecdd3';
-          ctx.beginPath();
-          ctx.moveTo(cragX - 14, 90);
-          ctx.quadraticCurveTo(cragX - 28, 70, cragX - 35, 88);
-          ctx.lineTo(cragX - 33, 90);
-          ctx.quadraticCurveTo(cragX - 26, 73, cragX - 14, 93);
-          ctx.closePath();
-          ctx.fill();
-
-          // Intense fiery eruption glow at base
-          const glowAlpha = 0.3 + Math.sin(time * 0.1 + x) * 0.15;
-          ctx.fillStyle = `rgba(239, 68, 68, ${glowAlpha})`;
-          ctx.beginPath();
-          ctx.arc(cragX + 4, 145, 22, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    } else {
-      const p2Offset = (cameraX * 0.22) % 100;
-      ctx.fillStyle = zone === 'neon'
-        ? (act === 1 ? '#15414d' : '#192247')
-        : zone === 'sakura'
-        ? (isNight ? '#281541' : '#7d335c')
-        : zone === 'lavacliff'
-        ? (act === 1 ? '#450e0e' : '#330808')
-        : zone === 'krono'
-        ? (act === 1 ? '#0f1a3a' : '#1d1242')
-        : (act === 1 ? '#92400e' : '#3b0764');
-
-      for (let x = -p2Offset - 100; x < GAME_WIDTH + 100; x += 85) {
-        if (zone === 'neon') {
-          ctx.fillRect(x + 20, 65, 16, 85);
-          ctx.fillRect(x + 8, 45, 40, 24);
-          ctx.fillStyle = act === 1 ? '#22d3ee55' : '#a855f755';
-          ctx.fillRect(x + 24, 72, 4, 6);
-          ctx.fillRect(x + 24, 86, 4, 6);
-          ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
-        } else if (zone === 'sakura') {
-          // Midground Graceful Cherry Blossom Trees & Shinto Stone Lanterns
-          const trunkX = x + 34;
-          // Curved gnarled trunk
-          ctx.fillStyle = isNight ? '#140c20' : '#42162e';
-          ctx.beginPath();
-          ctx.moveTo(trunkX - 4, 150);
-          ctx.quadraticCurveTo(trunkX - 1, 95, trunkX - 2, 68);
-          ctx.lineTo(trunkX + 4, 68);
-          ctx.quadraticCurveTo(trunkX + 5, 95, trunkX + 5, 150);
-          ctx.closePath();
-          ctx.fill();
-
-          // Tree branches
-          ctx.beginPath();
-          ctx.moveTo(trunkX, 74);
-          ctx.quadraticCurveTo(trunkX - 12, 66, trunkX - 18, 58);
-          ctx.lineTo(trunkX - 16, 56);
-          ctx.quadraticCurveTo(trunkX - 10, 63, trunkX + 2, 70);
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.moveTo(trunkX + 1, 72);
-          ctx.quadraticCurveTo(trunkX + 14, 65, trunkX + 20, 56);
-          ctx.lineTo(trunkX + 18, 54);
-          ctx.quadraticCurveTo(trunkX + 12, 62, trunkX - 1, 68);
-          ctx.fill();
-
-          // Layered Blossom Foliage Canopies
-          const blossomDeep = isNight ? '#3b1652' : '#9d2f6c';
-          const blossomMid = isNight ? '#5b217c' : '#c04a88';
-          const blossomLight = isNight ? '#7c3aed88' : '#e879a8aa';
-
-          // Base canopy puff
-          ctx.fillStyle = blossomDeep;
-          ctx.beginPath();
-          ctx.arc(trunkX - 12, 56, 18, 0, Math.PI * 2);
-          ctx.arc(trunkX + 14, 54, 19, 0, Math.PI * 2);
-          ctx.arc(trunkX, 48, 22, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Mid highlight blossom puffs
-          ctx.fillStyle = blossomMid;
-          ctx.beginPath();
-          ctx.arc(trunkX - 8, 50, 14, 0, Math.PI * 2);
-          ctx.arc(trunkX + 10, 48, 15, 0, Math.PI * 2);
-          ctx.arc(trunkX, 42, 16, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Top light petal highlight
-          ctx.fillStyle = blossomLight;
-          ctx.beginPath();
-          ctx.arc(trunkX - 3, 38, 11, 0, Math.PI * 2);
-          ctx.arc(trunkX + 5, 38, 10, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Stone Shrine Lantern (Tōrō) nestled beside tree
-          const tX = x + 10;
-          ctx.fillStyle = isNight ? '#1e1b2e' : '#4c2e42';
-          ctx.fillRect(tX - 3, 106, 6, 2);
-          ctx.fillRect(tX - 1.5, 96, 3, 10);
-          ctx.fillRect(tX - 3.5, 94, 7, 2);
-          // Fire chamber with warm flame glow
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(tX - 2, 90, 4, 4);
-          ctx.fillStyle = '#fbbf24';
-          ctx.fillRect(tX - 1, 91, 2, 2);
-          // Lantern roof & jewel finial
-          ctx.fillStyle = isNight ? '#1e1b2e' : '#4c2e42';
-          ctx.fillRect(tX - 5, 88, 10, 2);
-          ctx.fillRect(tX - 1, 86, 2, 2);
-          ctx.fillStyle = act === 1 ? '#15414d' : '#192247';
-        } else if (zone === 'lavacliff') {
-          // Jagged volcanic columns with glowing cracks
-          ctx.fillRect(x + 18, 55, 24, 95);
-          ctx.fillStyle = '#ef444455';
-          ctx.fillRect(x + 28, 65, 3, 25);
-          ctx.fillRect(x + 24, 95, 12, 2);
-          ctx.fillStyle = act === 1 ? '#450e0e' : '#330808';
-        } else if (zone === 'krono') {
-          // Towering Cyber Megastructure Silhouettes with Glowing Windows
-          ctx.fillRect(x + 12, 48, 38, 100);
-          ctx.fillRect(x + 20, 32, 22, 16);
-          // High-tech spire antenna
-          ctx.fillStyle = '#06b6d4';
-          ctx.fillRect(x + 30, 22, 2, 10);
-          ctx.fillStyle = '#f43f5e';
-          ctx.fillRect(x + 29, 20, 4, 2);
-
-          // Illuminated Windows Matrix (Cyan / Amber / Magenta / White)
-          for (let wy = 56; wy < 125; wy += 14) {
-            ctx.fillStyle = (wy + x) % 3 === 0 ? '#38bdf899' : (wy + x) % 3 === 1 ? '#fbbf2499' : '#f43f5e99';
-            ctx.fillRect(x + 16, wy, 6, 6);
-            ctx.fillRect(x + 26, wy, 6, 6);
-            ctx.fillRect(x + 36, wy, 6, 6);
-          }
-          ctx.fillStyle = act === 1 ? '#0f1a3a' : '#1d1242';
-        } else if (zone === 'themoon') {
-          // Zona 12 The Moon (Parallax Layer 2: Launch Umbilical Towers & Sprawling Lunar Base Modules)
-          if (act === 1) {
-            // Base de Lanzamiento: Torres Umbilicales de Servicio con Celosía Roja/Blanca & Silos de Combustible
-            // Red and white launch tower truss
-            ctx.fillStyle = '#dc2626';
-            ctx.fillRect(x + 18, 52, 16, 96);
-            ctx.fillStyle = '#f8fafc';
-            for (let ty = 54; ty < 140; ty += 16) {
-              ctx.fillRect(x + 19, ty, 14, 6);
-            }
-            // Swing arms extending toward rocket
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(x + 34, 66, 12, 3);
-            ctx.fillRect(x + 34, 94, 12, 3);
-            ctx.fillRect(x + 34, 118, 12, 3);
-            // Aviation strobe atop tower
-            const tBeacon = Math.floor(time / 8) % 2 === 0 ? '#ef4444' : '#991b1b';
-            ctx.fillStyle = tBeacon;
-            ctx.fillRect(x + 25, 48, 2, 4);
-
-            // Cryogenic Propellant Spherical Tank beside tower
-            const sphereX = x + 62;
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(sphereX - 4, 134, 8, 14); // Stand legs
-            ctx.fillStyle = '#f8fafc'; // Insulated white sphere
-            ctx.beginPath();
-            ctx.arc(sphereX, 122, 14, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#0ea5e9'; // Cyan LH2 / LOX hazard band
-            ctx.fillRect(sphereX - 13, 120, 26, 3);
-            ctx.fillStyle = '#0f172a';
-          } else if (act === 2) {
-            // Base Lunar: Módulos de Hábitat Presurizados, Pasarelas Tubulares y Cúpulas Biosféricas
-            const modX = x + 24;
-            // Pressurized cylindrical habitat module
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(modX - 18, 100, 36, 45);
-            ctx.fillStyle = '#334155';
-            ctx.fillRect(modX - 16, 102, 32, 43);
-            ctx.fillStyle = '#cbd5e1'; // Titanium insulation roof
-            ctx.beginPath();
-            ctx.ellipse(modX, 100, 18, 6, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Circular illuminated portholes
-            for (let py = 110; py <= 134; py += 12) {
-              ctx.fillStyle = '#0f172a';
-              ctx.beginPath();
-              ctx.arc(modX - 8, py, 3.5, 0, Math.PI * 2);
-              ctx.arc(modX + 8, py, 3.5, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = '#38bdf8'; // Glowing warm cyan cabin light
-              ctx.beginPath();
-              ctx.arc(modX - 8, py, 2.5, 0, Math.PI * 2);
-              ctx.arc(modX + 8, py, 2.5, 0, Math.PI * 2);
-              ctx.fill();
-            }
-
-            // Airtight tubular transit corridor connecting modules
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(modX + 18, 122, 32, 8);
-            ctx.fillStyle = '#64748b';
-            ctx.fillRect(modX + 18, 124, 32, 2);
-
-            // Glowing Translucent Green Geodesic Hydroponic Biodome
-            const domeX = modX + 56;
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
-            ctx.beginPath();
-            ctx.arc(domeX, 122, 16, Math.PI, 0);
-            ctx.fill();
-            ctx.strokeStyle = '#34d399';
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
-            // Hydroponic plants glowing inside dome
-            ctx.fillStyle = '#4ade80';
-            ctx.fillRect(domeX - 8, 114, 4, 8);
-            ctx.fillRect(domeX + 4, 112, 5, 10);
-            ctx.fillStyle = '#fde047';
-            ctx.fillRect(domeX - 1, 108, 3, 3); // Solar grow lamp
-
-            // Photovoltaic Solar Panel Array on pylon
-            const pylonX = modX - 28;
-            ctx.fillStyle = '#475569';
-            ctx.fillRect(pylonX, 95, 2, 50);
-            ctx.fillStyle = '#1e3a8a'; // Deep blue photovoltaic panel
-            ctx.fillRect(pylonX - 10, 84, 22, 11);
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(pylonX - 10, 84, 22, 11);
-            // Grid lines on panel
-            ctx.fillStyle = '#60a5fa';
-            ctx.fillRect(pylonX - 10, 89, 22, 1);
-            ctx.fillRect(pylonX, 84, 1, 11);
-          } else {
-            // Acto 3: Juicio Final Cósmico / Doomsday Zone - Asteroides y Escombros Espaciales en el Vacío
-            const astX = x + 35;
-            const astY = 40 + Math.sin(x * 0.04 + time * 0.03) * 35;
-            ctx.fillStyle = '#1e293b';
-            ctx.beginPath();
-            ctx.arc(astX, astY, 9, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#334155';
-            ctx.beginPath();
-            ctx.arc(astX - 2, astY - 2, 5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(astX + 1, astY + 1, 2, 2);
-          }
-        } else {
-          // Ancient Sandstone Obelisks & Ruined Temples (Desert)
-          ctx.fillRect(x + 22, 60, 16, 90);
-          ctx.fillStyle = '#f59e0b55';
-          ctx.fillRect(x + 26, 70, 8, 30);
-          ctx.fillStyle = act === 1 ? '#92400e' : '#3b0764';
-          // Stepped top
-          ctx.fillRect(x + 20, 56, 20, 4);
-          ctx.fillRect(x + 24, 50, 12, 6);
-          ctx.fillRect(x + 27, 44, 6, 6);
-        }
-      }
-    }
-
-    // =========================================================================
-    // Parallax Layer 3: Near Forest & Canopy Depth Layer (p3Offset)
-    // Dynamic near-depth multi-layered scrolling based on camera position (0.36x - 0.42x)
-    // providing rich organic depth to forest environments (Sakura & Jungle)
-    // =========================================================================
-    if (zone === 'sakura') {
-      // Near Forest Layer: Ancient Flowering Cherry Trees, Cascading Blossoms, Bamboo Thickets, Shinto Shide
-      const p3Offset = (cameraX * 0.38) % 220;
-      for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 190) {
-        const treeX = x + 55;
-        const groundY = 155;
-
-        // 1. Ancient Gnarled Sakura Trunk (near depth silhouette)
-        const trunkCol = isNight ? '#0d0716' : '#2b0c1e';
-        const barkShade = isNight ? '#160b24' : '#3f132c';
-        ctx.fillStyle = trunkCol;
-        // Flared roots
-        ctx.beginPath();
-        ctx.moveTo(treeX - 10, groundY);
-        ctx.quadraticCurveTo(treeX - 3, groundY - 25, treeX - 3, 75);
-        ctx.lineTo(treeX + 5, 75);
-        ctx.quadraticCurveTo(treeX + 5, groundY - 25, treeX + 12, groundY);
-        ctx.closePath();
-        ctx.fill();
-
-        // Bark texture streak
-        ctx.fillStyle = barkShade;
-        ctx.fillRect(treeX - 1, 80, 2, groundY - 82);
-
-        // Sweeping arching branch extending across the upper foreground
-        ctx.fillStyle = trunkCol;
-        ctx.beginPath();
-        ctx.moveTo(treeX, 82);
-        ctx.quadraticCurveTo(treeX - 22, 70, treeX - 45, 58);
-        ctx.lineTo(treeX - 42, 54);
-        ctx.quadraticCurveTo(treeX - 18, 66, treeX + 3, 76);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(treeX + 2, 78);
-        ctx.quadraticCurveTo(treeX + 28, 64, treeX + 52, 52);
-        ctx.lineTo(treeX + 50, 48);
-        ctx.quadraticCurveTo(treeX + 24, 60, treeX - 1, 72);
-        ctx.closePath();
-        ctx.fill();
-
-        // 2. Near Depth Blooming Sakura Blossom Clusters
-        const pDeep = isNight ? '#4c1d68' : '#b81e6c';
-        const pMid = isNight ? '#7e22ce' : '#ec4899';
-        const pLight = isNight ? '#a855f7' : '#f472b6';
-        const pGlaze = isNight ? '#c084fcaa' : '#fbcfe8cc';
-
-        // Left branch blossom cluster
-        ctx.fillStyle = pDeep;
-        ctx.beginPath();
-        ctx.arc(treeX - 38, 54, 16, 0, Math.PI * 2);
-        ctx.arc(treeX - 24, 48, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pMid;
-        ctx.beginPath();
-        ctx.arc(treeX - 35, 50, 13, 0, Math.PI * 2);
-        ctx.arc(treeX - 22, 44, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pLight;
-        ctx.beginPath();
-        ctx.arc(treeX - 33, 46, 9, 0, Math.PI * 2);
-        ctx.arc(treeX - 20, 40, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pGlaze;
-        ctx.beginPath();
-        ctx.arc(treeX - 22, 38, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Right branch blossom cluster
-        ctx.fillStyle = pDeep;
-        ctx.beginPath();
-        ctx.arc(treeX + 36, 48, 17, 0, Math.PI * 2);
-        ctx.arc(treeX + 50, 46, 15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pMid;
-        ctx.beginPath();
-        ctx.arc(treeX + 38, 44, 14, 0, Math.PI * 2);
-        ctx.arc(treeX + 48, 42, 12, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pLight;
-        ctx.beginPath();
-        ctx.arc(treeX + 40, 40, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pGlaze;
-        ctx.beginPath();
-        ctx.arc(treeX + 42, 38, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Crown central canopy
-        ctx.fillStyle = pDeep;
-        ctx.beginPath();
-        ctx.arc(treeX + 5, 42, 22, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pMid;
-        ctx.beginPath();
-        ctx.arc(treeX + 6, 37, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pLight;
-        ctx.beginPath();
-        ctx.arc(treeX + 6, 32, 13, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = pGlaze;
-        ctx.beginPath();
-        ctx.arc(treeX + 7, 28, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 3. Sacred Shinto Paper Streamers (Shide) hanging from branch
-        const shideFlutter = Math.sin(time * 0.12 + x) * 2;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(treeX - 18 + shideFlutter * 0.4, 66, 3, 3);
-        ctx.fillRect(treeX - 16 + shideFlutter * 0.6, 69, 3, 3);
-        ctx.fillRect(treeX - 18 + shideFlutter * 0.8, 72, 3, 3);
-        ctx.fillRect(treeX - 16 + shideFlutter, 75, 2.5, 3);
-        ctx.fillRect(treeX + 22 - shideFlutter * 0.4, 64, 3, 3);
-        ctx.fillRect(treeX + 24 - shideFlutter * 0.6, 67, 3, 3);
-        ctx.fillRect(treeX + 22 - shideFlutter * 0.8, 70, 3, 3);
-
-        // 4. Dense Bamboo Grove Cluster standing beside the Sakura Tree
-        const bambooBaseX = treeX + 85;
-        const bambooStalkCol = isNight ? '#052317' : '#064e3b';
-        const bambooRingCol = isNight ? '#10b98166' : '#34d39988';
-        const bambooLeafCol = isNight ? '#065f46' : '#10b981';
-
-        for (let b = 0; b < 4; b++) {
-          const bx = bambooBaseX + b * 11;
-          const bh = 58 + ((b * 17) % 18);
-          const by = groundY - bh;
-
-          // Bamboo culm
-          ctx.fillStyle = bambooStalkCol;
-          ctx.fillRect(bx, by, 3.5, bh);
-
-          // Bamboo node rings
-          ctx.fillStyle = bambooRingCol;
-          for (let ny = by + 8; ny < groundY; ny += 11) {
-            ctx.fillRect(bx - 0.5, ny, 4.5, 1.5);
-          }
-
-          // Bamboo leaf sprays
-          ctx.fillStyle = bambooLeafCol;
-          const leafSway = Math.sin(time * 0.1 + b * 1.5) * 2;
-          ctx.beginPath();
-          ctx.moveTo(bx + 3, by + 12);
-          ctx.lineTo(bx + 11 + leafSway, by + 9);
-          ctx.lineTo(bx + 4, by + 15);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.moveTo(bx, by + 22);
-          ctx.lineTo(bx - 9 + leafSway, by + 20);
-          ctx.lineTo(bx - 1, by + 25);
-          ctx.closePath();
-          ctx.fill();
-        }
-      }
-    } else if (zone === 'jungle') {
-      // Near Forest Layer: Towering Ceiba Giants, Sprawling Palm Fronds, Hanging Lianas & Epiphytes
-      const p3Offset = (cameraX * 0.40) % 240;
-      for (let x = -p3Offset - 240; x < GAME_WIDTH + 240; x += 180) {
-        const trunkX = x + 70;
-        const groundY = 152;
-
-        // 1. Towering Jungle Giant Tree with Buttressed Roots & Aerial Drop Roots
-        const trunkDark = act === 1 ? '#031c14' : '#01120d';
-        const mossHighlight = act === 1 ? '#15803d' : '#047857';
-        ctx.fillStyle = trunkDark;
-
-        // Wide flared buttress root base
-        ctx.beginPath();
-        ctx.moveTo(trunkX - 16, groundY);
-        ctx.quadraticCurveTo(trunkX - 4, groundY - 30, trunkX - 4, 60);
-        ctx.lineTo(trunkX + 6, 60);
-        ctx.quadraticCurveTo(trunkX + 6, groundY - 30, trunkX + 18, groundY);
-        ctx.closePath();
-        ctx.fill();
-
-        // Mossy bark highlight streak
-        ctx.fillStyle = mossHighlight;
-        ctx.fillRect(trunkX, 65, 2.5, groundY - 68);
-
-        // Aerial drop roots winding down to ground
-        ctx.fillStyle = trunkDark;
-        ctx.fillRect(trunkX - 9, groundY - 38, 2, 38);
-        ctx.fillRect(trunkX + 11, groundY - 44, 2, 44);
-
-        // 2. Hanging Jungle Lianas with Tropical Orchid Blossoms
-        const vineWave = Math.sin(time * 0.08 + x) * 3;
-        ctx.strokeStyle = act === 1 ? '#166534' : '#064e3b';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(trunkX - 22, 45);
-        ctx.quadraticCurveTo(trunkX - 24 + vineWave, 85, trunkX - 20 + vineWave * 1.5, 115);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(trunkX + 28, 48);
-        ctx.quadraticCurveTo(trunkX + 32 - vineWave, 90, trunkX + 26 - vineWave * 1.3, 122);
-        ctx.stroke();
-
-        // Exotic Orchid Blossoms on Vines
-        ctx.fillStyle = '#f43f5e';
-        ctx.beginPath();
-        ctx.arc(trunkX - 21 + vineWave * 1.3, 98, 3, 0, Math.PI * 2);
-        ctx.arc(trunkX + 28 - vineWave, 105, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fde047';
-        ctx.fillRect(trunkX - 21.5 + vineWave * 1.3, 97.5, 1.5, 1.5);
-        ctx.fillRect(trunkX + 27.5 - vineWave, 104.5, 1.5, 1.5);
-
-        // 3. Sprawling Near Tropical Palm Fronds (Palmeras Tropicales en Primer Plano)
-        const palmCenter = trunkX - 35;
-        const palmY = 100;
-        ctx.fillStyle = act === 1 ? '#047857' : '#064e3b';
-        for (let a = 0; a < 5; a++) {
-          const angle = -Math.PI * 0.85 + a * (Math.PI * 0.38);
-          const frondLen = 28;
-          const fx = palmCenter + Math.cos(angle) * frondLen;
-          const fy = palmY + Math.sin(angle) * (frondLen * 0.65);
-          const midX = palmCenter + Math.cos(angle) * (frondLen * 0.5);
-          const midY = palmY + Math.sin(angle) * (frondLen * 0.35) - 4;
-
-          ctx.beginPath();
-          ctx.moveTo(palmCenter, palmY);
-          ctx.quadraticCurveTo(midX - 3, midY, fx, fy);
-          ctx.quadraticCurveTo(midX + 3, midY + 4, palmCenter, palmY);
-          ctx.closePath();
-          ctx.fill();
-
-          // Leaf frond spine
-          ctx.strokeStyle = act === 1 ? '#10b981' : '#0f766e';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(palmCenter, palmY);
-          ctx.quadraticCurveTo(midX, midY, fx, fy);
-          ctx.stroke();
-        }
-
-        // 4. Monstera & Giant Jungle Fern Leaves
-        const fernX = trunkX + 38;
-        const fernY = 112;
-        ctx.fillStyle = act === 1 ? '#059669' : '#047857';
-        ctx.beginPath();
-        ctx.ellipse(fernX, fernY, 14, 22, Math.PI * 0.25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = trunkDark;
-        ctx.fillRect(fernX + 4, fernY - 6, 5, 2);
-        ctx.fillRect(fernX + 2, fernY + 3, 6, 2);
-        ctx.fillRect(fernX - 8, fernY - 2, 5, 2);
-
-        // 5. Overhead Rainforest Canopy Layer (Frames the top with dense foliage)
-        ctx.fillStyle = act === 1 ? '#064e3b' : '#022c22';
-        ctx.beginPath();
-        ctx.arc(trunkX - 15, 22, 28, 0, Math.PI * 2);
-        ctx.arc(trunkX + 25, 20, 32, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = act === 1 ? '#047857' : '#033f30';
-        ctx.beginPath();
-        ctx.arc(trunkX - 10, 26, 22, 0, Math.PI * 2);
-        ctx.arc(trunkX + 22, 24, 25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = act === 1 ? '#10b981' : '#065f46';
-        ctx.beginPath();
-        ctx.arc(trunkX - 6, 30, 15, 0, Math.PI * 2);
-        ctx.arc(trunkX + 18, 28, 17, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (zone === 'blizzard') {
-      // Near Frost Layer: Close Snow-Laden Spruce Pines & Ice Spires
-      const p3Offset = (cameraX * 0.36) % 220;
-      for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 190) {
-        const treeX = x + 60;
-        const groundY = 152;
-        // Trunk
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(treeX - 2, groundY - 20, 4, 20);
-        // Near snow pine foliage
-        for (let t = 0; t < 4; t++) {
-          const tw = 26 - t * 5;
-          const ty = groundY - 18 - t * 10;
-          ctx.fillStyle = '#064e3b';
-          ctx.beginPath();
-          ctx.moveTo(treeX, ty - 10);
-          ctx.lineTo(treeX - tw / 2, ty);
-          ctx.lineTo(treeX + tw / 2, ty);
-          ctx.closePath();
-          ctx.fill();
-          // Snow blanket
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(treeX - tw / 2 + 2, ty - 3, tw - 4, 3);
-        }
-        // Glacial Ice Stalagmite
-        const iceX = treeX + 50;
-        ctx.fillStyle = '#7dd3fc88';
-        ctx.beginPath();
-        ctx.moveTo(iceX, groundY - 26);
-        ctx.lineTo(iceX - 5, groundY);
-        ctx.lineTo(iceX + 5, groundY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#ffffffbb';
-        ctx.fillRect(iceX - 1, groundY - 24, 2, 8);
-      }
-    } else if (zone === 'steampunk') {
-      // Near Industrial Layer: Close Flanged Steam Pipelines & Brass Valves
-      const p3Offset = (cameraX * 0.36) % 200;
-      for (let x = -p3Offset - 200; x < GAME_WIDTH + 200; x += 170) {
-        // Heavy foreground pipe
-        ctx.fillStyle = act === 2 ? '#241006' : '#451a03';
-        ctx.fillRect(x, 122, 170, 8);
-        ctx.fillStyle = act === 2 ? '#451a03' : '#78350f';
-        ctx.fillRect(x, 123.5, 170, 2);
-        // Pipe coupling
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(x + 50, 120, 8, 12);
-        // Valve wheel
-        ctx.fillStyle = '#b45309';
-        ctx.beginPath();
-        ctx.arc(x + 54, 114, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    } else if (zone === 'castlesmash') {
-      // Near Castle Layer: Stone battlements, arrow slits, and wooden scaffolding
-      const p3Offset = (cameraX * 0.36) % 180;
-      for (let x = -p3Offset - 180; x < GAME_WIDTH + 180; x += 160) {
-        // Wooden siege scaffolding
-        ctx.fillStyle = '#451a03';
-        ctx.fillRect(x + 20, 110, 4, 38);
-        ctx.fillRect(x + 60, 110, 4, 38);
-        ctx.fillRect(x + 18, 122, 48, 3);
-        ctx.strokeStyle = '#78350f';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x + 22, 112);
-        ctx.lineTo(x + 62, 146);
-        ctx.stroke();
-      }
-    } else if (zone === 'desert') {
-      // Near Desert Layer: Wind-sculpted sand dunes & ancient column ruins
-      const p3Offset = (cameraX * 0.36) % 180;
-      ctx.fillStyle = act === 1 ? '#b45309' : '#4c1d95';
-      ctx.beginPath();
-      ctx.moveTo(0, 145);
-      for (let x = -p3Offset - 180; x <= GAME_WIDTH + 180; x += 40) {
-        const h = Math.sin(x * 0.03 + cameraX * 0.002) * 10;
-        ctx.lineTo(x, 130 + h);
-      }
-      ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
-      ctx.lineTo(0, GAME_HEIGHT);
-      ctx.fill();
-    } else if (zone === 'themoon') {
-      // Near Depth Layer: Launch Gantries & Pipelines (Act 1) or Lunar Regolith Ridges & Apollo Relics (Act 2)
-      const p3Offset = (cameraX * 0.36) % 220;
-      if (act === 1) {
-        // Base de Lanzamiento: Barandillas de servicio, tuberías criogénicas con condensación de hielo
-        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 180) {
-          // Gantry structural railing
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(x + 10, 118, 4, 34);
-          ctx.fillRect(x + 50, 118, 4, 34);
-          ctx.fillRect(x + 8, 122, 48, 2.5);
-          // Frosty white insulated cryogenic pipe
-          ctx.fillStyle = '#0284c7';
-          ctx.fillRect(x + 2, 134, 76, 6);
-          ctx.fillStyle = '#e0f2fe';
-          ctx.fillRect(x + 2, 134, 76, 1.5);
-          // Vent hiss condensation puff
-          if (Math.sin(time * 0.15 + x) > 0.6) {
-            ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
-            ctx.beginPath();
-            ctx.arc(x + 30, 131, 3.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      } else if (act === 2) {
-        // Base Lunar: Crestas de cráteres de regolito, módulo de descenso Apolo y huellas en el polvo
-        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 200) {
-          const craterX = x + 65;
-          // Regolith ridge bowl
-          ctx.fillStyle = '#1e293b';
-          ctx.beginPath();
-          ctx.ellipse(craterX, 150, 36, 12, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#334155';
-          ctx.beginPath();
-          ctx.ellipse(craterX - 2, 149, 32, 9, 0, 0, Math.PI * 2);
-          ctx.fill();
-          // Silver crater rim highlight
-          ctx.fillStyle = '#cbd5e1';
-          ctx.beginPath();
-          ctx.arc(craterX + 10, 142, 12, -Math.PI * 0.4, 0.2);
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = '#e2e8f0';
-          ctx.stroke();
-
-          // Historic Apollo Lunar Lander Descent Stage silhouette on crater edge
-          const landerX = craterX + 75;
-          // Gold thermal Mylar foil core
-          ctx.fillStyle = '#b45309';
-          ctx.fillRect(landerX - 8, 128, 16, 12);
-          ctx.fillStyle = '#f59e0b';
-          ctx.fillRect(landerX - 6, 130, 12, 8);
-          // 4 Spider landing struts
-          ctx.strokeStyle = '#94a3b8';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(landerX - 6, 136);
-          ctx.lineTo(landerX - 16, 148);
-          ctx.moveTo(landerX + 6, 136);
-          ctx.lineTo(landerX + 16, 148);
-          ctx.stroke();
-          // Circular landing footpads
-          ctx.fillStyle = '#cbd5e1';
-          ctx.fillRect(landerX - 18, 147, 5, 2);
-          ctx.fillRect(landerX + 13, 147, 5, 2);
-          // Commemorative mission flag on staff
-          ctx.fillStyle = '#e2e8f0';
-          ctx.fillRect(landerX - 22, 132, 1.5, 16);
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(landerX - 22, 132, 8, 5);
-          ctx.fillStyle = '#ef4444';
-          ctx.fillRect(landerX - 22, 134.5, 8, 1.5);
-        }
-      } else {
-        // Acto 3: Juicio Final Cósmico / Doomsday Zone - Ráfagas de Polvo Cósmico y Micro-Meteoros
-        for (let x = -p3Offset - 220; x < GAME_WIDTH + 220; x += 110) {
-          const cy = (x * 0.73 + time * 2.5) % GAME_HEIGHT;
-          ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
-          ctx.fillRect(x + 20, cy, 14, 1.2);
-          ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
-          ctx.fillRect(x + 65, (cy + 40) % GAME_HEIGHT, 8, 1);
-        }
-      }
-    }
-    const count = zone === 'blizzard' ? 22 : zone === 'themoon' ? 14 : zone === 'steampunk' ? 16 : zone === 'castlesmash' ? 14 : zone === 'lavacliff' ? 14 : zone === 'krono' ? 10 : zone === 'desert' ? 12 : zone === 'jungle' ? 14 : isNight ? 12 : 10;
-    for (let i = 0; i < count; i++) {
-      const px = ((i * 58 - cameraX * (zone === 'blizzard' ? 0.35 : zone === 'desert' ? 0.25 : zone === 'castlesmash' ? 0.2 : zone === 'krono' ? 0.18 : zone === 'jungle' ? 0.18 : zone === 'steampunk' ? 0.15 : 0.12) + (time * (zone === 'blizzard' ? 2.0 : zone === 'lavacliff' ? -0.35 : zone === 'desert' ? 0.7 : zone === 'steampunk' ? 0.25 : 0.35))) % (GAME_WIDTH + 40)) - 20;
-      const py = (i * 28 + Math.sin(time * 0.03 + i) * 10) % (GAME_HEIGHT - 25);
-
-      if (zone === 'neon') {
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(74, 222, 128, 0.35)' : 'rgba(34, 211, 238, 0.35)';
-        ctx.fillRect(px, py, 1.5, 1.5);
-      } else if (zone === 'sakura') {
-        ctx.fillStyle = isNight ? 'rgba(244, 114, 182, 0.35)' : 'rgba(255, 209, 232, 0.45)';
-        ctx.beginPath();
-        ctx.arc(px, py, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (zone === 'lavacliff') {
-        // Floating volcanic embers rising softly
-        const emberY = (GAME_HEIGHT - ((time * 0.45 + i * 28) % (GAME_HEIGHT + 10)));
-        ctx.fillStyle = i % 3 === 0 ? 'rgba(251, 191, 36, 0.45)' : i % 2 === 0 ? 'rgba(249, 115, 22, 0.4)' : 'rgba(239, 68, 68, 0.35)';
-        ctx.fillRect(px, emberY, 1.5, 1.5);
-      } else if (zone === 'krono') {
-        // Subtle digital data motes - Desaturated, soft and tranquil
-        const digitY = ((time * 0.4 + i * 26) % (GAME_HEIGHT + 10));
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(56, 189, 248, 0.3)' : 'rgba(168, 85, 247, 0.25)';
-        ctx.fillRect(px, digitY, 1.5, 1.5);
-      } else if (zone === 'castlesmash') {
-        // Floating torch sparks and castle dust motes
-        if (i % 2 === 0) {
-          ctx.fillStyle = i % 4 === 0 ? '#f59e0b' : '#ef4444';
-          ctx.fillRect(px, py, 1.5, 1.5);
-        } else {
-          ctx.fillStyle = 'rgba(203, 213, 225, 0.45)';
-          ctx.fillRect(px, py, 1.5, 1.5);
-        }
-      } else if (zone === 'jungle') {
-        // Glowing bioluminescent fireflies (luciérnagas) and drifting jungle spores
-        const fireflyPulse = 0.4 + Math.sin(time * 0.12 + i * 1.4) * 0.45;
-        if (i % 2 === 0) {
-          // Firefly glowing halo
-          ctx.fillStyle = `rgba(74, 222, 128, ${fireflyPulse * 0.35})`;
-          ctx.beginPath();
-          ctx.arc(px + 1, py + 1, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.fillStyle = i % 3 === 0
-          ? `rgba(250, 204, 21, ${fireflyPulse})`
-          : i % 2 === 0
-          ? `rgba(74, 222, 128, ${fireflyPulse})`
-          : '#34d399cc';
-        ctx.fillRect(px, py, i % 2 === 0 ? 2.5 : 1.5, i % 2 === 0 ? 2.5 : 1.5);
-      } else if (zone === 'blizzard') {
-        // High-Speed Swirling Alpine Blizzard Snowflakes & Frost Crystals
-        const flakeSize = i % 3 === 0 ? 2.5 : 1.5;
-        ctx.fillStyle = i % 3 === 0 ? '#ffffff' : '#bae6fd';
-        ctx.fillRect(px, py, flakeSize, flakeSize);
-        if (i % 5 === 0) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-          ctx.beginPath();
-          ctx.arc(px + 1, py + 1, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (zone === 'steampunk') {
-        // Soft rising steam clouds and fiery furnace sparks
-        if (i % 3 === 0) {
-          // Fiery furnace spark
-          ctx.fillStyle = i % 6 === 0 ? '#fef08a' : '#fbbf24';
-          ctx.fillRect(px, py, 1.5, 1.5);
-        } else {
-          // Billowing steam vapor puff
-          const puffRadius = i % 2 === 0 ? 3.5 : 2.5;
-          ctx.fillStyle = act === 2 ? 'rgba(217, 249, 157, 0.25)' : 'rgba(255, 237, 213, 0.35)';
-          ctx.beginPath();
-          ctx.arc(px, py, puffRadius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (zone === 'piratestreasure') {
-        if (act === 1) {
-          // Golden sand glints and salty ocean spray
-          ctx.fillStyle = i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#bae6fd' : '#ffffff';
-          ctx.fillRect(px, py, i % 2 === 0 ? 1.5 : 1, i % 2 === 0 ? 1.5 : 1);
-        } else {
-          // Underwater bubbles rising steadily toward surface and bioluminescent plankton
-          const bubbleY = (GAME_HEIGHT - ((time * 1.1 + i * 20) % (GAME_HEIGHT + 10)));
-          if (i % 2 === 0) {
-            // Hollow rising air/oxygen bubble
-            ctx.strokeStyle = '#bae6fd';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.arc(px, bubbleY, i % 4 === 0 ? 2.5 : 1.5, 0, Math.PI * 2);
-            ctx.stroke();
-            // Tiny bubble highlight reflection
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(px - 0.5, bubbleY - 0.5, 1, 1);
-          } else {
-            // Bioluminescent deep-sea glowing plankton speck
-            const planktonGlow = 0.5 + Math.sin(time * 0.1 + i) * 0.4;
-            ctx.fillStyle = i % 3 === 0 ? `rgba(94, 234, 212, ${planktonGlow})` : `rgba(56, 189, 248, ${planktonGlow})`;
-            ctx.fillRect(px, py, 1.5, 1.5);
-          }
-        }
-      } else if (zone === 'jurasicdraft') {
-        if (act === 1) {
-          // Prehistoric drifting spores & glowing Cretaceous amber fireflies
-          const glow = 0.4 + Math.sin(time * 0.1 + i * 1.5) * 0.4;
-          if (i % 2 === 0) {
-            ctx.fillStyle = `rgba(74, 222, 128, ${glow * 0.4})`;
-            ctx.beginPath();
-            ctx.arc(px + 1, py + 1, 3, 0, Math.PI * 2);
-            ctx.fill();
-          }
-          ctx.fillStyle = i % 3 === 0 ? `rgba(250, 204, 21, ${glow})` : `rgba(74, 222, 128, ${glow})`;
-          ctx.fillRect(px, py, 1.5, 1.5);
-        } else {
-          // Volcanic ash specks and incandescent magma sparks
-          const emberY = (GAME_HEIGHT - ((time * 0.9 + i * 26) % (GAME_HEIGHT + 10)));
-          ctx.fillStyle = i % 3 === 0 ? '#fef08a' : i % 2 === 0 ? '#f97316' : '#ef4444';
-          ctx.fillRect(px, emberY, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
-        }
-      } else if (zone === 'themoon') {
-        if (act === 1) {
-          // Base de Lanzamiento: Chispas de soldadura y vapor criogénico frío
-          if (i % 2 === 0) {
-            ctx.fillStyle = i % 4 === 0 ? '#fef08a' : '#38bdf8';
-            ctx.fillRect(px, py, 1.5, 1.5);
-          } else {
-            ctx.fillStyle = 'rgba(224, 242, 254, 0.4)';
-            ctx.beginPath();
-            ctx.arc(px, py, 2, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        } else if (act === 2) {
-          // Base Lunar & Superficie: Motes de polvo de regolito levitando en el viento solar y micrometeoritos
-          if (i % 4 === 0) {
-            // Micrometeorito cósmico veloz
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(px, py, 2.5, 1);
-          } else {
-            // Polvo de regolito plateado flotante
-            const dTwinkle = 0.4 + Math.sin(time * 0.12 + i) * 0.45;
-            ctx.fillStyle = `rgba(226, 232, 240, ${dTwinkle})`;
-            ctx.fillRect(px, py, i % 2 === 0 ? 1.5 : 1, i % 2 === 0 ? 1.5 : 1);
-          }
-        } else {
-          // Acto 3: Juicio Final Cósmico / Doomsday Zone - Fotones cósmicos dorados, cian y estrellas fugaces
-          if (i % 5 === 0) {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(px, py, 3, 1);
-          } else {
-            const photonColors = ['#fde047', '#38bdf8', '#c084fc', '#f43f5e'];
-            const pPulse = 0.5 + Math.sin(time * 0.2 + i) * 0.5;
-            ctx.fillStyle = photonColors[i % photonColors.length];
-            ctx.fillRect(px, py, 1.5, 1.5);
-          }
-        }
-      } else {
-        // Golden swirling sand dust & hieroglyphic sparkle specks
-        ctx.fillStyle = i % 3 === 0 ? '#fde68acc' : i % 2 === 0 ? '#f59e0bcc' : '#fbbf24cc';
-        ctx.fillRect(px, py, i % 2 === 0 ? 2 : 1.5, i % 2 === 0 ? 2 : 1.5);
-      }
-    }
+    drawAILevelBackground(this.ctx, zone, act, cameraX, worldWidth, time);
   }
 
-  public renderLandmarks(landmarks: Landmark[], cameraX: number, time: number) {
+  public renderLandmarks(landmarks: Landmark[], cameraX: number, time: number, platforms: Platform[] = []) {
     const ctx = this.ctx;
+
+    // Helper to find the exact solid platform ground underneath any landmark
+    const getGroundFloorY = (worldX: number, fallbackY = 148): number => {
+      let bestFloorY = fallbackY;
+      let minFloorDiff = Infinity;
+      for (const p of platforms) {
+        if (p.hidden) continue;
+        if (worldX >= p.x - 30 && worldX <= p.x + p.w + 30) {
+          // If platform is ground, arena, or solid base floor
+          if (p.kind === 'ground' || p.kind === 'arena' || p.kind === 'snow' || p.kind === 'ice' || p.kind === 'castle_stone') {
+            const diff = Math.abs(p.y - fallbackY);
+            if (diff < minFloorDiff) {
+              minFloorDiff = diff;
+              bestFloorY = p.y;
+            }
+          }
+        }
+      }
+      return bestFloorY;
+    };
+
     for (const lm of landmarks) {
       const x = Math.round(lm.x - cameraX);
       if (x < -160 || x > GAME_WIDTH + 160) continue;
 
+      // Ensure the landmark stands firmly rooted on the actual terrain ground floor
+      const groundY = getGroundFloorY(lm.x, 148);
+
       if (lm.type === 'torii') {
-        const sc = lm.scale || 1;
-        ctx.fillStyle = '#7f1d1d';
-        ctx.fillRect(x, 70, Math.round(9 * sc), 78);
-        ctx.fillRect(x + Math.round(52 * sc), 70, Math.round(9 * sc), 78);
-        ctx.fillStyle = '#991b1b';
-        ctx.fillRect(x - Math.round(8 * sc), 66, Math.round(78 * sc), Math.round(11 * sc));
-        ctx.fillStyle = '#450a0a';
-        ctx.fillRect(x - Math.round(12 * sc), 60, Math.round(86 * sc), Math.round(7 * sc));
-        // Golden plaque
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(x + Math.round(27 * sc), 70, Math.round(8 * sc), Math.round(12 * sc));
+        const sc = lm.scale || 1.15;
+        const toriiCanvas = getProcessedLandmarkCanvas('torii');
+        if (toriiCanvas) {
+          // Render beautiful AI Japanese Torii Shrine with transparent backdrop (no hitboxes, background element)
+          const targetW = Math.round(92 * sc);
+          const targetH = Math.round(98 * sc);
+          const drawX = Math.round(x - 12 * sc);
+          // Root pillars flush onto the ground floor (no floating in the air)
+          const drawY = Math.round(groundY - targetH + 3);
+          ctx.save();
+          ctx.globalAlpha = 0.94;
+          ctx.drawImage(toriiCanvas, drawX, drawY, targetW, targetH);
+          // Subtle warm shrine lantern glow at base
+          const glowGrad = ctx.createRadialGradient(drawX + targetW / 2, groundY, 2, drawX + targetW / 2, groundY, 26 * sc);
+          glowGrad.addColorStop(0, 'rgba(239, 68, 68, 0.28)');
+          glowGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+          ctx.fillStyle = glowGrad;
+          ctx.fillRect(drawX - 10, groundY - 14, targetW + 20, 16);
+          ctx.restore();
+        } else {
+          // Authentic procedural fallback
+          const pillarH = 78;
+          ctx.fillStyle = '#7f1d1d';
+          ctx.fillRect(x, groundY - pillarH, Math.round(9 * sc), pillarH);
+          ctx.fillRect(x + Math.round(52 * sc), groundY - pillarH, Math.round(9 * sc), pillarH);
+          ctx.fillStyle = '#991b1b';
+          ctx.fillRect(x - Math.round(8 * sc), groundY - pillarH - 4, Math.round(78 * sc), Math.round(11 * sc));
+          ctx.fillStyle = '#450a0a';
+          ctx.fillRect(x - Math.round(12 * sc), groundY - pillarH - 10, Math.round(86 * sc), Math.round(7 * sc));
+          // Golden plaque
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(x + Math.round(27 * sc), groundY - pillarH, Math.round(8 * sc), Math.round(12 * sc));
+        }
       } else if (lm.type === 'bridge') {
         const w = lm.w || 180;
         ctx.fillStyle = '#991b1b';
@@ -4170,63 +1000,102 @@ export class GameRenderer {
       } else if (lm.type === 'pyramid') {
         // Great Stepped Sandstone Pyramid with Golden Pyramidion Capstone
         const sc = lm.scale || 1.4;
-        const w = Math.round(180 * sc);
-        const h = Math.round(110 * sc);
-        const baseY = 148;
-        ctx.fillStyle = '#78350f';
-        ctx.beginPath();
-        ctx.moveTo(x - w / 2, baseY);
-        ctx.lineTo(x, baseY - h);
-        ctx.lineTo(x + w / 2, baseY);
-        ctx.fill();
+        const pyramidCanvas = getProcessedLandmarkCanvas('pyramid');
+        if (pyramidCanvas) {
+          // Render beautiful AI Desert Pyramid with transparent background (pure scenery, no hitboxes)
+          const targetW = Math.round(195 * sc);
+          const targetH = Math.round(128 * sc);
+          const drawX = Math.round(x - targetW / 2);
+          // Grounded directly on the sand floor
+          const drawY = Math.round(groundY - targetH + 4);
+          ctx.save();
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(pyramidCanvas, drawX, drawY, targetW, targetH);
 
-        // Shaded side
-        ctx.fillStyle = '#92400e';
-        ctx.beginPath();
-        ctx.moveTo(x, baseY - h);
-        ctx.lineTo(x + w / 2, baseY);
-        ctx.lineTo(x, baseY);
-        ctx.fill();
-
-        // Horizontal sandstone tier lines
-        ctx.strokeStyle = '#451a03';
-        ctx.lineWidth = 1;
-        for (let th = baseY - 12; th > baseY - h + 15; th -= 10) {
-          const ratio = (baseY - th) / h;
-          const curW = w * (1 - ratio);
+          // Subtle sun-kissed golden ambient haze around the pyramidion capstone
+          const apexX = drawX + targetW / 2;
+          const apexY = drawY + Math.round(18 * sc);
+          const sunGlow = ctx.createRadialGradient(apexX, apexY, 2, apexX, apexY, 28 * sc);
+          sunGlow.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
+          sunGlow.addColorStop(0.5, 'rgba(245, 158, 11, 0.15)');
+          sunGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+          ctx.fillStyle = sunGlow;
           ctx.beginPath();
-          ctx.moveTo(x - curW / 2, th);
-          ctx.lineTo(x + curW / 2, th);
-          ctx.stroke();
-        }
+          ctx.arc(apexX, apexY, 28 * sc, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          const w = Math.round(180 * sc);
+          const h = Math.round(110 * sc);
+          const baseY = groundY;
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.moveTo(x - w / 2, baseY);
+          ctx.lineTo(x, baseY - h);
+          ctx.lineTo(x + w / 2, baseY);
+          ctx.fill();
 
-        // Golden Pyramidion (Capstone)
-        ctx.fillStyle = '#facc15';
-        ctx.beginPath();
-        ctx.moveTo(x - 12, baseY - h + 14);
-        ctx.lineTo(x, baseY - h);
-        ctx.lineTo(x + 12, baseY - h + 14);
-        ctx.fill();
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(x - 2, baseY - h + 3, 4, 4);
+          // Shaded side
+          ctx.fillStyle = '#92400e';
+          ctx.beginPath();
+          ctx.moveTo(x, baseY - h);
+          ctx.lineTo(x + w / 2, baseY);
+          ctx.lineTo(x, baseY);
+          ctx.fill();
+
+          // Horizontal sandstone tier lines
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 1;
+          for (let th = baseY - 12; th > baseY - h + 15; th -= 10) {
+            const ratio = (baseY - th) / h;
+            const curW = w * (1 - ratio);
+            ctx.beginPath();
+            ctx.moveTo(x - curW / 2, th);
+            ctx.lineTo(x + curW / 2, th);
+            ctx.stroke();
+          }
+
+          // Golden Pyramidion (Capstone)
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.moveTo(x - 12, baseY - h + 14);
+          ctx.lineTo(x, baseY - h);
+          ctx.lineTo(x + 12, baseY - h + 14);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(x - 2, baseY - h + 3, 4, 4);
+        }
       } else if (lm.type === 'sphinx') {
         // Monumental Sphinx Guardian
-        const sc = lm.scale || 1;
-        ctx.fillStyle = '#78350f';
-        // Body & Paws
-        ctx.fillRect(x, 105, Math.round(90 * sc), 43);
-        ctx.fillRect(x + Math.round(75 * sc), 125, Math.round(35 * sc), 23);
-        // Head & Nemes Crown
-        ctx.fillStyle = '#b45309';
-        ctx.fillRect(x + Math.round(15 * sc), 75, Math.round(34 * sc), 32);
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(x + Math.round(12 * sc), 72, Math.round(40 * sc), 8);
-        ctx.fillStyle = '#0284c7';
-        ctx.fillRect(x + Math.round(16 * sc), 74, Math.round(6 * sc), 4);
-        ctx.fillRect(x + Math.round(38 * sc), 74, Math.round(6 * sc), 4);
-        // Eyes
-        ctx.fillStyle = '#fde68a';
-        ctx.fillRect(x + Math.round(38 * sc), 86, 4, 3);
+        const sc = lm.scale || 1.1;
+        const sphinxCanvas = getProcessedLandmarkCanvas('sphinx');
+        if (sphinxCanvas) {
+          const targetW = Math.round(112 * sc);
+          const targetH = Math.round(82 * sc);
+          const drawX = Math.round(x);
+          // Grounded flush on the desert floor
+          const drawY = Math.round(groundY - targetH + 3);
+          ctx.save();
+          ctx.globalAlpha = 0.96;
+          ctx.drawImage(sphinxCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#78350f';
+          // Body & Paws
+          ctx.fillRect(x, groundY - 43, Math.round(90 * sc), 43);
+          ctx.fillRect(x + Math.round(75 * sc), groundY - 23, Math.round(35 * sc), 23);
+          // Head & Nemes Crown
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x + Math.round(15 * sc), groundY - 73, Math.round(34 * sc), 32);
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(x + Math.round(12 * sc), groundY - 76, Math.round(40 * sc), 8);
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(x + Math.round(16 * sc), groundY - 74, Math.round(6 * sc), 4);
+          ctx.fillRect(x + Math.round(38 * sc), groundY - 74, Math.round(6 * sc), 4);
+          // Eyes
+          ctx.fillStyle = '#fde68a';
+          ctx.fillRect(x + Math.round(38 * sc), groundY - 62, 4, 3);
+        }
       } else if (lm.type === 'obelisk') {
         // Tall Egyptian Obelisk with Inscribed Glowing Hieroglyphs
         const sc = lm.scale || 1;
@@ -4320,29 +1189,41 @@ export class GameRenderer {
         // Futuristic Krono Megastructure Skyscraper
         const w = lm.w || 80;
         const h = lm.h || 120;
-        const sc = lm.scale || 1;
-        ctx.fillStyle = '#090e1f';
-        ctx.fillRect(x, 148 - h, w, h);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(x + 4, 148 - h + 4, w - 8, h - 4);
+        const sc = lm.scale || 1.15;
+        const cyberCanvas = getProcessedLandmarkCanvas('cyber_skyscraper');
+        if (cyberCanvas) {
+          const targetW = Math.round(w * sc);
+          const targetH = Math.round(h * sc);
+          const drawX = Math.round(x);
+          const drawY = Math.round(groundY - targetH + 2);
+          ctx.save();
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(cyberCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#090e1f';
+          ctx.fillRect(x, groundY - h, w, h);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + 4, groundY - h + 4, w - 8, h - 4);
 
-        // Antenna with pulsating beacon
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(x + w / 2 - 2, 148 - h - 18, 4, 18);
-        ctx.fillStyle = Math.floor(time / 15) % 2 === 0 ? '#f43f5e' : '#fbbf24';
-        ctx.fillRect(x + w / 2 - 3, 148 - h - 22, 6, 4);
+          // Antenna with pulsating beacon
+          ctx.fillStyle = '#06b6d4';
+          ctx.fillRect(x + w / 2 - 2, groundY - h - 18, 4, 18);
+          ctx.fillStyle = Math.floor(time / 15) % 2 === 0 ? '#f43f5e' : '#fbbf24';
+          ctx.fillRect(x + w / 2 - 3, groundY - h - 22, 6, 4);
 
-        // Glowing Window Grids & Neon Circuit Strips
-        for (let wy = 148 - h + 12; wy < 144; wy += 16) {
-          ctx.fillStyle = (wy + x) % 2 === 0 ? '#38bdf888' : '#a855f788';
-          ctx.fillRect(x + 8, wy, 8, 8);
-          ctx.fillRect(x + 22, wy, 8, 8);
-          ctx.fillRect(x + w - 30, wy, 8, 8);
-          ctx.fillRect(x + w - 16, wy, 8, 8);
+          // Glowing Window Grids & Neon Circuit Strips
+          for (let wy = groundY - h + 12; wy < groundY - 4; wy += 16) {
+            ctx.fillStyle = (wy + x) % 2 === 0 ? '#38bdf888' : '#a855f788';
+            ctx.fillRect(x + 8, wy, 8, 8);
+            ctx.fillRect(x + 22, wy, 8, 8);
+            ctx.fillRect(x + w - 30, wy, 8, 8);
+            ctx.fillRect(x + w - 16, wy, 8, 8);
+          }
+          // Vertical Neon Conduit
+          ctx.fillStyle = '#06b6d4';
+          ctx.fillRect(x + w / 2 - 1, groundY - h + 4, 2, h - 4);
         }
-        // Vertical Neon Conduit
-        ctx.fillStyle = '#06b6d4';
-        ctx.fillRect(x + w / 2 - 1, 148 - h + 4, 2, h - 4);
       } else if (lm.type === 'holo_billboard') {
         // Holographic Cyber Advertisement Billboard
         const w = lm.w || 70;
@@ -4473,55 +1354,67 @@ export class GameRenderer {
       } else if (lm.type === 'mayan_pyramid') {
         // Grand Mayan Stepped Pyramid Landmark
         const sc = lm.scale || 1.5;
-        const baseY = 148;
-        const pyrW = Math.round(130 * sc);
-        const halfW = Math.round(pyrW / 2);
-        const cx = x + halfW;
+        const mayanCanvas = getProcessedLandmarkCanvas('mayan_pyramid');
+        if (mayanCanvas) {
+          const targetW = Math.round(145 * sc);
+          const targetH = Math.round(112 * sc);
+          const drawX = Math.round(x);
+          const drawY = Math.round(groundY - targetH + 3);
+          ctx.save();
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(mayanCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
+        } else {
+          const baseY = groundY;
+          const pyrW = Math.round(130 * sc);
+          const halfW = Math.round(pyrW / 2);
+          const cx = x + halfW;
 
-        // Tier 4 (Bottom-most platform)
-        ctx.fillStyle = '#062d20';
-        ctx.fillRect(cx - Math.round(62 * sc), baseY - Math.round(20 * sc), Math.round(124 * sc), Math.round(20 * sc));
-        // Tier 3
-        ctx.fillStyle = '#083c2b';
-        ctx.fillRect(cx - Math.round(50 * sc), baseY - Math.round(38 * sc), Math.round(100 * sc), Math.round(18 * sc));
-        // Tier 2
-        ctx.fillStyle = '#0a4a35';
-        ctx.fillRect(cx - Math.round(38 * sc), baseY - Math.round(54 * sc), Math.round(76 * sc), Math.round(16 * sc));
-        // Tier 1 (Upper platform)
-        ctx.fillStyle = '#0f5c42';
-        ctx.fillRect(cx - Math.round(26 * sc), baseY - Math.round(68 * sc), Math.round(52 * sc), Math.round(14 * sc));
+          // Tier 4 (Bottom-most platform)
+          ctx.fillStyle = '#062d20';
+          ctx.fillRect(cx - Math.round(62 * sc), baseY - Math.round(20 * sc), Math.round(124 * sc), Math.round(20 * sc));
+          // Tier 3
+          ctx.fillStyle = '#083c2b';
+          ctx.fillRect(cx - Math.round(50 * sc), baseY - Math.round(38 * sc), Math.round(100 * sc), Math.round(18 * sc));
+          // Tier 2
+          ctx.fillStyle = '#0a4a35';
+          ctx.fillRect(cx - Math.round(38 * sc), baseY - Math.round(54 * sc), Math.round(76 * sc), Math.round(16 * sc));
+          // Tier 1 (Upper platform)
+          ctx.fillStyle = '#0f5c42';
+          ctx.fillRect(cx - Math.round(26 * sc), baseY - Math.round(68 * sc), Math.round(52 * sc), Math.round(14 * sc));
 
-        // Summit Temple Sanctuary
-        ctx.fillStyle = '#093a2a';
-        ctx.fillRect(cx - Math.round(16 * sc), baseY - Math.round(84 * sc), Math.round(32 * sc), Math.round(16 * sc));
-        // Temple Roof Crestería (Carved Stone Comb)
-        ctx.fillStyle = '#0f5c42';
-        ctx.fillRect(cx - Math.round(14 * sc), baseY - Math.round(92 * sc), Math.round(28 * sc), Math.round(8 * sc));
-        ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(98 * sc), Math.round(16 * sc), Math.round(6 * sc));
-        // Temple Doorways
-        ctx.fillStyle = '#021810';
-        ctx.fillRect(cx - Math.round(11 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
-        ctx.fillRect(cx - Math.round(3 * sc), baseY - Math.round(80 * sc), Math.round(6 * sc), Math.round(12 * sc));
-        ctx.fillRect(cx + Math.round(5 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
+          // Summit Temple Sanctuary
+          ctx.fillStyle = '#093a2a';
+          ctx.fillRect(cx - Math.round(16 * sc), baseY - Math.round(84 * sc), Math.round(32 * sc), Math.round(16 * sc));
+          // Temple Roof Crestería (Carved Stone Comb)
+          ctx.fillStyle = '#0f5c42';
+          ctx.fillRect(cx - Math.round(14 * sc), baseY - Math.round(92 * sc), Math.round(28 * sc), Math.round(8 * sc));
+          ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(98 * sc), Math.round(16 * sc), Math.round(6 * sc));
+          // Temple Doorways
+          ctx.fillStyle = '#021810';
+          ctx.fillRect(cx - Math.round(11 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
+          ctx.fillRect(cx - Math.round(3 * sc), baseY - Math.round(80 * sc), Math.round(6 * sc), Math.round(12 * sc));
+          ctx.fillRect(cx + Math.round(5 * sc), baseY - Math.round(78 * sc), Math.round(6 * sc), Math.round(10 * sc));
 
-        // Grand Central Stairway with stone step highlights
-        ctx.fillStyle = '#11684c';
-        ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(68 * sc), Math.round(16 * sc), Math.round(68 * sc));
-        ctx.fillStyle = '#34d39966';
-        for (let st = baseY - Math.round(66 * sc); st < baseY; st += 4) {
-          ctx.fillRect(cx - Math.round(7 * sc), st, Math.round(14 * sc), 1);
+          // Grand Central Stairway with stone step highlights
+          ctx.fillStyle = '#11684c';
+          ctx.fillRect(cx - Math.round(8 * sc), baseY - Math.round(68 * sc), Math.round(16 * sc), Math.round(68 * sc));
+          ctx.fillStyle = '#34d39966';
+          for (let st = baseY - Math.round(66 * sc); st < baseY; st += 4) {
+            ctx.fillRect(cx - Math.round(7 * sc), st, Math.round(14 * sc), 1);
+          }
+
+          // Feathered Serpent / Kukulcán Balustrades at base of stairs
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(cx - Math.round(10 * sc), baseY - 4, 3, 4);
+          ctx.fillRect(cx + Math.round(7 * sc), baseY - 4, 3, 4);
+
+          // Hanging jungle vines & moss on limestone blocks
+          ctx.fillStyle = '#22c55e99';
+          ctx.fillRect(cx - Math.round(45 * sc), baseY - Math.round(34 * sc), 4, 12);
+          ctx.fillRect(cx + Math.round(38 * sc), baseY - Math.round(32 * sc), 5, 14);
+          ctx.fillRect(cx - Math.round(22 * sc), baseY - Math.round(50 * sc), 3, 10);
         }
-
-        // Feathered Serpent / Kukulcán Balustrades at base of stairs
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(cx - Math.round(10 * sc), baseY - 4, 3, 4);
-        ctx.fillRect(cx + Math.round(7 * sc), baseY - 4, 3, 4);
-
-        // Hanging jungle vines & moss on limestone blocks
-        ctx.fillStyle = '#22c55e99';
-        ctx.fillRect(cx - Math.round(45 * sc), baseY - Math.round(34 * sc), 4, 12);
-        ctx.fillRect(cx + Math.round(38 * sc), baseY - Math.round(32 * sc), 5, 14);
-        ctx.fillRect(cx - Math.round(22 * sc), baseY - Math.round(50 * sc), 3, 10);
       } else if (lm.type === 'jungle_waterfall') {
         // Cascading Rainforest Waterfall Landmark
         const sc = lm.scale || 1.2;
@@ -4751,88 +1644,101 @@ export class GameRenderer {
         }
       } else if (lm.type === 'chalet' || lm.type === 'snow_cabin') {
         // Alpine Ski Lodge / Mountain Chalet
-        const baseY = lm.y || 148;
+        const baseY = lm.y ? Math.min(lm.y, groundY) : groundY;
         const w = lm.w || 64;
         const h = lm.h || 48;
-        const cx = x + Math.round(w / 2);
+        const sc = lm.scale || 1.15;
+        const chaletCanvas = getProcessedLandmarkCanvas('chalet');
+        if (chaletCanvas) {
+          const targetW = Math.round(w * sc * 1.3);
+          const targetH = Math.round(h * sc * 1.3);
+          const drawX = Math.round(x);
+          const drawY = Math.round(baseY - targetH + 3);
+          ctx.save();
+          ctx.globalAlpha = 0.95;
+          ctx.drawImage(chaletCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
+        } else {
+          const cx = x + Math.round(w / 2);
 
-        // Snow base
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x - 6, baseY - 4, w + 12, 6);
+          // Snow base
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x - 6, baseY - 4, w + 12, 6);
 
-        // Log timber structure
-        ctx.fillStyle = '#451a03';
-        ctx.fillRect(x, baseY - h + 16, w, h - 16);
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(x + 2, baseY - h + 18, w - 4, h - 20);
+          // Log timber structure
+          ctx.fillStyle = '#451a03';
+          ctx.fillRect(x, baseY - h + 16, w, h - 16);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x + 2, baseY - h + 18, w - 4, h - 20);
 
-        // Horizontal log siding grooves
-        ctx.fillStyle = '#331800';
-        for (let gy = baseY - h + 22; gy < baseY - 4; gy += 6) {
-          ctx.fillRect(x + 2, gy, w - 4, 1);
-        }
+          // Horizontal log siding grooves
+          ctx.fillStyle = '#331800';
+          for (let gy = baseY - h + 22; gy < baseY - 4; gy += 6) {
+            ctx.fillRect(x + 2, gy, w - 4, 1);
+          }
 
-        // Warm Glowing Amber Windows with Cross Mullions
-        const winGlow = 0.8 + Math.sin(time * 0.08) * 0.15;
-        ctx.fillStyle = `rgba(251, 191, 36, ${winGlow})`;
-        ctx.fillRect(x + 8, baseY - 24, 12, 12);
-        ctx.fillRect(x + w - 20, baseY - 24, 12, 12);
-        ctx.fillStyle = '#451a03';
-        // Cross mullions
-        ctx.fillRect(x + 13, baseY - 24, 2, 12);
-        ctx.fillRect(x + 8, baseY - 19, 12, 2);
-        ctx.fillRect(x + w - 15, baseY - 24, 2, 12);
-        ctx.fillRect(x + w - 20, baseY - 19, 12, 2);
+          // Warm Glowing Amber Windows with Cross Mullions
+          const winGlow = 0.8 + Math.sin(time * 0.08) * 0.15;
+          ctx.fillStyle = `rgba(251, 191, 36, ${winGlow})`;
+          ctx.fillRect(x + 8, baseY - 24, 12, 12);
+          ctx.fillRect(x + w - 20, baseY - 24, 12, 12);
+          ctx.fillStyle = '#451a03';
+          // Cross mullions
+          ctx.fillRect(x + 13, baseY - 24, 2, 12);
+          ctx.fillRect(x + 8, baseY - 19, 12, 2);
+          ctx.fillRect(x + w - 15, baseY - 24, 2, 12);
+          ctx.fillRect(x + w - 20, baseY - 19, 12, 2);
 
-        // Front Wooden Door
-        ctx.fillStyle = '#331800';
-        ctx.fillRect(cx - 6, baseY - 18, 12, 18);
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(cx + 2, baseY - 10, 2, 2); // Brass door handle
+          // Front Wooden Door
+          ctx.fillStyle = '#331800';
+          ctx.fillRect(cx - 6, baseY - 18, 12, 18);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(cx + 2, baseY - 10, 2, 2); // Brass door handle
 
-        // Steep Snow-Covered Alpine A-Frame Roof
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.moveTo(cx, baseY - h - 8);
-        ctx.lineTo(x - 8, baseY - h + 18);
-        ctx.lineTo(x + w + 8, baseY - h + 18);
-        ctx.closePath();
-        ctx.fill();
-
-        // Shaded under-eaves
-        ctx.fillStyle = '#bae6fd';
-        ctx.beginPath();
-        ctx.moveTo(cx, baseY - h - 4);
-        ctx.lineTo(x + w + 8, baseY - h + 18);
-        ctx.lineTo(cx, baseY - h + 18);
-        ctx.closePath();
-        ctx.fill();
-
-        // Hanging Icicles from eaves
-        ctx.fillStyle = '#e0f2fe';
-        for (let ix = x - 6; ix <= x + w + 6; ix += 6) {
+          // Steep Snow-Covered Alpine A-Frame Roof
+          ctx.fillStyle = '#ffffff';
           ctx.beginPath();
-          ctx.moveTo(ix, baseY - h + 18);
-          ctx.lineTo(ix + 2, baseY - h + 18);
-          ctx.lineTo(ix + 1, baseY - h + 24 + ((ix * 7) % 5));
+          ctx.moveTo(cx, baseY - h - 8);
+          ctx.lineTo(x - 8, baseY - h + 18);
+          ctx.lineTo(x + w + 8, baseY - h + 18);
           ctx.closePath();
           ctx.fill();
-        }
 
-        // Stone Chimney with Smoke
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(cx + 10, baseY - h - 14, 8, 18);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(cx + 9, baseY - h - 15, 10, 2); // Chimney snow cap
-
-        // Drifting chimney smoke
-        for (let s = 0; s < 4; s++) {
-          const smX = cx + 14 + Math.sin(time * 0.08 + s) * 4 - s * 3;
-          const smY = baseY - h - 18 - s * 6;
-          ctx.fillStyle = `rgba(224, 242, 254, ${0.55 - s * 0.12})`;
+          // Shaded under-eaves
+          ctx.fillStyle = '#bae6fd';
           ctx.beginPath();
-          ctx.arc(smX, smY, 3 + s * 1.2, 0, Math.PI * 2);
+          ctx.moveTo(cx, baseY - h - 4);
+          ctx.lineTo(x + w + 8, baseY - h + 18);
+          ctx.lineTo(cx, baseY - h + 18);
+          ctx.closePath();
           ctx.fill();
+
+          // Hanging Icicles from eaves
+          ctx.fillStyle = '#e0f2fe';
+          for (let ix = x - 6; ix <= x + w + 6; ix += 6) {
+            ctx.beginPath();
+            ctx.moveTo(ix, baseY - h + 18);
+            ctx.lineTo(ix + 2, baseY - h + 18);
+            ctx.lineTo(ix + 1, baseY - h + 24 + ((ix * 7) % 5));
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          // Stone Chimney with Smoke
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(cx + 10, baseY - h - 14, 8, 18);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(cx + 9, baseY - h - 15, 10, 2); // Chimney snow cap
+
+          // Drifting chimney smoke
+          for (let s = 0; s < 4; s++) {
+            const smX = cx + 14 + Math.sin(time * 0.08 + s) * 4 - s * 3;
+            const smY = baseY - h - 18 - s * 6;
+            ctx.fillStyle = `rgba(224, 242, 254, ${0.55 - s * 0.12})`;
+            ctx.beginPath();
+            ctx.arc(smX, smY, 3 + s * 1.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       } else if (lm.type === 'ski_jump_ramp') {
         // Red-and-White Alpine Ski Launch Ramp
@@ -4873,75 +1779,88 @@ export class GameRenderer {
         ctx.fill();
       } else if (lm.type === 'castle_keep') {
         // Grand Medieval Fortress Keep / Bastion
-        const baseY = lm.y || 148;
+        const baseY = lm.y ? Math.min(lm.y, groundY) : groundY;
         const w = lm.w || 96;
         const h = lm.h || 110;
-        const cx = x + w / 2;
+        const sc = lm.scale || 1.15;
+        const castleCanvas = getProcessedLandmarkCanvas('castle_keep');
+        if (castleCanvas) {
+          const targetW = Math.round(w * sc * 1.15);
+          const targetH = Math.round(h * sc * 1.05);
+          const drawX = Math.round(x);
+          const drawY = Math.round(baseY - targetH + 2);
+          ctx.save();
+          ctx.globalAlpha = 0.96;
+          ctx.drawImage(castleCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
+        } else {
+          const cx = x + w / 2;
 
-        // Main Keep Stone Tower Body
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(x, baseY - h, w, h);
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(x + 2, baseY - h + 2, w - 4, h - 2);
+          // Main Keep Stone Tower Body
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x, baseY - h, w, h);
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(x + 2, baseY - h + 2, w - 4, h - 2);
 
-        // Stone Brick Details
-        ctx.fillStyle = '#475569';
-        for (let row = 0; row < 12; row++) {
-          const by = baseY - h + 10 + row * 8;
-          const off = (row % 2) * 10;
-          for (let bx = x + 4 - off; bx < x + w - 4; bx += 20) {
-            const rx = Math.max(x + 4, bx);
-            const rw = Math.min(16, x + w - 4 - rx);
-            if (rw > 4) ctx.fillRect(rx, by, rw, 6);
+          // Stone Brick Details
+          ctx.fillStyle = '#475569';
+          for (let row = 0; row < 12; row++) {
+            const by = baseY - h + 10 + row * 8;
+            const off = (row % 2) * 10;
+            for (let bx = x + 4 - off; bx < x + w - 4; bx += 20) {
+              const rx = Math.max(x + 4, bx);
+              const rw = Math.min(16, x + w - 4 - rx);
+              if (rw > 4) ctx.fillRect(rx, by, rw, 6);
+            }
           }
-        }
 
-        // Crenellations & Machicolations atop Keep
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(x - 4, baseY - h - 4, w + 8, 6);
-        ctx.fillStyle = '#64748b';
-        for (let c = x - 4; c < x + w + 8; c += 16) {
-          ctx.fillRect(c, baseY - h - 14, 10, 10);
-          ctx.fillStyle = '#94a3b8';
-          ctx.fillRect(c, baseY - h - 14, 10, 2);
+          // Crenellations & Machicolations atop Keep
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x - 4, baseY - h - 4, w + 8, 6);
           ctx.fillStyle = '#64748b';
+          for (let c = x - 4; c < x + w + 8; c += 16) {
+            ctx.fillRect(c, baseY - h - 14, 10, 10);
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(c, baseY - h - 14, 10, 2);
+            ctx.fillStyle = '#64748b';
+          }
+
+          // Arrow Slit Windows
+          ctx.fillStyle = '#020617';
+          ctx.fillRect(cx - 16, baseY - h + 30, 4, 16);
+          ctx.fillRect(cx + 12, baseY - h + 30, 4, 16);
+          ctx.fillRect(cx - 2, baseY - h + 54, 4, 18);
+
+          // Heavy Fortified Arched Oak Gate
+          ctx.fillStyle = '#020617';
+          ctx.beginPath();
+          ctx.arc(cx, baseY - 24, 14, Math.PI, 0);
+          ctx.rect(cx - 14, baseY - 24, 28, 24);
+          ctx.fill();
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.arc(cx, baseY - 24, 12, Math.PI, 0);
+          ctx.rect(cx - 12, baseY - 24, 24, 24);
+          ctx.fill();
+          // Iron gate studs
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(cx - 1, baseY - 24, 2, 24); // Center seam
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(cx - 8, baseY - 14, 2, 2);
+          ctx.fillRect(cx + 6, baseY - 14, 2, 2);
+
+          // Flying Tower Banner
+          const flagWave = Math.sin(time * 0.2 + x * 0.1) * 3;
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillRect(cx - 1, baseY - h - 28, 2, 16); // Flagpole
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.moveTo(cx + 1, baseY - h - 28);
+          ctx.lineTo(cx + 18 + flagWave, baseY - h - 22);
+          ctx.lineTo(cx + 1, baseY - h - 16);
+          ctx.closePath();
+          ctx.fill();
         }
-
-        // Arrow Slit Windows
-        ctx.fillStyle = '#020617';
-        ctx.fillRect(cx - 16, baseY - h + 30, 4, 16);
-        ctx.fillRect(cx + 12, baseY - h + 30, 4, 16);
-        ctx.fillRect(cx - 2, baseY - h + 54, 4, 18);
-
-        // Heavy Fortified Arched Oak Gate
-        ctx.fillStyle = '#020617';
-        ctx.beginPath();
-        ctx.arc(cx, baseY - 24, 14, Math.PI, 0);
-        ctx.rect(cx - 14, baseY - 24, 28, 24);
-        ctx.fill();
-        ctx.fillStyle = '#78350f';
-        ctx.beginPath();
-        ctx.arc(cx, baseY - 24, 12, Math.PI, 0);
-        ctx.rect(cx - 12, baseY - 24, 24, 24);
-        ctx.fill();
-        // Iron gate studs
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(cx - 1, baseY - 24, 2, 24); // Center seam
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(cx - 8, baseY - 14, 2, 2);
-        ctx.fillRect(cx + 6, baseY - 14, 2, 2);
-
-        // Flying Tower Banner
-        const flagWave = Math.sin(time * 0.2 + x * 0.1) * 3;
-        ctx.fillStyle = '#94a3b8';
-        ctx.fillRect(cx - 1, baseY - h - 28, 2, 16); // Flagpole
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.moveTo(cx + 1, baseY - h - 28);
-        ctx.lineTo(cx + 18 + flagWave, baseY - h - 22);
-        ctx.lineTo(cx + 1, baseY - h - 16);
-        ctx.closePath();
-        ctx.fill();
       } else if (lm.type === 'siege_catapult') {
         // Medieval Heavy Siege Trebuchet / Catapult
         const baseY = lm.y || 148;
@@ -5478,54 +2397,74 @@ export class GameRenderer {
         ctx.fillRect(x - 1, baseY - 12, 2, 2);
       } else if (lm.type === 'lunar_lander_apollo') {
         // Módulo de Descenso Lunar Histórico (Apolo Relic con Lámina de Oro)
-        const baseY = lm.y || 148;
+        const baseY = lm.y ? Math.min(lm.y, groundY) : groundY;
         const lx = x;
+        const sc = lm.scale || 1.15;
+        const landerCanvas = getProcessedLandmarkCanvas('lunar_lander_apollo');
+        if (landerCanvas) {
+          const targetW = Math.round(58 * sc);
+          const targetH = Math.round(48 * sc);
+          const drawX = Math.round(lx - targetW / 2);
+          const drawY = Math.round(baseY - targetH + 2);
+          ctx.save();
+          ctx.globalAlpha = 0.96;
+          ctx.drawImage(landerCanvas, drawX, drawY, targetW, targetH);
+          ctx.restore();
 
-        // 4 Articulated Spider Landing Legs & Footpads
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(lx - 8, baseY - 16);
-        ctx.lineTo(lx - 20, baseY);
-        ctx.moveTo(lx + 8, baseY - 16);
-        ctx.lineTo(lx + 20, baseY);
-        ctx.moveTo(lx - 4, baseY - 16);
-        ctx.lineTo(lx - 10, baseY);
-        ctx.moveTo(lx + 4, baseY - 16);
-        ctx.lineTo(lx + 10, baseY);
-        ctx.stroke();
+          // Commemorative Mission Flag planted on lunar surface beside lander
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillRect(drawX + targetW + 6, baseY - 20, 1.5, 20); // Staff
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(drawX + targetW + 6, baseY - 20, 9, 6);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(drawX + targetW + 6, baseY - 17, 9, 1.5);
+        } else {
+          // 4 Articulated Spider Landing Legs & Footpads
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(lx - 8, baseY - 16);
+          ctx.lineTo(lx - 20, baseY);
+          ctx.moveTo(lx + 8, baseY - 16);
+          ctx.lineTo(lx + 20, baseY);
+          ctx.moveTo(lx - 4, baseY - 16);
+          ctx.lineTo(lx - 10, baseY);
+          ctx.moveTo(lx + 4, baseY - 16);
+          ctx.lineTo(lx + 10, baseY);
+          ctx.stroke();
 
-        // Circular footpads on regolith
-        ctx.fillStyle = '#cbd5e1';
-        ctx.fillRect(lx - 23, baseY - 2, 6, 2.5);
-        ctx.fillRect(lx + 17, baseY - 2, 6, 2.5);
-        ctx.fillRect(lx - 12, baseY - 2, 4, 2);
-        ctx.fillRect(lx + 8, baseY - 2, 4, 2);
+          // Circular footpads on regolith
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(lx - 23, baseY - 2, 6, 2.5);
+          ctx.fillRect(lx + 17, baseY - 2, 6, 2.5);
+          ctx.fillRect(lx - 12, baseY - 2, 4, 2);
+          ctx.fillRect(lx + 8, baseY - 2, 4, 2);
 
-        // Gold Mylar Thermal Foil Insulated Octagonal Body
-        ctx.fillStyle = '#b45309';
-        ctx.fillRect(lx - 12, baseY - 22, 24, 14);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(lx - 10, baseY - 20, 20, 10);
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(lx - 6, baseY - 18, 12, 6);
+          // Gold Mylar Thermal Foil Insulated Octagonal Body
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(lx - 12, baseY - 22, 24, 14);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(lx - 10, baseY - 20, 20, 10);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(lx - 6, baseY - 18, 12, 6);
 
-        // Ascent Stage Silhouette & VHF Antenna on top
-        ctx.fillStyle = '#334155';
-        ctx.fillRect(lx - 8, baseY - 32, 16, 10);
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(lx - 6, baseY - 30, 12, 6);
-        // Rendezvous radar dish
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(lx - 2, baseY - 36, 4, 4);
+          // Ascent Stage Silhouette & VHF Antenna on top
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(lx - 8, baseY - 32, 16, 10);
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillRect(lx - 6, baseY - 30, 12, 6);
+          // Rendezvous radar dish
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(lx - 2, baseY - 36, 4, 4);
 
-        // Commemorative Mission Flag planted on lunar surface beside lander
-        ctx.fillStyle = '#e2e8f0';
-        ctx.fillRect(lx + 26, baseY - 20, 1.5, 20); // Staff
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(lx + 26, baseY - 20, 9, 6);
-        ctx.fillStyle = '#ef4444';
-        ctx.fillRect(lx + 26, baseY - 17, 9, 1.5);
+          // Commemorative Mission Flag planted on lunar surface beside lander
+          ctx.fillStyle = '#e2e8f0';
+          ctx.fillRect(lx + 26, baseY - 20, 1.5, 20); // Staff
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(lx + 26, baseY - 20, 9, 6);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(lx + 26, baseY - 17, 9, 1.5);
+        }
       } else if (lm.type === 'lunar_comm_relay') {
         // Torre de Retransmisión Láser Espacio Profundo
         const baseY = lm.y || 148;
@@ -6153,90 +3092,212 @@ export class GameRenderer {
       }
 
       if (p.kind === 'ground' || p.kind === 'arena' || p.kind === 'jungle_stone') {
-        // Base foundation
-        ctx.fillStyle = isNeon
-          ? '#091520'
-          : isSakura
-          ? (isNight ? '#160d24' : '#351428')
-          : isLava
-          ? '#1a0606'
-          : isKrono
-          ? '#090e1f'
-          : isTravel
-          ? '#0c0a1f'
-          : isJungle
-          ? '#052e16'
-          : (act === 1 ? '#451a03' : '#1e0a2b');
-        ctx.fillRect(x, y, p.w, p.h);
+        // Base foundation drop shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.40)';
+        ctx.fillRect(x, y + p.h, p.w, 4);
 
-        // Pattern accents (circuits / roots / magma fissures / hieroglyphs / cyber plating)
         if (isNeon) {
-          ctx.fillStyle = '#06b6d422';
-          for (let cx = x + 10; cx < x + p.w - 10; cx += 32) {
-            ctx.fillRect(cx, y + 6, 14, 2);
-            ctx.fillRect(cx + 6, y + 8, 2, 10);
-          }
-        } else if (isLava) {
-          ctx.fillStyle = '#ef444433';
-          for (let lx = x + 12; lx < x + p.w - 12; lx += 28) {
-            ctx.fillRect(lx, y + 5, 12, 2);
-            ctx.fillRect(lx + 4, y + 7, 2, 8);
-          }
-        } else if (isKrono || isTravel) {
-          // Futuristic Cyber-Grid & Matrix Data Conduits
-          ctx.fillStyle = isTravel ? '#f43f5e33' : '#06b6d433';
-          for (let kx = x + 8; kx < x + p.w - 8; kx += 24) {
-            ctx.fillRect(kx, y + 4, 12, 2);
-            ctx.fillRect(kx + 4, y + 6, 2, 8);
-            ctx.fillStyle = isTravel ? '#38bdf844' : '#a855f744';
-            ctx.fillRect(kx + 10, y + 8, 4, 2);
-            ctx.fillStyle = isTravel ? '#f43f5e33' : '#06b6d433';
-          }
-        } else if (zone === 'jungle') {
-          // Lush ancient Mayan stone carved glyphs and moss veins
-          ctx.fillStyle = '#22c55e33';
-          for (let jx = x + 10; jx < x + p.w - 10; jx += 26) {
-            ctx.fillRect(jx, y + 4, 12, 2);
-            ctx.fillRect(jx + 4, y + 6, 4, 6);
-            ctx.fillRect(jx + 2, y + 9, 8, 1);
-          }
-        } else if (zone === 'desert') {
-          ctx.fillStyle = '#f59e0b33';
-          for (let dx = x + 12; dx < x + p.w - 12; dx += 30) {
-            ctx.fillRect(dx, y + 5, 10, 2);
-            ctx.fillRect(dx + 4, y + 7, 2, 6);
-          }
-        }
+          // --- NEON FOREST: High-Tech Cyber Stone with Luminous Fiber-Optics ---
+          ctx.fillStyle = '#080e18';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#0f1d2e';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
 
-        // Glowing Surface Trim
-        ctx.fillStyle = isNeon
-          ? '#06b6d4'
-          : isSakura
-          ? (isNight ? '#c084fc' : '#fb7185')
-          : isLava
-          ? '#ea580c'
-          : isKrono
-          ? '#06b6d4'
-          : isTravel
-          ? '#38bdf8'
-          : isJungle
-          ? '#16a34a'
-          : '#f59e0b';
-        ctx.fillRect(x, y, p.w, 3);
-        ctx.fillStyle = isNeon
-          ? '#67e8f9'
-          : isSakura
-          ? (isNight ? '#e9d5ff' : '#fecdd3')
-          : isLava
-          ? '#fbbf24'
-          : isKrono
-          ? '#67e8f9'
-          : isTravel
-          ? '#f43f5e'
-          : isJungle
-          ? '#86efac'
-          : '#fde68a';
-        ctx.fillRect(x, y, p.w, 1);
+          // Fiber-optic data conduits
+          ctx.fillStyle = '#06b6d433';
+          for (let cx = x + 10; cx < x + p.w - 10; cx += 28) {
+            ctx.fillRect(cx, y + 6, 16, 2);
+            ctx.fillRect(cx + 8, y + 8, 2, 8);
+          }
+          // Luminous node dots
+          ctx.fillStyle = '#22d3ee';
+          for (let nx = x + 14; nx < x + p.w - 10; nx += 28) {
+            ctx.fillRect(nx, y + 6, 2, 2);
+          }
+
+          // Top rail & glowing laser lip
+          ctx.fillStyle = '#0891b2';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#06b6d4';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#a5f3fc';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (isSakura) {
+          // --- SPIRIT BLOSSOM: Polished Japanese Lacquered Timber & Gold Crests ---
+          ctx.fillStyle = isNight ? '#12081f' : '#260a1d';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = isNight ? '#1e0f33' : '#3d1230';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Golden floral crest engravings
+          ctx.fillStyle = '#f43f5e33';
+          for (let sx = x + 12; sx < x + p.w - 12; sx += 32) {
+            ctx.fillRect(sx, y + 5, 12, 2);
+            ctx.fillRect(sx + 5, y + 4, 2, 4);
+          }
+
+          // Fallen cherry blossom petals on floor surface
+          for (let px = x + 8; px < x + p.w - 8; px += 24) {
+            ctx.fillStyle = '#fda4af';
+            ctx.fillRect(px, y, 3, 1.5);
+            ctx.fillStyle = '#f43f5e';
+            ctx.fillRect(px + 1, y + 1, 1.5, 1);
+          }
+
+          // Top lacquer rim
+          ctx.fillStyle = isNight ? '#9333ea' : '#e11d48';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = isNight ? '#c084fc' : '#fb7185';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#fff1f2';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (isLava) {
+          // --- LAVA CLIFFS: Fractured Volcanic Basalt with Molten Magma Veins ---
+          ctx.fillStyle = '#0f0404';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1c0707';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Subterranean glowing magma fissures
+          const emberPulse = Math.sin(time * 0.1) * 0.15 + 0.85;
+          ctx.fillStyle = `rgba(234, 88, 12, ${emberPulse})`;
+          for (let lx = x + 8; lx < x + p.w - 8; lx += 26) {
+            ctx.fillRect(lx, y + 5, 14, 2);
+            ctx.fillRect(lx + 4, y + 7, 2, 7);
+            ctx.fillRect(lx + 10, y + 7, 3, 5);
+          }
+          ctx.fillStyle = '#fbbf24';
+          for (let lx = x + 12; lx < x + p.w - 8; lx += 26) {
+            ctx.fillRect(lx, y + 5, 4, 1.5);
+          }
+
+          // Smoldering basalt lip
+          ctx.fillStyle = '#c2410c';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (zone === 'desert') {
+          // --- DESERT SANCTUARY: Monumental Egyptian Sandstone & Gold Hieroglyphs ---
+          ctx.fillStyle = '#1c1106';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#2d1b09';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Carved hieroglyphic cartouches
+          ctx.fillStyle = '#f59e0b44';
+          for (let dx = x + 12; dx < x + p.w - 12; dx += 30) {
+            ctx.fillRect(dx, y + 5, 12, 2);
+            ctx.fillRect(dx + 3, y + 7, 6, 2);
+            ctx.fillRect(dx + 5, y + 9, 2, 5);
+          }
+          // Lapis lazuli and gold inlays
+          for (let lx = x + 6; lx < x + p.w - 6; lx += 30) {
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(lx, y + 5, 2, 2);
+          }
+
+          // Wind-rippled golden sand mantle & pyramid gold trim
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (isKrono || isTravel) {
+          // --- KRONO CITY / QUANTUM TRAVEL: Brushed Titanium Chassis & Cyber Buses ---
+          ctx.fillStyle = '#060a14';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Running cybernetic data pulses
+          const pulseOffset = Math.floor((time * 0.8) % 24);
+          ctx.fillStyle = isTravel ? '#f43f5e44' : '#0284c744';
+          for (let kx = x + 6; kx < x + p.w - 6; kx += 24) {
+            ctx.fillRect(kx, y + 5, 14, 2);
+            ctx.fillRect(kx + 4, y + 7, 2, 7);
+          }
+          ctx.fillStyle = isTravel ? '#fda4af' : '#38bdf8';
+          for (let kx = x + 6 + pulseOffset; kx < x + p.w - 6; kx += 24) {
+            ctx.fillRect(kx, y + 5, 4, 2);
+          }
+
+          // High-frequency neon rail lip
+          ctx.fillStyle = isTravel ? '#e11d48' : '#0284c7';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = isTravel ? '#f43f5e' : '#06b6d4';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (isJungle) {
+          // --- JUNGLE RUN: Monumental Carved Mayan Stone with Emerald Jade Runes ---
+          ctx.fillStyle = '#031a10';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#064e3b';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Ancient Mayan solar glyph reliefs
+          ctx.fillStyle = '#10b98144';
+          for (let jx = x + 10; jx < x + p.w - 10; jx += 26) {
+            ctx.fillRect(jx, y + 5, 12, 2);
+            ctx.fillRect(jx + 4, y + 7, 4, 6);
+            ctx.fillRect(jx + 2, y + 10, 8, 1);
+          }
+          // Hanging micro-ivy moss
+          ctx.fillStyle = '#059669';
+          for (let mx = x + 4; mx < x + p.w - 4; mx += 18) {
+            ctx.fillRect(mx, y + p.h, 2, 3);
+          }
+
+          // Polished jade stone coping & gold sun glints
+          ctx.fillStyle = '#047857';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#facc15';
+          for (let gx = x + 12; gx < x + p.w - 12; gx += 26) {
+            ctx.fillRect(gx, y, 4, 1);
+          }
+          ctx.fillStyle = '#a7f3d0';
+          ctx.fillRect(x, y, p.w, 1);
+        } else if (isJurassic) {
+          // --- JURASSIC DRAFT: Prehistoric Fossil Limestone & Amber Strata ---
+          ctx.fillStyle = '#18120a';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#291e10';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+
+          // Embedded prehistoric fossil spirals & amber crystals
+          ctx.fillStyle = '#d9770655';
+          for (let fx = x + 10; fx < x + p.w - 10; fx += 28) {
+            ctx.fillRect(fx, y + 5, 10, 2);
+            ctx.fillRect(fx + 6, y + 7, 3, 5);
+          }
+          ctx.fillStyle = '#f59e0b';
+          for (let ax = x + 14; ax < x + p.w - 10; ax += 28) {
+            ctx.fillRect(ax, y + 5, 2, 2);
+          }
+
+          // Primordial stone shelf & mossy crest
+          ctx.fillStyle = '#15803d';
+          ctx.fillRect(x, y, p.w, 3);
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(x, y, p.w, 1);
+        } else {
+          // Default robust textured bedrock
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x, y, p.w, p.h);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 1, y + 2, p.w - 2, p.h - 4);
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(x, y, p.w, 2);
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(x, y, p.w, 1);
+        }
       } else if (p.kind === 'conveyor') {
         // Cybernetic Conveyor Belt with animated chevron arrows
         ctx.fillStyle = '#0f172a';
@@ -6479,55 +3540,87 @@ export class GameRenderer {
         // Floating Ledges & Elevated Platforms
         // Drop shadow for depth
         ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-        ctx.fillRect(x + 1, y + p.h, p.w, 3);
+        ctx.fillRect(x + 1, y + p.h, p.w, 4);
 
         ctx.fillStyle = isNeon
-          ? '#103947'
+          ? '#0d1e2e'
           : isSakura
-          ? (isNight ? '#250d4f' : '#6b1338')
+          ? (isNight ? '#220c38' : '#450f28')
           : isLava
-          ? '#2d0c0c'
+          ? '#220707'
           : isKrono
-          ? '#0f172a'
+          ? '#0c1322'
+          : isTravel
+          ? '#130d24'
           : isJungle
-          ? '#064e3b'
+          ? '#04351d'
+          : isJurassic
+          ? '#241a0d'
+          : zone === 'desert'
+          ? '#261708'
           : (act === 1 ? '#78350f' : '#3b0764');
         ctx.fillRect(x, y, p.w, p.h);
 
-        // Subtle textured accent / bracket
+        // Biome inner texture & bracket
         ctx.fillStyle = isNeon
           ? '#06b6d433'
           : isSakura
-          ? '#f472b633'
+          ? (isNight ? '#c084fc33' : '#f472b633')
           : isLava
-          ? '#ef444433'
+          ? '#ef444444'
           : isKrono
           ? '#38bdf833'
+          : isTravel
+          ? '#f43f5e44'
           : isJungle
           ? '#22c55e33'
+          : isJurassic
+          ? '#d9770644'
+          : zone === 'desert'
+          ? '#f59e0b44'
           : '#f59e0b33';
-        ctx.fillRect(x + 4, y + 3, p.w - 8, p.h - 5);
+        ctx.fillRect(x + 3, y + 2, p.w - 6, p.h - 4);
 
         // Glowing Surface Trim
         ctx.fillStyle = isNeon
-          ? '#22d3ee'
-          : isSakura
-          ? (isNight ? '#d8b4fe' : '#fda4af')
-          : isLava
-          ? '#f97316'
-          : isKrono
           ? '#06b6d4'
+          : isSakura
+          ? (isNight ? '#d8b4fe' : '#fb7185')
+          : isLava
+          ? '#ea580c'
+          : isKrono
+          ? '#0284c7'
+          : isTravel
+          ? '#e11d48'
           : isJungle
-          ? '#22c55e'
+          ? '#059669'
+          : isJurassic
+          ? '#15803d'
+          : zone === 'desert'
+          ? '#d97706'
           : '#f59e0b';
         ctx.fillRect(x, y, p.w, 2);
 
-        // Highlight line
-        ctx.fillStyle = '#ffffffcc';
+        // Specular highlight line
+        ctx.fillStyle = isNeon
+          ? '#a5f3fc'
+          : isSakura
+          ? '#fff1f2'
+          : isLava
+          ? '#fde047'
+          : isKrono
+          ? '#e0f2fe'
+          : isTravel
+          ? '#ffe4e6'
+          : isJungle
+          ? '#a7f3d0'
+          : isJurassic
+          ? '#fef08a'
+          : '#fef3c7';
         ctx.fillRect(x + 2, y, p.w - 4, 1);
 
         // Metallic corner brackets
-        ctx.fillStyle = '#ffffff66';
+        ctx.fillStyle = '#ffffff88';
         ctx.fillRect(x, y, 2, 2);
         ctx.fillRect(x + p.w - 2, y, 2, 2);
       }
@@ -8931,31 +6024,101 @@ export class GameRenderer {
       if (x < -10 || x > GAME_WIDTH + 10) continue;
 
       if (p.isHero) {
-        // High-frequency cyber throwing dagger / kunai
         const dir = p.vx >= 0 ? 1 : -1;
         ctx.save();
         ctx.translate(x + p.w / 2, p.y + p.h / 2);
         if (dir < 0) ctx.scale(-1, 1);
-        
-        // Energy vapor trail behind dagger
-        ctx.fillStyle = 'rgba(168, 85, 247, 0.45)';
-        ctx.fillRect(-7, -1, 5, 2);
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
-        ctx.fillRect(-3, -0.5, 3, 1);
 
-        // Kunai blade (pointed tip)
-        ctx.fillStyle = '#6b21a8'; // Deep purple outer edge
-        ctx.fillRect(-2, -2, 6, 4);
-        ctx.fillStyle = '#c084fc'; // Vibrant purple core
-        ctx.fillRect(0, -1.5, 5, 3);
-        ctx.fillStyle = '#ffffff'; // White razor tip
-        ctx.fillRect(4, -0.5, 3, 1);
-        
-        // Ring hilt (pommel)
-        ctx.fillStyle = '#475569';
-        ctx.fillRect(-4, -1, 2, 2);
-        ctx.fillStyle = '#facc15'; // Gold ring
-        ctx.fillRect(-6, -1.5, 2, 3);
+        if (p.kind === 'sakuraShuriken' || p.kind === 'sakuraKunai') {
+          // Zizz: Spinning Astral Sakura Shuriken
+          const rot = (p.life * 0.35) % (Math.PI * 2);
+          ctx.rotate(rot);
+
+          ctx.fillStyle = 'rgba(244, 114, 182, 0.45)';
+          ctx.beginPath();
+          ctx.arc(0, 0, 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#db2777';
+          ctx.fillRect(-4, -4, 8, 8);
+          ctx.fillStyle = '#f472b6';
+          ctx.fillRect(-3, -3, 6, 6);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(-1.5, -1.5, 3, 3);
+        } else if (p.kind === 'magmaDart') {
+          // Kael: Heavy Molten Magma Dart
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+          ctx.fillRect(-8, -1.5, 6, 3);
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.7)';
+          ctx.fillRect(-3, -1, 4, 2);
+
+          ctx.fillStyle = '#1c1917';
+          ctx.fillRect(-2, -2.5, 7, 5);
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(0, -1.5, 6, 3);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(4, -1, 3, 2);
+        } else if (p.kind === 'sandDart') {
+          // Anuk: Solar Desert Crystal Feather Dart
+          ctx.fillStyle = 'rgba(234, 179, 8, 0.45)';
+          ctx.fillRect(-8, -1, 6, 2.5);
+          ctx.fillStyle = 'rgba(254, 240, 138, 0.7)';
+          ctx.fillRect(-3, -0.5, 4, 1.5);
+
+          ctx.fillStyle = '#ca8a04';
+          ctx.fillRect(-2, -2, 6, 4);
+          ctx.fillStyle = '#eab308';
+          ctx.fillRect(0, -1.5, 5, 3);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(4, -0.5, 3, 1.5);
+        } else if (p.kind === 'empDisc') {
+          // Vector: Spinning Holographic EMP Disc
+          const rot = (p.life * 0.4) % (Math.PI * 2);
+          ctx.rotate(rot);
+
+          ctx.fillStyle = 'rgba(99, 102, 241, 0.45)';
+          ctx.beginPath();
+          ctx.arc(0, 0, 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#4338ca';
+          ctx.fillRect(-4, -4, 8, 8);
+          ctx.fillStyle = '#6366f1';
+          ctx.fillRect(-3, -3, 6, 6);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(-1.5, -1.5, 3, 3);
+        } else if (p.kind === 'jadeDart') {
+          // Balam: Sacred Mayan Jade Needle Dart
+          ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+          ctx.fillRect(-8, -1, 6, 2.5);
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.6)';
+          ctx.fillRect(-3, -0.5, 4, 1.5);
+
+          ctx.fillStyle = '#047857';
+          ctx.fillRect(-2, -2, 6, 4);
+          ctx.fillStyle = '#10b981';
+          ctx.fillRect(0, -1.5, 5, 3);
+          ctx.fillStyle = '#34d399';
+          ctx.fillRect(4, -0.5, 3, 1.5);
+        } else {
+          // Zion: Classic Cyan/Purple Cyber Dagger
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.45)';
+          ctx.fillRect(-7, -1, 5, 2);
+          ctx.fillStyle = 'rgba(34, 211, 238, 0.6)';
+          ctx.fillRect(-3, -0.5, 3, 1);
+
+          ctx.fillStyle = '#6b21a8';
+          ctx.fillRect(-2, -2, 6, 4);
+          ctx.fillStyle = '#c084fc';
+          ctx.fillRect(0, -1.5, 5, 3);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(4, -0.5, 3, 1);
+
+          ctx.fillStyle = '#475569';
+          ctx.fillRect(-4, -1, 2, 2);
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(-6, -1.5, 2, 3);
+        }
         ctx.restore();
       } else if (p.kind === 'sakuraShuriken') {
         ctx.save();
@@ -9226,30 +6389,69 @@ export class GameRenderer {
     const x = Math.round(player.x - cameraX);
     const y = Math.round(player.y);
     const t = player.time;
+    const skin = player.characterSkin || 'zion';
 
-    // 1. Render Dash Ghost Afterimages with cyber shinobi neon effect
-    for (const trail of player.dashTrail) {
+    // 1. Dynamic Contact Ground Shadow
+    if (player.ground) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.40)';
+      ctx.beginPath();
+      ctx.ellipse(x + 7, y + 16, 7.5, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Soft fading air shadow
+      const airDist = Math.min(30, Math.max(4, Math.abs(player.vy * 4)));
+      const shadowAlpha = Math.max(0.1, 0.35 - airDist * 0.008);
+      ctx.fillStyle = `rgba(0, 0, 0, ${shadowAlpha})`;
+      ctx.beginPath();
+      ctx.ellipse(x + 7, y + 16 + airDist * 0.3, Math.max(4, 7 - airDist * 0.1), 1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 2. Dash Ghost Afterimages with Chromatic Cyber-Trail
+    for (let idx = 0; idx < player.dashTrail.length; idx++) {
+      const trail = player.dashTrail[idx];
       const tx = Math.round(trail.x - cameraX);
       const ty = Math.round(trail.y);
       ctx.save();
       ctx.translate(tx + 7, ty + 8);
       if (trail.facing < 0) ctx.scale(-1, 1);
-      ctx.globalAlpha = trail.alpha * 0.45;
+      ctx.globalAlpha = trail.alpha * 0.48;
 
-      // Athletic Shinobi Silhouette: broad shoulders, tapered waist, angular optic line
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-6, -3, 12, 3); // Shoulder line
-      ctx.fillRect(-4, 0, 8, 5);   // Tapered torso
-      ctx.fillRect(-4, -9, 8, 6);  // Masked head
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(0, -7, 4, 1.5); // Sharp optic slit
+      // Chromatic ghost hue: Cyan shifting to Electric Magenta
+      const ghostColor =
+        skin === 'zizz' ? (idx % 2 === 0 ? '#f472b6' : '#c084fc') :
+        skin === 'kael' ? (idx % 2 === 0 ? '#f97316' : '#ea580c') :
+        skin === 'anuk' ? (idx % 2 === 0 ? '#eab308' : '#0284c7') :
+        skin === 'vector' ? (idx % 2 === 0 ? '#6366f1' : '#38bdf8') :
+        skin === 'balam' ? (idx % 2 === 0 ? '#10b981' : '#f59e0b') :
+        (idx % 2 === 0 ? '#06b6d4' : '#c084fc');
+      const ghostRim =
+        skin === 'zizz' ? (idx % 2 === 0 ? '#fbcfe8' : '#e879f9') :
+        skin === 'kael' ? (idx % 2 === 0 ? '#fef08a' : '#fb923c') :
+        skin === 'anuk' ? (idx % 2 === 0 ? '#fef08a' : '#38bdf8') :
+        skin === 'vector' ? (idx % 2 === 0 ? '#a5b4fc' : '#7dd3fc') :
+        skin === 'balam' ? (idx % 2 === 0 ? '#6ee7b7' : '#fde047') :
+        (idx % 2 === 0 ? '#67e8f9' : '#e879f9');
+
+      // Streamlined ninja silhouette
+      ctx.fillStyle = ghostColor;
+      ctx.fillRect(-6, -4, 12, 3); // Pauldrons
+      ctx.fillRect(-4, -1, 8, 6);  // Torso
+      ctx.fillRect(-4, -10, 8, 7); // Masked head
+      ctx.fillRect(-3, 5, 3, 5);   // Legs
+      ctx.fillRect(1, 5, 3, 5);
+
+      // Neon optic trail slit & energy hair
+      ctx.fillStyle = ghostRim;
+      ctx.fillRect(0, -8, 5, 1.5);
       ctx.fillStyle = '#a855f7';
-      ctx.fillRect(-5, -11, 8, 3); // Spiky anime ninja hair (Electric Purple)
+      ctx.fillRect(-6, -13, 9, 4);
+
       ctx.restore();
     }
     ctx.globalAlpha = 1;
 
-    // 2. Invulnerability flashing (flicker when taking damage)
+    // 3. Invulnerability flashing (damage flicker)
     if (player.inv > 0 && Math.floor(player.inv / 4) % 2 === 0) return;
 
     const isMoving = Math.abs(player.vx) > 0.2;
@@ -9260,60 +6462,59 @@ export class GameRenderer {
     const isAttacking = player.isAttacking;
     const isBlocking = player.isBlocking;
 
-    // Subtle run bob & idle breathing
-    const bobY = isGrounded && isMoving ? Math.sin(t * 0.55) * 1.5 : (isGrounded ? Math.sin(t * 0.1) * 0.6 : 0);
+    // Organic idle breathing & running rhythm bob
+    const bobY = isGrounded && isMoving ? Math.sin(t * 0.55) * 1.5 : (isGrounded ? Math.sin(t * 0.1) * 0.7 : 0);
 
-    // 3. Special Ready / Showdown Ambient Cyber Aura
+    // 4. Special Ready / Showdown Radiant Cyber Aura
     if (player.energy >= 70 || player.showdownReady || player.showdownActive) {
       ctx.save();
-      const auraPulse = 0.25 + Math.sin(t * 0.18) * 0.15;
+      const auraPulse = 0.22 + Math.sin(t * 0.18) * 0.14;
       ctx.globalAlpha = auraPulse;
-      ctx.fillStyle = player.showdownActive ? '#a855f7' : '#22d3ee';
+      ctx.fillStyle = player.showdownActive ? '#c084fc' : '#22d3ee';
       ctx.beginPath();
-      ctx.arc(x + 7, y + 8 + bobY, 13, 0, Math.PI * 2);
+      ctx.arc(x + 7, y + 8 + bobY, 14, 0, Math.PI * 2);
       ctx.fill();
+
+      // Ambient radial sparks
+      const sparkA = (t * 0.12) % (Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(
+        Math.round(x + 7 + Math.cos(sparkA) * 12),
+        Math.round(y + 8 + bobY + Math.sin(sparkA) * 12),
+        1.5,
+        1.5
+      );
       ctx.restore();
     }
 
-    // 4. Shield Defense Barrier (Bubble with Hexagonal Accents)
+    // 5. Shield Defense Barrier (Hexagonal Cyber-Barrier with Parry Pulse)
     if (isBlocking) {
       ctx.save();
       const isParry = player.perfectParryTimer > 0;
       const shieldGlow = isParry ? '#facc15' : '#38bdf8';
-      const shieldFill = isParry ? 'rgba(250, 204, 21, 0.28)' : 'rgba(56, 189, 248, 0.22)';
-      
-      // Outer barrier
+      const shieldFill = isParry ? 'rgba(250, 204, 21, 0.32)' : 'rgba(56, 189, 248, 0.24)';
+
       ctx.fillStyle = shieldFill;
       ctx.beginPath();
-      ctx.arc(x + 7, y + 8, 15, 0, Math.PI * 2);
+      ctx.arc(x + 7, y + 8, 16, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = shieldGlow;
-      ctx.lineWidth = isParry ? 2 : 1.2;
+      ctx.lineWidth = isParry ? 2.5 : 1.5;
       ctx.beginPath();
-      ctx.arc(x + 7, y + 8, 15, 0, Math.PI * 2);
+      ctx.arc(x + 7, y + 8, 16, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Cyber hex / crosshair accents
+      // Cyber crosshair / hex shield grid
       ctx.strokeStyle = isParry ? '#ffffff' : '#67e8f9';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(x + 7, y + 8, 10, 0, Math.PI * 2);
       ctx.stroke();
-
-      // Glowing pulse particles
-      const sparkAngle = (t * 0.15) % (Math.PI * 2);
-      ctx.fillStyle = isParry ? '#ffffff' : '#e0f2fe';
-      ctx.fillRect(
-        Math.round(x + 7 + Math.cos(sparkAngle) * 14),
-        Math.round(y + 8 + Math.sin(sparkAngle) * 14),
-        2,
-        2
-      );
       ctx.restore();
     }
 
-    // --- MAIN ZION SPRITE RENDERING (CYBER SHINOBI HERO) ---
+    // --- MAIN ZION SPRITE (MODERN CYBER SHINOBI HERO) ---
     ctx.save();
     ctx.translate(x + 7, y + 8 + bobY);
 
@@ -9321,350 +6522,795 @@ export class GameRenderer {
       ctx.scale(-1, 1);
     }
 
-    // 0. Bionic Space Flight Suit (Legendary Doomsday Zone Flight Mode)
+    // Bionic Space Flight Suit Check
     if (player.isFlying || player.flightSuit) {
       this.renderBionicFlightZion(player, x, y, t);
       ctx.restore();
       return;
     }
 
-    // Lean slightly forward when running, dashing, or downhill skiing
+    // Aerodynamic lean based on state
     if (player.isSkiing) {
       ctx.rotate(player.skiCrouch ? 0.22 : 0.08);
     } else if (isDashing) {
-      ctx.rotate(0.18);
+      ctx.rotate(0.20);
     } else if (isMoving && isGrounded) {
-      ctx.rotate(0.06);
+      ctx.rotate(0.08);
     }
 
-    // A. Waving Cyber Shinobi Scarf (Aerodynamic, flowing behind Zion)
-    const scarfSegments = 5;
-    for (let i = scarfSegments; i >= 1; i--) {
-      const waveSpeed = isMoving ? 0.45 : 0.18;
-      const waveAmp = isMoving ? 2.5 : 1.2;
-      const sx = -4 - (i * 3.2) - (isMoving ? 1.5 * i : 0);
-      const sy = -3 + Math.sin(t * waveSpeed - i * 0.8) * waveAmp + (isJumping ? i * 0.8 : isFalling ? -i * 0.5 : 0);
-      const sw = Math.max(1.8, 4.2 - i * 0.65);
-      const sh = Math.max(1.2, 3 - i * 0.35);
+    // =========================================================================
+    // DYNAMIC CHARACTER SKIN PALETTES & TRAITS (100% UNIQUE PER HERO - ALL 12 ZONES)
+    // =========================================================================
+    const isZion = skin === 'zion';
+    const isZizz = skin === 'zizz';
+    const isKael = skin === 'kael';
+    const isAnuk = skin === 'anuk';
+    const isVector = skin === 'vector';
+    const isBalam = skin === 'balam';
+    const isBlizzard = skin === 'blizzard';
+    const isSteampunk = skin === 'steampunk';
+    const isCastle = skin === 'castlesmash';
+    const isPirate = skin === 'pirate';
+    const isJurassic = skin === 'jurassic';
+    const isMoon = skin === 'moon';
 
-      ctx.fillStyle = i % 2 === 0 ? '#22d3ee' : '#06b6d4';
+    // 1. Cape / Scarf Colors
+    const scarfColor1 =
+      isZizz ? '#f472b6' :
+      isKael ? '#ea580c' :
+      isAnuk ? '#eab308' :
+      isVector ? '#6366f1' :
+      isBalam ? '#10b981' :
+      isBlizzard ? '#38bdf8' :
+      isSteampunk ? '#f59e0b' :
+      isCastle ? '#3b82f6' :
+      isPirate ? '#14b8a6' :
+      isJurassic ? '#84cc16' :
+      isMoon ? '#a855f7' :
+      '#22d3ee';
+
+    const scarfColor2 =
+      isZizz ? '#db2777' :
+      isKael ? '#c2410c' :
+      isAnuk ? '#ca8a04' :
+      isVector ? '#4f46e5' :
+      isBalam ? '#047857' :
+      isBlizzard ? '#0284c7' :
+      isSteampunk ? '#b45309' :
+      isCastle ? '#1d4ed8' :
+      isPirate ? '#0f766e' :
+      isJurassic ? '#4d7c0f' :
+      isMoon ? '#7e22ce' :
+      '#06b6d4';
+
+    const scarfRim =
+      isZizz ? '#fbcfe8' :
+      isKael ? '#fef08a' :
+      isAnuk ? '#facc15' :
+      isVector ? '#38bdf8' :
+      isBalam ? '#fbbf24' :
+      isBlizzard ? '#e0f2fe' :
+      isSteampunk ? '#fef08a' :
+      isCastle ? '#bfdbfe' :
+      isPirate ? '#99f6e4' :
+      isJurassic ? '#d9f99d' :
+      isMoon ? '#f3e8ff' :
+      '#e0f2fe';
+
+    // 2. Armor & Clothing Palette
+    const bootsBase =
+      isZizz ? '#1e1b4b' :
+      isKael ? '#1c1917' :
+      isAnuk ? '#0f172a' :
+      isVector ? '#09090b' :
+      isBalam ? '#1c1917' :
+      isBlizzard ? '#0f172a' :
+      isSteampunk ? '#292524' :
+      isCastle ? '#334155' :
+      isPirate ? '#1e1b4b' :
+      isJurassic ? '#1c1917' :
+      isMoon ? '#0f172a' :
+      '#0a0f1d';
+
+    const bootsSole =
+      isZizz ? '#f472b6' :
+      isKael ? '#ea580c' :
+      isAnuk ? '#eab308' :
+      isVector ? '#6366f1' :
+      isBalam ? '#10b981' :
+      isBlizzard ? '#38bdf8' :
+      isSteampunk ? '#f59e0b' :
+      isCastle ? '#3b82f6' :
+      isPirate ? '#14b8a6' :
+      isJurassic ? '#84cc16' :
+      isMoon ? '#a855f7' :
+      '#06b6d4';
+
+    const bootsTrim =
+      isZizz ? '#fbcfe8' :
+      isKael ? '#fef08a' :
+      isAnuk ? '#38bdf8' :
+      isVector ? '#38bdf8' :
+      isBalam ? '#fbbf24' :
+      isBlizzard ? '#ffffff' :
+      isSteampunk ? '#fde047' :
+      isCastle ? '#93c5fd' :
+      isPirate ? '#5eead4' :
+      isJurassic ? '#bef264' :
+      isMoon ? '#e879f9' :
+      '#a5f3fc';
+
+    const pantsBase =
+      isZizz ? '#2e1065' :
+      isKael ? '#1c1917' :
+      isAnuk ? '#f8fafc' :
+      isVector ? '#09090b' :
+      isBalam ? '#1c1917' :
+      isBlizzard ? '#0f172a' :
+      isSteampunk ? '#1c1917' :
+      isCastle ? '#1e293b' :
+      isPirate ? '#0f172a' :
+      isJurassic ? '#292524' :
+      isMoon ? '#1e1b4b' :
+      '#0a0f1d';
+
+    const pantsAccent =
+      isZizz ? '#db2777' :
+      isKael ? '#78350f' :
+      isAnuk ? '#eab308' :
+      isVector ? '#18181b' :
+      isBalam ? '#b45309' :
+      isBlizzard ? '#38bdf8' :
+      isSteampunk ? '#78350f' :
+      isCastle ? '#3b82f6' :
+      isPirate ? '#0f766e' :
+      isJurassic ? '#4d7c0f' :
+      isMoon ? '#7e22ce' :
+      '#1e293b';
+
+    const torsoBase =
+      isZizz ? '#fdf2f8' :
+      isKael ? '#1c1917' :
+      isAnuk ? '#f8fafc' :
+      isVector ? '#18181b' :
+      isBalam ? '#b45309' :
+      isBlizzard ? '#0f172a' :
+      isSteampunk ? '#78350f' :
+      isCastle ? '#475569' :
+      isPirate ? '#1e1b4b' :
+      isJurassic ? '#451a03' :
+      isMoon ? '#f8fafc' :
+      '#070b14';
+
+    const torsoArmor =
+      isZizz ? '#f472b6' :
+      isKael ? '#292524' :
+      isAnuk ? '#eab308' :
+      isVector ? '#312e81' :
+      isBalam ? '#10b981' :
+      isBlizzard ? '#38bdf8' :
+      isSteampunk ? '#b45309' :
+      isCastle ? '#3b82f6' :
+      isPirate ? '#14b8a6' :
+      isJurassic ? '#84cc16' :
+      isMoon ? '#a855f7' :
+      '#1e293b';
+
+    const pauldronBase =
+      isZizz ? '#f472b6' :
+      isKael ? '#78350f' :
+      isAnuk ? '#eab308' :
+      isVector ? '#312e81' :
+      isBalam ? '#10b981' :
+      isBlizzard ? '#f8fafc' :
+      isSteampunk ? '#b45309' :
+      isCastle ? '#64748b' :
+      isPirate ? '#0f766e' :
+      isJurassic ? '#713f12' :
+      isMoon ? '#ffffff' :
+      '#1e293b';
+
+    const pauldronTrim =
+      isZizz ? '#fbcfe8' :
+      isKael ? '#f97316' :
+      isAnuk ? '#0284c7' :
+      isVector ? '#38bdf8' :
+      isBalam ? '#fbbf24' :
+      isBlizzard ? '#38bdf8' :
+      isSteampunk ? '#f59e0b' :
+      isCastle ? '#93c5fd' :
+      isPirate ? '#facc15' :
+      isJurassic ? '#bef264' :
+      isMoon ? '#a855f7' :
+      '#06b6d4';
+
+    const beltBase =
+      isZizz ? '#be185d' :
+      isKael ? '#78350f' :
+      isAnuk ? '#eab308' :
+      isVector ? '#312e81' :
+      isBalam ? '#047857' :
+      isBlizzard ? '#0284c7' :
+      isSteampunk ? '#78350f' :
+      isCastle ? '#1e3a8a' :
+      isPirate ? '#dc2626' :
+      isJurassic ? '#713f12' :
+      isMoon ? '#4c1d95' :
+      '#0284c7';
+
+    const beltBuckle =
+      isZizz ? '#facc15' :
+      isKael ? '#ea580c' :
+      isAnuk ? '#0284c7' :
+      isVector ? '#38bdf8' :
+      isBalam ? '#fbbf24' :
+      isBlizzard ? '#ffffff' :
+      isSteampunk ? '#f59e0b' :
+      isCastle ? '#facc15' :
+      isPirate ? '#facc15' :
+      isJurassic ? '#a3e635' :
+      isMoon ? '#facc15' :
+      '#f59e0b';
+
+    // =========================================================================
+    // A. WAVING SCARF / CAPE / MANTLE PHYSICS
+    // =========================================================================
+    const scarfSegments = isKael || isCastle ? 7 : 6;
+    for (let i = scarfSegments; i >= 1; i--) {
+      const waveSpeed = isMoving ? 0.50 : 0.18;
+      const waveAmp = isMoving ? 2.6 : 1.2;
+      const sx = -4 - (i * (isKael || isCastle ? 3.6 : 3.2)) - (isMoving ? 1.6 * i : 0);
+      const sy = -3 + Math.sin(t * waveSpeed - i * 0.75) * waveAmp + (isJumping ? i * 0.9 : isFalling ? -i * 0.6 : 0);
+      const sw = Math.max(1.8, (isKael || isCastle ? 5.2 : 4.4) - i * 0.6);
+      const sh = Math.max(1.2, (isKael || isCastle ? 3.8 : 3.2) - i * 0.35);
+
+      // Glow edge
+      ctx.fillStyle = scarfColor2;
+      ctx.fillRect(Math.floor(sx) - 0.5, Math.floor(sy) - 0.5, Math.ceil(sw) + 1, Math.ceil(sh) + 1);
+
+      // Scarf core
+      ctx.fillStyle = i % 2 === 0 ? scarfColor1 : scarfColor2;
       ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.ceil(sw), Math.ceil(sh));
 
-      // Neon cyan scarf trim
-      ctx.fillStyle = '#67e8f9';
+      // Luminous highlight line
+      ctx.fillStyle = scarfRim;
       ctx.fillRect(Math.floor(sx), Math.floor(sy), Math.ceil(sw), 1);
+
+      // Trailing thematic particles at scarf tip
+      if (i === scarfSegments && isMoving) {
+        ctx.fillStyle = scarfRim;
+        ctx.fillRect(Math.floor(sx) - 2, Math.floor(sy) + 1, 1.5, 1.5);
+      }
     }
 
-    // A2. Shinobi Headband Ribbons (Flowing from the back of the metal forehead protector)
-    for (let k = 3; k >= 1; k--) {
-      const rx = -5 - (k * 2.5);
-      const ry = -9 + Math.sin(t * 0.3 - k * 0.9) * 1.6;
-      ctx.fillStyle = k === 1 ? '#0891b2' : '#06b6d4';
-      ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 1.5);
+    // A2. Character-Specific Head Accessories Behind Head
+    if (isZion) {
+      for (let k = 3; k >= 1; k--) {
+        const rx = -5 - (k * 2.6);
+        const ry = -9 + Math.sin(t * 0.32 - k * 0.85) * 1.5;
+        ctx.fillStyle = k === 1 ? '#0891b2' : '#06b6d4';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 1.5);
+        ctx.fillStyle = '#67e8f9';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 0.7);
+      }
+    } else if (isZizz) {
+      for (let k = 3; k >= 1; k--) {
+        const rx = -6 - (k * 2.8);
+        const ry = -10 + Math.sin(t * 0.35 - k * 0.8) * 2;
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 1.5);
+        ctx.fillStyle = '#fbcfe8';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 0.7);
+      }
+    } else if (isBalam) {
+      for (let k = 2; k >= 1; k--) {
+        const rx = -5 - (k * 2.2);
+        const ry = -13 + Math.sin(t * 0.25 - k * 0.7) * 1.2;
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 2.5, 2);
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 2.5, 0.8);
+      }
+    } else if (isPirate) {
+      // Crimson Pirate Bandana tail
+      for (let k = 2; k >= 1; k--) {
+        const rx = -5 - (k * 2.5);
+        const ry = -8 + Math.sin(t * 0.3 - k * 0.7) * 1.5;
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(Math.floor(rx), Math.floor(ry), 3, 1.5);
+      }
     }
 
-    // B. Legs & Cyber-Ninja Tabi Boots
-    const legPhase = isGrounded && isMoving ? Math.sin(t * 0.45) : 0;
-    
+    // =========================================================================
+    // B. LEGS & FOOTWEAR (Skin-Themed Articulation)
+    // =========================================================================
+    const legPhase = isGrounded && isMoving ? Math.sin(t * 0.48) : 0;
+
     if (player.isSkiing) {
-      // Downhill skiing stance
       const crouchY = player.skiCrouch ? 2 : 0;
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = pantsBase;
       ctx.fillRect(-4, 2 + crouchY, 3, 5);
       ctx.fillRect(1, 1 + crouchY, 3, 5);
-      ctx.fillStyle = '#1e293b';
+      ctx.fillStyle = pantsAccent;
       ctx.fillRect(-4, 4 + crouchY, 3, 2);
       ctx.fillRect(1, 3 + crouchY, 3, 2);
-      ctx.fillStyle = '#06b6d4';
+      ctx.fillStyle = bootsSole;
       ctx.fillRect(-4, 6 + crouchY, 3, 2);
       ctx.fillRect(1, 5 + crouchY, 3, 2);
 
-      // Long high-speed skis with curved tips
       const skiTilt = isJumping ? -0.15 : isFalling ? 0.12 : 0;
       ctx.save();
       ctx.translate(0, 8 + crouchY);
       ctx.rotate(skiTilt);
-
-      // Bottom ski edge
-      ctx.fillStyle = '#0284c7';
+      ctx.fillStyle = bootsSole;
       ctx.fillRect(-12, 0, 24, 2);
-      // Neon ski top
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = bootsTrim;
       ctx.fillRect(-11, -1, 22, 1);
-      // Front curved ski tip
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(12, -2, 2, 2);
-      ctx.fillRect(13, -3, 1, 2);
-
       ctx.restore();
-
-      // Ski poles in Zion's hands
-      ctx.strokeStyle = '#cbd5e1';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(3, 1 + crouchY);
-      ctx.lineTo(-5, 9 + crouchY);
-      ctx.moveTo(-1, 0 + crouchY);
-      ctx.lineTo(-9, 8 + crouchY);
-      ctx.stroke();
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(-6, 7 + crouchY, 2, 2);
-      ctx.fillRect(-10, 6 + crouchY, 2, 2);
     } else if (isDashing) {
-      // Dashing pose (aerodynamic back kick)
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-5, 2, 4, 5);
-      ctx.fillRect(0, 1, 5, 5);
-      // Shinobi shin armor & cyber-tabi
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-5, 4, 4, 3);
-      ctx.fillRect(1, 3, 4, 3);
-      // Cyan tabi split sole
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-6, 6, 5, 2);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(-6, 2, 5, 4);
+      ctx.fillRect(0, 1, 5, 4);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(-6, 4, 5, 2.5);
+      ctx.fillRect(1, 3, 4, 2.5);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(-7, 6, 6, 2);
       ctx.fillRect(1, 5, 5, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-6, 7, 5, 1);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(-7, 7, 6, 1);
       ctx.fillRect(1, 6, 5, 1);
     } else if (isJumping) {
-      // Jumping pose (tucked ninja legs)
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-4, 2, 3, 4);
-      ctx.fillRect(1, 1, 3, 4);
-      // Knee guards
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(-4, 3, 3, 2);
-      ctx.fillRect(1, 2, 3, 2);
-      // Tabi boots
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-4, 5, 3, 2);
-      ctx.fillRect(1, 4, 3, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-4, 6, 3, 1);
-      ctx.fillRect(1, 5, 3, 1);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(-4, 2, 3.5, 4);
+      ctx.fillRect(1, 1, 3.5, 4);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(-4, 3, 3.5, 2);
+      ctx.fillRect(1, 2, 3.5, 2);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(-4, 5, 3.5, 2);
+      ctx.fillRect(1, 4, 3.5, 2);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(-4, 6, 3.5, 1);
+      ctx.fillRect(1, 5, 3.5, 1);
     } else if (isFalling) {
-      // Falling pose (extended legs)
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-4, 3, 3, 5);
-      ctx.fillRect(1, 3, 3, 5);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-4, 5, 3, 2);
-      ctx.fillRect(1, 5, 3, 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-4, 7, 3, 2);
-      ctx.fillRect(1, 7, 3, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-4, 8, 3, 1);
-      ctx.fillRect(1, 8, 3, 1);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(-4, 3, 3.5, 5);
+      ctx.fillRect(1, 3, 3.5, 5);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(-4, 5, 3.5, 2);
+      ctx.fillRect(1, 5, 3.5, 2);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(-4, 7, 3.5, 2);
+      ctx.fillRect(1, 7, 3.5, 2);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(-4, 8, 3.5, 1);
+      ctx.fillRect(1, 8, 3.5, 1);
     } else if (isMoving) {
-      // Running cycle (athletic ninja strides)
-      const l1 = Math.round(legPhase * 2.6);
-      const l2 = Math.round(-legPhase * 2.6);
-      
-      // Left leg
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-3 + l1, 3, 3, 4);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-3 + l1, 4, 3, 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3 + l1, 6, 3, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-3 + l1, 7, 3, 1);
+      const l1 = Math.round(legPhase * 2.8);
+      const l2 = Math.round(-legPhase * 2.8);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(-3 + l1, 3, 3.5, 4);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(-3 + l1, 4, 3.5, 2);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(-3 + l1, 6, 3.5, 2);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(-3 + l1, 7, 3.5, 1);
 
-      // Right leg
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(1 + l2, 3, 3, 4);
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(1 + l2, 4, 3, 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(1 + l2, 6, 3, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(1 + l2, 7, 3, 1);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(1 + l2, 3, 3.5, 4);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(1 + l2, 4, 3.5, 2);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(1 + l2, 6, 3.5, 2);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(1 + l2, 7, 3.5, 1);
     } else {
-      // Idle ninja stance
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-3, 3, 3, 4);
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(1, 3, 3, 4);
-
-      // Shin guards & cyber-tabi
-      ctx.fillStyle = '#334155';
-      ctx.fillRect(-3, 4, 3, 2);
-      ctx.fillRect(1, 4, 3, 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-3, 6, 3, 2);
-      ctx.fillRect(1, 6, 3, 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-3, 7, 3, 1);
-      ctx.fillRect(1, 7, 3, 1);
+      ctx.fillStyle = pantsBase;
+      ctx.fillRect(-3.5, 3, 3.5, 4);
+      ctx.fillRect(1, 3, 3.5, 4);
+      ctx.fillStyle = pantsAccent;
+      ctx.fillRect(-3.5, 4, 3.5, 2);
+      ctx.fillRect(1, 4, 3.5, 2);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(-3.5, 6, 3.5, 2);
+      ctx.fillRect(1, 6, 3.5, 2);
+      ctx.fillStyle = bootsTrim;
+      ctx.fillRect(-3.5, 7, 3.5, 1);
+      ctx.fillRect(1, 7, 3.5, 1);
     }
 
-    // C. Torso, V-Taper Silhouette & Shinobi Armor
-    // Undersuit
-    ctx.fillStyle = '#090d16';
-    ctx.fillRect(-4, -3, 8, 7);
+    // =========================================================================
+    // C. TORSO, ARMOR & CHEST CORE (SKIN-CUSTOMIZED)
+    // =========================================================================
+    ctx.fillStyle = torsoBase;
+    ctx.fillRect(-4.5, -4, 9, 8);
 
-    // Cyber Pauldrons (Shoulder Armor extending outwards to break the round bean shape!)
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(-6, -3, 3, 3); // Left shoulder plate
-    ctx.fillRect(3, -3, 3, 3);  // Right shoulder plate
-    ctx.fillStyle = '#06b6d4';
-    ctx.fillRect(-6, -3, 3, 1); // Neon shoulder trims
-    ctx.fillRect(3, -3, 3, 1);
+    // Pauldrons (Shoulders)
+    const pWidth = isKael || isCastle ? 4 : 3;
+    ctx.fillStyle = pauldronBase;
+    ctx.fillRect(-4.5 - pWidth + 1, -4, pWidth, isKael || isCastle ? 4.5 : 3.5);
+    ctx.fillRect(3.5, -4, pWidth, isKael || isCastle ? 4.5 : 3.5);
+    ctx.fillStyle = pauldronTrim;
+    ctx.fillRect(-4.5 - pWidth + 1, -4, pWidth, 1);
+    ctx.fillRect(3.5, -4, pWidth, 1);
 
-    // Segmented Chestplate
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(-3, -2, 6, 4);
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(-2, -2, 4, 1);
+    // Chestplate / Kimono / Vest
+    ctx.fillStyle = torsoArmor;
+    ctx.fillRect(-3.5, -3, 7, 4.5);
 
-    // Cyber Shinobi Reactor Core (Glowing Chevron)
-    const coreGlow = Math.sin(t * 0.2) * 0.3 + 0.7;
-    ctx.fillStyle = `rgba(34, 211, 238, ${coreGlow})`;
-    ctx.fillRect(-1, -1, 2, 2);
+    // Core / Amulet / Medallion
+    const corePulse = Math.sin(t * 0.22) * 0.25 + 0.75;
+    const coreColor =
+      isZizz ? `rgba(244, 114, 182, ${corePulse})` :
+      isKael ? `rgba(249, 115, 22, ${corePulse})` :
+      isAnuk ? `rgba(250, 204, 21, ${corePulse})` :
+      isVector ? `rgba(99, 102, 241, ${corePulse})` :
+      isBalam ? `rgba(16, 185, 129, ${corePulse})` :
+      isBlizzard ? `rgba(56, 189, 248, ${corePulse})` :
+      isSteampunk ? `rgba(245, 158, 11, ${corePulse})` :
+      isCastle ? `rgba(59, 130, 246, ${corePulse})` :
+      isPirate ? `rgba(20, 184, 166, ${corePulse})` :
+      isJurassic ? `rgba(132, 204, 22, ${corePulse})` :
+      isMoon ? `rgba(168, 85, 247, ${corePulse})` :
+      `rgba(34, 211, 238, ${corePulse})`;
+    ctx.fillStyle = coreColor;
+    ctx.fillRect(-1.5, -1.5, 3, 3);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(-0.5, -0.5, 1, 1);
 
-    // Shinobi Obi / Utility Sash & Gold Buckle
-    ctx.fillStyle = '#0284c7';
-    ctx.fillRect(-4, 2, 8, 1.5); // Azure sash
-    ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(-1, 2, 2, 1.5); // Gold buckle
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(-4, 1.5, 1, 2); // Kunai pouch
-    ctx.fillRect(3, 1.5, 1, 2);
+    // Belt / Sash
+    ctx.fillStyle = beltBase;
+    ctx.fillRect(-4, 2, 8, 1.5);
+    ctx.fillStyle = beltBuckle;
+    ctx.fillRect(-1, 1.8, 2, 1.8);
 
-    // D. Head: Shinobi Mask, Forehead Protector & Cyber Eyes
-    // Ninja cowl & jawline (angular, sculpted)
-    ctx.fillStyle = '#090d16';
-    ctx.fillRect(-4, -9, 8, 6);
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(-3, -5, 6, 2); // Mouth mask cover
-    // Cyber breather vents on mask
-    ctx.fillStyle = '#06b6d4';
-    ctx.fillRect(-1, -5, 2, 1);
-
-    // Shinobi Forehead Protector (Metallic band with Gold Crest)
-    ctx.fillStyle = '#475569';
-    ctx.fillRect(-4, -9, 8, 2);
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(-3, -9, 6, 1); // Metallic sheen
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(-1, -9, 2, 1.5); // Gold ninja crest emblem
-
-    // Cyber-Shinobi Eyes / Dual Optic Slits (Replacing the oblong Among Us astronaut visor!)
-    const eyeGlow = Math.sin(t * 0.15) * 0.2 + 0.8;
-    ctx.fillStyle = `rgba(34, 211, 238, ${eyeGlow})`;
-    // Twin sharp cybernetic eyes
-    ctx.fillRect(0, -7, 2, 1.5);  // Inner eye
-    ctx.fillRect(3, -7, 2, 1.5);  // Outer eye
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(1, -7, 1, 1);    // Hot pupil sparks
-    ctx.fillRect(4, -7, 1, 1);
-
-    // Swept-Back Cyberpunk / Anime Ninja Hair (Royal Violet / Electric Purple Gradient)
-    ctx.fillStyle = '#6b21a8'; // Deep royal violet base
-    ctx.fillRect(-5, -11, 8, 3);
-    ctx.fillStyle = '#9333ea'; // Electric purple midtone
-    ctx.fillRect(-4, -12, 6, 2);
-    ctx.fillStyle = '#c084fc'; // Vibrant radiant lilac spikes
-    ctx.fillRect(-6, -10, 2, 2); // Rear flared spike
-    ctx.fillRect(0, -12, 3, 2);  // Top windblown crest
-    ctx.fillRect(3, -11, 2, 2);  // Forward edge highlight
-    ctx.fillStyle = '#e9d5ff';   // Shimmer glint on hair tip
-    ctx.fillRect(1, -12, 1, 1);
-
-    // Shinobi Scarf Neck Wrap
-    ctx.fillStyle = '#06b6d4';
-    ctx.fillRect(-4, -4, 8, 2);
-    ctx.fillStyle = '#22d3ee';
-    ctx.fillRect(-3, -3, 6, 1);
-
-    // E. Arms & High-Frequency Beam Ninjato
-    if (isAttacking) {
-      // Dynamic Combat Attack Stance
-      const combo = player.comboStep || 1;
-      
-      // Left arm guard
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-5, -2, 2, 4);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-5, 0, 2, 2);
-
-      // Right arm thrusting / slashing
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(2, -3, 4, 3);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(4, -4, 2, 2);
-
-      // Sword Hilt & Gold Tsuba
-      ctx.fillStyle = '#475569';
-      ctx.fillRect(6, -3, 2, 2);
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(6, -5, 1, 5);
-
-      // Glowing Beam Energy Blade
-      const bladeLen = combo === 3 ? 15 : 12;
-      const bladeY = combo === 2 ? -6 : -3;
-      
-      // Outer blade glow
-      ctx.fillStyle = 'rgba(34, 211, 238, 0.55)';
-      ctx.fillRect(7, bladeY - 1, bladeLen + 2, 4);
-      
-      // Core sharp beam
-      ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(7, bladeY, bladeLen, 2);
+    // =========================================================================
+    // D. HEAD, HELMET, HAIR & VISOR (DISTINCT ARCHITECTURE PER HERO)
+    // =========================================================================
+    if (isAnuk) {
+      // --- ANUK: PHARAOH NEMES HEADDRESS & EYE OF HORUS ---
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(-5, -11, 10, 4);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(-4.5, -10, 9, 1.5);
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(-5, -7, 1.5, 5);
+      ctx.fillRect(3.5, -7, 1.5, 5);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-0.5, -12.5, 1.5, 2);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(0, -12, 1, 1);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(0, -7.5, 3, 1.6);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(8, bladeY, bladeLen - 2, 1);
-
-      // Combat energy sparks
-      if (combo === 3) {
-        ctx.fillStyle = '#facc15';
-        ctx.fillRect(7 + bladeLen, bladeY - 1, 2, 2);
-        ctx.fillStyle = '#f43f5e';
-        ctx.fillRect(7 + bladeLen - 3, bladeY - 3, 2, 2);
-      }
-    } else if (isBlocking) {
-      // Defensive ninja guard with crossed gauntlets
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, -3, 4, 5);
-      ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(1, -2, 3, 3);
+      ctx.fillRect(1, -7.5, 1, 1);
+    } else if (isBalam) {
+      // --- BALAM: JADE JAGUAR SKULL HELMET & QUETZAL CREST ---
+      ctx.fillStyle = '#059669';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(-4.5, -11, 9, 3);
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(-3, -13, 6, 2.5);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-1, -13.5, 2, 1.5);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-3, -5, 1.2, 2);
+      ctx.fillRect(2, -5, 1.2, 2);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(0, -7.5, 2.5, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1, 1);
+    } else if (isKael) {
+      // --- KAEL: VOLCANIC HORNED GLADIATOR HELMET ---
+      ctx.fillStyle = '#1c1917';
+      ctx.fillRect(-4.5, -10, 9, 6.5);
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-4, -11, 8, 3);
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-5.5, -12.5, 2, 3);
+      ctx.fillRect(3.5, -12.5, 2, 3);
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(-5, -13, 1.5, 1.5);
+      ctx.fillRect(3.5, -13, 1.5, 1.5);
+      ctx.fillStyle = '#f97316';
+      ctx.fillRect(-0.5, -7.5, 4, 1.6);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(0.5, -7.5, 2, 1);
+    } else if (isVector) {
+      // --- VECTOR: CYBERPUNK HUD SCANNER & TACTICAL HELM ---
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#4f46e5';
+      ctx.fillRect(-4.5, -11, 9, 2.5);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-4, -13, 1.5, 3);
+      ctx.fillStyle = '#6366f1';
+      ctx.fillRect(1, -12, 2.5, 1.5);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-0.5, -7.5, 4, 1.8);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1.5, 1);
+    } else if (isZizz) {
+      // --- ZIZZ: KUNOICHI SILK COWL & SAKURA HAIR ---
+      ctx.fillStyle = '#1e1b4b';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4.5, -12, 8, 3);
+      ctx.fillStyle = '#f472b6';
+      ctx.fillRect(2.5, -11.5, 2, 2);
+      ctx.fillStyle = '#fbcfe8';
+      ctx.fillRect(3, -11, 1, 1);
+      ctx.fillStyle = '#f472b6';
+      ctx.fillRect(0, -7.5, 2, 1.6);
+      ctx.fillRect(3, -7.5, 2, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1, 1);
+      ctx.fillRect(4, -7.5, 1, 1);
+    } else if (isBlizzard) {
+      // --- BLIZZARD: GLACIAL FROST HOOD WITH FUR ---
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#f8fafc'; // White fur trim
+      ctx.fillRect(-5, -11, 10, 3);
+      ctx.fillRect(-5, -6, 2, 4);
+      ctx.fillRect(3, -6, 2, 4);
+      // Cyan Frost Visor
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(0, -7.5, 3, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1.5, 1);
+    } else if (isSteampunk) {
+      // --- STEAMPUNK: BRASS GEAR HELMET & GOGGLES ---
+      ctx.fillStyle = '#292524';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(-4.5, -11.5, 9, 3);
+      // Goggles
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(-2, -8, 3, 2.5);
+      ctx.fillRect(2, -8, 3, 2.5);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(-1, -7.5, 1.5, 1.5);
+      ctx.fillRect(3, -7.5, 1.5, 1.5);
+    } else if (isCastle) {
+      // --- CASTLE: ROYAL KNIGHT HELMET ---
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#64748b';
+      ctx.fillRect(-4.5, -11.5, 9, 3);
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(-1, -13, 2, 2.5); // Crest
+      // Blue visor slit
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillRect(0, -7.5, 3, 1.5);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1, 1);
+    } else if (isPirate) {
+      // --- PIRATE: TRICORN HAT & EYEPATCH ---
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      // Tricorn hat
+      ctx.fillStyle = '#1e1b4b';
+      ctx.fillRect(-6, -12, 12, 3);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-1, -12, 2, 1.5); // Gold emblem
+      // Eyepatch & Teal Eye
+      ctx.fillStyle = '#14b8a6';
+      ctx.fillRect(1, -7.5, 2, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1.5, -7.5, 1, 1);
+    } else if (isJurassic) {
+      // --- JURASSIC: RAPTOR BONE MASK ---
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#fef08a'; // Bone crown
+      ctx.fillRect(-4.5, -11.5, 9, 3);
+      // Amber slit
+      ctx.fillStyle = '#84cc16';
+      ctx.fillRect(0, -7.5, 3, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1, 1);
+    } else if (isMoon) {
+      // --- MOON: ASTRONAUT CHROME HELMET ---
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(-4.5, -10.5, 9, 7);
+      // Gold Solar Visor
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-1, -8, 5, 3);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, -7.5, 2, 1.5);
+    } else {
+      // --- ZION: ORIGINAL CYBER SHINOBI ---
+      ctx.fillStyle = '#070b14';
+      ctx.fillRect(-4, -10, 8, 6.5);
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-4, -10, 8, 2.2);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(-1, -10, 2, 1.8);
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(2, -2, 2, 1);
+      ctx.fillRect(0, -7.5, 2, 1.6);
+      ctx.fillRect(3, -7.5, 2, 1.6);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(1, -7.5, 1, 1);
+      ctx.fillRect(4, -7.5, 1, 1);
+      ctx.fillStyle = '#581c87';
+      ctx.fillRect(-5.5, -12, 9, 3);
+      ctx.fillStyle = '#9333ea';
+      ctx.fillRect(-4.5, -13.5, 7, 2.5);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(1, -14, 1.5, 1);
+    }
+
+    // Shinobi Scarf Collar Wrap
+    ctx.fillStyle = scarfColor2;
+    ctx.fillRect(-4.5, -4.5, 9, 2);
+    ctx.fillStyle = scarfColor1;
+    ctx.fillRect(-3.5, -3.5, 7, 1);
+
+    // =========================================================================
+    // E. ARMS & DISTINCT WEAPONS PER CHARACTER
+    // =========================================================================
+    if (isAttacking) {
+      const combo = player.comboStep || 1;
+
+      // Off-hand guard
+      ctx.fillStyle = pauldronBase;
+      ctx.fillRect(-5.5, -2, 2.5, 4.5);
+
+      // Sword-wielding arm
+      ctx.fillStyle = pauldronBase;
+      ctx.fillRect(2, -3.5, 4.5, 3.5);
+      ctx.fillStyle = bootsSole;
+      ctx.fillRect(4.5, -4.5, 2, 2);
+
+      // Grip / Hilt
+      ctx.fillStyle = beltBuckle;
+      ctx.fillRect(6.5, -3.5, 2.5, 2.5);
+
+      const bladeLen = combo === 3 ? 17 : combo === 2 ? 14 : 12;
+      const bladeY = combo === 2 ? -6.5 : combo === 3 ? -4.5 : -3.5;
+
+      if (isAnuk) {
+        ctx.fillStyle = 'rgba(234, 179, 8, 0.45)';
+        ctx.fillRect(7.5, bladeY - 2, bladeLen + 2, 5);
+        ctx.fillStyle = '#eab308';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2.5);
+        ctx.fillRect(7.5 + bladeLen - 2, bladeY - 3, 3, 3);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else if (isBalam) {
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(7.5, bladeY - 1, bladeLen, 3.5);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(7.5, bladeY - 2.5, bladeLen, 1.5);
+        ctx.fillRect(7.5, bladeY + 2.5, bladeLen, 1.5);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(9, bladeY, 2, 1.5);
+        ctx.fillRect(13, bladeY, 2, 1.5);
+      } else if (isKael) {
+        ctx.fillStyle = 'rgba(249, 115, 22, 0.5)';
+        ctx.fillRect(7.5, bladeY - 2.5, bladeLen + 3, 6);
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(7.5, bladeY - 1, bladeLen + 1, 3.5);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(8.5, bladeY, bladeLen - 2, 1.5);
+      } else if (isZizz) {
+        ctx.fillStyle = 'rgba(244, 114, 182, 0.5)';
+        ctx.fillRect(7.5, bladeY - 1.5, bladeLen + 2, 4);
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8.5, bladeY, bladeLen - 2, 1);
+        ctx.fillStyle = '#ec4899';
+        ctx.fillRect(6, bladeY + 3, bladeLen - 2, 1.5);
+      } else if (isVector) {
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.5)';
+        ctx.fillRect(7.5, bladeY - 1.5, bladeLen + 2, 4);
+        ctx.fillStyle = '#6366f1';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(8.5, bladeY, bladeLen - 2, 1);
+      } else if (isBlizzard) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+        ctx.fillRect(7.5, bladeY - 1.5, bladeLen + 2, 4);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8.5, bladeY, bladeLen - 2, 1);
+      } else if (isSteampunk) {
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.5)';
+        ctx.fillRect(7.5, bladeY - 2, bladeLen + 2, 5);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(7.5, bladeY, bladeLen, 3);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else if (isCastle) {
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.5)';
+        ctx.fillRect(7.5, bladeY - 2, bladeLen + 2, 5);
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(7.5, bladeY, bladeLen, 3);
+        ctx.fillStyle = '#93c5fd';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else if (isPirate) {
+        ctx.fillStyle = 'rgba(20, 184, 166, 0.5)';
+        ctx.fillRect(7.5, bladeY - 1.5, bladeLen + 2, 4);
+        ctx.fillStyle = '#14b8a6';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2.5);
+        ctx.fillStyle = '#5eead4';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else if (isJurassic) {
+        ctx.fillStyle = 'rgba(132, 204, 22, 0.5)';
+        ctx.fillRect(7.5, bladeY - 2, bladeLen + 2, 5);
+        ctx.fillStyle = '#84cc16';
+        ctx.fillRect(7.5, bladeY, bladeLen, 3);
+        ctx.fillStyle = '#bef264';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else if (isMoon) {
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.55)';
+        ctx.fillRect(7.5, bladeY - 2, bladeLen + 3, 5);
+        ctx.fillStyle = '#c084fc';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2.5);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8.5, bladeY + 0.5, bladeLen - 2, 1);
+      } else {
+        ctx.fillStyle = combo === 3 ? 'rgba(250, 204, 21, 0.65)' : 'rgba(34, 211, 238, 0.60)';
+        ctx.fillRect(7.5, bladeY - 1.5, bladeLen + 2, 4.5);
+        ctx.fillStyle = combo === 3 ? '#facc15' : '#22d3ee';
+        ctx.fillRect(7.5, bladeY, bladeLen, 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8.5, bladeY, bladeLen - 2, 1);
+      }
+        } else if (isBlocking) {
+      // Guard stance with crossed gauntlets
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, -3.5, 4.5, 5.5);
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(1, -2.5, 3.5, 3.5);
+      ctx.fillStyle = '#22d3ee';
+      ctx.fillRect(2, -2.5, 2.5, 1.5);
     } else {
       // Idle / Running Stance — Ninjato Sheathed Diagonally on Back (Saya)
-      // Left arm
+      // Left arm in athletic sprint swing
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-5, -2, 2, 5);
+      ctx.fillRect(-5.5, -2, 2.5, 5);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(-5, 1, 2, 2);
+      ctx.fillRect(-5.5, 1, 2.5, 2);
 
       // Right arm
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(2, -2, 2, 5);
+      ctx.fillRect(2, -2, 2.5, 5);
       ctx.fillStyle = '#06b6d4';
-      ctx.fillRect(2, 1, 2, 2);
+      ctx.fillRect(2, 1, 2.5, 2);
 
-      // Distinctive Diagonal Scabbard (Saya) strapped across back with metallic rings
-      // (Diagonal angle completely avoids looking like an astronaut backpack!)
+      // Sleek Magnetic Scabbard (Saya) slung across back
       ctx.save();
       ctx.translate(-4, -6);
-      ctx.rotate(-0.4); // 23 degree angle
-      // Scabbard body
+      ctx.rotate(-0.42); // 24 degree diagonal katana sling
+      // Scabbard matte carbon body
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-1.2, -4, 3, 14);
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(-1, -4, 2.5, 13);
-      // Gold Sageo cord rings
+      ctx.fillRect(-0.8, -4, 2, 14);
+
+      // Gold Sageo cord bindings
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-1.5, -2, 3.5, 1);
-      ctx.fillRect(-1.5, 1, 3.5, 1);
-      // Tsuka (Hilt) & Tsuba (Guard)
+      ctx.fillRect(-1.5, -2, 3.5, 1.2);
+      ctx.fillRect(-1.5, 1.2, 3.5, 1.2);
+
+      // Tsuba (Guard) & Tsuka (Hilt)
       ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-2, -5, 4.5, 1.2); // Tsuba guard
+      ctx.fillRect(-2, -5.2, 4.5, 1.4); // Gold tsuba disc
       ctx.fillStyle = '#475569';
-      ctx.fillRect(-0.8, -8, 2, 3);   // Wrapped hilt
+      ctx.fillRect(-0.8, -8.2, 2.2, 3.2); // Wrapped grip
       ctx.fillStyle = '#22d3ee';
-      ctx.fillRect(-0.5, -9, 1.4, 1.2); // Pommel emitter
+      ctx.fillRect(-0.5, -9.2, 1.6, 1.4); // Cyan energy pommel
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, -9.2, 0.8, 0.8);
       ctx.restore();
     }
 
@@ -10017,17 +7663,112 @@ export class GameRenderer {
       const alpha = Math.max(0, m.life / m.maxLife);
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = m.combo === 3 ? '#f43f5e' : '#38bdf8';
-      ctx.beginPath();
-      if (m.facing > 0) {
-        ctx.arc(x, m.y + 8, 16, -Math.PI * 0.4, Math.PI * 0.4);
+
+      if (m.skin === 'zizz') {
+        // Zizz: Dual Twin Astral Sakura Slashes
+        ctx.fillStyle = m.combo === 3 ? '#ec4899' : '#f472b6';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 17, -Math.PI * 0.45, Math.PI * 0.45);
+        } else {
+          ctx.arc(x + 14, m.y + 8, 17, Math.PI * 0.55, Math.PI * 1.45);
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#fbcfe8';
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x - 3, m.y + 8, 12, -Math.PI * 0.35, Math.PI * 0.35);
+        } else {
+          ctx.arc(x + 17, m.y + 8, 12, Math.PI * 0.65, Math.PI * 1.35);
+        }
+        ctx.stroke();
+      } else if (m.skin === 'kael') {
+        // Kael: Heavy Volcanic Magma Eruption Cleave
+        ctx.fillStyle = m.combo === 3 ? '#ef4444' : '#f97316';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 20, -Math.PI * 0.5, Math.PI * 0.5);
+        } else {
+          ctx.arc(x + 16, m.y + 8, 20, Math.PI * 0.5, Math.PI * 1.5);
+        }
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#fef08a';
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(x + (m.facing > 0 ? 12 : -12), m.y + 4, 3, 3);
+        ctx.fillRect(x + (m.facing > 0 ? 16 : -16), m.y + 12, 2.5, 2.5);
+      } else if (m.skin === 'anuk') {
+        // Anuk: Golden Solar Khopesh Arc
+        ctx.fillStyle = m.combo === 3 ? '#ca8a04' : '#eab308';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 18, -Math.PI * 0.45, Math.PI * 0.45);
+        } else {
+          ctx.arc(x + 14, m.y + 8, 18, Math.PI * 0.55, Math.PI * 1.45);
+        }
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = '#fef08a';
+        ctx.stroke();
+        ctx.fill();
+
+        // Golden sand dust sparks
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(x + (m.facing > 0 ? 14 : -14), m.y + 5, 2.5, 2.5);
+      } else if (m.skin === 'vector') {
+        // Vector: Electric Indigo Ion Nano-Blade Arc
+        ctx.fillStyle = m.combo === 3 ? '#4338ca' : '#6366f1';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 17, -Math.PI * 0.4, Math.PI * 0.4);
+        } else {
+          ctx.arc(x + 14, m.y + 8, 17, Math.PI * 0.6, Math.PI * 1.4);
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#38bdf8';
+        ctx.stroke();
+        ctx.fill();
+
+        // Digital data glitch sparks
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(x + (m.facing > 0 ? 13 : -13), m.y + 6, 2, 2);
+      } else if (m.skin === 'balam') {
+        // Balam: Emerald Jade Macuahuitl Cleave
+        ctx.fillStyle = m.combo === 3 ? '#047857' : '#10b981';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 19, -Math.PI * 0.48, Math.PI * 0.48);
+        } else {
+          ctx.arc(x + 15, m.y + 8, 19, Math.PI * 0.52, Math.PI * 1.48);
+        }
+        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = '#34d399';
+        ctx.stroke();
+        ctx.fill();
+
+        // Jungle leaves and amber sparks
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x + (m.facing > 0 ? 14 : -14), m.y + 4, 3, 3);
       } else {
-        ctx.arc(x + 14, m.y + 8, 16, Math.PI * 0.6, Math.PI * 1.4);
+        // Zion default cyber plasma slash
+        ctx.fillStyle = m.combo === 3 ? '#f43f5e' : '#38bdf8';
+        ctx.beginPath();
+        if (m.facing > 0) {
+          ctx.arc(x, m.y + 8, 16, -Math.PI * 0.4, Math.PI * 0.4);
+        } else {
+          ctx.arc(x + 14, m.y + 8, 16, Math.PI * 0.6, Math.PI * 1.4);
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        ctx.fill();
       }
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
-      ctx.fill();
       ctx.restore();
     }
     ctx.globalAlpha = 1;
@@ -10039,14 +7780,131 @@ export class GameRenderer {
       const x = Math.round(s.x - cameraX);
       const alpha = Math.max(0, s.life / s.maxLife);
       ctx.save();
-      ctx.globalAlpha = alpha * 0.7;
-      ctx.strokeStyle = s.color;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.fillStyle = s.color + '22';
-      ctx.fill();
+      ctx.globalAlpha = alpha * 0.8;
+
+      if (s.skin === 'zizz') {
+        // Astral Lotus Petal Burst (Expanding floral rings)
+        ctx.strokeStyle = '#f472b6';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fbcfe8';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius * 0.65, 0, Math.PI * 2);
+        ctx.stroke();
+
+        for (let a = 0; a < 8; a++) {
+          const ang = (a * Math.PI) / 4 + s.radius * 0.05;
+          const px = x + Math.cos(ang) * s.radius;
+          const py = s.y + Math.sin(ang) * s.radius;
+          ctx.fillStyle = '#f472b6';
+          ctx.fillRect(px - 2, py - 2, 4, 4);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(px - 1, py - 1, 2, 2);
+        }
+        ctx.fillStyle = 'rgba(244, 114, 182, 0.16)';
+        ctx.fill();
+      } else if (s.skin === 'kael') {
+        // Tectonic Magma Eruption Shockwave
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius * 0.75, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const colH = s.radius * 0.9;
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+        ctx.fillRect(x - 14, s.y - colH, 28, colH * 2);
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.65)';
+        ctx.fillRect(x - 5, s.y - colH, 10, colH * 2);
+      } else if (s.skin === 'anuk') {
+        // Anuk: Swirling Solar Sandstorm of Ra
+        ctx.strokeStyle = '#eab308';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius * 0.65, 0, Math.PI * 2);
+        ctx.stroke();
+
+        for (let a = 0; a < 8; a++) {
+          const ang = (a * Math.PI) / 4 + s.radius * 0.08;
+          const px = x + Math.cos(ang) * s.radius;
+          const py = s.y + Math.sin(ang) * s.radius;
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(px - 2, py - 2, 4, 4);
+        }
+        ctx.fillStyle = 'rgba(234, 179, 8, 0.18)';
+        ctx.fill();
+      } else if (s.skin === 'vector') {
+        // Vector: High-Voltage EMP Quantum Shockwave
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+
+        for (let a = 0; a < 6; a++) {
+          const ang = (a * Math.PI) / 3 + s.radius * 0.06;
+          const px = x + Math.cos(ang) * s.radius;
+          const py = s.y + Math.sin(ang) * s.radius;
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(px - 2, py - 2, 4, 4);
+        }
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.18)';
+        ctx.fill();
+      } else if (s.skin === 'balam') {
+        // Balam: Sacred Kukulkán Quetzal Cyclone
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+
+        for (let a = 0; a < 8; a++) {
+          const ang = (a * Math.PI) / 4 + s.radius * 0.07;
+          const px = x + Math.cos(ang) * s.radius;
+          const py = s.y + Math.sin(ang) * s.radius;
+          ctx.fillStyle = '#34d399';
+          ctx.fillRect(px - 2, py - 2, 4, 4);
+        }
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+        ctx.fill();
+      } else {
+        // Zion default cyber temporal sphere
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = s.color + '22';
+        ctx.fill();
+      }
       ctx.restore();
     }
     ctx.globalAlpha = 1;

@@ -23,7 +23,7 @@ import { OnlyUpResultsModal } from './components/OnlyUpResultsModal';
 import { VsAiResultModal } from './components/VsAiResultModal';
 import { TimeAttackResultModal } from './components/TimeAttackResultModal';
 import { LEVEL_CONFIGS } from './game/levelData';
-import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, getActiveSlotId, setActiveSlotId, getLevelBestTime } from './game/saveManager';
+import { recordLevelCompletion, recordCheckpointSave, getActiveSaveSlot, getActiveSlotId, setActiveSlotId, getLevelBestTime, getSaveSlot } from './game/saveManager';
 import { lockLandscapeOrientation, requestFullscreenAndLockLandscape } from './utils/orientation';
 import { initPreventZoom } from './utils/preventZoom';
 import { RotatePrompt } from './components/RotatePrompt';
@@ -65,6 +65,7 @@ export default function App() {
   const [showIntroLoading, setShowIntroLoading] = useState<boolean>(() => checkIsMobilePhone());
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
+  const [creditsFromGameCompletion, setCreditsFromGameCompletion] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [inMainMenu, setInMainMenu] = useState(true);
   const [mainMenuView, setMainMenuView] = useState<'title' | 'slots' | 'zones' | 'acts' | 'controls' | 'clock' | 'locker'>('title');
@@ -264,6 +265,10 @@ export default function App() {
     engine.resetSpecialModes();
     engine.activeSlotId = slotId;
     engine.inMainMenu = false;
+    const slot = getSaveSlot(slotId) || getActiveSaveSlot();
+    if (slot?.selectedSkin) {
+      engine.setCharacterSkin(slot.selectedSkin);
+    }
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -276,6 +281,10 @@ export default function App() {
     engine.resetSpecialModes();
     engine.activeSlotId = slotId;
     engine.inMainMenu = false;
+    const slot = getSaveSlot(slotId) || getActiveSaveSlot();
+    if (slot?.selectedSkin) {
+      engine.setCharacterSkin(slot.selectedSkin);
+    }
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -295,6 +304,10 @@ export default function App() {
     engine.resetSpecialModes();
     engine.activeSlotId = slotId;
     engine.inMainMenu = false;
+    const slot = getSaveSlot(slotId) || getActiveSaveSlot();
+    if (slot?.selectedSkin) {
+      engine.setCharacterSkin(slot.selectedSkin);
+    }
     setActiveSlotId(slotId);
     setActiveSlotIdState(slotId);
     setInMainMenu(false);
@@ -782,8 +795,10 @@ export default function App() {
           onStartSpecialStage={handleStartSpecialStageFromMenu}
           onStartVsAi={handleStartVsAiFromMenu}
           onStartTimeAttack={handleStartTimeAttackFromMenu}
+          onSelectSkin={(skinId) => engine.setCharacterSkin(skinId)}
           onOpenCredits={() => {
             unlockAudio();
+            setCreditsFromGameCompletion(false);
             setIsCreditsOpen(true);
           }}
           onOpenAchievements={() => {
@@ -971,7 +986,8 @@ export default function App() {
           stats={engine.stats}
           onNextLevel={() => {
             const currLvl = LEVEL_CONFIGS[engine.levelIndex];
-            if (currLvl?.id === 'piratestreasure-3') {
+            if (currLvl?.id === 'piratestreasure-3' || currLvl?.id === 'themoon-3' || currLvl?.id === 'krono-travel') {
+              setCreditsFromGameCompletion(true);
               setIsCreditsOpen(true);
               return;
             }
@@ -982,6 +998,7 @@ export default function App() {
             triggerLevelTransition(engine.levelIndex, false);
           }}
           onOpenCredits={() => {
+            setCreditsFromGameCompletion(true);
             setIsCreditsOpen(true);
           }}
           onReturnToMenu={() => {
@@ -1009,6 +1026,7 @@ export default function App() {
       {isCreditsOpen && (
         <CreditsModal
           stats={engine.stats}
+          isGameCompleted={creditsFromGameCompletion}
           onClose={() => {
             setIsCreditsOpen(false);
             sound.stopMusic();
