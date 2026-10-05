@@ -438,6 +438,11 @@ export class GameEngine {
     this.trampolines = lvl.trampolines || [];
     this.nodes = lvl.nodes;
     this.boss = lvl.boss;
+    if (this.boss) {
+      this.boss.immuneToStun = true;
+      this.boss.isStaggered = false;
+      this.boss.stagger = 0;
+    }
     this.goal = lvl.goal;
     this.destructibles = lvl.destructibles ? lvl.destructibles.map((d) => ({ ...d })) : [];
 
@@ -2300,27 +2305,11 @@ export class GameEngine {
     }
 
     if (this.boss && this.boss.alive && Math.abs(this.boss.x - p.x) < 260) {
-      const isDoomsdayBoss =
-        this.boss.immuneToStun ||
-        this.boss.name.includes('Doomsday') ||
-        this.boss.name.includes('Kronos-Doomsday') ||
-        this.boss.name.includes('Dreadnought') ||
-        LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3';
-
-      if (isDoomsdayBoss) {
-        // Doomsday dreadnought boss is immune to overheat/stun
-        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '🛡️ ¡BLINDAJE TITÁNICO: INMUNE AL ATURDIMIENTO!', '#f43f5e');
-      } else if (this.boss.name.includes('Kronos')) {
-        this.boss.state = 'overheat';
-        this.boss.stateTimer = 160;
-        this.boss.inv = 0;
-        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 28, '🔥 ¡TITÁN KRONOS-Ω SOBRECALENTADO! (DAÑO x3)', '#f97316');
-      } else {
-        this.boss.isStaggered = true;
-        this.boss.stagger = this.boss.maxStagger;
-        this.boss.stateTimer = 90;
-        this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '⚡ ¡JEFE ATURDIDO POR SHOWDOWN!', '#facc15');
-      }
+      // Bosses are immune to stun / stagger (ahora los bosses no se aturden)
+      this.boss.immuneToStun = true;
+      this.boss.isStaggered = false;
+      this.boss.stagger = 0;
+      this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 20, '🛡️ ¡JEFE INMUNE AL ATURDIMIENTO!', '#f43f5e');
     }
 
     // Deflect all hostile projectiles on screen into golden seeker star bolts
@@ -3005,40 +2994,18 @@ export class GameEngine {
       damage = Math.round(baseDmg * 1.8);
       isStaggerHit = true;
       this.addFloatingText(b.x + b.w / 2, b.y - 28, '🔥 ¡GOLPE CRÍTICO EN SOBRECALENTAMIENTO (x1.8)!', '#f97316');
-    } else if (b.isStaggered) {
-      damage = Math.round(baseDmg * 1.4);
-      isStaggerHit = true;
-      this.addFloatingText(b.x + b.w / 2, b.y - 28, '💥 ¡GOLPE EN ATURDIMIENTO (+40%)!', '#fbbf24');
     }
 
     damage = Math.max(1, damage);
     this.registerHit(damage, isStaggerHit);
 
-    const isDoomsdayBoss =
-      b.immuneToStun ||
-      b.name.includes('Doomsday') ||
-      b.name.includes('Kronos-Doomsday') ||
-      b.name.includes('Dreadnought') ||
-      LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3';
-
-    // Build stagger bar if not already staggered (Doomsday Dreadnought Boss is immune to stun/stagger)
-    if (!isDoomsdayBoss && !b.isStaggered) {
-      const staggerAmount = isSpecial ? Math.min(18, baseDmg * 5) : baseDmg * 12;
-      b.stagger += staggerAmount;
-      if (b.stagger >= b.maxStagger) {
-        b.isStaggered = true;
-        b.state = 'staggered';
-        b.stateTimer = 160;
-        b.stagger = b.maxStagger;
-        sound.playSfx('stagger');
-        this.screenShake = 8;
-        this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#fbbf24');
-        this.addFloatingText(b.x + b.w / 2, b.y - 35, '⚡ ¡POSTURA ROTA! ¡JEFE ATURDIDO!', '#facc15');
-      }
-    }
+    // Bosses are immune to stun / stagger (ahora los bosses no se aturden)
+    b.immuneToStun = true;
+    b.isStaggered = false;
+    b.stagger = 0;
 
     b.hp = Math.max(0, b.hp - damage);
-    b.inv = b.isStaggered ? 12 : 32;
+    b.inv = 26;
     b.flash = 16;
     this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 14, '#ef4444');
     sound.playSfx('crit');
@@ -4927,36 +4894,13 @@ export class GameEngine {
     b.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
     b.facing = this.player.x >= b.x ? 1 : -1;
 
-    // Process Stagger Recovery
-    if (b.isStaggered) {
-      if (b.immuneToStun || b.name.includes('Doomsday') || b.name.includes('Kronos-Doomsday') || LEVEL_CONFIGS[this.levelIndex]?.id === 'themoon-3') {
-        b.isStaggered = false;
-        b.stagger = 0;
-      } else {
-        b.stateTimer--;
-        b.vx *= 0.8;
-        if (b.stateTimer <= 0) {
-          b.isStaggered = false;
-          b.stagger = 0;
-          b.state = 'idle';
-          b.inv = 25;
-          this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡JEFE RECUPERADO!', '#38bdf8');
-        }
-        // Process gravity while staggered
-        b.vy = Math.min(b.vy + GRAVITY, 7);
-        b.y += b.vy;
-        if (b.y + b.h >= 148) {
-          b.y = 148 - b.h;
-          b.vy = 0;
-        }
-        this.updateShockwaves();
-        return;
-      }
-    } else {
-      // Natural stagger decay when not being hit
-      if (b.stagger > 0 && this.time % 15 === 0) {
-        b.stagger = Math.max(0, b.stagger - 1);
-      }
+    // Bosses are immune to stun / stagger (ahora los bosses no se aturden)
+    b.immuneToStun = true;
+    b.isStaggered = false;
+    b.stagger = 0;
+    if (b.state === 'staggered') {
+      b.state = 'idle';
+      b.stateTimer = 10;
     }
 
     // --- BOSS 1: GUARDIÁN NEÓN MK-IV ---
@@ -5211,19 +5155,18 @@ export class GameEngine {
           });
         }
 
-        // Check if player parries her dash for INSTANT STAGGER!
+        // Check if player parries her dash for perfect parry energy counter
         const dashHitbox = { x: b.x, y: b.y, w: b.w, h: b.h };
         if (this.checkAABB(this.player, dashHitbox)) {
           if (this.player.isBlocking && this.player.perfectParryTimer > 0) {
             sound.playSfx('parry');
-            sound.playSfx('stagger');
-            this.screenShake = 8;
-            b.isStaggered = true;
-            b.state = 'staggered';
-            b.stateTimer = 180;
-            b.stagger = b.maxStagger;
-            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 30, '#facc15');
-            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY PERFECTO! ¡KUNOICHI ATURDIDA!', '#facc15');
+            this.screenShake = 6;
+            b.isStaggered = false;
+            b.stagger = 0;
+            b.state = 'idle';
+            b.stateTimer = 20;
+            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#facc15');
+            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY PERFECTO! +40 ENERGÍA', '#facc15');
             this.addEnergy(40);
             return;
           }
@@ -5391,14 +5334,13 @@ export class GameEngine {
         if (this.checkAABB(this.player, dashHitbox)) {
           if (this.player.isBlocking && this.player.perfectParryTimer > 0) {
             sound.playSfx('parry');
-            sound.playSfx('stagger');
-            this.screenShake = 10;
-            b.isStaggered = true;
-            b.state = 'staggered';
-            b.stateTimer = 200;
-            b.stagger = b.maxStagger;
-            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 35, '#facc15');
-            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY TITÁNICO! ¡IGNIS ATURDIDO!', '#facc15');
+            this.screenShake = 6;
+            b.isStaggered = false;
+            b.stagger = 0;
+            b.state = 'idle';
+            b.stateTimer = 20;
+            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#facc15');
+            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY TITÁNICO! +45 ENERGÍA', '#facc15');
             this.addEnergy(45);
             return;
           }
@@ -5553,19 +5495,18 @@ export class GameEngine {
           });
         }
 
-        // Check if player parries Pharaoh Mummy Rush for INSTANT STAGGER!
+        // Check if player parries Pharaoh Mummy Rush for energy counter
         const dashHitbox = { x: b.x, y: b.y, w: b.w, h: b.h };
         if (this.checkAABB(this.player, dashHitbox)) {
           if (this.player.isBlocking && this.player.perfectParryTimer > 0) {
             sound.playSfx('parry');
-            sound.playSfx('stagger');
-            this.screenShake = 10;
-            b.isStaggered = true;
-            b.state = 'staggered';
-            b.stateTimer = 210;
-            b.stagger = b.maxStagger;
-            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 35, '#facc15');
-            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY SAGRADO! ¡FARAÓN ATURDIDO!', '#facc15');
+            this.screenShake = 6;
+            b.isStaggered = false;
+            b.stagger = 0;
+            b.state = 'idle';
+            b.stateTimer = 20;
+            this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#facc15');
+            this.addFloatingText(b.x + b.w / 2, b.y - 30, '⚔️ ¡PARRY SAGRADO! +50 ENERGÍA', '#facc15');
             this.addEnergy(50);
             return;
           }
@@ -5871,7 +5812,7 @@ export class GameEngine {
       }
 
       // Invisibility Phase Trigger: Al llegar al 65% de vida Kronos despliega su camuflaje temporal
-      if (b.hp <= b.maxHp * 0.65 && !b.hasTriggeredPhase2Invis && b.state !== 'staggered') {
+      if (b.hp <= b.maxHp * 0.65 && !b.hasTriggeredPhase2Invis) {
         b.hasTriggeredPhase2Invis = true;
         b.isInvisible = true;
         b.state = 'invisible';
@@ -5882,23 +5823,7 @@ export class GameEngine {
         this.addFloatingText(b.x + b.w / 2, b.y - 25, '🌀 ¡CAMUFLAJE ÓPTICO! ¡KRONOS SE HACE INVISIBLE!', '#38bdf8');
       }
 
-      // 1. STAGGERED STATE (Aturdido tras Perfect Parry o rotura de guardia)
-      if (b.state === 'staggered') {
-        b.isStaggered = true;
-        b.shield = false;
-        b.isInvisible = false;
-        b.slashHitbox = undefined;
-        b.stateTimer--;
-        b.vx *= 0.8;
-        if (b.stateTimer <= 0) {
-          b.isStaggered = false;
-          b.stagger = 0;
-          b.state = 'idle';
-          b.stateTimer = 22;
-          b.inv = 15;
-          this.addFloatingText(b.x + b.w / 2, b.y - 20, '⚡ ¡KRONOS REINICIA SISTEMAS!', '#06b6d4');
-        }
-      } else if (b.state === 'invisible') {
+      if (b.state === 'invisible') {
         // CAMUFLAJE ÓPTICO: Kronos se vuelve invisible y se reposiciona sigilosamente
         b.isInvisible = true;
         b.shield = false;
@@ -6039,15 +5964,14 @@ export class GameEngine {
             if (p.isBlocking && !p.isShieldBroken) {
               if (p.perfectParryTimer > 0) {
                 sound.playSfx('parry');
-                sound.playSfx('stagger');
-                this.screenShake = 8;
-                b.isStaggered = true;
-                b.state = 'staggered';
-                b.stateTimer = 160;
-                b.stagger = b.maxStagger;
-                b.vx = -b.facing * 3.5;
-                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#facc15');
-                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! ¡KRONOS ATURDIDO!', '#facc15');
+                this.screenShake = 6;
+                b.isStaggered = false;
+                b.stagger = 0;
+                b.state = 'idle';
+                b.stateTimer = 20;
+                b.vx = -b.facing * 2.2;
+                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#facc15');
+                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! +45 ENERGÍA', '#facc15');
                 this.addEnergy(45);
               } else {
                 sound.playSfx('block');
@@ -6109,15 +6033,14 @@ export class GameEngine {
             if (p.isBlocking && !p.isShieldBroken) {
               if (p.perfectParryTimer > 0) {
                 sound.playSfx('parry');
-                sound.playSfx('stagger');
-                this.screenShake = 8;
-                b.isStaggered = true;
-                b.state = 'staggered';
-                b.stateTimer = 160;
-                b.stagger = b.maxStagger;
+                this.screenShake = 6;
+                b.isStaggered = false;
+                b.stagger = 0;
+                b.state = 'idle';
+                b.stateTimer = 20;
                 b.slashHitbox = undefined;
-                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 28, '#facc15');
-                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! ¡KRONOS ATURDIDO!', '#facc15');
+                this.createBurst(b.x + b.w / 2, b.y + b.h / 2, 25, '#facc15');
+                this.addFloatingText(b.x + b.w / 2, b.y - 25, '⚔️ ¡PERFECT PARRY! +45 ENERGÍA', '#facc15');
                 this.addEnergy(45);
               } else {
                 sound.playSfx('block');
@@ -8095,14 +8018,13 @@ export class GameEngine {
           if (p.isBlocking && !p.isShieldBroken) {
             if (p.perfectParryTimer > 0) {
               sound.playSfx('parry');
-              sound.playSfx('stagger');
               this.screenShake = 6;
-              this.boss.isStaggered = true;
-              this.boss.state = 'staggered';
-              this.boss.stateTimer = 180;
-              this.boss.stagger = this.boss.maxStagger;
-              this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 30, '#facc15');
-              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 30, '⚔️ ¡PERFECT PARRY! ¡JEFE ATURDIDO!', '#facc15');
+              this.boss.isStaggered = false;
+              this.boss.stagger = 0;
+              this.boss.state = 'idle';
+              this.boss.stateTimer = 20;
+              this.createBurst(this.boss.x + this.boss.w / 2, this.boss.y + this.boss.h / 2, 25, '#facc15');
+              this.addFloatingText(this.boss.x + this.boss.w / 2, this.boss.y - 30, '⚔️ ¡PERFECT PARRY! +45 ENERGÍA', '#facc15');
               this.addEnergy(45);
               p.shieldEnergy = Math.min(p.maxShieldEnergy, p.shieldEnergy + 35);
             } else {

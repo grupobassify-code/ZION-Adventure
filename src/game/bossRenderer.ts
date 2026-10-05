@@ -1311,15 +1311,6 @@ export class BossRenderer {
     ctx.lineWidth = 1;
     ctx.strokeRect(hpX - 1.5, hpY - 1.5, hpW + 3, hpH + 3);
 
-    // Posture / Stagger Bar directly underneath
-    const stagH = 3;
-    const stagY = hpY + hpH + 3;
-    ctx.fillStyle = '#090d16';
-    ctx.fillRect(hpX - 1, stagY - 1, hpW + 2, stagH + 2);
-    ctx.fillStyle = boss.isStaggered ? '#facc15' : '#eab308';
-    const stagRatio = Math.min(1, boss.stagger / boss.maxStagger);
-    ctx.fillRect(hpX, stagY, Math.round(stagRatio * hpW), stagH);
-
     // Boss Name & Phase Label
     ctx.font = '6px "Press Start 2P", monospace';
     ctx.textAlign = 'center';

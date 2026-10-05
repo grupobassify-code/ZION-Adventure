@@ -33,8 +33,10 @@ export function getWeatherForZone(zone: ZoneId, act: number): WeatherType {
       return 'magma_embers';
     case 'desert':
       return 'sand_dust';
+    case 'castlesmash':
+      return act >= 2 ? 'magma_embers' : 'biolum_spores';
     case 'piratestreasure':
-      return act >= 2 ? 'sea_spray' : 'sea_spray';
+      return act === 2 ? 'biolum_spores' : 'sea_spray';
     case 'neon':
       return 'biolum_spores';
     case 'themoon':

@@ -24,7 +24,7 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 }) => {
   const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
-  const isFinalLevel = levelIndex >= LEVEL_CONFIGS.length - 1 || currentConfig.id === 'piratestreasure-3';
+  const isFinalLevel = currentConfig.id === 'themoon-3';
   const isSpecialStage = stats.totalCrystals === 5 && stats.totalSecrets === 0;
 
   // Calculate Performance Rank (With Special Stage tolerance of up to 3 crystals)
@@ -198,6 +198,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                     ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse'
                     : currentConfig.id === 'castlesmash-3'
                     ? 'bg-gradient-to-r from-amber-400 via-sky-400 to-cyan-400 hover:from-amber-300 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(2,132,199,0.6)] animate-pulse'
+                    : currentConfig.id === 'piratestreasure-3'
+                    ? 'bg-gradient-to-r from-emerald-400 via-lime-400 to-amber-400 hover:from-emerald-300 hover:to-amber-300 text-slate-950 shadow-[0_0_25px_rgba(132,204,22,0.6)] animate-pulse'
                     : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-900/50'
                 }`}
               >
@@ -206,6 +208,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
                     ? (language === 'es' ? '🌴 AVANZAR A JUNGLE RUN (ZONA 6)' : '🌴 ADVANCE TO JUNGLE RUN (ZONE 6)')
                     : currentConfig.id === 'castlesmash-3'
                     ? (language === 'es' ? '⚓ AVANZAR A PIRATES TREASURE (ZONA 10)' : '⚓ ADVANCE TO PIRATES TREASURE (ZONE 10)')
+                    : currentConfig.id === 'piratestreasure-3'
+                    ? (language === 'es' ? '🦖 AVANZAR A JURASSIC DRAFT (ZONA 11)' : '🦖 ADVANCE TO JURASSIC DRAFT (ZONE 11)')
                     : t('victoryNextAct')}
                 </span>
                 <ArrowRight className="w-4 h-4" />

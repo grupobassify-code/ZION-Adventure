@@ -986,7 +986,7 @@ export default function App() {
           stats={engine.stats}
           onNextLevel={() => {
             const currLvl = LEVEL_CONFIGS[engine.levelIndex];
-            if (currLvl?.id === 'piratestreasure-3' || currLvl?.id === 'themoon-3' || currLvl?.id === 'krono-travel') {
+            if (currLvl?.id === 'themoon-3') {
               setCreditsFromGameCompletion(true);
               setIsCreditsOpen(true);
               return;
@@ -1012,6 +1012,10 @@ export default function App() {
               // Direct player straight to newly unlocked Pirates Treasure acts!
               setMainMenuView('acts');
               setMainMenuZone('piratestreasure');
+            } else if (currLvl?.id === 'piratestreasure-3') {
+              // Direct player straight to newly unlocked Jurassic Draft acts!
+              setMainMenuView('acts');
+              setMainMenuZone('jurasicdraft');
             } else {
               const currZone = currLvl?.zone || null;
               setMainMenuView(currZone ? 'acts' : 'zones');

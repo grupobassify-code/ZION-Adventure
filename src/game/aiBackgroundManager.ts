@@ -5,6 +5,7 @@ import { renderDynamicWeather } from './weatherEngine';
 export interface ActBackdrops {
   act1: string;
   act2: string;
+  act3?: string;
 }
 
 // Eagerly import all background images through Vite asset bundler
@@ -64,12 +65,14 @@ export const STAGE_BACKDROPS: Record<ZoneId, ActBackdrops> = {
     act2: getBgUrl('bg_steampunk_night'),
   },
   castlesmash: {
-    act1: getBgUrl('bg_steampunk_sky'),
-    act2: getBgUrl('bg_steampunk_night'),
+    act1: getBgUrl('bg_castle_sky'),
+    act2: getBgUrl('bg_castle_night'),
+    act3: getBgUrl('bg_castle_night'),
   },
   piratestreasure: {
     act1: getBgUrl('bg_pirate_ocean'),
-    act2: getBgUrl('bg_pirate_night'),
+    act2: getBgUrl('bg_pirate_underwater'),
+    act3: getBgUrl('bg_pirate_night'),
   },
   themoon: {
     act1: getBgUrl('bg_space_cosmic'),
@@ -83,7 +86,7 @@ const backdropCache = new Map<string, HTMLImageElement>();
 // Eager preload of all stage backdrops across all acts
 if (typeof window !== 'undefined') {
   Object.values(STAGE_BACKDROPS).forEach((pair) => {
-    [pair.act1, pair.act2].forEach((src) => {
+    [pair.act1, pair.act2, pair.act3].forEach((src) => {
       if (src && !backdropCache.has(src)) {
         const img = new Image();
         img.src = src;
@@ -95,7 +98,12 @@ if (typeof window !== 'undefined') {
 
 export function getStageBackdropImage(zone: ZoneId, act: number = 1): HTMLImageElement | null {
   const pair = STAGE_BACKDROPS[zone] || STAGE_BACKDROPS.krono;
-  const src = (act >= 2 ? pair.act2 : pair.act1) || pair.act1;
+  let src = pair.act1;
+  if (act === 2) {
+    src = pair.act2 || pair.act1;
+  } else if (act >= 3) {
+    src = pair.act3 || pair.act2 || pair.act1;
+  }
   if (!src) return null;
 
   let img = backdropCache.get(src);
@@ -182,6 +190,33 @@ export function drawAILevelBackground(
     depthGrad.addColorStop(1, 'rgba(3, 6, 16, 0.45)');
     ctx.fillStyle = depthGrad;
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // 4b. Underwater atmospheric tint and rising bubbles for Pirates Treasure Act 2
+    if (zone === 'piratestreasure' && act === 2) {
+      const waterGrad = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+      waterGrad.addColorStop(0, 'rgba(8, 70, 110, 0.22)');
+      waterGrad.addColorStop(0.5, 'rgba(6, 120, 150, 0.14)');
+      waterGrad.addColorStop(1, 'rgba(3, 40, 70, 0.28)');
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+      ctx.save();
+      for (let b = 0; b < 10; b++) {
+        const bubbleSpeed = 0.4 + (b % 4) * 0.2;
+        const bx = (b * 36 + Math.sin(time * 0.04 + b) * 8 - cameraX * 0.15) % (GAME_WIDTH + 40);
+        const screenBx = bx < -20 ? bx + GAME_WIDTH + 40 : bx;
+        const by = GAME_HEIGHT - ((time * bubbleSpeed + b * 28) % (GAME_HEIGHT + 20));
+        const r = 1.0 + (b % 3) * 0.7;
+        ctx.fillStyle = 'rgba(210, 248, 255, 0.45)';
+        ctx.beginPath();
+        ctx.arc(screenBx, by, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     // 5. Dynamic Procedural Weather System
     renderDynamicWeather(ctx, zone, act, cameraX, time);

@@ -27,8 +27,10 @@ import bgTravelNexus from '../assets/images/bg_travel_nexus_day_1790900463291.jp
 import bgJungleCanopy from '../assets/images/bg_jungle_canopy_1790898939546.jpg';
 import bgBlizzardGlacier from '../assets/images/bg_blizzard_glacier_1790898948969.jpg';
 import bgSteampunkSky from '../assets/images/bg_steampunk_sky_1790898958682.jpg';
-import bgCastleNight from '../assets/images/bg_volcano_eruption_1790899887472.jpg';
+import bgCastleSky from '../assets/images/bg_castle_sky_1791237648357.jpg';
+import bgCastleNight from '../assets/images/bg_castle_night_1791237660330.jpg';
 import bgPirateOcean from '../assets/images/bg_pirate_ocean_1790898978282.jpg';
+import bgPirateUnderwater from '../assets/images/bg_pirate_underwater_1791237672072.jpg';
 import bgJurassicNight from '../assets/images/bg_jungle_night_1790899908919.jpg';
 import bgSpaceCosmic from '../assets/images/bg_space_cosmic_1790898968219.jpg';
 
@@ -80,12 +82,12 @@ export const LEVEL_AI_THUMBNAILS: Record<string, string> = {
 
   // Castle Smash
   'castlesmash-1': castlesmashThumb,
-  'castlesmash-2': castlesmashThumb,
+  'castlesmash-2': bgCastleNight,
   'castlesmash-3': castlesmashThumb,
 
   // Pirate's Treasure
   'piratestreasure-1': pirateIslandThumb,
-  'piratestreasure-2': pirateIslandThumb,
+  'piratestreasure-2': bgPirateUnderwater,
   'piratestreasure-3': pirateIslandThumb,
 
   // Jurassic Draft
@@ -110,7 +112,7 @@ const ZONE_FALLBACK_IMAGES: Record<string, string> = {
   jungle: bgJungleCanopy,
   blizzard: bgBlizzardGlacier,
   steampunk: bgSteampunkSky,
-  castlesmash: bgCastleNight,
+  castlesmash: bgCastleSky,
   piratestreasure: bgPirateOcean,
   jurasicdraft: bgJurassicNight,
   themoon: bgSpaceCosmic,
