@@ -514,6 +514,18 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     onlyUpBestAltitude: 'Récord Personal',
     onlyUpClimbTime: 'Tiempo de Ascenso',
     onlyUpRetryBtn: 'Escalar de Nuevo',
+
+    // Malla Temporal (Modo Historia Post-Game)
+    mallaTemporalTitle: 'LA MALLA TEMPORAL',
+    mallaTemporalSubtitle: 'ISLA DE REALIDADES Y TIEMPOS CUÁNTICOS',
+    mallaTemporalStoryMode: 'MODO HISTORIA · POST-GAME',
+    mallaTemporalIslandRescued: '¡ISLA RESCATADA AL 100%!',
+    mallaTemporalCloudsCleared: 'NUBES DISIPADAS',
+    mallaTemporalRealmsRescued: 'Reinos Rescatados',
+    mallaTemporalTrialsComplete: 'Desafíos Completados',
+    mallaTemporalExploreBtn: 'EXPLORAR LA ISLA',
+    mallaTemporalCentralClock: 'El Gran Reloj de Kronos',
+    mallaTemporalStabilityCore: 'Núcleo de Estabilidad de la Isla',
   },
   en: {
     // Top Bar & Common
@@ -938,6 +950,18 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     onlyUpBestAltitude: 'Personal Record',
     onlyUpClimbTime: 'Climb Time',
     onlyUpRetryBtn: 'Climb Again',
+
+    // Malla Temporal (Modo Historia Post-Game)
+    mallaTemporalTitle: 'THE TEMPORAL MESH',
+    mallaTemporalSubtitle: 'QUANTUM REALITIES & TIME ISLAND',
+    mallaTemporalStoryMode: 'STORY MODE · POST-GAME',
+    mallaTemporalIslandRescued: 'ISLAND 100% RESCUED!',
+    mallaTemporalCloudsCleared: 'CLOUDS DISPERSED',
+    mallaTemporalRealmsRescued: 'Realms Rescued',
+    mallaTemporalTrialsComplete: 'Trials Completed',
+    mallaTemporalExploreBtn: 'EXPLORE THE ISLAND',
+    mallaTemporalCentralClock: 'The Grand Kronos Clock',
+    mallaTemporalStabilityCore: 'Island Stability Core',
   },
 };
 

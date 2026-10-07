@@ -57,7 +57,11 @@ import {
   hasKronosPiece,
   setSelectedSkin,
   isLevelUnlockedInSlot,
+  isMallaTemporalUnlocked,
+  getRescuedZonesCount,
+  getMallaCompletedMissionsCount,
 } from '../game/saveManager';
+import { TEMPORAL_ISLAND_MAP_IMG } from '../game/mallaTemporalData';
 import { sound } from '../audio/soundEngine';
 import { PrivacyModal, PRIVACY_POLICY_URL } from './PrivacyModal';
 import { SoundtrackModal } from './SoundtrackModal';
@@ -78,6 +82,7 @@ interface MainMenuProps {
   onOpenMultiplayer?: () => void;
   onOpenAchievements?: () => void;
   onSelectSkin?: (skinId: string) => void;
+  onOpenMallaTemporal?: (zoneId?: ZoneId) => void;
   audioActive: boolean;
   onToggleAudio: () => void;
   onToggleFullscreen: () => void;
@@ -216,6 +221,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   onOpenMultiplayer,
   onOpenAchievements,
   onSelectSkin,
+  onOpenMallaTemporal,
   audioActive,
   onToggleAudio,
   onToggleFullscreen,
@@ -725,6 +731,78 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </div>
           </div>
 
+          {/* Mode Switcher Tabs */}
+          <div className="w-full flex items-center justify-between gap-2 mb-4 p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-lg">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 text-xs font-bold font-mono flex items-center gap-1.5 shadow-sm">
+                <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                <span>{language === 'es' ? 'REINOS NORMALES' : 'NORMAL REALMS'}</span>
+              </span>
+
+              {onOpenMallaTemporal && (
+                <button
+                  id="tab-malla-temporal-btn"
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenMallaTemporal();
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-950/90 via-indigo-950/90 to-purple-900/90 hover:from-purple-900 hover:to-indigo-900 border-2 border-purple-500/60 hover:border-purple-400 text-purple-200 hover:text-white text-xs font-black font-heading flex items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                  <span>{language === 'es' ? 'MODO HISTORIA: LA MALLA TEMPORAL' : 'STORY MODE: TEMPORAL MESH'}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">
+                    {getRescuedZonesCount(activeSlot)}/12
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Featured Story Mode Hero Banner in Level Selection */}
+          {onOpenMallaTemporal && (
+            <div
+              onClick={() => {
+                sound.playSfx('menuSelect');
+                onOpenMallaTemporal();
+              }}
+              className="w-full mb-5 p-4 rounded-2xl bg-gradient-to-r from-purple-950/90 via-indigo-950/90 to-slate-900/90 border-2 border-purple-500/60 hover:border-purple-400 shadow-[0_0_30px_rgba(168,85,247,0.35)] cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] group flex flex-col sm:flex-row items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="p-3 rounded-2xl bg-purple-500/20 border border-purple-400/50 text-purple-300 group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-6 h-6 text-amber-300 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-black uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      {language === 'es' ? 'MODO HISTORIA · ISLA DE REALIDADES' : 'STORY MODE · REALITIES ISLAND'}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-black text-white font-heading">
+                      {language === 'es' ? 'La Malla Temporal' : 'The Temporal Mesh'}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-purple-200/80 mt-0.5 line-clamp-1">
+                    {language === 'es'
+                      ? 'Explora las realidades conectadas al Reloj de Kronos y rescata el universo de Zion para rastrear su señal de auxilio.'
+                      : 'Explore the realities connected to the Kronos Clock and rescue Zion’s universe to track his distress signal.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="text-right font-mono">
+                  <div className="text-[10px] text-slate-400">{language === 'es' ? 'REINOS RESCATADOS' : 'RESCUED REALMS'}</div>
+                  <div className="text-xs sm:text-sm font-black text-amber-300">
+                    {getRescuedZonesCount(activeSlot)}/12
+                  </div>
+                </div>
+                <button className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 group-hover:from-purple-400 group-hover:to-indigo-400 text-slate-950 font-black text-xs font-heading shadow-md flex items-center gap-1.5 transition-all">
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>{language === 'es' ? 'ENTRAR A LA ISLA' : 'ENTER ISLAND'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* 6 Zones Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {ZONES_DATA.map((z) => {
@@ -867,6 +945,104 @@ export const MainMenu: React.FC<MainMenuProps> = ({
                 {t('dimensionalChallenges')}
               </span>
             </div>
+
+            {/* FEATURED: MODO HISTORIA — LA MALLA TEMPORAL (ISLA CUÁNTICA) */}
+            {onOpenMallaTemporal && (() => {
+              const mallaUnlocked = isMallaTemporalUnlocked(activeSlot);
+              const rescuedCount = getRescuedZonesCount(activeSlot);
+              const missionsCount = getMallaCompletedMissionsCount(activeSlot);
+              const isFullyRescued = rescuedCount >= 12;
+
+              return (
+                <div
+                  id="malla-temporal-featured-card"
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenMallaTemporal();
+                  }}
+                  className={`relative w-full rounded-2xl border-2 overflow-hidden transition-all shadow-2xl cursor-pointer mb-5 group ${
+                    isFullyRescued
+                      ? 'bg-gradient-to-r from-purple-950/90 via-indigo-900/95 to-amber-950/80 border-amber-400 hover:border-amber-300 hover:shadow-[0_0_45px_rgba(245,158,11,0.4)]'
+                      : 'bg-gradient-to-r from-purple-950/90 via-slate-900/95 to-indigo-950/90 border-purple-500/70 hover:border-purple-400 hover:shadow-[0_0_35px_rgba(168,85,247,0.35)]'
+                  }`}
+                >
+                  {/* Subtle AI Island Map Thumbnail Background */}
+                  <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
+                    <img
+                      src={TEMPORAL_ISLAND_MAP_IMG}
+                      alt="Mapa Malla Temporal"
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+
+                  <div className="relative p-5 sm:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+                    <div className="flex items-start gap-4">
+                      {/* Big Icon Badge */}
+                      <div className={`p-4 rounded-2xl border-2 shrink-0 transition-transform group-hover:scale-105 ${
+                        isFullyRescued
+                          ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-lg shadow-amber-500/30'
+                          : 'bg-purple-500/20 border-purple-400 text-purple-300 shadow-lg shadow-purple-500/30'
+                      }`}>
+                        <Sparkles className="w-9 h-9 animate-pulse" />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-black tracking-wider uppercase border ${
+                            isFullyRescued
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                          }`}>
+                            {isFullyRescued
+                              ? (language === 'es' ? 'ISLA TOTALMENTE RESCATADA' : 'ISLAND FULLY RESCUED')
+                              : (language === 'es' ? 'MODO HISTORIA · POST-GAME' : 'STORY MODE · POST-GAME')}
+                          </span>
+
+                          <h3 className="text-xl sm:text-2xl font-black text-white font-heading tracking-wide group-hover:text-purple-200 transition-colors">
+                            {language === 'es' ? 'La Malla Temporal' : 'The Temporal Mesh'}
+                          </h3>
+
+                          <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-300 bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                            {rescuedCount}/12 {language === 'es' ? 'Reinos Rescatados' : 'Realms Rescued'}
+                          </span>
+                        </div>
+
+                        <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-2xl leading-relaxed">
+                          {language === 'es'
+                            ? 'Una misteriosa isla cuántica donde convergen todas las realidades y líneas temporales alrededor del Gran Reloj de Kronos. Rescata los doce reinos disipando las nubes de tormenta para restablecer el universo de Zion y rastrear su señal de auxilio.'
+                            : 'A mysterious quantum island where all realities and timelines converge around the Grand Kronos Clock. Rescue all twelve realms by dispelling the storm clouds to restore Zion’s universe and track his distress signal.'}
+                        </p>
+
+                        <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/30 text-purple-300 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" /> 12 Reinos Cuánticos
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Reloj Kronos Central
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> {missionsCount}/36 Misiones Completadas
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Launch Button */}
+                    <div className="w-full lg:w-auto flex items-center justify-end shrink-0">
+                      <button
+                        type="button"
+                        className="w-full lg:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 hover:from-purple-400 hover:to-indigo-400 text-slate-950 font-black text-xs sm:text-sm font-heading flex items-center justify-center gap-2 shadow-xl shadow-purple-500/30 active:scale-95 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-slate-950" />
+                        <span>{language === 'es' ? 'EXPLORAR LA ISLA' : 'EXPLORE THE ISLAND'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* FEATURED: EL GRAN RELOJ DE KRONOS */}
             {(() => {
@@ -1487,6 +1663,22 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
+              {onOpenMallaTemporal && selectedZone !== 'travel' && (
+                <button
+                  id="acts-malla-temporal-btn"
+                  onClick={() => {
+                    sound.playSfx('menuSelect');
+                    onOpenMallaTemporal(selectedZone);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/60 hover:border-purple-400 text-purple-200 text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+                  title="Ver misiones de Malla Temporal de esta zona"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                  <span className="hidden sm:inline">{language === 'es' ? 'Desafíos de Malla Temporal' : 'Temporal Mesh Trials'}</span>
+                  <span className="sm:hidden">{language === 'es' ? 'Historia' : 'Story'}</span>
+                </button>
+              )}
+
               {onOpenAchievements && (
                 <button
                   onClick={() => {

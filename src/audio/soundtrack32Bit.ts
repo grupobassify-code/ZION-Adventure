@@ -1003,5 +1003,38 @@ export const TRACKS_32BIT: Record<string, TrackPattern32> = {
     drumPattern: [
       2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 3, 1, 4, 1, 5, 1
     ]
+  },
+
+  // =========================================================================
+  // MODO ENTRENAMIENTO · DOJO VIRTUAL DE PRÁCTICA (132 BPM)
+  // Inspirado en la enérgica banda sonora electrónica retro / chiptune del archivo
+  // =========================================================================
+  trainingTheme: {
+    tempo: 132,
+    leadWave: 'square',
+    harmonyWave: 'sawtooth',
+    bassWave: 'sawtooth',
+    arpWave: 'triangle',
+    filterCutoff: 3800,
+    leadNotes: [
+      N.E5, N.REST, N.E5, N.G5, N.A5, N.REST, N.G5, N.REST, N.E5, N.REST, N.D5, N.E5, N.G5, N.REST, N.A5, N.B5,
+      N.D6, N.REST, N.B5, N.A5, N.B5, N.REST, N.A5, N.G5, N.E5, N.G5, N.A5, N.B5, N.A5, N.G5, N.E5, N.REST,
+      N.E5, N.E5, N.G5, N.A5, N.B5, N.REST, N.D6, N.REST, N.E6, N.REST, N.D6, N.B5, N.A5, N.G5, N.A5, N.B5,
+      N.A5, N.G5, N.E5, N.D5, N.E5, N.G5, N.A5, N.B5, N.E6, N.REST, N.D6, N.REST, N.B5, N.A5, N.G5, N.REST
+    ],
+    harmonyNotes: [
+      N.E4, N.G4, N.B4, N.E5, N.C4, N.E4, N.G4, N.C5, N.D4, N.Fs4, N.A4, N.D5, N.B3, N.Ds4, N.Fs4, N.B4,
+      N.E4, N.G4, N.B4, N.E5, N.C4, N.E4, N.G4, N.C5, N.D4, N.Fs4, N.A4, N.D5, N.B3, N.Ds4, N.Fs4, N.B4
+    ],
+    bassNotes: [
+      N.E2, N.E2, N.E2, N.E2, N.C2, N.C2, N.C2, N.C2, N.D2, N.D2, N.D2, N.D2, N.B1, N.B1, N.B1, N.B1,
+      N.E2, N.E2, N.E2, N.E2, N.C2, N.C2, N.C2, N.C2, N.D2, N.D2, N.D2, N.D2, N.B1, N.B1, N.B1, N.B1
+    ],
+    arpNotes: [
+      N.E3, N.B3, N.E4, N.G4, N.C3, N.G3, N.C4, N.E4, N.D3, N.A3, N.D4, N.Fs4, N.B2, N.Fs3, N.B3, N.Ds4
+    ],
+    drumPattern: [
+      4, 1, 5, 1, 4, 1, 5, 1, 4, 1, 5, 1, 4, 1, 5, 7
+    ]
   }
 };

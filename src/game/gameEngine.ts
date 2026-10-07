@@ -62,11 +62,12 @@ import {
   SpecialBurstEffect,
   Trampoline,
   Waterfall,
+  MallaMission,
 } from '../types';
 import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
 import { AiRunner } from './aiRunner';
 import { GhostFrame, loadGhostRecording, saveGhostRecording, sampleGhostAtTime } from './timeAttackGhost';
-import { getLevelBestTime, saveLevelBestTime, isBossLevel, getSaveSlot } from './saveManager';
+import { getLevelBestTime, saveLevelBestTime, isBossLevel, getSaveSlot, completeMallaMission } from './saveManager';
 import {
   incrementAchievementProgress,
   unlockAchievement,
@@ -188,8 +189,8 @@ export class GameEngine {
 
   public get isFinalBossFight(): boolean {
     const cfg = LEVEL_CONFIGS[this.levelIndex];
-    if (cfg && (cfg.id === 'krono-3' || cfg.id === 'themoon-3')) return true;
-    if (this.boss && (this.boss.name.includes('Kronos') || this.boss.name.includes('Doomsday') || this.boss.name.includes('Dreadnought'))) {
+    if (cfg && cfg.id === 'themoon-3') return true;
+    if (this.boss && (this.boss.name.includes('Doomsday') || this.boss.name.includes('Dreadnought'))) {
       return true;
     }
     return false;
@@ -245,6 +246,21 @@ export class GameEngine {
   // Special Stage Portal & Dimension System
   public specialStagePortal: { x: number; y: number; w: number; h: number } | null = null;
 
+  // Malla Temporal (Modo Historia Post-Game) Mission System
+  public isMallaMissionMode: boolean = false;
+  public currentMallaMission: MallaMission | null = null;
+  public mallaMissionActiveSlotId: number = 0;
+  public mallaMissionSuccess: boolean = false;
+  public mallaMissionResultData: {
+    success: boolean;
+    zoneId: string;
+    missionIndex: number;
+    title: string;
+    objective: string;
+    isZoneNewlyRescued: boolean;
+    isIslandNewlyRescued: boolean;
+  } | null = null;
+
   // 3-Second Countdown System for VS IA & Contrarreloj
   public countdownFrames: number = 0;
   public countdownSeconds: number | null = null; // 3, 2, 1, 0 ('¡YA!') or null
@@ -254,6 +270,10 @@ export class GameEngine {
   public resetSpecialModes() {
     this.isVsAiMode = false;
     this.isTimeAttackMode = false;
+    this.isMallaMissionMode = false;
+    this.currentMallaMission = null;
+    this.mallaMissionSuccess = false;
+    this.mallaMissionResultData = null;
     this.aiRunner = null;
     this.vsAiResult = null;
     this.timeAttackResult = null;
@@ -1041,6 +1061,34 @@ export class GameEngine {
       act: LEVEL_CONFIGS[levelIndex]?.act || 1,
       zoneName: LEVEL_CONFIGS[levelIndex]?.title || 'CONTRARRELOJ KRONOS',
       themeColor: '#f59e0b',
+    };
+
+    sound.stopMusic();
+    this.syncMusic();
+    this.notifyState();
+  }
+
+  public startMallaMission(slotId: number, mission: MallaMission) {
+    this.resetSpecialModes();
+    this.isOnlyUpMode = false;
+    this.isMallaMissionMode = true;
+    this.currentMallaMission = mission;
+    this.mallaMissionActiveSlotId = slotId;
+    this.mallaMissionSuccess = false;
+    this.mallaMissionResultData = null;
+    this.isMultiplayerMatch = false;
+
+    // Load selected level without story lore interruption
+    this.loadLevel(mission.levelIndex, false, false, true);
+
+    this.levelIntroBanner = {
+      active: true,
+      timer: 180,
+      title: `MISIÓN: ${mission.title}`,
+      subtitle: mission.objectiveText,
+      act: LEVEL_CONFIGS[mission.levelIndex]?.act || 1,
+      zoneName: 'MALLA TEMPORAL',
+      themeColor: '#c084fc',
     };
 
     sound.stopMusic();
@@ -8825,6 +8873,39 @@ export class GameEngine {
       if (this.onTimeAttackFinish) {
         this.onTimeAttackFinish(finalMs, isNewBest, delta);
       }
+    }
+
+    // Handle Malla Temporal mission outcome and persistence
+    if (this.isMallaMissionMode && this.currentMallaMission && !this.mallaMissionResultData) {
+      let isSuccess = false;
+      const m = this.currentMallaMission;
+      if (m.type === 'boss') {
+        isSuccess = true;
+      } else if (m.type === 'time') {
+        isSuccess = this.stats.elapsedTime <= (m.timeLimitSec || 999);
+      } else if (m.type === 'crystals') {
+        isSuccess = this.stats.crystalsCollected >= (m.targetCrystals || 0);
+      }
+
+      let isZoneNewlyRescued = false;
+      let isIslandNewlyRescued = false;
+
+      if (isSuccess) {
+        const res = completeMallaMission(this.mallaMissionActiveSlotId, m.zoneId, m.missionIndex);
+        isZoneNewlyRescued = res.isZoneNewlyRescued;
+        isIslandNewlyRescued = res.isIslandNewlyRescued;
+      }
+
+      this.mallaMissionSuccess = isSuccess;
+      this.mallaMissionResultData = {
+        success: isSuccess,
+        zoneId: m.zoneId,
+        missionIndex: m.missionIndex,
+        title: m.title,
+        objective: m.objectiveText,
+        isZoneNewlyRescued,
+        isIslandNewlyRescued,
+      };
     }
 
     // Evaluate Achievements on Level Victory (No Damage, Boss Slayer, Crystals, Speed, etc.)

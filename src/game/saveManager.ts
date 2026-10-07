@@ -1,5 +1,6 @@
-import { SaveSlot, ZoneId, CharacterSkin } from '../types';
+import { SaveSlot, ZoneId, CharacterSkin, MallaProgress } from '../types';
 import { LEVEL_CONFIGS } from './levelData';
+import { MALLA_ZONES } from './mallaTemporalData';
 
 // Storage keys - Clean V3 version to reset all prior progress
 const SAVE_KEY = 'zion_adventure_save_v3';
@@ -1295,6 +1296,286 @@ export function setSelectedSkin(slotId: number, skinId: string): SaveSlot | null
   }
 
   slot.selectedSkin = skinId;
+  saveAllSlots(slots);
+  return slot;
+}
+
+/**
+ * Checks if the player has finished the main story campaign.
+ * Either beat krono-travel or beat themoon-3 or completed 12+ levels.
+ */
+export function isMainStoryCompleted(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  const completed = slot.completedLevels || [];
+  const travelIdx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'krono-travel');
+  const moon3Idx = LEVEL_CONFIGS.findIndex((lvl) => lvl.id === 'themoon-3');
+
+  if (travelIdx !== -1 && completed.includes(travelIdx)) return true;
+  if (moon3Idx !== -1 && completed.includes(moon3Idx)) return true;
+  if (completed.length >= 12) return true;
+  return false;
+}
+
+/**
+ * Checks if Malla Temporal (Modo Historia Post-Game) is unlocked.
+ */
+export function isMallaTemporalUnlocked(slot: SaveSlot | null): boolean {
+  if (!slot) return false;
+  if (slot.mallaProgress?.unlocked) return true;
+  return isMainStoryCompleted(slot);
+}
+
+/**
+ * Force unlock Malla Temporal on slot (for testing/demo)
+ */
+export function unlockMallaTemporal(slotId: number): void {
+  try {
+    const slots = loadAllSaveSlots();
+    const slot = slots[slotId];
+    if (slot) {
+      if (!slot.mallaProgress) {
+        slot.mallaProgress = {
+          unlocked: true,
+          completedMissions: {},
+          rescuedZones: [],
+          islandFullyRescued: false,
+        };
+      } else {
+        slot.mallaProgress.unlocked = true;
+      }
+      slot.lastPlayed = Date.now();
+      saveAllSlots(slots);
+    }
+  } catch (e) {
+    console.error('Error unlocking Malla Temporal:', e);
+  }
+}
+
+/**
+ * Gets or initializes MallaProgress for a save slot
+ */
+export function getMallaProgress(slot: SaveSlot | null): MallaProgress {
+  if (!slot || !slot.mallaProgress) {
+    return {
+      unlocked: slot ? isMainStoryCompleted(slot) : false,
+      completedMissions: {},
+      rescuedZones: [],
+      islandFullyRescued: false,
+    };
+  }
+  return slot.mallaProgress;
+}
+
+/**
+ * Checks if a specific zone has been rescued (all 3 missions completed)
+ */
+export function isMallaZoneRescued(slot: SaveSlot | null, zoneId: ZoneId): boolean {
+  if (!slot || !slot.mallaProgress) return false;
+  const rescued = slot.mallaProgress.rescuedZones || [];
+  if (rescued.includes(zoneId)) return true;
+
+  const missionsDone = slot.mallaProgress.completedMissions[zoneId] || [];
+  return missionsDone.length >= 3 && Boolean(missionsDone[0]) && Boolean(missionsDone[1]) && Boolean(missionsDone[2]);
+}
+
+/**
+ * Checks if a specific zone is unlocked for playing missions.
+ * If no starting zone has been chosen yet, all are available to inspect and choose.
+ */
+export function isMallaZoneUnlocked(slot: SaveSlot | null, zoneId: ZoneId): boolean {
+  if (!slot || !slot.mallaProgress) return true;
+  const prog = slot.mallaProgress;
+  // If no starting zone chosen yet, the player can choose any
+  if (!prog.chosenStartingZone && (!prog.unlockedZoneIds || prog.unlockedZoneIds.length === 0)) {
+    return true;
+  }
+  if (prog.rescuedZones && prog.rescuedZones.includes(zoneId)) return true;
+  if (prog.unlockedZoneIds && prog.unlockedZoneIds.includes(zoneId)) return true;
+  if (prog.chosenStartingZone === zoneId) return true;
+  return false;
+}
+
+/**
+ * Lets the player choose their first unlockable zone on the island!
+ */
+export function chooseStartingMallaZone(slotId: number, zoneId: ZoneId): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+
+  if (!slot.mallaProgress) {
+    slot.mallaProgress = {
+      unlocked: true,
+      completedMissions: {},
+      rescuedZones: [],
+      islandFullyRescued: false,
+      unlockedZoneIds: [zoneId],
+      chosenStartingZone: zoneId,
+    };
+  } else {
+    slot.mallaProgress.chosenStartingZone = zoneId;
+    if (!slot.mallaProgress.unlockedZoneIds) {
+      slot.mallaProgress.unlockedZoneIds = [];
+    }
+    if (!slot.mallaProgress.unlockedZoneIds.includes(zoneId)) {
+      slot.mallaProgress.unlockedZoneIds.push(zoneId);
+    }
+  }
+
+  saveAllSlots(slots);
+  return slot;
+}
+
+/**
+ * Unlocks a new zone to challenge
+ */
+export function unlockMallaZone(slotId: number, zoneId: ZoneId): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+
+  if (!slot.mallaProgress) {
+    slot.mallaProgress = {
+      unlocked: true,
+      completedMissions: {},
+      rescuedZones: [],
+      islandFullyRescued: false,
+      unlockedZoneIds: [zoneId],
+    };
+  } else {
+    if (!slot.mallaProgress.unlockedZoneIds) {
+      slot.mallaProgress.unlockedZoneIds = [];
+    }
+    if (!slot.mallaProgress.unlockedZoneIds.includes(zoneId)) {
+      slot.mallaProgress.unlockedZoneIds.push(zoneId);
+    }
+  }
+
+  saveAllSlots(slots);
+  return slot;
+}
+
+/**
+ * Returns the number of rescued zones (0 to 12)
+ */
+export function getRescuedZonesCount(slot: SaveSlot | null): number {
+  if (!slot || !slot.mallaProgress) return 0;
+  return (slot.mallaProgress.rescuedZones || []).length;
+}
+
+/**
+ * Returns total completed missions across the entire island (0 to 36)
+ */
+export function getMallaCompletedMissionsCount(slot: SaveSlot | null): number {
+  if (!slot || !slot.mallaProgress) return 0;
+  let count = 0;
+  for (const zoneId in slot.mallaProgress.completedMissions) {
+    const list = slot.mallaProgress.completedMissions[zoneId] || [];
+    for (const done of list) {
+      if (done) count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Marks a Malla mission as completed in device storage.
+ * Evaluates if the zone was just rescued and if the whole island was rescued.
+ */
+export function completeMallaMission(
+  slotId: number,
+  zoneId: ZoneId,
+  missionIndex: number
+): { isZoneNewlyRescued: boolean; isIslandNewlyRescued: boolean; progress: MallaProgress } {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) {
+    return {
+      isZoneNewlyRescued: false,
+      isIslandNewlyRescued: false,
+      progress: { completedMissions: {}, rescuedZones: [], islandFullyRescued: false },
+    };
+  }
+
+  if (!slot.mallaProgress) {
+    slot.mallaProgress = {
+      unlocked: true,
+      completedMissions: {},
+      rescuedZones: [],
+      islandFullyRescued: false,
+    };
+  }
+
+  const prog = slot.mallaProgress;
+  prog.unlocked = true;
+
+  if (!prog.completedMissions[zoneId]) {
+    prog.completedMissions[zoneId] = [false, false, false];
+  }
+  prog.completedMissions[zoneId][missionIndex] = true;
+
+  // Add bonus score
+  slot.totalScore = (slot.totalScore || 0) + 3000;
+
+  // Check if zone was newly rescued (all 3 done)
+  const isZoneDone =
+    Boolean(prog.completedMissions[zoneId][0]) &&
+    Boolean(prog.completedMissions[zoneId][1]) &&
+    Boolean(prog.completedMissions[zoneId][2]);
+
+  let isZoneNewlyRescued = false;
+  if (isZoneDone && !prog.rescuedZones.includes(zoneId)) {
+    prog.rescuedZones.push(zoneId);
+    isZoneNewlyRescued = true;
+    slot.totalScore = (slot.totalScore || 0) + 5000;
+  }
+
+  // Check if whole island is rescued (all 12 zones)
+  let isIslandNewlyRescued = false;
+  if (prog.rescuedZones.length >= MALLA_ZONES.length && !prog.islandFullyRescued) {
+    prog.islandFullyRescued = true;
+    isIslandNewlyRescued = true;
+    slot.totalScore = (slot.totalScore || 0) + 25000;
+  }
+
+  prog.lastPlayedMission = { zoneId, missionIndex };
+  slot.lastPlayed = Date.now();
+  saveAllSlots(slots);
+
+  return { isZoneNewlyRescued, isIslandNewlyRescued, progress: prog };
+}
+
+/**
+ * Testing helper: rescues all zones or resets them
+ */
+export function toggleAllMallaZonesForTesting(slotId: number, rescueAll: boolean): SaveSlot | null {
+  const slots = loadAllSaveSlots();
+  const slot = slots[slotId];
+  if (!slot) return null;
+
+  if (!slot.mallaProgress) {
+    slot.mallaProgress = {
+      unlocked: true,
+      completedMissions: {},
+      rescuedZones: [],
+      islandFullyRescued: false,
+    };
+  }
+
+  if (rescueAll) {
+    slot.mallaProgress.unlocked = true;
+    slot.mallaProgress.rescuedZones = MALLA_ZONES.map((z) => z.id);
+    slot.mallaProgress.islandFullyRescued = true;
+    for (const z of MALLA_ZONES) {
+      slot.mallaProgress.completedMissions[z.id] = [true, true, true];
+    }
+  } else {
+    slot.mallaProgress.rescuedZones = [];
+    slot.mallaProgress.islandFullyRescued = false;
+    slot.mallaProgress.completedMissions = {};
+  }
+
+  slot.lastPlayed = Date.now();
   saveAllSlots(slots);
   return slot;
 }

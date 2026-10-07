@@ -644,6 +644,44 @@ export interface GameSettings {
   showFps?: boolean;
 }
 
+export interface MallaMission {
+  id: string;
+  zoneId: ZoneId;
+  missionIndex: number; // 0, 1, or 2
+  title: string;
+  description: string;
+  objectiveText: string;
+  type: 'boss' | 'time' | 'crystals';
+  levelId: string;
+  levelIndex: number;
+  timeLimitSec?: number;
+  targetCrystals?: number;
+  rewardScore: number;
+}
+
+export interface MallaZoneInfo {
+  id: ZoneId;
+  name: string;
+  subtitle: string;
+  themeColor: string;
+  accentColor: string;
+  bossName: string;
+  mapCoords: { x: number; y: number }; // percentage on island (0 to 100)
+  territory: { left: number; top: number; width: number; height: number }; // percentage area covered by static storm clouds
+  missions: MallaMission[];
+  loreCorruption: string;
+}
+
+export interface MallaProgress {
+  unlocked?: boolean;
+  completedMissions: Record<string, boolean[]>; // zoneId -> [boolean, boolean, boolean]
+  rescuedZones: ZoneId[];
+  unlockedZoneIds?: ZoneId[]; // zones available to challenge/play
+  chosenStartingZone?: ZoneId; // first zone picked by the player
+  islandFullyRescued: boolean;
+  lastPlayedMission?: { zoneId: ZoneId; missionIndex: number };
+}
+
 export interface SaveSlot {
   id: number;
   name: string;
@@ -664,5 +702,6 @@ export interface SaveSlot {
   kronosLockerUnlocked?: boolean;
   selectedSkin?: string;
   achievements?: Record<string, { unlockedAt: number; progress: number }>;
+  mallaProgress?: MallaProgress;
 }
 

@@ -35,7 +35,8 @@ export type MusicTrackName =
   | 'jurassicBoss'
   | 'moonLaunchAct1'
   | 'moonDoomsdayBoss'
-  | 'creditsTune';
+  | 'creditsTune'
+  | 'trainingTheme';
 
 export interface SoundTrackInfo {
   id: MusicTrackName;
@@ -78,6 +79,7 @@ export const SOUND_TRACKS_CATALOG: SoundTrackInfo[] = [
   { id: 'moonLaunchAct1', title: 'Countdown to Infinity', zone: 'The Moon · Acto 1', tag: '32-Bit Heroic Space Synthwave · Epic Climb' },
   { id: 'moonDoomsdayBoss', title: 'Cosmic Doomsday Climax', zone: 'The Moon · Jefe Final', tag: '32-Bit Doomsday Tribute · 156 BPM Space Rock' },
   { id: 'creditsTune', title: 'Zion\'s Eternal Victory', zone: 'Créditos & Epílogo', tag: '32-Bit Heroic Celebration · Ending Theme' },
+  { id: 'trainingTheme', title: 'Cyber Dojo Hyper-Focus', zone: 'Zona de Entrenamiento', tag: '32-Bit Upbeat Chiptune · 132 BPM Dojo Practice' },
 ];
 
 interface MusicTrackPattern {

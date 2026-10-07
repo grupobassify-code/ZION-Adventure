@@ -12,6 +12,16 @@ interface VictoryModalProps {
   onReplayLevel: () => void;
   onOpenCredits?: () => void;
   onReturnToMenu?: () => void;
+  mallaMissionResult?: {
+    success: boolean;
+    zoneId: string;
+    missionIndex: number;
+    title: string;
+    objective: string;
+    isZoneNewlyRescued: boolean;
+    isIslandNewlyRescued: boolean;
+  } | null;
+  onReturnToMalla?: () => void;
 }
 
 export const VictoryModal: React.FC<VictoryModalProps> = ({
@@ -21,6 +31,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   onReplayLevel,
   onOpenCredits,
   onReturnToMenu,
+  mallaMissionResult,
+  onReturnToMalla,
 }) => {
   const { language, t } = useLanguage();
   const currentConfig = LEVEL_CONFIGS[levelIndex] || LEVEL_CONFIGS[0];
@@ -49,18 +61,32 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
 
         {/* Victory Header */}
         <div className="text-center flex flex-col items-center gap-1.5 shrink-0">
-          <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/60 flex items-center justify-center text-cyan-300 shadow-lg shadow-cyan-950/50">
+          <div className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-lg ${
+            mallaMissionResult
+              ? mallaMissionResult.success
+                ? 'bg-purple-500/20 border border-purple-400/60 text-purple-300 shadow-purple-950/50'
+                : 'bg-rose-500/20 border border-rose-400/60 text-rose-300 shadow-rose-950/50'
+              : 'bg-cyan-500/20 border border-cyan-400/60 text-cyan-300 shadow-cyan-950/50'
+          }`}>
             <Trophy className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-100 font-heading tracking-tight">
-            {isSpecialStage 
+            {mallaMissionResult
+              ? mallaMissionResult.success
+                ? (language === 'es' ? '⚡ ¡MISIÓN DE LA MALLA CUMPLIDA!' : '⚡ MESH MISSION CLEARED!')
+                : (language === 'es' ? '⚠️ DESAFÍO NO SUPERADO' : '⚠️ TRIAL NOT COMPLETED')
+              : isSpecialStage 
               ? `🌌 ${t('victorySpecialStageComplete')}`
               : isFinalLevel 
               ? `🏆 ${t('victoryAdventureComplete')}` 
               : `🌀 ${t('victoryTitle')}`}
           </h2>
           <p className="text-xs sm:text-sm text-cyan-300 font-medium">
-            {isSpecialStage ? t('victorySpecialStageSubtitle') : getLevelTitle(currentConfig, language)}
+            {mallaMissionResult
+              ? `${mallaMissionResult.title} · ${mallaMissionResult.objective}`
+              : isSpecialStage
+              ? t('victorySpecialStageSubtitle')
+              : getLevelTitle(currentConfig, language)}
           </p>
         </div>
 
@@ -169,10 +195,73 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           );
         })()}
 
+        {/* Special Malla Mission Newly Rescued Notifications */}
+        {mallaMissionResult?.isIslandNewlyRescued && (
+          <div className="w-full bg-amber-950/90 border-2 border-amber-400 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_30px_rgba(245,158,11,0.5)] animate-pulse">
+            <div className="p-2 rounded-xl bg-amber-500/30 text-amber-300 border border-amber-400/60 shrink-0">
+              <Trophy className="w-6 h-6 text-amber-300" />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono font-black uppercase tracking-wider text-amber-400">
+                {language === 'es' ? '¡ISLA TEMPORAL TOTALMENTE RESTAURADA!' : 'TEMPORAL ISLAND FULLY RESTORED!'}
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white">
+                {language === 'es'
+                  ? '¡Has rescatado todos los 12 reinos! El Gran Reloj de Kronos se ha sincronizado y las nubes de tormenta han desaparecido.'
+                  : 'You rescued all 12 realms! The Grand Kronos Clock is synchronized and the storm clouds have vanished.'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {mallaMissionResult?.isZoneNewlyRescued && !mallaMissionResult?.isIslandNewlyRescued && (
+          <div className="w-full bg-emerald-950/80 border-2 border-emerald-500/60 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-pulse">
+            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono font-black uppercase tracking-wider text-emerald-400">
+                {language === 'es' ? '¡REINO RESCATADO · NUBES DISIPADAS!' : 'REALM RESCUED · CLOUDS DISPERSED!'}
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white">
+                {language === 'es'
+                  ? 'Has completado los 3 desafíos de este reino. Las nubes de tormenta se disipan y la era queda en paz.'
+                  : 'You completed all 3 trials of this realm. The storm clouds dissipate and the era is at peace.'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Story completion unlock announcement for Malla Temporal */}
+        {isFinalLevel && (
+          <div className="w-full bg-purple-950/90 border-2 border-purple-400/80 rounded-2xl p-3 flex items-center gap-3 shadow-[0_0_25px_rgba(168,85,247,0.4)] animate-pulse">
+            <div className="p-2 rounded-xl bg-purple-500/30 text-purple-300 border border-purple-400/60 shrink-0">
+              <Sparkles className="w-6 h-6 text-purple-300" />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono font-black uppercase tracking-wider text-purple-300">
+                {language === 'es' ? '¡NUEVO MODO DESBLOQUEADO: LA MALLA TEMPORAL!' : 'NEW MODE UNLOCKED: THE TEMPORAL MESH!'}
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white">
+                {language === 'es'
+                  ? '¡La historia principal ha culminado! Explora la Isla Cuántica dividida en reinos, disipa las nubes de tormenta y rescata todas las eras.'
+                  : 'Main story complete! Explore the Quantum Island divided into realms, dispel storm clouds and rescue all eras.'}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons — Mobile-Optimized with at least 44px touch targets */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 shrink-0">
           <div className="flex items-center gap-2 flex-1 sm:flex-initial">
-            {onReturnToMenu && (
+            {onReturnToMalla ? (
+              <button
+                onClick={onReturnToMalla}
+                className="min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-purple-900/90 hover:bg-purple-800 text-purple-200 font-bold text-xs transition-all active:scale-95 border border-purple-400/50 shadow-md"
+              >
+                <span>{language === 'es' ? '🏝️ VOLVER A LA ISLA' : '🏝️ RETURN TO ISLAND'}</span>
+              </button>
+            ) : onReturnToMenu && (
               <button
                 onClick={onReturnToMenu}
                 className="min-h-[44px] flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all active:scale-95 border border-cyan-500/30"
@@ -190,7 +279,15 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
 
           <div className="w-full sm:w-auto mt-1 sm:mt-0">
-            {!isFinalLevel && !isSpecialStage ? (
+            {onReturnToMalla ? (
+              <button
+                onClick={onReturnToMalla}
+                className="w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 hover:from-purple-400 hover:to-indigo-400 text-slate-950 font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(168,85,247,0.5)] active:scale-95 transition-all"
+              >
+                <span>{language === 'es' ? 'CONTINUAR EN LA MALLA' : 'CONTINUE IN MESH'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : !isFinalLevel && !isSpecialStage ? (
               <button
                 onClick={onNextLevel}
                 className={`w-full sm:w-auto min-h-[44px] flex items-center justify-center gap-2 px-5 sm:px-6 py-2 rounded-xl font-black text-xs sm:text-sm active:scale-95 transition-all ${

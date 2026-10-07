@@ -38,6 +38,8 @@ import { ZoneId } from './types';
 import { AchievementsOverlay } from './components/AchievementsOverlay';
 import { AchievementToast } from './components/AchievementToast';
 import { CONFIGURED_CREATOR_IP, isCreatorIpMatch } from './utils/adManager';
+import { MallaTemporalModal } from './components/MallaTemporalModal';
+import { MallaMission } from './types';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -107,6 +109,10 @@ export default function App() {
     reason: string;
     trophiesAwarded: number;
   } | null>(null);
+
+  // Malla Temporal (Modo Historia Post-Game) State
+  const [isMallaTemporalOpen, setIsMallaTemporalOpen] = useState(false);
+  const [mallaInitialZoneId, setMallaInitialZoneId] = useState<ZoneId | undefined>(undefined);
 
   // Logical IP Detection & AdSense Filter for Creator vs External Visitors
   const [userClientIp, setUserClientIp] = useState<string>('');
@@ -391,6 +397,35 @@ export default function App() {
     setTimeout(() => {
       setTransitionActive(false);
       engine.startCountdown();
+    }, 950);
+  };
+
+  const handleStartMallaMissionFromMenu = (slotId: number, mission: MallaMission) => {
+    const slot = getSaveSlot(slotId) || getActiveSaveSlot();
+    // Bloqueo: Si no han completado ese nivel en el modo normal, no se puede jugar en el modo historia
+    if (!slot?.completedLevels?.includes(mission.levelIndex)) {
+      sound.playSfx('block');
+      return;
+    }
+    unlockAudioAndLockLandscape();
+    engine.resetSpecialModes();
+    engine.activeSlotId = slotId;
+    engine.inMainMenu = false;
+    if (slot?.selectedSkin) {
+      engine.setCharacterSkin(slot.selectedSkin);
+    }
+    setActiveSlotId(slotId);
+    setActiveSlotIdState(slotId);
+    setInMainMenu(false);
+    setIsMallaTemporalOpen(false);
+    setIsCreditsOpen(false);
+    setTransitionActive(true);
+    setTimeout(() => {
+      engine.startMallaMission(slotId, mission);
+      setShowLevelIntro(false);
+    }, 280);
+    setTimeout(() => {
+      setTransitionActive(false);
     }, 950);
   };
 
@@ -809,6 +844,11 @@ export default function App() {
             unlockAudio();
             setIsMultiplayerModalOpen(true);
           }}
+          onOpenMallaTemporal={(zoneId?: ZoneId) => {
+            unlockAudio();
+            setMallaInitialZoneId(zoneId);
+            setIsMallaTemporalOpen(true);
+          }}
           audioActive={audioUnlocked && engine.settings.soundEnabled}
           onToggleAudio={() => {
             unlockAudio();
@@ -984,6 +1024,16 @@ export default function App() {
         <VictoryModal
           levelIndex={engine.levelIndex}
           stats={engine.stats}
+          mallaMissionResult={engine.mallaMissionResultData}
+          onReturnToMalla={
+            engine.isMallaMissionMode
+              ? () => {
+                  sound.stopMusic();
+                  setInMainMenu(false);
+                  setIsMallaTemporalOpen(true);
+                }
+              : undefined
+          }
           onNextLevel={() => {
             const currLvl = LEVEL_CONFIGS[engine.levelIndex];
             if (currLvl?.id === 'themoon-3') {
@@ -1022,6 +1072,31 @@ export default function App() {
               setMainMenuZone(currZone);
             }
             setInMainMenu(true);
+          }}
+        />
+      )}
+
+      {/* Malla Temporal Island Map (Story Mode Post-Game) */}
+      {isMallaTemporalOpen && (
+        <MallaTemporalModal
+          slot={getSaveSlot(activeSlotId) || getActiveSaveSlot()}
+          initialZoneId={mallaInitialZoneId}
+          onClose={() => {
+            setIsMallaTemporalOpen(false);
+            setInMainMenu(true);
+          }}
+          onStartMission={(mission) => handleStartMallaMissionFromMenu(activeSlotId, mission)}
+          audioActive={audioUnlocked && engine.settings.soundEnabled}
+          onToggleAudio={() => {
+            unlockAudio();
+            const next = !engine.settings.soundEnabled;
+            engine.settings.soundEnabled = next;
+            engine.settings.musicEnabled = next;
+            sound.soundEnabled = next;
+            sound.musicEnabled = next;
+            if (next) engine.syncMusic();
+            else sound.stopMusic();
+            setRenderTick((t) => t + 1);
           }}
         />
       )}

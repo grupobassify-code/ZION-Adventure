@@ -317,6 +317,54 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           </div>
         </div>
       )}
+
+      {/* Malla Temporal (Modo Historia) Mission HUD Banner */}
+      {engine.isMallaMissionMode && engine.currentMallaMission && (
+        <div className="w-auto max-w-[280px] sm:max-w-md mx-auto bg-slate-950/90 backdrop-blur-md px-3 py-1 sm:py-1.5 rounded-2xl border border-purple-500/60 shadow-xl pointer-events-auto flex items-center justify-between gap-2.5 animate-fade-in">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping shrink-0" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] sm:text-[10px] font-mono font-black tracking-wider uppercase text-purple-300 truncate">
+                  {language === 'es' ? 'MISIÓN DE LA MALLA' : 'TEMPORAL MESH MISSION'}
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-mono text-cyan-300 font-bold truncate">
+                  · {engine.currentMallaMission.title}
+                </span>
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-slate-100 truncate">
+                {engine.currentMallaMission.objectiveText}
+              </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 font-mono text-xs font-black">
+            {engine.currentMallaMission.type === 'time' && (
+              <span className={`px-2 py-0.5 rounded-md ${
+                engine.stats.elapsedTime <= (engine.currentMallaMission.timeLimitSec || 999)
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'bg-red-500/20 text-red-300 border border-red-500/40'
+              }`}>
+                ⏱️ {Math.floor(engine.stats.elapsedTime)}s / {engine.currentMallaMission.timeLimitSec}s
+              </span>
+            )}
+            {engine.currentMallaMission.type === 'crystals' && (
+              <span className={`px-2 py-0.5 rounded-md ${
+                engine.stats.crystalsCollected >= (engine.currentMallaMission.targetCrystals || 0)
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+              }`}>
+                💎 {engine.stats.crystalsCollected} / {engine.currentMallaMission.targetCrystals}
+              </span>
+            )}
+            {engine.currentMallaMission.type === 'boss' && (
+              <span className="px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                ⚔️ {language === 'es' ? 'JEFE' : 'BOSS'}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
