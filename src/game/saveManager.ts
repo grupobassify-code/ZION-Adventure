@@ -2,16 +2,18 @@ import { SaveSlot, ZoneId, CharacterSkin, MallaProgress } from '../types';
 import { LEVEL_CONFIGS } from './levelData';
 import { MALLA_ZONES } from './mallaTemporalData';
 
-// Storage keys - Clean V3 version to reset all prior progress
-const SAVE_KEY = 'zion_adventure_save_v3';
-const ACTIVE_SLOT_KEY = 'zion_active_slot_v3';
+// Storage keys - Clean V4 version so users start fresh with no pre-completed levels
+const SAVE_KEY = 'zion_adventure_save_v4';
+const ACTIVE_SLOT_KEY = 'zion_active_slot_v4';
 
 // Clean out legacy keys on startup
 try {
   if (typeof window !== 'undefined' && window.localStorage) {
     localStorage.removeItem('zion_adventure_save_slots');
     localStorage.removeItem('zion_adventure_save_slots_v2');
+    localStorage.removeItem('zion_adventure_save_slots_v3');
     localStorage.removeItem('zion_active_slot_id');
+    localStorage.removeItem('zion_active_slot_v3');
   }
 } catch {}
 
@@ -29,13 +31,20 @@ export function resetAllSaveData(): (SaveSlot | null)[] {
         createdAt: Date.now(),
         lastPlayed: Date.now(),
         unlockedLevels: [0], // Only Level 1 / Act 1 unlocked
-        completedLevels: [],
+        completedLevels: [], // No completed levels! Must complete levels to unlock next
         totalScore: 0,
         totalCrystals: 0,
         totalSecrets: 0,
         deaths: 0,
         playTimeSeconds: 0,
         characterLevel: 1,
+        mallaProgress: {
+          unlocked: true,
+          completedMissions: {},
+          rescuedZones: [],
+          unlockedZoneIds: [],
+          islandFullyRescued: false,
+        },
       },
       null,
       null,
@@ -243,6 +252,13 @@ export function createNewSaveSlot(slotId: number, name: string): SaveSlot {
     deaths: 0,
     playTimeSeconds: 0,
     characterLevel: 1,
+    mallaProgress: {
+      unlocked: true,
+      completedMissions: {},
+      rescuedZones: [],
+      unlockedZoneIds: [],
+      islandFullyRescued: false,
+    },
   };
   slots[slotId] = newSlot;
   saveAllSlots(slots);
@@ -1543,41 +1559,6 @@ export function completeMallaMission(
   saveAllSlots(slots);
 
   return { isZoneNewlyRescued, isIslandNewlyRescued, progress: prog };
-}
-
-/**
- * Testing helper: rescues all zones or resets them
- */
-export function toggleAllMallaZonesForTesting(slotId: number, rescueAll: boolean): SaveSlot | null {
-  const slots = loadAllSaveSlots();
-  const slot = slots[slotId];
-  if (!slot) return null;
-
-  if (!slot.mallaProgress) {
-    slot.mallaProgress = {
-      unlocked: true,
-      completedMissions: {},
-      rescuedZones: [],
-      islandFullyRescued: false,
-    };
-  }
-
-  if (rescueAll) {
-    slot.mallaProgress.unlocked = true;
-    slot.mallaProgress.rescuedZones = MALLA_ZONES.map((z) => z.id);
-    slot.mallaProgress.islandFullyRescued = true;
-    for (const z of MALLA_ZONES) {
-      slot.mallaProgress.completedMissions[z.id] = [true, true, true];
-    }
-  } else {
-    slot.mallaProgress.rescuedZones = [];
-    slot.mallaProgress.islandFullyRescued = false;
-    slot.mallaProgress.completedMissions = {};
-  }
-
-  slot.lastPlayed = Date.now();
-  saveAllSlots(slots);
-  return slot;
 }
 
 

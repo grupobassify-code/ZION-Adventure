@@ -47,7 +47,6 @@ import {
   unlockMallaZone,
   getRescuedZonesCount,
   getMallaCompletedMissionsCount,
-  toggleAllMallaZonesForTesting,
 } from '../game/saveManager';
 import { sound } from '../audio/soundEngine';
 import { useLanguage } from '../utils/i18n';
@@ -145,17 +144,6 @@ export const MallaTemporalModal: React.FC<MallaTemporalModalProps> = ({
     setForceUpdate((prev) => prev + 1);
   };
 
-  const handleToggleTestRescue = () => {
-    if (!slot) return;
-    const shouldRescue = rescuedCount < MALLA_ZONES.length;
-    toggleAllMallaZonesForTesting(slot.id, shouldRescue);
-    setForceUpdate((prev) => prev + 1);
-    sound.playSfx('special');
-    if (shouldRescue) {
-      setShowVictoryCelebration(true);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col overflow-hidden select-none animate-in fade-in duration-300">
       {/* TOP HEADER: RESPONSIVE & ULTRA-COMPACT FOR MOBILE */}
@@ -249,16 +237,6 @@ export const MallaTemporalModal: React.FC<MallaTemporalModalProps> = ({
           >
             <Radio className="w-3.5 h-3.5 text-purple-300 animate-pulse" />
             <span className="hidden md:inline">{language === 'es' ? 'Señal de Auxilio' : 'Distress Beacon'}</span>
-          </button>
-
-          {/* Quick Demo Test Action */}
-          <button
-            onClick={handleToggleTestRescue}
-            className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-900/60 hover:bg-purple-800 border border-purple-400/40 text-purple-200 text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer"
-            title="Botón de prueba rápida para desarrollador / jurado"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-            <span>{rescuedCount >= MALLA_ZONES.length ? (language === 'es' ? 'Reiniciar Tormenta' : 'Reset') : (language === 'es' ? 'Despejar (Demo)' : 'Clear Demo')}</span>
           </button>
 
           {/* Audio Toggle */}
