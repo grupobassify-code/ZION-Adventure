@@ -1011,8 +1011,8 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
                         <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-2xl leading-relaxed">
                           {language === 'es'
-                            ? 'Una misteriosa isla cuántica donde convergen todas las realidades y líneas temporales alrededor del Gran Reloj de Kronos. Rescata los doce reinos disipando las nubes de tormenta para restablecer el universo de Zion y rastrear su señal de auxilio.'
-                            : 'A mysterious quantum island where all realities and timelines converge around the Grand Kronos Clock. Rescue all twelve realms by dispelling the storm clouds to restore Zion’s universe and track his distress signal.'}
+                            ? 'Una misteriosa isla cuántica donde convergen todas las realidades y líneas temporales alrededor del Gran Reloj de Kronos. Rescata los doce reinos desbloqueando sus candados para restablecer el universo de Zion y rastrear su señal de auxilio.'
+                            : 'A mysterious quantum island where all realities and timelines converge around the Grand Kronos Clock. Rescue all twelve realms by opening their locks to restore Zion’s universe and track his distress signal.'}
                         </p>
 
                         <div className="flex items-center gap-2 mt-3 text-[10px] font-mono text-slate-300 flex-wrap">

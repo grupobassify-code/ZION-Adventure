@@ -6,7 +6,7 @@ export const TEMPORAL_STORM_FOG_IMG = '/src/assets/images/temporal_storm_fog_179
 
 /**
  * 12 Zonas de la Malla Temporal situadas en la Isla de Realidades Cuánticas.
- * Cada zona posee 3 misiones específicas y únicas para disipar las nubes de tormenta estáticas y rescatar el reino.
+ * Cada zona posee 3 misiones específicas y únicas para abrir los candados temporales y rescatar el reino.
  * Las coordenadas y territorios coinciden visualmente con la geografía de la isla:
  * - Volcán: Esquina superior derecha (con magma ardiente)
  * - Jurásico: Esquina inferior izquierda (valle de dinosaurios y fósiles, totalmente separado del volcán)

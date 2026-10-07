@@ -207,8 +207,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               </div>
               <div className="text-xs sm:text-sm font-bold text-white">
                 {language === 'es'
-                  ? '¡Has rescatado todos los 12 reinos! El Gran Reloj de Kronos se ha sincronizado y las nubes de tormenta han desaparecido.'
-                  : 'You rescued all 12 realms! The Grand Kronos Clock is synchronized and the storm clouds have vanished.'}
+                  ? '¡Has rescatado todos los 12 reinos! El Gran Reloj de Kronos se ha sincronizado y todos los candados han desaparecido.'
+                  : 'You rescued all 12 realms! The Grand Kronos Clock is synchronized and all locks have vanished.'}
               </div>
             </div>
           </div>
@@ -221,12 +221,12 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
             </div>
             <div>
               <div className="text-[10px] font-mono font-black uppercase tracking-wider text-emerald-400">
-                {language === 'es' ? '¡REINO RESCATADO · NUBES DISIPADAS!' : 'REALM RESCUED · CLOUDS DISPERSED!'}
+                {language === 'es' ? '¡REINO RESCATADO · CANDADO LIBERADO!' : 'REALM RESCUED · LOCK OPENED!'}
               </div>
               <div className="text-xs sm:text-sm font-bold text-white">
                 {language === 'es'
-                  ? 'Has completado los 3 desafíos de este reino. Las nubes de tormenta se disipan y la era queda en paz.'
-                  : 'You completed all 3 trials of this realm. The storm clouds dissipate and the era is at peace.'}
+                  ? 'Has completado los 3 desafíos de este reino. El candado temporal se disuelve y el mapa queda visible.'
+                  : 'You completed all 3 trials of this realm. The temporal lock dissolves and the map is clear.'}
               </div>
             </div>
           </div>
@@ -244,8 +244,8 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               </div>
               <div className="text-xs sm:text-sm font-bold text-white">
                 {language === 'es'
-                  ? '¡La historia principal ha culminado! Explora la Isla Cuántica dividida en reinos, disipa las nubes de tormenta y rescata todas las eras.'
-                  : 'Main story complete! Explore the Quantum Island divided into realms, dispel storm clouds and rescue all eras.'}
+                  ? '¡La historia principal ha culminado! Explora la Isla Cuántica dividida en reinos, abre los candados y rescata todas las eras.'
+                  : 'Main story complete! Explore the Quantum Island divided into realms, open the locks and rescue all eras.'}
               </div>
             </div>
           </div>
