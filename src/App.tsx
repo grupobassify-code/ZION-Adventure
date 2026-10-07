@@ -12,6 +12,7 @@ import { GameHUD } from './components/GameHUD';
 import { TouchControls } from './components/TouchControls';
 import { DialogModal } from './components/DialogModal';
 import { VictoryModal } from './components/VictoryModal';
+import { TemporalPuzzleModal } from './components/TemporalPuzzleModal';
 import { PauseModal } from './components/PauseModal';
 import { CreditsModal } from './components/CreditsModal';
 import { MainMenu } from './components/MainMenu';
@@ -1019,8 +1020,22 @@ export default function App() {
         />
       )}
 
+      {/* Temporal Nexus Puzzle Modal (Required to complete Malla Temporal missions) */}
+      {!inMainMenu && engine.isLevelWon && engine.pendingMallaPuzzle && (
+        <TemporalPuzzleModal
+          mission={engine.pendingMallaPuzzle.mission}
+          zoneId={engine.pendingMallaPuzzle.zoneId}
+          onSolve={() => {
+            engine.finalizeMallaMissionPuzzleSuccess();
+          }}
+          onSkip={() => {
+            engine.finalizeMallaMissionPuzzleSuccess();
+          }}
+        />
+      )}
+
       {/* Victory & Act Complete Modal */}
-      {!inMainMenu && engine.isLevelWon && !engine.isMultiplayerMatch && !isCreditsOpen && (
+      {!inMainMenu && engine.isLevelWon && !engine.pendingMallaPuzzle && !engine.isMultiplayerMatch && !isCreditsOpen && (
         <VictoryModal
           levelIndex={engine.levelIndex}
           stats={engine.stats}

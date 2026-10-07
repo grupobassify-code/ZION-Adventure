@@ -672,6 +672,15 @@ export interface MallaZoneInfo {
   loreCorruption: string;
 }
 
+export interface PendingMallaPuzzleData {
+  mission: MallaMission;
+  zoneId: ZoneId;
+  missionIndex: number;
+  slotId: number;
+}
+
+export type TemporalPuzzleType = 'jigsaw' | 'circuit' | 'frequency' | 'cipher';
+
 export interface MallaProgress {
   unlocked?: boolean;
   completedMissions: Record<string, boolean[]>; // zoneId -> [boolean, boolean, boolean]

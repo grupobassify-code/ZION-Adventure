@@ -1,9 +1,12 @@
-import React from 'react';
-import { Trophy, ArrowRight, RotateCcw, Sparkles, Clock, Skull, Zap, Gem } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trophy, ArrowRight, RotateCcw, Sparkles, Clock, Skull, Zap, Gem, Puzzle } from 'lucide-react';
 import { LEVEL_CONFIGS } from '../game/levelData';
 import { GameStats } from '../game/gameEngine';
 import { KRONOS_PIECES } from '../game/saveManager';
 import { useLanguage, getLevelTitle, getKronosPieceLocalized } from '../utils/i18n';
+import { TemporalPuzzleModal } from './TemporalPuzzleModal';
+import { MALLA_ZONES } from '../game/mallaTemporalData';
+import { ZoneId } from '../types';
 
 interface VictoryModalProps {
   levelIndex: number;
@@ -45,6 +48,21 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
   const secretRatio = stats.totalSecrets > 0 ? stats.secretsFound / stats.totalSecrets : 1;
   const scoreFactor = crystalRatio * 0.5 + secretRatio * 0.5 - stats.deaths * 0.1;
   const rank = scoreFactor >= 0.85 ? 'S' : scoreFactor >= 0.65 ? 'A' : scoreFactor >= 0.45 ? 'B' : 'C';
+
+  const [showBonusPuzzle, setShowBonusPuzzle] = useState(false);
+  const zoneIdForPuzzle: ZoneId = (currentConfig.zone as ZoneId) || 'neon';
+  const dummyMissionForPuzzle = {
+    id: `victory_puzzle_${currentConfig.id}`,
+    zoneId: zoneIdForPuzzle,
+    missionIndex: 0,
+    title: getLevelTitle(currentConfig.id, language),
+    description: 'Sintoniza el nexo de la era completando el desafío.',
+    objectiveText: 'Resuelve el puzzle cuántico',
+    type: 'boss' as const,
+    levelId: currentConfig.id,
+    levelIndex,
+    rewardScore: 2500,
+  };
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
@@ -276,6 +294,16 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">{t('victoryReplay')}</span>
             </button>
+
+            {/* Bonus Zone Puzzle Button */}
+            <button
+              onClick={() => setShowBonusPuzzle(true)}
+              className="min-h-[44px] flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/50 text-purple-200 font-bold text-xs transition-all active:scale-95 shadow-sm"
+              title={language === 'es' ? 'Jugar puzzle cuántico del nivel' : 'Play level quantum puzzle'}
+            >
+              <Puzzle className="w-3.5 h-3.5 text-purple-300" />
+              <span className="hidden xs:inline">{language === 'es' ? 'Puzzle' : 'Puzzle'}</span>
+            </button>
           </div>
 
           <div className="w-full sm:w-auto mt-1 sm:mt-0">
@@ -323,6 +351,16 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Bonus Puzzle Modal */}
+      {showBonusPuzzle && (
+        <TemporalPuzzleModal
+          mission={dummyMissionForPuzzle}
+          zoneId={zoneIdForPuzzle}
+          onSolve={() => setShowBonusPuzzle(false)}
+          onSkip={() => setShowBonusPuzzle(false)}
+        />
+      )}
     </div>
   );
 };

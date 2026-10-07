@@ -63,6 +63,7 @@ import {
   Trampoline,
   Waterfall,
   MallaMission,
+  PendingMallaPuzzleData,
 } from '../types';
 import type { RemotePlayerState, MultiplayerMode } from '../types/multiplayer';
 import { AiRunner } from './aiRunner';
@@ -251,6 +252,7 @@ export class GameEngine {
   public currentMallaMission: MallaMission | null = null;
   public mallaMissionActiveSlotId: number = 0;
   public mallaMissionSuccess: boolean = false;
+  public pendingMallaPuzzle: PendingMallaPuzzleData | null = null;
   public mallaMissionResultData: {
     success: boolean;
     zoneId: string;
@@ -273,6 +275,7 @@ export class GameEngine {
     this.isMallaMissionMode = false;
     this.currentMallaMission = null;
     this.mallaMissionSuccess = false;
+    this.pendingMallaPuzzle = null;
     this.mallaMissionResultData = null;
     this.aiRunner = null;
     this.vsAiResult = null;
@@ -284,6 +287,24 @@ export class GameEngine {
     this.countdownSeconds = null;
     this.lastCountdownSec = null;
     this.remotePlayer = null;
+  }
+
+  public finalizeMallaMissionPuzzleSuccess() {
+    if (!this.pendingMallaPuzzle) return;
+    const { slotId, zoneId, missionIndex, mission } = this.pendingMallaPuzzle;
+    const res = completeMallaMission(slotId, zoneId, missionIndex);
+    this.mallaMissionSuccess = true;
+    this.mallaMissionResultData = {
+      success: true,
+      zoneId,
+      missionIndex,
+      title: mission.title,
+      objective: mission.objectiveText,
+      isZoneNewlyRescued: res.isZoneNewlyRescued,
+      isIslandNewlyRescued: res.isIslandNewlyRescued,
+    };
+    this.pendingMallaPuzzle = null;
+    this.notifyState();
   }
 
   public startCountdown() {
@@ -8876,7 +8897,7 @@ export class GameEngine {
     }
 
     // Handle Malla Temporal mission outcome and persistence
-    if (this.isMallaMissionMode && this.currentMallaMission && !this.mallaMissionResultData) {
+    if (this.isMallaMissionMode && this.currentMallaMission && !this.mallaMissionResultData && !this.pendingMallaPuzzle) {
       let isSuccess = false;
       const m = this.currentMallaMission;
       if (m.type === 'boss') {
@@ -8887,25 +8908,27 @@ export class GameEngine {
         isSuccess = this.stats.crystalsCollected >= (m.targetCrystals || 0);
       }
 
-      let isZoneNewlyRescued = false;
-      let isIslandNewlyRescued = false;
-
       if (isSuccess) {
-        const res = completeMallaMission(this.mallaMissionActiveSlotId, m.zoneId, m.missionIndex);
-        isZoneNewlyRescued = res.isZoneNewlyRescued;
-        isIslandNewlyRescued = res.isIslandNewlyRescued;
+        // Pausar para resolver el puzzle temático que completa la misión
+        this.pendingMallaPuzzle = {
+          mission: m,
+          zoneId: m.zoneId,
+          missionIndex: m.missionIndex,
+          slotId: this.mallaMissionActiveSlotId,
+        };
+        this.mallaMissionSuccess = true;
+      } else {
+        this.mallaMissionSuccess = false;
+        this.mallaMissionResultData = {
+          success: false,
+          zoneId: m.zoneId,
+          missionIndex: m.missionIndex,
+          title: m.title,
+          objective: m.objectiveText,
+          isZoneNewlyRescued: false,
+          isIslandNewlyRescued: false,
+        };
       }
-
-      this.mallaMissionSuccess = isSuccess;
-      this.mallaMissionResultData = {
-        success: isSuccess,
-        zoneId: m.zoneId,
-        missionIndex: m.missionIndex,
-        title: m.title,
-        objective: m.objectiveText,
-        isZoneNewlyRescued,
-        isIslandNewlyRescued,
-      };
     }
 
     // Evaluate Achievements on Level Victory (No Damage, Boss Slayer, Crystals, Speed, etc.)
